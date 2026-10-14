@@ -245,7 +245,7 @@ export function AvailabilityCalendar() {
     return (
       <EmptyState
         title="No hay horarios configurados para esta semana"
-        detail="Puede significar que la cancha está cerrada, que el horario todavía no fue configurado o que la fuente de datos no devolvió una cancha activa."
+        detail="Puede significar que la cancha está cerrada o que todavía no hay bloques publicados para estos días."
       />
     );
   }
