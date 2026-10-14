@@ -14,6 +14,7 @@ const required = [
   "supabase/migrations/202610140007_phase8_whatsapp.sql",
   "supabase/migrations/202610140008_fix_customer_phone_e164.sql",
   "supabase/migrations/202610140009_advisor_hardening.sql",
+  "supabase/migrations/202610140010_move_btree_gist_extension.sql",
   "supabase/tests/phase3.sql",
   "supabase/tests/phase4.sql",
   "supabase/tests/phase5.sql",
