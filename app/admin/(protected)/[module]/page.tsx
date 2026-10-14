@@ -1,0 +1,32 @@
+import { notFound } from "next/navigation";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+
+const modules = {
+  whatsapp: { title: "WhatsApp", phase: "Fase 8", detail: "Notificaciones oficiales y automatizaciones posteriores." },
+  reportes: { title: "Reportes", phase: "Fase posterior", detail: "Reportes derivados de información real, sin métricas ficticias." },
+  configuracion: { title: "Configuración", phase: "Fase posterior", detail: "Ajustes administrativos del negocio." },
+} as const;
+
+type ModuleKey = keyof typeof modules;
+
+export default async function PendingAdminModule({ params }: { params: Promise<{ module: string }> }) {
+  const resolved = await params;
+  if (!(resolved.module in modules)) notFound();
+  const module = modules[resolved.module as ModuleKey];
+
+  return (
+    <>
+      <header className="admin-topbar">
+        <div><span className="eyebrow">MÓDULO ADMINISTRATIVO</span><h1>{module.title}</h1></div>
+        <Badge tone="neutral">Pendiente</Badge>
+      </header>
+      <Card className="admin-pending-module">
+        <Badge tone="info">{module.phase}</Badge>
+        <h2>Todavía no implementado funcionalmente.</h2>
+        <p>{module.detail}</p>
+        <p>No se muestran datos ficticios ni acciones simuladas como si fueran operaciones reales.</p>
+      </Card>
+    </>
+  );
+}
