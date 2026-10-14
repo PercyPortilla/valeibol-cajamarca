@@ -25,7 +25,7 @@ export default async function HomePage() {
   return (
     <>
       <Header />
-      <main>
+      <main className="commercial-main">
         <section className="hero hero--commercial" id="inicio">
           <div className="hero-commercial__media">
             <CourtVisual />
