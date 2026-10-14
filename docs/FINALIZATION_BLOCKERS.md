@@ -26,7 +26,10 @@ Un bloqueo en otro bloque no impide integrar uno ya terminado. Un bloque todaví
 Evidencia:
 
 - `Supabase list_projects` devuelve exactamente `{"projects":[]}`.
-- No existe un `project_id` verificable en esta sesión.
+- `Supabase list_organizations` sí devuelve la organización `PercyPort` (`cplqvhqcujvocjsdklmq`).
+- La organización está en plan `free` / `tier_free`.
+- `get_cost(type=project)` devuelve `amount: 0`, `recurrence: monthly`.
+- No existe un `project_id` remoto todavía; crear el proyecto requiere aprobación explícita del usuario aunque el costo sea $0/mes.
 - No se inventó ni se infirió un destino.
 - En PR #4 están preparados el baseline transversal y validaciones de:
   - `SECURITY DEFINER` + `search_path = public, pg_temp`;
