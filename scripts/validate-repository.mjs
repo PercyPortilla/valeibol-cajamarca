@@ -26,6 +26,7 @@ const required = [
   "tests/production-hardening.test.ts",
   "scripts/validate-phase7.mjs",
   "scripts/smoke-supabase.mjs",
+  "scripts/smoke-production.mjs",
   "scripts/integration-phase4-concurrency.mjs",
   "scripts/integration-phase5-auth.mjs",
   "scripts/integration-phase6-concurrency.mjs",
@@ -33,6 +34,7 @@ const required = [
   "scripts/validate-production-hardening.mjs",
   "scripts/validate-supabase-security.mjs",
   "app/api/public/reservation-requests/route.ts",
+  "app/privacidad/page.tsx",
   "lib/data/supabase/service.ts",
 ];
 
