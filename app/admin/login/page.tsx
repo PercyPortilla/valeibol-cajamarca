@@ -36,10 +36,10 @@ export default async function AdminLoginPage() {
         <div className="auth-card__title">
           <span className="eyebrow">ÁREA PRIVADA</span>
           <h1 id="admin-login-title">Acceso administrativo seguro.</h1>
-          <p>Inicia sesión con la cuenta autorizada en Supabase Auth. No existe un modo demo para autenticación administrativa.</p>
+          <p>Inicia sesión con una cuenta administrativa autorizada para gestionar la operación.</p>
         </div>
         <AdminLoginForm />
-        <p className="auth-note">Las sesiones se validan también en servidor y la base de datos aplica RLS por perfil y rol.</p>
+        <p className="auth-note">El acceso se valida según el perfil y rol de cada usuario.</p>
       </section>
     </main>
   );
