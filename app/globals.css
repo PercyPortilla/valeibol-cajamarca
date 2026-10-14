@@ -2421,3 +2421,70 @@ button { cursor: pointer; }
   .commercial-footer__bottom span { margin-left: 0; }
   .commercial-footer__bottom a { margin-left: auto; }
 }
+
+
+/* UI commercial reference · contraste final */
+.site-header--commercial .site-nav__reserve,
+.commercial-main .button--primary {
+  background: #c94a00;
+  color: #fff;
+}
+
+.site-header--commercial .site-nav__reserve:hover,
+.commercial-main .button--primary:hover {
+  background: #a93f00;
+  color: #fff;
+}
+
+.button--whatsapp,
+.footer-whatsapp {
+  background: #087a47;
+  color: #fff;
+}
+
+.button--whatsapp:hover,
+.footer-whatsapp:hover {
+  background: #066238;
+}
+
+.commercial-main .slot-cta {
+  background: #087a47;
+  color: #fff;
+}
+
+.commercial-main .slot-cta:hover {
+  background: #066238;
+}
+
+.commercial-main .badge--neutral {
+  color: #435268;
+  background: #edf1f5;
+  border: 1px solid #d8e0e9;
+}
+
+.commercial-main .badge--success {
+  color: #17613f;
+  background: #e5f6ed;
+  border: 1px solid #c4e7d3;
+}
+
+.commercial-main .badge--warning {
+  color: #8a4300;
+  background: #fff0e2;
+  border: 1px solid #f1cfb1;
+}
+
+.gallery-placeholder__number {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(8,31,57,.72);
+}
+
+.commercial-footer__bottom {
+  color: #a7b7ca;
+}
+
+.commercial-footer__bottom a,
+.commercial-footer__brand p {
+  color: #a7b7ca;
+}
