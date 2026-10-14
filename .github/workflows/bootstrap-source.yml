@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore source tree once
+      - name: Restore and validate source tree once
         shell: bash
         run: |
           set -euo pipefail
@@ -26,36 +26,18 @@ jobs:
           fi
 
           test -d .bootstrap
-          cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08             | tr -d '\r\n'             | base64 -d > /tmp/valeibol.tar.gz
+          cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08 \
+            | tr -d '\r\n' \
+            | base64 -d > /tmp/valeibol.tar.gz
           tar -xzf /tmp/valeibol.tar.gz -C .
 
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("components/booking/ReservationDialog.tsx")
-          s = p.read_text()
-          s = s.replace(
-              'const [pricingRates, setPricingRates] = useState({\n'
-              '    withoutLights: businessConfig.pricing.withoutLights,\n'
-              '    withLights: businessConfig.pricing.withLights,\n'
-              '  });',
-              'const [pricingRates, setPricingRates] = useState<{ withoutLights: number; withLights: number }>({\n'
-              '    withoutLights: businessConfig.pricing.withoutLights,\n'
-              '    withLights: businessConfig.pricing.withLights,\n'
-              '  });'
-          )
-          s = s.replace(
-              'const [pricingCurrency, setPricingCurrency] = useState(businessConfig.currency);',
-              'const [pricingCurrency, setPricingCurrency] = useState<string>(businessConfig.currency);'
-          )
-          p.write_text(s)
-          PY
-
-          rm -rf .bootstrap
-          rm -f bootstrap.mjs scripts/bootstrap.sh
+          node patch-build.mjs
 
           npm install --no-audit --no-fund
           npm run typecheck
           npm run build
+
+          rm -rf .bootstrap
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
