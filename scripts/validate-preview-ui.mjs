@@ -104,6 +104,7 @@ try {
           id: violation.id,
           impact: violation.impact,
           nodes: violation.nodes.length,
+          targets: violation.nodes.slice(0, 12).map((node) => node.target.join(" ")),
         }));
     });
     record(axeResult.length === 0, viewport, "Axe serious/critical", JSON.stringify(axeResult));
