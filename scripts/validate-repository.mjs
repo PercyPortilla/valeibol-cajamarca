@@ -12,6 +12,7 @@ const required = [
   "supabase/migrations/202610140005_phase7_customers_pricing_metrics.sql",
   "supabase/migrations/202610140006_phase7_production_hardening.sql",
   "supabase/migrations/202610140007_phase8_whatsapp.sql",
+  "supabase/migrations/202610140008_fix_customer_phone_e164.sql",
   "supabase/tests/phase3.sql",
   "supabase/tests/phase4.sql",
   "supabase/tests/phase5.sql",
