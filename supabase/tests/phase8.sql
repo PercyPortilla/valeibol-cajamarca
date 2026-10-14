@@ -3,7 +3,7 @@
 begin;
 
 -- La normalización conserva E.164 válido y admite formato peruano local.
-do $
+do $$
 begin
   if public.phase8_normalize_peru_phone('+51911111118') <> '+51911111118' then
     raise exception 'FAIL: E.164 válido no se conserva';
@@ -11,10 +11,10 @@ begin
   if public.phase8_normalize_peru_phone('911 111 118') <> '+51911111118' then
     raise exception 'FAIL: teléfono peruano local no se normaliza';
   end if;
-end $;
+end $$;
 
 -- El outbox contiene PII operativa y nunca debe ser visible para navegador.
-do $
+do $$
 begin
   if has_table_privilege('anon', 'public.whatsapp_outbox', 'SELECT')
      or has_table_privilege('authenticated', 'public.whatsapp_outbox', 'SELECT')
@@ -92,7 +92,7 @@ insert into public.whatsapp_outbox (
   now() - interval '10 minutes'
 );
 
-do $
+do $$
 declare
   n integer;
 begin
@@ -103,7 +103,7 @@ begin
   if n <> 1 then
     raise exception 'FAIL: mensaje processing atascado no fue recuperado';
   end if;
-end $;
+end $$;
 
 update public.reservations
 set status = 'confirmed'
