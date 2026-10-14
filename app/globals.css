@@ -2488,3 +2488,71 @@ button { cursor: pointer; }
 .commercial-footer__brand p {
   color: #a7b7ca;
 }
+
+
+/* UI commercial reference · mapa y targets */
+.site-nav--commercial > a:not(.site-nav__reserve),
+.commercial-footer__nav a {
+  min-width: 44px;
+  padding-inline: 5px;
+  justify-content: center;
+}
+
+.map-card {
+  position: relative;
+}
+
+.map-card__label {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 13px;
+  background: rgba(255,255,255,.94);
+  color: #10264c;
+  box-shadow: 0 10px 30px rgba(13,38,69,.18);
+  backdrop-filter: blur(10px);
+}
+
+.map-card__label > span {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #d34a00;
+  color: #fff;
+  font-weight: 900;
+}
+
+.map-card__label div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.map-card__label strong {
+  color: #10264c;
+  font-size: 13px;
+}
+
+.map-card__label small {
+  color: #4d6078;
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+@media (max-width: 430px) {
+  .map-card__label {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+}
