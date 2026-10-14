@@ -1091,7 +1091,7 @@ button { cursor: pointer; }
   .admin-slot__actions { display: grid; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   .admin-week-navigation { grid-template-columns: 1fr 1fr; }
   .admin-week-navigation > div { grid-column: 1 / -1; grid-row: 1; }
   .admin-schedule-toolbar { align-items: stretch; flex-direction: column; }
@@ -1190,4 +1190,87 @@ button { cursor: pointer; }
 @media (max-width: 430px) {
   .phase7-summary-grid, .phase7-metric-grid, .phase7-period-filter, .phase7-mini-stats { grid-template-columns: 1fr; }
   .phase7-card-head { flex-direction: column; }
+}
+
+
+/* Commercial navigation, touch targets and responsive refinements */
+.site-nav__reserve {
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: var(--orange);
+  color: #111;
+  font-weight: 850;
+}
+.site-nav__reserve:hover { color: #111; background: var(--orange-2); }
+
+.week-nav-button,
+.today-button,
+.slot-cta,
+.admin-nav-item,
+.admin-court-tab,
+.admin-mini-action,
+.admin-slot__quick-actions button,
+.admin-logout {
+  min-height: 44px;
+}
+.time-slot--compact .slot-cta { min-height: 44px; }
+.booking-dialog__close,
+.icon-button { width: 44px; height: 44px; }
+
+@media (max-width: 960px) {
+  .site-header__inner {
+    min-height: auto;
+    padding-block: 10px;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+  .site-nav {
+    order: 2;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    gap: 6px;
+  }
+  .site-nav a:not(.site-nav__admin) { display: flex; }
+  .site-nav .site-nav__secondary { display: none; }
+  .site-nav a {
+    min-height: 44px;
+    padding: 0 10px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    text-align: center;
+  }
+  .site-nav__reserve {
+    background: var(--orange) !important;
+    border-color: transparent !important;
+  }
+  .site-nav__admin {
+    color: var(--muted);
+    background: transparent !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .site-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .site-nav__admin {
+    grid-column: 1 / -1;
+    min-height: 40px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .site-header__inner { padding-inline: 0; }
+  .site-nav { gap: 5px; }
+  .site-nav a { padding-inline: 7px; font-size: 11px; }
+}
+
+@media (max-width: 360px) {
+  .site-nav a { padding-inline: 5px; font-size: 10px; }
 }
