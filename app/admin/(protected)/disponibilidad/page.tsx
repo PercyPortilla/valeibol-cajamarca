@@ -55,7 +55,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
         <div>
           <span className="eyebrow">OPERACIÓN DE AGENDA</span>
           <h1>Pizarra administrativa</h1>
-          <p className="admin-subtitle">Reserva, confirma, cancela y bloquea horarios con validación real en PostgreSQL. La PII existe únicamente dentro de este panel protegido.</p>
+          <p className="admin-subtitle">Reserva, confirma, cancela y bloquea horarios con validaciones de disponibilidad. Los datos de clientes solo se muestran a usuarios autorizados.</p>
         </div>
         <div className="admin-topbar__badges">
           <Badge tone={isProvisional ? "warning" : "success"}>{isProvisional ? "Horario provisional" : "Horario confirmado"}</Badge>
