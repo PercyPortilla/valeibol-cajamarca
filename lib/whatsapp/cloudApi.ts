@@ -55,11 +55,12 @@ export function hasWhatsAppServerConfig() {
   );
 }
 
-function normalizeRecipient(value: string) {
-  if (!/^\\+[1-9][0-9]{7,14}$/.test(value)) {
+export function normalizeWhatsAppRecipient(value: string) {
+  const normalized = value.trim();
+  if (!/^[+][1-9][0-9]{7,14}$/.test(normalized)) {
     throw new Error("Invalid WhatsApp recipient.");
   }
-  return value.slice(1);
+  return normalized.slice(1);
 }
 
 export async function sendWhatsAppTemplate(
@@ -71,7 +72,7 @@ export async function sendWhatsAppTemplate(
 
   const body = {
     messaging_product: "whatsapp",
-    to: normalizeRecipient(input.recipientE164),
+    to: normalizeWhatsAppRecipient(input.recipientE164),
     type: "template",
     template: {
       name: templateName,
