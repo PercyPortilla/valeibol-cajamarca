@@ -46,6 +46,7 @@ button { cursor: pointer; }
 .brand strong { font-size: 16px; letter-spacing: -0.02em; }
 .brand small { color: var(--muted); font-size: 12px; margin-top: 1px; }
 .site-nav { display: flex; align-items: center; gap: 22px; color: #c0cfdb; font-size: 14px; }
+.site-nav a { min-height: 44px; display: inline-flex; align-items: center; }
 .site-nav a:hover { color: #fff; }
 .site-nav__admin { border: 1px solid var(--border-strong); border-radius: 999px; padding: 10px 14px; }
 
@@ -149,7 +150,7 @@ button { cursor: pointer; }
 .admin-sidebar { position: sticky; top: 0; height: 100vh; padding: 22px 16px; border-right: 1px solid var(--border); background: #09131d; display: flex; flex-direction: column; }
 .brand--admin { padding: 0 7px 22px; border-bottom: 1px solid var(--border); }
 .admin-sidebar nav { display: grid; gap: 4px; margin-top: 18px; }
-.admin-nav-item { min-height: 42px; padding: 0 12px; border: 0; border-radius: 10px; text-align: left; color: #91a4b5; background: transparent; }
+.admin-nav-item { min-height: 44px; padding: 0 12px; border: 0; border-radius: 10px; text-align: left; color: #91a4b5; background: transparent; }
 .admin-nav-item--active { color: #fff; background: var(--blue-soft); box-shadow: inset 3px 0 0 var(--blue); }
 .admin-exit { margin-top: auto; color: var(--muted); font-size: 13px; padding: 12px; }
 .admin-content { padding: 34px; overflow: hidden; }
@@ -178,7 +179,7 @@ button { cursor: pointer; }
   .site-header__inner { min-height: 68px; }.site-nav__admin { padding: 9px 11px; font-size: 12px; }.brand small { display: none; }
   .hero { min-height: auto; padding: 38px 0 34px; gap: 24px; }.hero__copy h1 { font-size: 46px; margin: 16px 0; }.hero__copy > p { font-size: 16px; }.hero__actions { display: grid; grid-template-columns: 1fr 1fr; }.hero__trust { gap: 16px; }.court-visual { min-height: 310px; border-radius: 20px; }.court-visual__court { height: 190px; bottom: 60px; }.court-visual__caption { font-size: 11px; }
   .section { padding-block: 52px; }.section-heading { align-items: stretch; flex-direction: column; }.section-heading h2 { font-size: 34px; }.week-controls { align-self: stretch; justify-content: space-between; }.day-tabs { margin-inline: -20px; padding-inline: 20px; }.slot-preview-grid { grid-template-columns: 1fr 1fr; }.price-grid { grid-template-columns: 1fr; }.price-card { min-height: 200px; }.site-footer__grid { grid-template-columns: 1fr; }
-  .admin-shell { display: block; }.admin-sidebar { position: static; height: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); }.brand--admin { min-width: 58px; border: 0; padding: 0; }.brand--admin .brand__mark { width: 38px; height: 38px; }.admin-sidebar nav { display: flex; margin: 0 0 0 10px; }.admin-nav-item { min-width: 42px; text-align: center; }.admin-exit { display: none; }.admin-content { padding: 18px 12px 32px; }.admin-topbar { align-items: stretch; flex-direction: column; }.metric-grid { grid-template-columns: 1fr 1fr; }.admin-board__header { align-items: stretch; flex-direction: column; }
+  .admin-shell { display: block; }.admin-sidebar { position: static; height: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); }.brand--admin { min-width: 58px; border: 0; padding: 0; }.brand--admin .brand__mark { width: 38px; height: 38px; }.admin-sidebar nav { display: flex; margin: 0 0 0 10px; }.admin-nav-item { min-width: 44px; text-align: center; }.admin-exit { display: none; }.admin-content { padding: 18px 12px 32px; }.admin-topbar { align-items: stretch; flex-direction: column; }.metric-grid { grid-template-columns: 1fr 1fr; }.admin-board__header { align-items: stretch; flex-direction: column; }
 }
 
 /* =========================================================
