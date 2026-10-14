@@ -225,6 +225,13 @@ export default async function HomePage() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               />
+              <a className="map-card__label" href={mapsHref} target="_blank" rel="noreferrer">
+                <span aria-hidden="true">⌖</span>
+                <div>
+                  <strong>{businessConfig.name}</strong>
+                  <small>{businessConfig.address}</small>
+                </div>
+              </a>
             </div>
           </div>
         </section>
