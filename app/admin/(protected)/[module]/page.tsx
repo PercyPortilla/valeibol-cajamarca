@@ -13,18 +13,18 @@ type ModuleKey = keyof typeof modules;
 export default async function PendingAdminModule({ params }: { params: Promise<{ module: string }> }) {
   const resolved = await params;
   if (!(resolved.module in modules)) notFound();
-  const module = modules[resolved.module as ModuleKey];
+  const moduleConfig = modules[resolved.module as ModuleKey];
 
   return (
     <>
       <header className="admin-topbar">
-        <div><span className="eyebrow">MÓDULO ADMINISTRATIVO</span><h1>{module.title}</h1></div>
+        <div><span className="eyebrow">MÓDULO ADMINISTRATIVO</span><h1>{moduleConfig.title}</h1></div>
         <Badge tone="neutral">Pendiente</Badge>
       </header>
       <Card className="admin-pending-module">
-        <Badge tone="info">{module.phase}</Badge>
+        <Badge tone="info">{moduleConfig.phase}</Badge>
         <h2>Todavía no implementado funcionalmente.</h2>
-        <p>{module.detail}</p>
+        <p>{moduleConfig.detail}</p>
         <p>No se muestran datos ficticios ni acciones simuladas como si fueran operaciones reales.</p>
       </Card>
     </>
