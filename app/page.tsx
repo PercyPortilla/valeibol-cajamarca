@@ -26,24 +26,53 @@ export default async function HomePage() {
     <>
       <Header />
       <main>
-        <section className="hero shell">
-          <div className="hero__copy">
-            <Badge tone="info">Cancha cubierta · Cajamarca</Badge>
-            <h1>Mira primero qué hora está libre.</h1>
-            <p>
-              Consulta la semana completa, cambia de día desde tu celular y encuentra un horario disponible antes de solicitarlo.
-            </p>
-            <div className="hero__actions">
-              <a className="button button--primary" href="#disponibilidad">Ver disponibilidad</a>
-              <a className="button button--secondary" href="#precios">Ver precios</a>
-            </div>
-            <div className="hero__trust" aria-label="Datos principales">
-              <span><strong>{pricingAvailable ? formatMoney(pricing.withoutLights!, pricing.currency) : "—"}</strong> sin luz / hora</span>
-              <span><strong>{pricingAvailable ? formatMoney(pricing.withLights!, pricing.currency) : "—"}</strong> con luz / hora</span>
-              <span><strong>7 días</strong> visibles por semana</span>
+        <section className="hero hero--commercial" id="inicio">
+          <div className="hero-commercial__media">
+            <CourtVisual />
+          </div>
+          <div className="hero-commercial__shade" aria-hidden="true" />
+          <div className="shell hero-commercial__inner">
+            <div className="hero-commercial__copy">
+              <span className="hero-commercial__eyebrow">CLUB DE VOLEIBOL EN CAJAMARCA</span>
+              <h1>Reserva tu cancha <span>de vóley</span> en Cajamarca</h1>
+              <p>
+                Revisa horarios disponibles, conoce la tarifa vigente y envía tu solicitud de reserva en pocos pasos.
+              </p>
+              <div className="hero__actions hero-commercial__actions">
+                <a className="button button--primary" href="#disponibilidad">
+                  <span aria-hidden="true">▣</span>
+                  Reservar ahora
+                </a>
+                <a className="button button--hero-outline" href={phoneHref}>
+                  <span aria-hidden="true">☎</span>
+                  Llamar
+                </a>
+                <a className="button button--whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
+                  <span aria-hidden="true">●</span>
+                  WhatsApp
+                </a>
+              </div>
             </div>
           </div>
-          <CourtVisual />
+        </section>
+
+        <section className="trust-strip shell" aria-label="Información principal">
+          <div className="trust-item">
+            <span className="trust-item__icon" aria-hidden="true">✓</span>
+            <div><strong>Reserva por hora</strong><small>Elige un bloque disponible</small></div>
+          </div>
+          <div className="trust-item">
+            <span className="trust-item__icon" aria-hidden="true">◷</span>
+            <div><strong>Disponibilidad en línea</strong><small>Consulta antes de solicitar</small></div>
+          </div>
+          <div className="trust-item">
+            <span className="trust-item__icon" aria-hidden="true">⌖</span>
+            <div><strong>{businessConfig.address}</strong><small>Ubicación en Cajamarca</small></div>
+          </div>
+          <div className="trust-item">
+            <span className="trust-item__icon" aria-hidden="true">☎</span>
+            <div><strong>{businessConfig.phone}</strong><small>Llámanos o escríbenos por WhatsApp</small></div>
+          </div>
         </section>
 
         <section className="section section--raised availability-section" id="disponibilidad">
