@@ -37,12 +37,12 @@ export default async function AdminDashboardPage() {
           <Card className="admin-status-card"><span className="metric-label">Ocupación de agenda · mes</span><strong>{metrics.occupancyPercent.toFixed(1)}%</strong><small>Incluye intervalos que bloquean agenda.</small></Card>
         </div>
       ) : (
-        <Card className="admin-status-card"><span className="metric-label">Resumen</span><strong>No disponible</strong><small>No se inventan métricas si Supabase no responde.</small></Card>
+        <Card className="admin-status-card"><span className="metric-label">Resumen</span><strong>No disponible</strong><small>No pudimos cargar las métricas operativas en este momento.</small></Card>
       )}
 
       <div className="admin-dashboard-actions phase7-dashboard-actions">
         <Card className="admin-board admin-readonly-callout"><div><Badge tone="success">Operativa</Badge><h2>Pizarra semanal</h2><p>Agenda, pending, confirmaciones, cancelaciones y bloqueos.</p></div><Link className="button button--primary" href="/admin/disponibilidad">Abrir pizarra</Link></Card>
-        <Card className="admin-board admin-readonly-callout"><div><Badge tone="info">Clientes</Badge><h2>Clientes</h2><p>PII privada, historial y agregados derivados de reservas reales.</p></div><Link className="button button--secondary" href="/admin/clientes">Ver clientes</Link></Card>
+        <Card className="admin-board admin-readonly-callout"><div><Badge tone="info">Clientes</Badge><h2>Clientes</h2><p>Datos privados, historial y agregados derivados de reservas reales.</p></div><Link className="button button--secondary" href="/admin/clientes">Ver clientes</Link></Card>
         <Card className="admin-board admin-readonly-callout"><div><Badge tone="info">Precios</Badge><h2>Precios</h2><p>Tarifas vigentes/versionadas. {canPerformPhase7Operation(context.role, "manage_pricing") ? "Tu rol puede administrar vigencias." : "Tu rol mantiene permisos limitados."}</p></div><Link className="button button--secondary" href="/admin/precios">Ver precios</Link></Card>
         <Card className="admin-board admin-readonly-callout"><div><Badge tone="warning">Sin pagos</Badge><h2>Actividad y valor</h2><p>Métricas por periodo con semántica operativa rigurosa.</p></div><Link className="button button--secondary" href="/admin/ingresos">Ver actividad</Link></Card>
       </div>
