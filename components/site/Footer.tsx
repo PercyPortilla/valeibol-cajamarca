@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { businessConfig } from "@/config/business";
 
 export function Footer() {
@@ -12,7 +13,7 @@ export function Footer() {
           <span>Contacto</span>
           <a href={`tel:+51${businessConfig.phone.replace(/\s/g, "")}`}><strong>{businessConfig.phone}</strong></a>
         </div>
-        <small>Consulta disponibilidad, precios y contacto antes de solicitar tu horario.</small>
+        <small>Consulta disponibilidad, precios y contacto antes de solicitar tu horario. <Link href="/privacidad">Privacidad</Link></small>
       </div>
     </footer>
   );
