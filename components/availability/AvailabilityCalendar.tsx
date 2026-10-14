@@ -78,7 +78,7 @@ function DataSourceNotice({ snapshot }: { snapshot: AvailabilityWeekSnapshot }) 
     <div className={`mock-notice ${snapshot.source === "supabase" ? "mock-notice--connected" : ""}`} role="note">
       <span className="mock-notice__icon" aria-hidden="true">i</span>
       <div>
-        <strong>{snapshot.sourceLabel}</strong>
+        <strong>{snapshot.source === "mock-provisional" ? "Disponibilidad referencial" : snapshot.isProvisional ? "Disponibilidad por confirmar" : "Disponibilidad actualizada"}</strong>
         <p>
           {snapshot.source === "mock-provisional"
             ? "Esta agenda es referencial. Para confirmar un horario, utiliza el contacto directo del negocio."
