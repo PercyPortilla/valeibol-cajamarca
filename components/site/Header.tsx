@@ -3,22 +3,29 @@ import { businessConfig } from "@/config/business";
 
 export function Header() {
   return (
-    <header className="site-header">
+    <header className="site-header site-header--commercial">
       <div className="shell site-header__inner">
-        <Link className="brand" href="/" aria-label={`${businessConfig.name}, inicio`}>
-          <span className="brand__mark">V</span>
-          <span>
-            <strong>{businessConfig.shortName}</strong>
-            <small>Cancha de vóley · {businessConfig.city}</small>
+        <Link className="brand brand--commercial" href="#inicio" aria-label={`${businessConfig.name}, inicio`}>
+          <span className="brand__symbol" aria-hidden="true">◉</span>
+          <span className="brand__word">
+            <small>mi</small>
+            <strong>valeibol</strong>
+            <em>CLUB DE VOLEIBOL</em>
           </span>
         </Link>
-        <nav className="site-nav" aria-label="Principal">
-          <a className="site-nav__priority" href="#disponibilidad">Disponibilidad</a>
-          <a className="site-nav__priority" href="#precios">Precios</a>
-          <a className="site-nav__reserve" href="#disponibilidad">Reservar</a>
-          <a className="site-nav__secondary" href="#servicios">Servicios</a>
-          <a className="site-nav__secondary" href="#ubicacion">Ubicación</a>
-          <Link className="site-nav__admin" href="/admin/login">Administración</Link>
+
+        <nav className="site-nav site-nav--commercial" aria-label="Principal">
+          <a href="#inicio">Inicio</a>
+          <a href="#galeria">Galería</a>
+          <a href="#disponibilidad">Horarios</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#precios">Precios</a>
+          <a href="#ubicacion">Ubicación</a>
+          <a href="#contacto">Contacto</a>
+          <a className="site-nav__reserve" href="#disponibilidad">
+            <span aria-hidden="true">▣</span>
+            Reservar ahora
+          </a>
         </nav>
       </div>
     </header>
