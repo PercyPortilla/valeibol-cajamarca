@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { AdminRole } from "../../lib/auth.ts";
+import type { AdminPricingRule } from "../../lib/admin/phase7.ts";
 import {
   ADMIN_BLOCK_REASONS,
   adminSourceLabel,
@@ -19,7 +20,6 @@ import {
   type AdminScheduleSnapshot,
 } from "../../lib/admin/schedule.ts";
 import { calculateBookingPreview, formatMoney } from "../../lib/booking.ts";
-import { businessConfig } from "../../config/business.ts";
 import {
   cancelReservationAction,
   confirmReservationAction,
@@ -61,6 +61,49 @@ function sourceLabel(source: AdminReservationScheduleEntry["source"]) {
   return adminSourceLabel(source);
 }
 
+function adminDayTabId(date: string) {
+  return `admin-day-tab-${date}`;
+}
+
+function adminDayPanelId(date: string) {
+  return `admin-day-panel-${date}`;
+}
+
+function pricingForDate(pricingRules: AdminPricingRule[], courtId: string, date: string) {
+  const applicable = pricingRules
+    .filter((rule) => rule.courtId === courtId
+      && rule.isActive
+      && rule.effectiveFrom <= date
+      && (!rule.effectiveUntil || rule.effectiveUntil >= date))
+    .sort((left, right) => right.effectiveFrom.localeCompare(left.effectiveFrom));
+
+  const withoutLights = applicable.find((rule) => rule.lighting === "without_lights");
+  const withLights = applicable.find((rule) => rule.lighting === "with_lights");
+  if (!withoutLights || !withLights || withoutLights.currency !== withLights.currency) return null;
+
+  return {
+    rates: {
+      withoutLights: withoutLights.hourlyRate,
+      withLights: withLights.hourlyRate,
+    },
+    currency: withoutLights.currency,
+  };
+}
+
+function calculateAdminPricePreview(
+  pricingRules: AdminPricingRule[],
+  courtId: string,
+  date: string,
+  start: string,
+  end: string,
+  lighting: "without_lights" | "with_lights",
+) {
+  const pricing = pricingForDate(pricingRules, courtId, date);
+  if (!pricing) return null;
+  const preview = calculateBookingPreview(start, end, lighting, pricing.rates);
+  return { ...preview, currency: pricing.currency };
+}
+
 function ActionFeedback({ result }: { result: AdminActionResult | null }) {
   if (!result) return null;
   return (
@@ -74,10 +117,12 @@ export function AdminScheduleBoard({
   snapshot,
   timezone,
   role,
+  pricingRules,
 }: {
   snapshot: AdminScheduleSnapshot;
   timezone: string;
   role: AdminRole;
+  pricingRules: AdminPricingRule[];
 }) {
   const router = useRouter();
   const [activeCourtId, setActiveCourtId] = useState(snapshot.courts[0]?.courtId ?? "");
@@ -94,6 +139,21 @@ export function AdminScheduleBoard({
     () => new Map(days.map((day) => [day.date, buildAdminBoardSlots(day, timezone)])),
     [days, timezone],
   );
+
+  function handleMobileDayKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
+    if (!days.length) return;
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % days.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + days.length) % days.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = days.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextDay = days[nextIndex];
+    setSelectedDate(nextDay.date);
+    window.requestAnimationFrame(() => document.getElementById(adminDayTabId(nextDay.date))?.focus());
+  }
 
   function completeAction(task: () => Promise<AdminActionResult>) {
     setFeedback(null);
@@ -249,11 +309,15 @@ export function AdminScheduleBoard({
         {days.map((day) => (
           <button
             key={day.date}
+            id={adminDayTabId(day.date)}
             type="button"
             role="tab"
             aria-selected={selectedDay?.date === day.date}
+            aria-controls={adminDayPanelId(day.date)}
+            tabIndex={selectedDay?.date === day.date ? 0 : -1}
             className={selectedDay?.date === day.date ? "admin-mobile-day admin-mobile-day--active" : "admin-mobile-day"}
             onClick={() => setSelectedDate(day.date)}
+            onKeyDown={(event) => handleMobileDayKeyDown(event, days.indexOf(day))}
           >
             <span>{shortDay(day.date)}</span>
             <strong>{dayMonth(day.date)}</strong>
@@ -262,7 +326,12 @@ export function AdminScheduleBoard({
       </div>
 
       {selectedDay ? (
-        <section className="admin-mobile-slot-list" aria-label={`Agenda de ${shortDay(selectedDay.date)} ${dayMonth(selectedDay.date)}`}>
+        <section
+          className="admin-mobile-slot-list"
+          id={adminDayPanelId(selectedDay.date)}
+          role="tabpanel"
+          aria-labelledby={adminDayTabId(selectedDay.date)}
+        >
           {(daySlots.get(selectedDay.date) ?? []).map((slot) => (
             <article className={statusClass(slot.status)} key={`mobile-${slot.id}`}>
               <div className="admin-slot__head"><span>{slot.start}–{slot.end}</span><b>{adminScheduleStatusLabel(slot.status)}</b></div>
@@ -283,6 +352,7 @@ export function AdminScheduleBoard({
           panel={panel}
           snapshot={snapshot}
           timezone={timezone}
+          pricingRules={pricingRules}
           pending={pending}
           onClose={() => setPanel(null)}
           onSubmit={(task) => completeAction(task)}
@@ -296,6 +366,7 @@ function AdminOperationPanel({
   panel,
   snapshot,
   timezone,
+  pricingRules,
   pending,
   onClose,
   onSubmit,
@@ -303,16 +374,52 @@ function AdminOperationPanel({
   panel: NonNullable<PanelState>;
   snapshot: AdminScheduleSnapshot;
   timezone: string;
+  pricingRules: AdminPricingRule[];
   pending: boolean;
   onClose: () => void;
   onSubmit: (task: () => Promise<AdminActionResult>) => void;
 }) {
+  const modalRef = useRef<HTMLElement | null>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusables = () => Array.from(modal.querySelectorAll<HTMLElement>(focusableSelector));
+    focusables()[0]?.focus();
+
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const elements = focusables();
+      if (!elements.length) {
+        event.preventDefault();
+        return;
+      }
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      restoreFocusRef.current?.focus();
+    };
   }, [onClose]);
 
   const editParts = panel.kind === "edit" ? getLocalDateTimeParts(panel.entry.startAt, timezone) : null;
@@ -326,7 +433,14 @@ function AdminOperationPanel({
   const [preview, setPreview] = useState(() => {
     if (panel.kind === "block") return null;
     try {
-      return calculateBookingPreview(initialStart, initialEnd, panel.kind === "edit" ? panel.entry.lighting : "without_lights");
+      return calculateAdminPricePreview(
+        pricingRules,
+        initialCourtId,
+        initialDate,
+        initialStart,
+        initialEnd,
+        panel.kind === "edit" ? panel.entry.lighting : "without_lights",
+      );
     } catch {
       return null;
     }
@@ -373,7 +487,10 @@ function AdminOperationPanel({
     if (panel.kind === "block") return;
     const data = new FormData(form);
     try {
-      setPreview(calculateBookingPreview(
+      setPreview(calculateAdminPricePreview(
+        pricingRules,
+        String(data.get("courtId") ?? ""),
+        String(data.get("date") ?? ""),
         String(data.get("startTime") ?? ""),
         String(data.get("endTime") ?? ""),
         String(data.get("lighting") ?? "without_lights") as "without_lights" | "with_lights",
@@ -387,7 +504,7 @@ function AdminOperationPanel({
 
   return (
     <div className="admin-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.currentTarget === event.target) onClose(); }}>
-      <section className="admin-operation-modal" role="dialog" aria-modal="true" aria-labelledby="admin-operation-title">
+      <section ref={modalRef} className="admin-operation-modal" role="dialog" aria-modal="true" aria-labelledby="admin-operation-title">
         <header>
           <div><span className="eyebrow">OPERACIÓN SEGURA</span><h2 id="admin-operation-title">{title}</h2></div>
           <button className="icon-button" type="button" aria-label="Cerrar" onClick={onClose}>×</button>
@@ -412,13 +529,13 @@ function AdminOperationPanel({
                 <label className="field"><span className="field__label">WhatsApp</span><input className="field__control" name="phoneE164" inputMode="tel" defaultValue={panel.kind === "edit" ? panel.entry.customerPhoneE164 ?? "" : ""} placeholder="935 059 868" required /></label>
               </div>
               <div className="admin-form-grid">
-                <label className="field"><span className="field__label">Modalidad</span><select className="field__control" name="lighting" defaultValue={panel.kind === "edit" ? panel.entry.lighting : "without_lights"}><option value="without_lights">Sin luz · S/{businessConfig.pricing.withoutLights}/h</option><option value="with_lights">Con luz · S/{businessConfig.pricing.withLights}/h</option></select></label>
+                <label className="field"><span className="field__label">Modalidad</span><select className="field__control" name="lighting" defaultValue={panel.kind === "edit" ? panel.entry.lighting : "without_lights"}><option value="without_lights">Sin luz</option><option value="with_lights">Con luz</option></select></label>
                 {panel.kind === "manual" ? <label className="field"><span className="field__label">Origen</span><select className="field__control" name="source" defaultValue="admin"><option value="admin">Panel administrativo</option><option value="phone">Llamada</option><option value="whatsapp">WhatsApp</option><option value="other">Otro</option></select></label> : null}
               </div>
-              <div className="admin-price-preview">
-                <span>Estimación visual</span>
-                <strong>{preview ? `${preview.durationHours} h · ${formatMoney(preview.total)}` : "Revisa el intervalo"}</strong>
-                <small>La base de datos vuelve a calcular tarifa y total. El navegador no puede imponer el precio.</small>
+              <div className="admin-price-preview" role="status" aria-live="polite">
+                <span>Estimación con tarifa vigente</span>
+                <strong>{preview ? `${preview.durationHours} h · ${formatMoney(preview.total, preview.currency)}` : "Tarifa vigente no disponible"}</strong>
+                <small>{preview ? `${formatMoney(preview.hourlyRate, preview.currency)}/h para la fecha y cancha seleccionadas.` : "La operación puede enviarse; el servidor validará la tarifa aplicable antes de guardar."}</small>
               </div>
             </>
           )}

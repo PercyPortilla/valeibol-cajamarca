@@ -1,5 +1,5 @@
 export function LoadingState({ label = "Cargando…" }: { label?: string }) {
-  return <div className="state-box state-box--loading">{label}</div>;
+  return <div className="state-box state-box--loading" role="status" aria-live="polite" aria-busy="true">{label}</div>;
 }
 
 export function EmptyState({ title, detail }: { title: string; detail: string }) {
@@ -13,7 +13,7 @@ export function EmptyState({ title, detail }: { title: string; detail: string })
 
 export function ErrorState({ title = "No pudimos cargar esta sección" }: { title?: string }) {
   return (
-    <div className="state-box state-box--error">
+    <div className="state-box state-box--error" role="alert">
       <strong>{title}</strong>
       <span>Intenta nuevamente en unos segundos.</span>
     </div>

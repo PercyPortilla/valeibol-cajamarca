@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import {
   addDays,
   businessTodayDateKey,
@@ -78,17 +78,25 @@ function DataSourceNotice({ snapshot }: { snapshot: AvailabilityWeekSnapshot }) 
     <div className={`mock-notice ${snapshot.source === "supabase" ? "mock-notice--connected" : ""}`} role="note">
       <span className="mock-notice__icon" aria-hidden="true">i</span>
       <div>
-        <strong>{snapshot.sourceLabel}</strong>
+        <strong>{snapshot.source === "mock-provisional" ? "Disponibilidad referencial" : snapshot.isProvisional ? "Disponibilidad por confirmar" : "Disponibilidad actualizada"}</strong>
         <p>
           {snapshot.source === "mock-provisional"
-            ? "Se está usando el fallback provisional porque no hay credenciales públicas de Supabase configuradas. Estos horarios y estados son demostrativos y no representan reservas reales de Valeibol."
+            ? "Esta agenda es referencial. Para confirmar un horario, utiliza el contacto directo del negocio."
             : snapshot.isProvisional
-              ? `La disponibilidad proviene de Supabase${court ? ` para ${court.courtName}` : ""}, pero el horario de apertura continúa marcado como provisional hasta que el propietario lo confirme.`
-              : `La disponibilidad proviene de Supabase${court ? ` para ${court.courtName}` : ""}. La vista pública solo recibe intervalos sanitizados, nunca datos personales de clientes.`}
+              ? `Consulta la disponibilidad${court ? ` de ${court.courtName}` : ""}. Algunos horarios pueden requerir confirmación antes de reservar.`
+              : `Disponibilidad actualizada${court ? ` para ${court.courtName}` : ""}. Selecciona un bloque libre para enviar tu solicitud.`}
         </p>
       </div>
     </div>
   );
+}
+
+function dayTabId(date: string) {
+  return `availability-day-tab-${date}`;
+}
+
+function dayPanelId(date: string) {
+  return `availability-day-panel-${date}`;
 }
 
 export function AvailabilityCalendar() {
@@ -193,6 +201,21 @@ export function AvailabilityCalendar() {
     setReservationSelection(null);
   }
 
+  function handleMobileDayKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (!days.length) return;
+    let nextIndex = index;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % days.length;
+    else if (event.key === "ArrowLeft") nextIndex = (index - 1 + days.length) % days.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = days.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextDay = days[nextIndex];
+    setSelectedDate(nextDay.date);
+    window.requestAnimationFrame(() => document.getElementById(dayTabId(nextDay.date))?.focus());
+  }
+
   function openReservation(slot: AvailabilitySlot, daySlots: AvailabilitySlot[]) {
     if (!snapshot || !activeCourt || slot.status !== "available" || isPastLocalStart(slot.date, slot.start, activeCourt.timezone)) return;
     setReservationSelection({
@@ -225,7 +248,7 @@ export function AvailabilityCalendar() {
     return (
       <EmptyState
         title="No hay horarios configurados para esta semana"
-        detail="Puede significar que la cancha está cerrada, que el horario todavía no fue configurado o que la fuente de datos no devolvió una cancha activa."
+        detail="Puede significar que la cancha está cerrada o que todavía no hay bloques publicados para estos días."
       />
     );
   }
@@ -308,10 +331,14 @@ export function AvailabilityCalendar() {
               <button
                 className={`mobile-day ${isSelected ? "mobile-day--selected" : ""}`}
                 key={day.date}
+                id={dayTabId(day.date)}
                 type="button"
                 role="tab"
                 aria-selected={isSelected}
+                aria-controls={dayPanelId(day.date)}
+                tabIndex={isSelected ? 0 : -1}
                 onClick={() => setSelectedDate(day.date)}
+                onKeyDown={(event) => handleMobileDayKeyDown(event, days.indexOf(day))}
               >
                 <span>{day.weekdayShort}</span>
                 <strong>{day.dayNumber}</strong>
@@ -322,7 +349,12 @@ export function AvailabilityCalendar() {
         </div>
 
         {selectedDay ? (
-          <section className="mobile-slot-list" role="tabpanel" aria-label={`Horarios de ${selectedDay.weekdayLong}`}>
+          <section
+            className="mobile-slot-list"
+            id={dayPanelId(selectedDay.date)}
+            role="tabpanel"
+            aria-labelledby={dayTabId(selectedDay.date)}
+          >
             <div className="mobile-slot-list__title">
               <div>
                 <span className="eyebrow">DÍA SELECCIONADO</span>
@@ -345,7 +377,7 @@ export function AvailabilityCalendar() {
       </div>
 
       <p className="availability-footnote">
-        “Solicitar” solo aparece en horarios disponibles. Una solicitud real se crea como <strong>Pendiente</strong> y bloquea temporalmente ese intervalo para evitar dobles solicitudes; no se considera confirmada hasta aprobación del propietario.
+        “Solicitar” solo aparece en horarios disponibles. Tu solicitud queda <strong>Pendiente</strong> hasta que el negocio la confirme.
       </p>
 
       <ReservationDialog

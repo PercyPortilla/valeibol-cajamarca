@@ -243,7 +243,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
             <span className={`booking-result__icon ${result.persisted ? "booking-result__icon--success" : ""}`} aria-hidden="true">
               {result.persisted ? "✓" : "i"}
             </span>
-            <h3>{result.persisted ? "Solicitud recibida" : "Simulación completada"}</h3>
+            <h3>{result.persisted ? "Solicitud recibida" : "Solicitud no enviada"}</h3>
             {result.persisted ? (
               <>
                 <p>Tu solicitud quedó <strong>pendiente de aprobación del propietario</strong>. No es todavía una reserva confirmada.</p>
@@ -256,8 +256,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
               </>
             ) : (
               <>
-                <p><strong>No se guardó ninguna reserva.</strong> Supabase no está configurado y esta pantalla solo demuestra la interfaz y el cálculo.</p>
-                <p>Los estados del calendario en modo demo tampoco representan reservas reales de Valeibol.</p>
+                <p><strong>La reserva en línea no está disponible en este momento.</strong></p>
+                <p>Consulta el horario por WhatsApp o teléfono antes de acercarte.</p>
               </>
             )}
             <button className="button button--primary button--full" type="button" onClick={close}>Entendido</button>
@@ -265,8 +265,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
         ) : (
           <form className="booking-form" onSubmit={submit} noValidate>
             <div className={`booking-source-note ${demoMode ? "booking-source-note--demo" : ""}`} role="note">
-              <strong>{demoMode ? "Modo demostración · no guarda datos" : "Solicitud real conectada a Supabase"}</strong>
-              <span>{selection.scheduleIsProvisional ? "El horario de apertura sigue marcado como provisional hasta confirmación del propietario." : "La agenda está conectada a la fuente real de disponibilidad."}</span>
+              <strong>{demoMode ? "Reserva en línea temporalmente no disponible" : "Solicitud sujeta a confirmación"}</strong>
+              <span>{selection.scheduleIsProvisional ? "Algunos horarios pueden requerir confirmación antes de reservar." : "El horario seleccionado se verificará al enviar tu solicitud."}</span>
             </div>
 
             <dl className="booking-summary">
@@ -295,11 +295,11 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
               <legend>Servicio</legend>
               <label className={lighting === "without_lights" ? "lighting-option lighting-option--selected" : "lighting-option"}>
                 <input type="radio" name="lighting" value="without_lights" checked={lighting === "without_lights"} onChange={() => setLighting("without_lights")} />
-                <span><strong>Sin luz</strong><small>{pricingLoading ? "Cargando tarifa…" : `${formatMoney(pricingRates.withoutLights, pricingCurrency)} por hora`}</small></span>
+                <span><strong>Sin luz</strong><small>{pricingLoading ? "Consultando tarifa…" : pricingError ? "Tarifa por confirmar" : `${formatMoney(pricingRates.withoutLights, pricingCurrency)} por hora`}</small></span>
               </label>
               <label className={lighting === "with_lights" ? "lighting-option lighting-option--selected" : "lighting-option"}>
                 <input type="radio" name="lighting" value="with_lights" checked={lighting === "with_lights"} onChange={() => setLighting("with_lights")} />
-                <span><strong>Con luz</strong><small>{pricingLoading ? "Cargando tarifa…" : `${formatMoney(pricingRates.withLights, pricingCurrency)} por hora`}</small></span>
+                <span><strong>Con luz</strong><small>{pricingLoading ? "Consultando tarifa…" : pricingError ? "Tarifa por confirmar" : `${formatMoney(pricingRates.withLights, pricingCurrency)} por hora`}</small></span>
               </label>
             </fieldset>
 
@@ -345,16 +345,16 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
               <div><span>Duración</span><strong>{preview.durationHours} h</strong></div>
               <div><span>Tarifa</span><strong>{pricingReady ? `${formatMoney(preview.hourlyRate, pricingCurrency)}/h` : "—"}</strong></div>
               <div className="booking-quote__total"><span>Total estimado</span><strong>{pricingReady ? formatMoney(preview.total, pricingCurrency) : "—"}</strong></div>
-              {!demoMode ? <small>El servidor vuelve a validar horario, tarifa y total antes de guardar. El navegador no decide el precio final.</small> : null}
+              {!demoMode ? <small>La tarifa y el total se confirman al enviar la solicitud.</small> : null}
             </div>
 
             {pricingError ? <div className="booking-error" role="alert">{pricingError}</div> : null}
             {error ? <div className="booking-error" role="alert">{error}</div> : null}
 
-            <button className="button button--primary button--full" type="submit" disabled={submitting || endOptions.length === 0 || !pricingReady}>
-              {submitting ? "Validando disponibilidad…" : demoMode ? "Probar solicitud (no guarda)" : "Solicitar reserva"}
+            <button className="button button--primary button--full" type="submit" disabled={submitting || demoMode || endOptions.length === 0 || !pricingReady}>
+              {submitting ? "Validando disponibilidad…" : demoMode ? "Reserva en línea no disponible" : "Solicitar reserva"}
             </button>
-            <p className="booking-policy">Una solicitud real nace como <strong>Pendiente</strong>. No se considera confirmada hasta que el propietario la apruebe en una fase posterior.</p>
+            <p className="booking-policy">Tu solicitud queda <strong>Pendiente</strong> hasta que el negocio la confirme.</p>
           </form>
         )}
       </div>

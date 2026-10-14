@@ -13,10 +13,11 @@ export function Header() {
           </span>
         </Link>
         <nav className="site-nav" aria-label="Principal">
-          <a href="#disponibilidad">Disponibilidad</a>
-          <a href="#precios">Precios</a>
-          <a href="#servicios">Servicios</a>
-          <a href="#ubicacion">Ubicación</a>
+          <a className="site-nav__priority" href="#disponibilidad">Disponibilidad</a>
+          <a className="site-nav__priority" href="#precios">Precios</a>
+          <a className="site-nav__reserve" href="#disponibilidad">Reservar</a>
+          <a className="site-nav__secondary" href="#servicios">Servicios</a>
+          <a className="site-nav__secondary" href="#ubicacion">Ubicación</a>
           <Link className="site-nav__admin" href="/admin/login">Administración</Link>
         </nav>
       </div>

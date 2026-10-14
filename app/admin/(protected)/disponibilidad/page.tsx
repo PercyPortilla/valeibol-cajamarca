@@ -5,8 +5,10 @@ import { EmptyState, ErrorState } from "../../../../components/ui/States.tsx";
 import { requireAdminContext } from "../../../../lib/auth/server.ts";
 import { addDays, businessTodayDateKey, formatWeekRange } from "../../../../lib/availability.ts";
 import { getAdminWeekRange } from "../../../../lib/admin/schedule.ts";
+import type { AdminPricingRule } from "../../../../lib/admin/phase7.ts";
 import { createAdminOperationsRepository } from "../../../../lib/data/adminOperationsService.ts";
 import { AdminOperationsRepositoryError } from "../../../../lib/data/repositories/adminOperationsRepository.ts";
+import { createPhase7Repository } from "../../../../lib/data/phase7Service.ts";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -37,6 +39,13 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
     );
   }
 
+  let pricingRules: AdminPricingRule[] = [];
+  try {
+    pricingRules = await createPhase7Repository().listPricingRules();
+  } catch {
+    pricingRules = [];
+  }
+
   const weekKeys = Array.from({ length: 7 }, (_, index) => addDays(range.from, index));
   const isProvisional = snapshot.courts.some((court) => court.days.some((day) => day.scheduleStatus === "provisional"));
 
@@ -44,9 +53,9 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
     <>
       <header className="admin-topbar admin-topbar--schedule">
         <div>
-          <span className="eyebrow">OPERACIÓN · FASE 6</span>
+          <span className="eyebrow">OPERACIÓN DE AGENDA</span>
           <h1>Pizarra administrativa</h1>
-          <p className="admin-subtitle">Reserva, confirma, cancela y bloquea horarios con validación real en PostgreSQL. La PII existe únicamente dentro de este panel protegido.</p>
+          <p className="admin-subtitle">Reserva, confirma, cancela y bloquea horarios con validaciones de disponibilidad. Los datos de clientes solo se muestran a usuarios autorizados.</p>
         </div>
         <div className="admin-topbar__badges">
           <Badge tone={isProvisional ? "warning" : "success"}>{isProvisional ? "Horario provisional" : "Horario confirmado"}</Badge>
@@ -64,7 +73,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
       {snapshot.courts.length === 0 ? (
         <EmptyState title="No hay canchas activas" detail="Configura al menos una cancha y sus horarios antes de operar la agenda." />
       ) : (
-        <AdminScheduleBoard snapshot={snapshot} timezone={context.timezone} role={context.role} />
+        <AdminScheduleBoard snapshot={snapshot} timezone={context.timezone} role={context.role} pricingRules={pricingRules} />
       )}
     </>
   );

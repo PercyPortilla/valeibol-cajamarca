@@ -12,7 +12,7 @@ import {
 type LoginReason = "config" | "session" | "logout" | null;
 
 function reasonMessage(reason: LoginReason) {
-  if (reason === "config") return "Supabase/Auth todavía no está configurado. El acceso administrativo real está deshabilitado.";
+  if (reason === "config") return "El acceso administrativo todavía no está configurado para este sitio.";
   if (reason === "session") return "Tu sesión no existe o expiró. Inicia sesión nuevamente.";
   if (reason === "logout") return "Sesión cerrada correctamente.";
   return null;
@@ -56,7 +56,7 @@ export function AdminLoginForm() {
   }
 
   const notice = !configured
-    ? "Supabase/Auth no configurado. Esta pantalla no simula sesiones: configura las variables para habilitar el acceso."
+    ? "El acceso administrativo todavía no está disponible. Completa la configuración del servicio de autenticación para habilitarlo."
     : reasonMessage(reason);
 
   return (

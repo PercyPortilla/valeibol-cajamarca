@@ -18,7 +18,9 @@ export default async function HomePage() {
   const pricing = await getPublicCurrentPricing();
   const pricingAvailable = pricing.withoutLights !== null && pricing.withLights !== null;
   const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.address)}`;
-  const phoneHref = `tel:+51${businessConfig.phone.replace(/\s/g, "")}`;
+  const phoneDigits = businessConfig.phone.replace(/\D/g, "");
+  const phoneHref = `tel:+51${phoneDigits}`;
+  const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
 
   return (
     <>
@@ -50,9 +52,9 @@ export default async function HomePage() {
               <div>
                 <span className="eyebrow">CONSULTA PRIMERO, RESERVA DESPUÉS</span>
                 <h2>Disponibilidad semanal</h2>
-                <p>Revisa rápidamente qué bloques están libres. La vista pública obtiene únicamente estados sanitizados de disponibilidad. Si Supabase no está configurado, se identifica claramente el modo demostración.</p>
+                <p>Revisa rápidamente los bloques disponibles y elige el horario que mejor te convenga antes de enviar tu solicitud.</p>
               </div>
-              <div className="privacy-pill">Privacidad pública: sin nombres ni teléfonos</div>
+              <div className="privacy-pill">Tus datos se solicitan solo al reservar</div>
             </div>
             <AvailabilityCalendar />
           </div>
@@ -63,13 +65,13 @@ export default async function HomePage() {
             <div>
               <span className="eyebrow">TARIFAS VIGENTES</span>
               <h2>Precios claros por hora.</h2>
-              <p>{pricing.source === "supabase" ? "Tarifas vigentes leídas desde pricing_rules para la fecha actual del negocio." : pricing.source === "mock-provisional" ? "Modo demostración: se muestran S/35 y S/60 como configuración local confirmada, sin fingir conexión persistente." : "No pudimos consultar las tarifas vigentes. El formulario de reserva no debe asumir un precio hasta recuperar la fuente real."}</p>
+              <p>{pricing.source === "supabase" ? "Tarifas vigentes para hoy." : pricing.source === "mock-provisional" ? "Precios referenciales para orientarte antes de solicitar." : "Consulta el precio aplicable al momento de solicitar tu horario."}</p>
             </div>
           </div>
           {pricingAvailable ? (
             <div className="price-grid">
               <Card className="price-card">
-                <Badge tone={pricing.source === "supabase" ? "success" : "neutral"}>{pricing.source === "supabase" ? "Vigente" : "Demo local"}</Badge>
+                <Badge tone={pricing.source === "supabase" ? "success" : "neutral"}>{pricing.source === "supabase" ? "Vigente" : "Referencial"}</Badge>
                 <span>Sin luz</span>
                 <strong>{formatMoney(pricing.withoutLights!, pricing.currency)}<small>/hora</small></strong>
                 <p>Tarifa aplicable hoy para una hora de uso de cancha sin iluminación.</p>
@@ -111,8 +113,8 @@ export default async function HomePage() {
           <div className="section-heading">
             <div>
               <span className="eyebrow">GALERÍA</span>
-              <h2>Fotos reales, cuando estén listas.</h2>
-              <p>En este checkpoint evitamos usar imágenes genéricas como si fueran del local. Los espacios quedan preparados para cargar fotografías reales.</p>
+              <h2>Conoce el espacio.</h2>
+              <p>Estamos preparando nuevas imágenes del local. Mientras tanto, puedes consultar horarios, precios y ubicación.</p>
             </div>
           </div>
           <div className="gallery-grid">
@@ -120,7 +122,7 @@ export default async function HomePage() {
               <div className="gallery-placeholder" key={label}>
                 <span>0{index + 1}</span>
                 <strong>{label}</strong>
-                <small>Fotografía real pendiente de carga</small>
+                <small>Imagen próximamente</small>
               </div>
             ))}
           </div>
@@ -135,8 +137,8 @@ export default async function HomePage() {
               <dl className="info-list">
                 <div><dt>Ciudad</dt><dd>{businessConfig.city}, {businessConfig.country}</dd></div>
                 <div><dt>Dirección</dt><dd>{businessConfig.address}</dd></div>
-                <div><dt>Horario de apertura</dt><dd>Por confirmar con el propietario</dd></div>
-                <div><dt>Agenda web</dt><dd>Solicitud real conectada a Supabase; fallback demostrativo si no hay credenciales</dd></div>
+                <div><dt>Horario de atención</dt><dd>Consulta los bloques disponibles en el calendario</dd></div>
+                <div><dt>Reserva</dt><dd>Envía tu solicitud desde un horario disponible y espera la confirmación</dd></div>
               </dl>
             </div>
             <CourtVisual />
@@ -151,7 +153,8 @@ export default async function HomePage() {
               <p>Si un bloque aparece disponible, puedes iniciar la solicitud digital desde el calendario. La solicitud queda pendiente hasta que el propietario la apruebe; también conservamos el contacto directo del negocio.</p>
             </div>
             <div className="contact-actions" id="contacto">
-              <a className="button button--primary" href={phoneHref}>Llamar al {businessConfig.phone}</a>
+              <a className="button button--primary" href={whatsappHref} target="_blank" rel="noreferrer">Consultar por WhatsApp</a>
+              <a className="button button--secondary" href={phoneHref}>Llamar al {businessConfig.phone}</a>
               <a className="button button--secondary" href={mapsHref} target="_blank" rel="noreferrer">Ver ubicación</a>
               <address>{businessConfig.address}</address>
             </div>
