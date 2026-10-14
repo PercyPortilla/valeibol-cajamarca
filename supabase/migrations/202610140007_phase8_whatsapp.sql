@@ -51,6 +51,10 @@ create index if not exists whatsapp_outbox_pending_idx
   on public.whatsapp_outbox (status, available_at, created_at)
   where status in ('pending', 'failed');
 
+create index if not exists whatsapp_outbox_processing_idx
+  on public.whatsapp_outbox (locked_at)
+  where status = 'processing';
+
 alter table public.whatsapp_outbox enable row level security;
 revoke all on public.whatsapp_outbox from public, anon, authenticated;
 
@@ -277,8 +281,14 @@ begin
   with claimable as (
     select o.id
     from public.whatsapp_outbox o
-    where o.status in ('pending', 'failed')
-      and o.available_at <= now()
+    where (
+        (o.status in ('pending', 'failed') and o.available_at <= now())
+        or (
+          o.status = 'processing'
+          and o.locked_at is not null
+          and o.locked_at <= now() - interval '5 minutes'
+        )
+      )
       and o.attempts < 5
     order by o.created_at, o.id
     for update skip locked
