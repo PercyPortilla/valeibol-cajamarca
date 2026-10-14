@@ -1,203 +1,172 @@
-# Valeibol · pendientes externos para cierre final
+# Valeibol · pendientes externos
 
-Actualizado el 2026-10-14. Este archivo registra únicamente validaciones que siguen bloqueadas o que dependen de servicios reales. No contiene secretos.
+Actualizado el 2026-10-14. No contiene secretos.
 
-## Estado resumido
+## Regla de integración
 
-- Código del checkpoint: CI reproducible PASS.
-- Responsive/accesibilidad del checkpoint actual: 54/54 checks PASS en Chrome/Axe.
-- Supabase real: BLOCKED, el conector devuelve 0 proyectos.
-- E2E/SQL real: BLOCKED por ausencia de proyecto/credenciales Supabase accesibles.
-- Producción actual: FAIL crítico de cierre; sigue desplegando el `main` anterior y no tiene variables de entorno.
-- Protección de `main`: BLOCKED por capacidades administrativas del conector GitHub.
-- WhatsApp Meta real: BLOCKED; no hay credenciales/templates configurados en Vercel.
-- Deploy final: NO AUTORIZADO mientras los bloqueos críticos anteriores sigan abiertos.
+**Merge a `main` cuando un bloque funcional esté terminado y probado.**
 
-## 1. Supabase real — BLOCKED
+Un bloqueo en otro bloque no impide integrar uno ya terminado. Un bloque todavía dependiente de credenciales, permisos, cuota o validaciones críticas propias permanece fuera de `main`.
 
-Evidencia de la sesión:
+## Estado actual
+
+- `main`: `40788e90f769311140def63e9d65fd8be2345a73`.
+- Bloques 4–5: MERGED y probados.
+- Bloque 7: MERGED y probado en modo dormante; activación Meta real pendiente.
+- PR #4 / `work/final-checkpoint`: conserva únicamente Bloques 2, 3 y 6.
+- Supabase real: BLOCKED; el conector devuelve 0 proyectos.
+- SQL/E2E/concurrencia real: BLOCKED por ausencia de Supabase accesible.
+- Producción backend: BLOCKED; el proyecto canónico tiene 0 variables de entorno.
+- Protección de `main`: BLOCKED; la integración GitHub disponible no expone escritura administrativa.
+
+## Bloque 2 — Supabase real / seguridad
+
+**BLOCKED EXTERNO**
+
+Evidencia:
 
 - `Supabase list_projects` devuelve exactamente `{"projects":[]}`.
-- Sin `project_id` no es seguro comparar/aplicar migraciones, ejecutar SQL remoto ni Advisors.
-- No se ha inventado ni inferido un proyecto Supabase.
-- La auditoría estática del repositorio sí pasa y exige:
-  - `SECURITY DEFINER` con `search_path = public, pg_temp`;
-  - aislamiento de PII;
-  - DML administrativo solo por RPC;
+- No existe un `project_id` verificable en esta sesión.
+- No se inventó ni se infirió un destino.
+- En PR #4 están preparados el baseline transversal y validaciones de:
+  - `SECURITY DEFINER` + `search_path = public, pg_temp`;
+  - aislamiento PII;
   - roles owner/admin/staff;
-  - escritura pública autoritativa solo por service role;
-  - `REVOKE` + `GRANT SELECT` explícitos sobre `availability_revisions`, compatible con el cambio de Data API de Supabase previsto para 2026-10-30.
+  - DML administrativo por RPC;
+  - escritura pública autoritativa server-side;
+  - grants/revokes Data API.
 
-Pendiente cuando el proyecto sea visible:
+Pendiente cuando Supabase sea visible:
 
-1. identificar el proyecto real de Valeibol;
-2. ejecutar `list_migrations` y comparar contra `001..007`;
-3. aplicar solo migraciones faltantes;
-4. ejecutar `npm run supabase:test`;
-5. ejecutar `npm run integration:phase4`;
-6. ejecutar `npm run integration:phase5`;
-7. ejecutar `npm run integration:phase6`;
-8. ejecutar `npm run integration:e2e`;
-9. ejecutar Security Advisors;
-10. ejecutar Performance Advisors;
-11. corregir cualquier finding crítico;
-12. regenerar tipos TypeScript desde el esquema remoto y revisar el diff;
-13. revisar backups/PITR según el plan real del proyecto.
+1. identificar proyecto real;
+2. comparar migraciones remotas con 001..007;
+3. aplicar solo las faltantes;
+4. ejecutar toda la suite SQL;
+5. Security Advisors;
+6. Performance Advisors;
+7. corregir findings críticos;
+8. generar tipos TypeScript desde el esquema remoto;
+9. revisar backup/PITR según el plan real.
 
-## 2. Vercel / producción — FAIL crítico + bloqueos externos
+## Bloque 3 — E2E y concurrencia real
 
-Proyecto canónico:
+**BLOCKED EXTERNO**
+
+PR #4 contiene pruebas para:
+
+- pública vs pública;
+- pública vs manual;
+- manual vs manual;
+- reserva vs bloqueo;
+- edición hacia ocupado;
+- confirmación/cancelación simultánea;
+- pricing concurrente;
+- idempotencia y manipulación de payload.
+
+Pendiente: ejecutar la matriz contra el PostgreSQL/Supabase real. Los scripts fallan explícitamente si faltan credenciales; no convierten ausencia de entorno en PASS.
+
+## Bloque 6 — producción / DevSecOps
+
+**PARCIAL / BLOQUEADO**
+
+### GitHub
+
+- `main.protected = false`;
+- required checks: ninguno;
+- rulesets: `[]`;
+- el conector disponible solo permite lectura de branch protection/rulesets.
+
+Pendiente: activar PR obligatorio y required checks desde una integración con permisos administrativos.
+
+### Vercel canónico
 
 - proyecto: `valeibol-cajamarca`;
 - project id: `prj_XAMLMdxEH8zqrwfSwdL8XSGQ9D5m`;
-- alias público canónico actual: `valeibol-cajamarca-live.vercel.app`;
-- producción actual: commit `22b4270b3b46d46802fe12bb45ba9b7b325b0799` de `main`.
+- alias: `valeibol-cajamarca-live.vercel.app`;
+- variables: 0;
+- hidden production envs: 0;
+- connectors: 0.
 
-Configuración observada:
+`main` ya avanzó a `40788e90...`, pero producción sigue en el deployment del antiguo SHA `22b4270b...` porque Vercel devuelve `build-rate-limit` / cuota diaria de deployments.
 
-- variables de entorno del proyecto canónico: `0`;
-- `hiddenProductionEnvCount: 0`;
-- conectores del proyecto: `0`;
-- por tanto no hay configuración visible de Supabase ni WhatsApp en Vercel.
+El PR #4 conserva el cambio de política para que producción no caiga silenciosamente a mock si faltan Supabase/envs. Ese cambio NO se mergeará hasta configurar y probar el backend real.
 
-Smoke real de producción desde GitHub Actions:
-
-- `/` → HTTP 200 PASS;
-- `/admin` → HTTP 307 hacia `/admin/login?reason=config...` PASS como protección, pero `reason=config` confirma backend de auth no configurado;
-- `/robots.txt` → HTTP 200 PASS;
-- `/sitemap.xml` → HTTP 200 PASS;
-- `/privacidad` → HTTP 404 FAIL porque producción sigue en el `main` anterior.
-
-Auditoría visual real de producción:
-
-- 360/390/430/768: layout, overflow y Axe serious/critical PASS;
-- 1024/1440: FAIL de targets táctiles del header (<44 px), ya corregido en el checkpoint;
-- capturas: artifact `11891228440`;
-- la captura real muestra que producción aún usa `Disponibilidad referencial`, slots simulados y precios fallback S/35/S/60.
-
-El checkpoint actual, en cambio, no cae a mock en producción: si Supabase falta muestra un error comercial controlado y no presenta disponibilidad/precio provisional como dato vigente.
-
-Cuota de preview:
-
-- primer preview manual del checkpoint: READY, deployment `dpl_BHSJr9V5XScu9Js4zgn6o696BMrp`, SHA `28d746cd15aa336fcc11e47440b85dc2c1a292fb`;
-- al intentar un preview posterior del SHA corregido, Vercel devolvió:
-  - HTTP 402 `payment_required`;
-  - código `api-deployments-free-per-day`;
-  - mensaje: más de 100 deployments, reintentar en 24 h;
-  - `retryAfter: 86400`.
-- Por esa cuota, el CSS corregido se validó con el mismo Chrome/Axe contra un `next start` construido desde el SHA actual.
-
-Proyecto archive:
+### Proyecto archive
 
 - proyecto: `valeibol-cajamarca-archive`;
 - project id: `prj_1OCyUQNvFPJt8bpLny2Buez8OxqF`;
-- también tenía builds automáticos de las mismas ramas y contribuía a duplicar consumo de cuota;
-- se configuró `commandForIgnoringBuildStep = "exit 0"`, de forma reversible, para omitir nuevos builds;
-- no se eliminó el proyecto ni se reasignaron dominios;
-- aún conserva aliases históricos, incluido `valeibol-cajamarca.vercel.app`, por lo que cualquier consolidación/desasignación debe hacerse solo después del cierre real.
+- se configuró de forma reversible:
+  - `commandForIgnoringBuildStep = "exit 0"`;
+  - `previewDeploymentsDisabled = true`.
+- no se eliminó el proyecto;
+- sus aliases históricos siguen presentes;
+- el proyecto canónico y su alias no fueron modificados.
 
-Observabilidad Vercel:
+### Smoke pendiente
 
-- lectura de runtime errors/logs mediante el conector: HTTP 403 por permisos;
-- no se reintentó de forma insegura ni se asumió ausencia de errores.
+Cuando existan envs reales:
 
-Pendiente:
+1. home HTTP 200;
+2. disponibilidad desde Supabase real;
+3. reserva controlada;
+4. admin protegido;
+5. RPC pública sin PII;
+6. tablas privadas negadas;
+7. `/privacidad`, robots y sitemap;
+8. ausencia real de fallback mock;
+9. runtime logs sin PII.
 
-1. obtener/configurar variables reales de Supabase;
-2. ejecutar `npm run smoke:production` con backend real;
-3. repetir preview del SHA final cuando se libere la cuota;
-4. solo después de validación total, decidir si reasignar/eliminar aliases históricos del archive;
-5. revisar runtime logs cuando el scope del conector lo permita.
+## Bloque 7 — WhatsApp
 
-## 3. Protección de main — BLOCKED
+**MERGED / ACTIVACIÓN REAL PENDIENTE**
 
-Estado leído desde GitHub:
+Merge: `40788e90f769311140def63e9d65fd8be2345a73`.
 
-- `main.protected = false`;
-- protection `enabled = false`;
-- required status checks: ninguno;
-- rulesets del repositorio: `[]`.
+Validado antes del merge:
 
-La integración GitHub disponible en esta sesión solo expone lectura para branch protection/rulesets y no una acción administrativa de escritura, por lo que no es posible activar la protección desde aquí.
-
-Pendiente en GitHub:
-
-- PR obligatorio;
-- required checks antes de merge;
-- como mínimo CI/QA/build;
-- limitar push directo a `main` si el plan/configuración de la cuenta lo permite.
-
-## 4. WhatsApp Business Platform — BLOCKED para prueba real
-
-Código y tests locales/CI:
-
+- CI completo PASS;
+- Chrome/Axe PASS;
 - Cloud API oficial;
 - outbox privado;
 - E.164;
 - idempotencia;
 - `FOR UPDATE SKIP LOCKED`;
-- recovery de jobs `processing`;
-- backoff;
+- retry/backoff;
+- stale processing recovery;
 - auth del procesador con comparación constante;
-- rechazo de provider failure/timeout/respuesta 200 sin message id;
-- secretos solo server-side.
+- provider rejection/timeout/200 sin message id.
 
-Prueba Meta real no ejecutada porque:
+Sin credenciales, la integración queda dormante y no envía mensajes ni modifica reservas.
 
-- Vercel reporta 0 variables de entorno;
-- no hay `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, templates aprobados ni `WHATSAPP_PROCESSOR_SECRET` visibles/configurados;
-- no se han pedido ni expuesto secretos en chat;
-- no se enviaron mensajes a números reales.
+Activación real pendiente únicamente cuando existan credenciales/templates/números autorizados:
 
-Pendiente cuando existan credenciales/templates autorizados:
+1. aplicar migración 007 al Supabase real;
+2. configurar variables server-side;
+3. verificar templates aprobados;
+4. nueva solicitud → propietario;
+5. confirmación/cancelación → cliente;
+6. recordatorio;
+7. comprobar `provider_message_id` y retry;
+8. configurar scheduler seguro.
 
-1. nueva solicitud → propietario;
-2. confirmación → cliente;
-3. cancelación → cliente;
-4. recordatorio;
-5. comprobar `provider_message_id`;
-6. comprobar retry real;
-7. configurar scheduler seguro;
-8. usar solo números autorizados por Meta.
+## Bloques 4–5
 
-## 5. Responsive y accesibilidad — PASS del checkpoint, alcance admin parcial
+**MERGED / PASS**
 
-Evidencia del SHA corregido ejecutada con Chrome real + Axe:
+Merge: `a04d8aeed465763629492337d6fa57abc441ab5a`.
 
-- viewports: 360, 390, 430, 768, 1024 y 1440;
-- homepage HTTP: PASS;
-- sin overflow horizontal: PASS;
-- secciones comerciales presentes: PASS;
-- sin copy técnico visible: PASS;
-- targets táctiles >=44 px: PASS;
-- Axe `serious/critical`: 0;
-- admin protegido y login responsive: PASS;
-- admin login sin overflow: PASS;
-- admin login Axe `serious/critical`: 0;
-- total: 54 checks, 0 failures;
-- capturas: artifact `11891053641`.
+Validación previa al merge:
 
-También se inspeccionaron visualmente las capturas 360, 1024 y 1440 del homepage y 360/1440 del login: sin clipping ni solapamientos visibles después del fix.
+- CI completo PASS;
+- Chrome real + Axe;
+- 360/390/430/768/1024/1440;
+- 54 checks, 0 failures;
+- sin overflow;
+- targets >=44 px;
+- Axe serious/critical = 0.
 
-Alcance todavía bloqueado:
+Contenido externo aún opcional: fotos reales del negocio y confirmación del horario oficial; no se inventaron.
 
-- no es posible inspeccionar visualmente pizarra/clientes/precios autenticados contra datos reales porque no existe Supabase/auth real accesible en esta sesión.
+## Cierre global
 
-Contenido todavía externo:
-
-- fotografías reales del negocio;
-- confirmación del horario oficial del propietario.
-
-Mientras falten fotos reales se mantienen placeholders; 08:00–23:00 sigue siendo provisional.
-
-## Regla de cierre
-
-No hacer merge final a `main`, no promover el checkpoint a producción y no declarar `CHECKPOINT FINAL PASS` mientras siga abierto cualquiera de estos puntos críticos:
-
-- Supabase real no conectado/validado;
-- SQL/E2E/concurrencia real no ejecutados;
-- Advisors no ejecutados;
-- variables backend de Vercel ausentes;
-- smoke backend real de producción pendiente;
-- prueba Meta real pendiente si se desea activar WhatsApp;
-- protección de `main` no configurada o explícitamente aceptada como limitación.
+No se declara `CHECKPOINT FINAL PASS` mientras Bloques 2, 3 y 6 sigan bloqueados. Esto no impide continuar mergeando otros bloques individuales que cumplan la regla de integración.
