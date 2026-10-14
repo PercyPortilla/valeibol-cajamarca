@@ -351,8 +351,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
             {pricingError ? <div className="booking-error" role="alert">{pricingError}</div> : null}
             {error ? <div className="booking-error" role="alert">{error}</div> : null}
 
-            <button className="button button--primary button--full" type="submit" disabled={submitting || endOptions.length === 0 || !pricingReady}>
-              {submitting ? "Validando disponibilidad…" : demoMode ? "Probar solicitud (no guarda)" : "Solicitar reserva"}
+            <button className="button button--primary button--full" type="submit" disabled={submitting || demoMode || endOptions.length === 0 || !pricingReady}>
+              {submitting ? "Validando disponibilidad…" : demoMode ? "Reserva en línea no disponible" : "Solicitar reserva"}
             </button>
             <p className="booking-policy">Tu solicitud queda <strong>Pendiente</strong> hasta que el negocio la confirme.</p>
           </form>
