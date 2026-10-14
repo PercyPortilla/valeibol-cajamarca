@@ -1,0 +1,84 @@
+name: Package UI checkpoint
+
+on:
+  push:
+    branches: ["work/checkpoint-ui-commercial"]
+    paths:
+      - ".github/workflows/checkpoint-ui-commercial.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validated main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Verify expected checkpoint SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          expected="0b0ddb084f3be644d6084dd268ab541bcb4ceff6"
+          test "$actual" = "$expected"
+          echo "Checkpoint SHA: $actual"
+
+      - name: Build clean checkpoint archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="$RUNNER_TEMP/valeibol-checkpoint"
+          mkdir -p "$stage"
+          git archive --format=tar --prefix=valeibol-cajamarca/ HEAD | tar -xf - -C "$stage"
+          cat > "$stage/valeibol-cajamarca/CHECKPOINT_UI_COMMERCIAL.md" <<'EOF'
+          # Valeibol Cajamarca · Checkpoint UI comercial
+
+          Main SHA: 0b0ddb084f3be644d6084dd268ab541bcb4ceff6
+          PR: #9 · Rediseño comercial basado en referencia visual
+
+          Validación final:
+          - Validate Valeibol: PASS
+          - npm ci, lint, typecheck, tests, QA y production build: PASS
+          - Validate UI: 54/54 checks PASS, 0 failures
+          - Viewports: 360, 390, 430, 768, 1024, 1440
+          - Sin overflow horizontal
+          - Targets táctiles >=44px
+          - Axe serious/critical: 0 en público y administración
+          - Administración protegida
+
+          Alcance:
+          - header e identidad comercial clara
+          - hero y franja informativa
+          - disponibilidad compacta manteniendo lógica real
+          - servicios confirmados y pricing real/referencial según fuente
+          - galería sin fotografías falsas
+          - ubicación, mapa y contacto
+          - footer comercial
+          - responsive y accesibilidad
+
+          Pendientes de contenido real:
+          - fotografías auténticas del local
+          - activo original del logo si se dispone de él
+
+          Este ZIP no contiene node_modules, .next, .env.local ni secretos.
+          EOF
+          cd "$stage"
+          zip -qr "$RUNNER_TEMP/valeibol-ui-commercial-checkpoint.zip" valeibol-cajamarca
+          unzip -l "$RUNNER_TEMP/valeibol-ui-commercial-checkpoint.zip" | tee "$RUNNER_TEMP/checkpoint-list.txt"
+          if unzip -Z1 "$RUNNER_TEMP/valeibol-ui-commercial-checkpoint.zip" | grep -E '(^|/)(node_modules|\.next)(/|$)|(^|/)\.env\.local$'; then
+            echo "Forbidden generated/private files found" >&2
+            exit 1
+          fi
+
+      - name: Upload checkpoint
+        uses: actions/upload-artifact@v4
+        with:
+          name: valeibol-ui-commercial-checkpoint
+          path: ${{ runner.temp }}/valeibol-ui-commercial-checkpoint.zip
+          if-no-files-found: error
+          retention-days: 30
