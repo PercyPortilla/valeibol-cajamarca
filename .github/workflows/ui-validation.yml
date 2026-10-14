@@ -1,0 +1,82 @@
+name: Validate UI
+
+on:
+  push:
+    branches: [main, "work/**"]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "config/**"
+      - "lib/**"
+      - "scripts/validate-preview-ui.mjs"
+      - ".github/workflows/ui-validation.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "components/**"
+      - "config/**"
+      - "lib/**"
+      - "scripts/validate-preview-ui.mjs"
+      - ".github/workflows/ui-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  responsive-accessibility:
+    runs-on: ubuntu-latest
+    env:
+      UI_BASE_URL: http://127.0.0.1:3000
+      UI_LABEL: candidate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install reproducible dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build candidate
+        run: npm run build
+
+      - name: Start candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/next.log" 2>&1 &
+          for attempt in {1..30}; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' "$UI_BASE_URL/" || true)"
+            if [ "$code" = "200" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/next.log"
+          exit 1
+
+      - name: Install browser audit dependencies outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/valeibol-ui-check
+          cp scripts/validate-preview-ui.mjs /tmp/valeibol-ui-check/
+          cd /tmp/valeibol-ui-check
+          npm init -y >/dev/null
+          npm install --no-save puppeteer-core@24.25.0 axe-core@4.10.3 >/dev/null
+          chrome="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "CHROME_BIN=$chrome" >> "$GITHUB_ENV"
+
+      - name: Responsive and accessibility matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/valeibol-ui-check
+          SCREENSHOT_DIR="$RUNNER_TEMP/ui-screenshots" node validate-preview-ui.mjs
+
+      - name: Upload responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-accessibility-screenshots
+          path: ${{ runner.temp }}/ui-screenshots
+          if-no-files-found: warn
