@@ -2556,3 +2556,51 @@ button { cursor: pointer; }
     bottom: 10px;
   }
 }
+
+
+/* UI commercial reference · WCAG contrast sweep */
+@media (max-width: 1060px) {
+  .site-nav--commercial .site-nav__reserve {
+    background: #c94a00 !important;
+    color: #fff !important;
+  }
+}
+
+.trust-item small,
+.commercial-main .mobile-day > span,
+.commercial-main .mobile-day small,
+.commercial-main .availability-legend,
+.commercial-main .time-slot__status,
+.commercial-main .availability-footnote,
+.commercial-main .service-card p,
+.price-benefits,
+.location-copy > p,
+.location-facts small {
+  color: #4d5f74;
+}
+
+.commercial-main .mock-notice p {
+  color: #5e5147;
+}
+
+.commercial-main .mock-notice--connected p {
+  color: #46675c;
+}
+
+.commercial-main .section-heading--commercial p {
+  color: #53657a;
+}
+
+.commercial-main .mobile-day--selected > span,
+.commercial-main .mobile-day--selected small {
+  color: #185996;
+}
+
+.commercial-main .gallery-placeholder--commercial small {
+  color: #fff;
+}
+
+.commercial-main .field__hint,
+.booking-quote small {
+  color: #53657a;
+}
