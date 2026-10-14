@@ -87,7 +87,7 @@ export function AdminScheduleBoard({
   const [pending, startTransition] = useTransition();
 
   const activeCourt = snapshot.courts.find((court) => court.courtId === activeCourtId) ?? snapshot.courts[0];
-  const days = activeCourt?.days ?? [];
+  const days = useMemo(() => activeCourt?.days ?? [], [activeCourt]);
   const selectedDay = days.find((day) => day.date === selectedDate) ?? days[0];
 
   const daySlots = useMemo(

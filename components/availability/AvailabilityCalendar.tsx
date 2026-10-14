@@ -146,16 +146,19 @@ export function AvailabilityCalendar() {
     };
   }, [demoState, repository, today, weekReference, refreshNonce]);
 
-  useEffect(() => {
-    if (!snapshot || snapshot.source !== "supabase") return;
+  const snapshotSource = snapshot?.source;
+  const snapshotBusinessId = snapshot?.businessId ?? null;
 
-    return subscribeToPublicAvailabilityChanges(snapshot.businessId, () => {
+  useEffect(() => {
+    if (snapshotSource !== "supabase") return;
+
+    return subscribeToPublicAvailabilityChanges(snapshotBusinessId, () => {
       setRefreshNonce((value) => value + 1);
     });
-  }, [snapshot?.businessId, snapshot?.source]);
+  }, [snapshotBusinessId, snapshotSource]);
 
   useEffect(() => {
-    if (!snapshot || snapshot.source !== "supabase") return;
+    if (snapshotSource !== "supabase") return;
 
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") setRefreshNonce((value) => value + 1);
@@ -169,7 +172,7 @@ export function AvailabilityCalendar() {
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
-  }, [snapshot?.source]);
+  }, [snapshotSource]);
 
   const activeCourt = snapshot?.courts.find((court) => court.courtId === activeCourtId) ?? snapshot?.courts[0];
   const days = activeCourt?.days ?? [];

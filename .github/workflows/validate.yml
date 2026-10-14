@@ -2,6 +2,8 @@ name: Validate Valeibol
 
 on:
   push:
+    branches: [main, "work/**"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -14,32 +16,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore Phase 7 source
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ ! -f app/page.tsx ]; then
-            test -d .bootstrap
-            cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08 \
-              | tr -d '\r\n' \
-              | base64 -d > /tmp/valeibol.tar.gz
-            tar -xzf /tmp/valeibol.tar.gz -C .
-          fi
-          node patch-build.mjs
+      - name: Verify repository completeness
+        run: node scripts/validate-repository.mjs
 
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
+      - name: Install reproducible dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Lint
+        run: npm run lint
 
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Unit tests
-        run: |
-          if compgen -G "tests/*.test.ts" > /dev/null; then
-            npm test
-          else
-            echo "Runtime deployment archive does not contain the full test suite; tests remain in the Phase 7 checkpoint."
-          fi
+      - name: Unit and model tests
+        run: npm test
+
+      - name: Phase QA
+        run: npm run qa
 
       - name: Production build
         run: npm run build
