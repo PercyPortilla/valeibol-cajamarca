@@ -1,0 +1,31 @@
+{
+  "name": "valeibol-cajamarca",
+  "version": "0.7.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bootstrap": "node bootstrap.mjs",
+    "dev": "node bootstrap.mjs && next dev",
+    "build": "node bootstrap.mjs && next build",
+    "start": "next start",
+    "typecheck": "node bootstrap.mjs && tsc --noEmit",
+    "lint": "node bootstrap.mjs && eslint .",
+    "test": "node bootstrap.mjs && node --test --experimental-strip-types tests/*.test.ts",
+    "qa": "node bootstrap.mjs && node scripts/validate-phase7.mjs && npm test"
+  },
+  "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "typescript": "latest"
+  }
+}
