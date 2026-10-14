@@ -1,45 +1,41 @@
 name: Validate Valeibol
-
 on:
   push:
+    branches: [main, 'work/backend-recovery']
+  pull_request:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Restore Phase 7 source
-        shell: bash
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Require backend artifacts
         run: |
           set -euo pipefail
-          if [ ! -f app/page.tsx ]; then
-            test -d .bootstrap
-            cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08 \
-              | tr -d '\r\n' \
-              | base64 -d > /tmp/valeibol.tar.gz
-            tar -xzf /tmp/valeibol.tar.gz -C .
-          fi
-          node patch-build.mjs
-
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
+          test -f supabase/migrations/202610140001_phase3_core.sql
+          test -f supabase/migrations/202610140002_phase4_public_booking.sql
+          test -f supabase/migrations/202610140003_phase5_admin_auth.sql
+          test -f supabase/migrations/202610140004_phase6_admin_operations.sql
+          test -f supabase/migrations/202610140005_phase7_customers_pricing_metrics.sql
+          test -f supabase/seed.sql
+          test -f supabase/tests/phase3.sql
+          test -f supabase/tests/phase4.sql
+          test -f supabase/tests/phase5.sql
+          test -f supabase/tests/phase6.sql
+          test -f supabase/tests/phase7.sql
+          test -f tests/phase7.test.ts
       - name: Typecheck
         run: npm run typecheck
-
+      - name: Lint
+        run: npm run lint
       - name: Unit tests
-        run: |
-          if compgen -G "tests/*.test.ts" > /dev/null; then
-            npm test
-          else
-            echo "Runtime deployment archive does not contain the full test suite; tests remain in the Phase 7 checkpoint."
-          fi
-
+        run: npm test
+      - name: Phase 7 QA
+        run: npm run qa
       - name: Production build
         run: npm run build
