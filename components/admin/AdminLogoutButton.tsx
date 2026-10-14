@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
 
 export function AdminLogoutButton() {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function logout() {
@@ -13,7 +15,8 @@ export function AdminLogoutButton() {
       const supabase = createPublicBrowserSupabaseClient();
       await supabase.auth.signOut();
     } finally {
-      window.location.assign("/admin/login?reason=logout");
+      router.replace("/admin/login?reason=logout");
+      router.refresh();
     }
   }
 
