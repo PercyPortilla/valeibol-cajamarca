@@ -76,6 +76,9 @@ function mapError(message: string, code?: string): BookingRepositoryError {
   } else if (normalized.includes("pricing_not_found")) {
     mapped = "pricing_not_found";
     userMessage = "No existe una tarifa vigente para esa opción.";
+  } else if (normalized.includes("rate_limited")) {
+    mapped = "rate_limited";
+    userMessage = "Recibimos demasiados intentos seguidos. Espera unos minutos antes de volver a solicitar.";
   } else if (normalized.includes("not_found")) {
     mapped = "not_found";
     userMessage = "La cancha o el negocio ya no están disponibles.";
@@ -145,37 +148,75 @@ export class SupabaseBookingRepository implements BookingRepository {
   }
 
   async submit(request: PublicBookingRequest): Promise<PublicBookingResult> {
-    const client = createPublicBrowserSupabaseClient();
-    const { data, error } = await client.rpc("create_public_reservation_request", {
-      p_business_slug: request.businessSlug,
-      p_court_id: request.courtId,
-      p_date: request.date,
-      p_start_time: request.start,
-      p_end_time: request.end,
-      p_lighting: request.lighting,
-      p_customer_name: request.customerName,
-      p_phone_e164: request.phoneE164,
-      p_marketing_opt_in: request.marketingOptIn,
-      p_request_token: request.requestToken,
-    });
+    let response: Response;
+    try {
+      response = await fetch("/api/public/reservation-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessSlug: request.businessSlug,
+          courtId: request.courtId,
+          date: request.date,
+          start: request.start,
+          end: request.end,
+          lighting: request.lighting,
+          customerName: request.customerName,
+          phoneE164: request.phoneE164,
+          marketingOptIn: request.marketingOptIn,
+          requestToken: request.requestToken,
+        }),
+      });
+    } catch {
+      throw new BookingRepositoryError(
+        "network",
+        "No pudimos conectar con el sistema de reservas. Comprueba tu conexión e inténtalo otra vez.",
+      );
+    }
 
-    if (error) throw mapError(error.message, error.code);
+    const payload = await response.json().catch(() => null) as
+      | {
+          ok?: boolean;
+          code?: string;
+          requestId?: string;
+          status?: string;
+          courtId?: string;
+          startAt?: string;
+          endAt?: string;
+          lighting?: string;
+          hourlyRate?: number | string;
+          totalAmount?: number | string;
+          currency?: string;
+        }
+      | null;
 
-    type Row = Database["public"]["Functions"]["create_public_reservation_request"]["Returns"][number];
-    const row = ((data ?? []) as Row[])[0];
-    if (!row) throw new BookingRepositoryError("unknown", "El servidor no devolvió la solicitud creada.");
+    if (!response.ok || !payload?.ok) {
+      throw mapError(payload?.code ?? "unknown", payload?.code);
+    }
+
+    if (
+      typeof payload.requestId !== "string" ||
+      payload.status !== "pending" ||
+      typeof payload.courtId !== "string" ||
+      typeof payload.startAt !== "string" ||
+      typeof payload.endAt !== "string" ||
+      (payload.lighting !== "without_lights" && payload.lighting !== "with_lights") ||
+      (typeof payload.hourlyRate !== "number" && typeof payload.hourlyRate !== "string") ||
+      (typeof payload.totalAmount !== "number" && typeof payload.totalAmount !== "string") ||
+      typeof payload.currency !== "string"
+    ) {
+      throw new BookingRepositoryError("unknown", "El servidor devolvió una respuesta de reserva inválida.");
+    }
 
     return {
       persisted: true,
-      requestId: row.request_id,
+      requestId: payload.requestId,
       status: "pending",
-      courtId: row.court_id,
-      startAt: row.start_at,
-      endAt: row.end_at,
-      lighting: row.lighting,
-      hourlyRate: toNumber(row.hourly_rate),
-      totalAmount: toNumber(row.total_amount),
-      currency: row.currency,
+      courtId: payload.courtId,
+      startAt: payload.startAt,
+      endAt: payload.endAt,
+      lighting: payload.lighting,
+      hourlyRate: toNumber(payload.hourlyRate),
+      totalAmount: toNumber(payload.totalAmount),
+      currency: payload.currency,
     };
-  }
-}
+  }}
