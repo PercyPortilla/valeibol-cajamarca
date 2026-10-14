@@ -1,0 +1,107 @@
+name: External validation
+
+on:
+  push:
+    branches:
+      - work/final-checkpoint
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  current-ui:
+    runs-on: ubuntu-latest
+    env:
+      UI_BASE_URL: http://127.0.0.1:3000
+      UI_LABEL: current
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install reproducible dependencies
+        run: npm ci
+      - name: Build current checkpoint
+        run: npm run build
+      - name: Start current checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/next.pid"
+          for attempt in {1..30}; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' "$UI_BASE_URL/" || true)"
+            if [ "$code" = "200" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/next.log"
+          exit 1
+      - name: Install browser audit dependencies outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/valeibol-ui-check
+          cp scripts/validate-preview-ui.mjs /tmp/valeibol-ui-check/
+          cd /tmp/valeibol-ui-check
+          npm init -y >/dev/null
+          npm install --no-save puppeteer-core@24.25.0 axe-core@4.10.3 >/dev/null
+          chrome="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "CHROME_BIN=$chrome" >> "$GITHUB_ENV"
+      - name: Responsive and accessibility matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/valeibol-ui-check
+          SCREENSHOT_DIR="$RUNNER_TEMP/ui-screenshots" node validate-preview-ui.mjs
+      - name: Upload responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-current-screenshots
+          path: ${{ runner.temp }}/ui-screenshots
+          if-no-files-found: warn
+
+  production-ui-audit:
+    runs-on: ubuntu-latest
+    env:
+      UI_BASE_URL: https://valeibol-cajamarca-live.vercel.app
+      UI_LABEL: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for production
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl -L -sS -o /dev/null -w '%{http_code}' "$UI_BASE_URL/" || true)"
+          test "$code" = "200"
+      - name: Install browser audit dependencies outside repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/valeibol-prod-ui
+          cp scripts/validate-preview-ui.mjs /tmp/valeibol-prod-ui/
+          cd /tmp/valeibol-prod-ui
+          npm init -y >/dev/null
+          npm install --no-save puppeteer-core@24.25.0 axe-core@4.10.3 >/dev/null
+          chrome="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "CHROME_BIN=$chrome" >> "$GITHUB_ENV"
+      - name: Production responsive and accessibility audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/valeibol-prod-ui
+          SCREENSHOT_DIR="$RUNNER_TEMP/production-ui-screenshots" node validate-preview-ui.mjs
+      - name: Upload production screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-production-screenshots
+          path: ${{ runner.temp }}/production-ui-screenshots
+          if-no-files-found: warn
+
+  production-public-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Production public smoke
+        run: node scripts/smoke-production-public.mjs
