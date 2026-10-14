@@ -53,15 +53,18 @@ jobs:
           rm -f .github/workflows/recover-backend.yml
           rm -f bootstrap.mjs patch-build.mjs scripts/bootstrap.sh
 
-          npm ci --no-audit --no-fund
-          npm run lint
-          npm run typecheck
-          npm test
-          npm run qa
-          npm run build
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "chore: restore full Phase 3-7 backend and tests"
           git push origin HEAD:work/backend-recovery
+
+      - name: Validate recovered checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+          npm run qa
+          npm run build
