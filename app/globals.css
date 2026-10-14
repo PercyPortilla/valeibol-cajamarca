@@ -1213,6 +1213,10 @@ button { cursor: pointer; }
 .admin-logout {
   min-height: 44px;
 }
+.admin-mobile-slot-list .admin-mini-action,
+.admin-mobile-slot-list .admin-slot__quick-actions button {
+  min-height: 44px;
+}
 .time-slot--compact .slot-cta { min-height: 44px; }
 .booking-dialog__close,
 .icon-button { width: 44px; height: 44px; }
