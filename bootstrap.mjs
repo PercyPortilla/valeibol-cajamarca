@@ -5,8 +5,7 @@ import { join } from "node:path";
 const parts = [
   "part-00",
   "part-01",
-  "part-02a",
-  "part-02b",
+  "part-02",
   "part-03",
   "part-04",
   "part-05",
