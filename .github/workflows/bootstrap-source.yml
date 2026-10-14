@@ -1,4 +1,4 @@
-name: Bootstrap Valeibol source
+name: Restore Valeibol source
 
 on:
   push:
@@ -8,26 +8,55 @@ permissions:
   contents: write
 
 jobs:
-  bootstrap:
+  restore:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Restore source tree when needed
+      - name: Restore source tree once
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f package.json ]; then
-            echo "Source tree already restored; nothing to do."
+
+          if [ -f app/page.tsx ] && [ -f lib/availability.ts ]; then
+            echo "Valeibol source is already restored."
             exit 0
           fi
+
           test -d .bootstrap
-          cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08 > /tmp/valeibol.tar.gz.b64
-          base64 -d /tmp/valeibol.tar.gz.b64 > /tmp/valeibol.tar.gz
+          cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08             | tr -d '\r\n'             | base64 -d > /tmp/valeibol.tar.gz
           tar -xzf /tmp/valeibol.tar.gz -C .
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("components/booking/ReservationDialog.tsx")
+          s = p.read_text()
+          s = s.replace(
+              'const [pricingRates, setPricingRates] = useState({\n'
+              '    withoutLights: businessConfig.pricing.withoutLights,\n'
+              '    withLights: businessConfig.pricing.withLights,\n'
+              '  });',
+              'const [pricingRates, setPricingRates] = useState<{ withoutLights: number; withLights: number }>({\n'
+              '    withoutLights: businessConfig.pricing.withoutLights,\n'
+              '    withLights: businessConfig.pricing.withLights,\n'
+              '  });'
+          )
+          s = s.replace(
+              'const [pricingCurrency, setPricingCurrency] = useState(businessConfig.currency);',
+              'const [pricingCurrency, setPricingCurrency] = useState<string>(businessConfig.currency);'
+          )
+          p.write_text(s)
+          PY
+
           rm -rf .bootstrap
+          rm -f bootstrap.mjs scripts/bootstrap.sh
+
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm run typecheck
+          npm run build
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -35,5 +64,5 @@ jobs:
             echo "No changes to commit."
             exit 0
           fi
-          git commit -m "chore: restore Valeibol Phase 7 source"
+          git commit -m "chore: restore validated Valeibol Phase 7 source"
           git push origin HEAD:main
