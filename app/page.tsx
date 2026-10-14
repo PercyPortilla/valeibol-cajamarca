@@ -118,7 +118,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="gallery-grid">
-            {["Vista general de la cancha", "Red y zona de juego", "Acceso / ambiente interior"].map((label, index) => (
+            {["Vista general", "Cancha", "Red", "Techo", "Iluminación", "Ingreso"].map((label, index) => (
               <div className="gallery-placeholder" key={label}>
                 <span>0{index + 1}</span>
                 <strong>{label}</strong>
