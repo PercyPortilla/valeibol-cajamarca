@@ -30,7 +30,7 @@ jobs:
             test -f "$part" || { echo "Missing $part" >&2; exit 1; }
           done
 
-          cat .recovery/part-{00..09} | tr -d '\r\n' | base64 -d > /tmp/valeibol-missing.tar.gz
+          cat .recovery/part-{00..07} .recovery/part-08a .recovery/part-08b .recovery/part-08c .recovery/part-09 | tr -d '\r\n' | base64 -d > /tmp/valeibol-missing.tar.gz
           tar -tzf /tmp/valeibol-missing.tar.gz >/dev/null
           tar -xzf /tmp/valeibol-missing.tar.gz -C .
 
