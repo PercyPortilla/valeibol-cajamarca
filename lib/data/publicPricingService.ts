@@ -25,7 +25,11 @@ function fallbackSnapshot(date: string): PublicPricingSnapshot {
 
 export async function getPublicCurrentPricing(): Promise<PublicPricingSnapshot> {
   const date = businessTodayDateKey();
-  if (!hasPublicSupabaseServerConfig()) return fallbackSnapshot(date);
+  if (!hasPublicSupabaseServerConfig()) {
+    return process.env.NODE_ENV === "production"
+      ? { source: "unavailable", currency: businessConfig.currency, date, courtName: null, withoutLights: null, withLights: null }
+      : fallbackSnapshot(date);
+  }
 
   try {
     const client = await createServerSupabaseClient();
