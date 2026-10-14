@@ -20,7 +20,8 @@
     "validate:repo": "node scripts/validate-repository.mjs",
     "validate:hardening": "node scripts/validate-production-hardening.mjs",
     "validate:supabase-security": "node scripts/validate-supabase-security.mjs",
-    "integration:e2e": "node scripts/integration-e2e-concurrency.mjs"
+    "integration:e2e": "node scripts/integration-e2e-concurrency.mjs",
+    "smoke:production": "node scripts/smoke-production.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
