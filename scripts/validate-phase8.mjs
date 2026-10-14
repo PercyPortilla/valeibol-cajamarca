@@ -6,10 +6,12 @@ const read = (path) => readFileSync(resolve(root, path), "utf8");
 const migrationPath = "supabase/migrations/202610140007_phase8_whatsapp.sql";
 const routePath = "app/api/internal/whatsapp/process/route.ts";
 const clientPath = "lib/whatsapp/cloudApi.ts";
+const authPath = "lib/whatsapp/processorAuth.ts";
 
 const migration = read(migrationPath);
 const route = read(routePath);
 const client = read(clientPath);
+const auth = read(authPath);
 
 const checks = [
   ["migration exists", existsSync(resolve(root, migrationPath))],
@@ -20,9 +22,10 @@ const checks = [
   ["processor secret", route.includes("WHATSAPP_PROCESSOR_SECRET")],
   ["official Cloud API", client.includes("graph.facebook.com") && client.includes('messaging_product: "whatsapp"')],
   ["API version explicit", client.includes('required("WHATSAPP_API_VERSION")')],
-  ["constant-time processor secret", route.includes("timingSafeEqual")],
+  ["constant-time processor secret", auth.includes("timingSafeEqual") && route.includes("isProcessorAuthorizationValid")],
   ["E.164 literal plus", client.includes("/^[+][1-9][0-9]{7,14}$/") && migration.includes("'^[+][1-9][0-9]{7,14}$'")],
   ["stale processing recovery", migration.includes("o.status = 'processing'") && migration.includes("interval '5 minutes'")],
+  ["provider id required", client.includes("returned no message id")],
   ["no PII response", route.includes("claimed: claimed.length") && !route.includes("recipient_e164, sent")],
 ];
 
