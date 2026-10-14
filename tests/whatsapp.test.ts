@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hasWhatsAppServerConfig } from "../lib/whatsapp/cloudApi.ts";
+import { hasWhatsAppServerConfig, normalizeWhatsAppRecipient } from "../lib/whatsapp/cloudApi.ts";
 
 const KEYS = [
   "WHATSAPP_ACCESS_TOKEN",
@@ -38,4 +38,16 @@ test("WhatsApp exige el conjunto completo de configuración", () => {
       else process.env[key] = before[key];
     }
   }
+});
+
+
+test("WhatsApp acepta E.164 con + y elimina solo el prefijo para Meta", () => {
+  assert.equal(normalizeWhatsAppRecipient("+51911111111"), "51911111111");
+  assert.equal(normalizeWhatsAppRecipient("  +51911111111  "), "51911111111");
+});
+
+test("WhatsApp rechaza destinatarios que no sean E.164", () => {
+  assert.throws(() => normalizeWhatsAppRecipient("51911111111"), /Invalid WhatsApp recipient/);
+  assert.throws(() => normalizeWhatsAppRecipient("+51 911 111 111"), /Invalid WhatsApp recipient/);
+  assert.throws(() => normalizeWhatsAppRecipient("+00000000"), /Invalid WhatsApp recipient/);
 });
