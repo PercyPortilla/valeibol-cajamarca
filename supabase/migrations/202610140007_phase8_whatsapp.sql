@@ -28,7 +28,7 @@ create table if not exists public.whatsapp_outbox (
   business_id uuid not null references public.businesses(id) on delete cascade,
   reservation_id uuid references public.reservations(id) on delete set null,
   kind public.whatsapp_message_kind not null,
-  recipient_e164 text not null check (recipient_e164 ~ '^\\+[1-9][0-9]{7,14}$'),
+  recipient_e164 text not null check (recipient_e164 ~ '^[+][1-9][0-9]{7,14}$'),
   template_key text not null check (template_key ~ '^[a-z0-9_]+$'),
   template_variables jsonb not null default '[]'::jsonb,
   status public.whatsapp_delivery_status not null default 'pending',
@@ -76,7 +76,7 @@ begin
     return null;
   end if;
 
-  if btrim(p_phone) ~ '^\\+[1-9][0-9]{7,14}$' then
+  if btrim(p_phone) ~ '^[+][1-9][0-9]{7,14}$' then
     return btrim(p_phone);
   end if;
 
