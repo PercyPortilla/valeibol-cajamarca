@@ -11,7 +11,7 @@ export type SendWhatsAppTemplateInput = {
 };
 
 export type SendWhatsAppTemplateResult = {
-  providerMessageId: string | null;
+  providerMessageId: string;
 };
 
 type WhatsAppConfig = {
@@ -106,5 +106,10 @@ export async function sendWhatsAppTemplate(
     throw new Error(`WhatsApp provider rejected message${providerCode}.`);
   }
 
-  return { providerMessageId: payload?.messages?.[0]?.id ?? null };
+  const providerMessageId = payload?.messages?.[0]?.id?.trim();
+  if (!providerMessageId) {
+    throw new Error("WhatsApp provider returned no message id.");
+  }
+
+  return { providerMessageId };
 }
