@@ -5,7 +5,7 @@
 
 begin;
 
--- 1) Superficie pública mínima: RPC sí, tablas privadas no.
+-- 1) Superficie pública endurecida: navegador sin escritura autoritativa; tablas privadas no.
 do $$
 declare
   fn_oid oid;
@@ -26,8 +26,15 @@ begin
     and p.proname = 'create_public_reservation_request'
   limit 1;
 
-  if fn_oid is null or not has_function_privilege('anon', fn_oid, 'EXECUTE') then
-    raise exception 'anon debe poder ejecutar create_public_reservation_request';
+  if fn_oid is null then
+    raise exception 'create_public_reservation_request debe existir';
+  end if;
+  if has_function_privilege('anon', fn_oid, 'EXECUTE')
+     or has_function_privilege('authenticated', fn_oid, 'EXECUTE') then
+    raise exception 'navegador no debe ejecutar create_public_reservation_request tras hardening';
+  end if;
+  if not has_function_privilege('service_role', fn_oid, 'EXECUTE') then
+    raise exception 'service_role debe ejecutar create_public_reservation_request desde el endpoint seguro';
   end if;
 end;
 $$;
@@ -50,8 +57,8 @@ begin
 end;
 $$;
 
--- 3) Solicitud anónima real: debe funcionar mediante SECURITY DEFINER.
-set local role anon;
+-- 3) Solicitud real por el canal autoritativo server-side.
+set local role service_role;
 select * from public.create_public_reservation_request(
   'valeibol-cajamarca',
   '20000000-0000-4000-8000-000000000001',
