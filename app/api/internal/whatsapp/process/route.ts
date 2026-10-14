@@ -1,6 +1,6 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleSupabaseClient } from "@/lib/data/supabase/service";
+import { isProcessorAuthorizationValid } from "@/lib/whatsapp/processorAuth";
 import {
   hasWhatsAppServerConfig,
   sendWhatsAppTemplate,
@@ -19,25 +19,13 @@ type ClaimedMessage = {
   attempts: number;
 };
 
-function isAuthorized(request: NextRequest) {
-  const secret = process.env.WHATSAPP_PROCESSOR_SECRET?.trim();
-  const authorization = request.headers.get("authorization");
-  if (!secret || !authorization?.startsWith("Bearer ")) return false;
-
-  const supplied = authorization.slice("Bearer ".length);
-  const expectedBytes = Buffer.from(secret);
-  const suppliedBytes = Buffer.from(supplied);
-  if (expectedBytes.length !== suppliedBytes.length) return false;
-  return timingSafeEqual(expectedBytes, suppliedBytes);
-}
-
 function variables(value: unknown) {
   if (!Array.isArray(value)) return [];
   return value.map((item) => String(item ?? "").slice(0, 1024));
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAuthorized(request)) {
+  if (!isProcessorAuthorizationValid(request.headers.get("authorization"), process.env.WHATSAPP_PROCESSOR_SECRET)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
