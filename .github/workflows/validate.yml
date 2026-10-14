@@ -1,41 +1,38 @@
 name: Validate Valeibol
+
 on:
   push:
-    branches: [main, 'work/backend-recovery']
+    branches: [main, "work/**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
+
+      - name: Verify repository completeness
+        run: node scripts/validate-repository.mjs
+
+      - name: Install reproducible dependencies
         run: npm ci --no-audit --no-fund
-      - name: Require backend artifacts
-        run: |
-          set -euo pipefail
-          test -f supabase/migrations/202610140001_phase3_core.sql
-          test -f supabase/migrations/202610140002_phase4_public_booking.sql
-          test -f supabase/migrations/202610140003_phase5_admin_auth.sql
-          test -f supabase/migrations/202610140004_phase6_admin_operations.sql
-          test -f supabase/migrations/202610140005_phase7_customers_pricing_metrics.sql
-          test -f supabase/seed.sql
-          test -f supabase/tests/phase3.sql
-          test -f supabase/tests/phase4.sql
-          test -f supabase/tests/phase5.sql
-          test -f supabase/tests/phase6.sql
-          test -f supabase/tests/phase7.sql
-          test -f tests/phase7.test.ts
-      - name: Typecheck
-        run: npm run typecheck
+
       - name: Lint
         run: npm run lint
-      - name: Unit tests
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit and model tests
         run: npm test
-      - name: Phase 7 QA
+
+      - name: Phase QA
         run: npm run qa
+
       - name: Production build
         run: npm run build
