@@ -1,0 +1,35 @@
+name: Validate Valeibol
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Phase 7 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d .bootstrap
+          cat .bootstrap/part-00 .bootstrap/part-01 .bootstrap/part-02 .bootstrap/part-03 .bootstrap/part-04 .bootstrap/part-05 .bootstrap/part-06 .bootstrap/part-07 .bootstrap/part-08             | tr -d '\r\n'             | base64 -d > /tmp/valeibol.tar.gz
+          tar -xzf /tmp/valeibol.tar.gz -C .
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
