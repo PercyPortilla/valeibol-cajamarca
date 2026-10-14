@@ -16,7 +16,7 @@ const failures = [];
 for (const { name, text } of migrations) {
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i += 1) {
-    if (!/\bsecurity\s+definer\b/i.test(lines[i])) continue;
+    if (/^\s*--/.test(lines[i]) || !/\bsecurity\s+definer\b/i.test(lines[i])) continue;
     const nearby = lines.slice(i, i + 5).join("\n");
     if (!/set\s+search_path\s*=\s*public\s*,\s*pg_temp/i.test(nearby)) {
       failures.push(`${name}:${i + 1} SECURITY DEFINER sin search_path = public, pg_temp`);
