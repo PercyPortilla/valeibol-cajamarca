@@ -36,6 +36,7 @@ const required = [
   "scripts/integration-phase4-concurrency.mjs",
   "scripts/integration-phase5-auth.mjs",
   "scripts/integration-phase6-concurrency.mjs",
+  "scripts/integration-e2e-concurrency.mjs",
   "scripts/validate-production-hardening.mjs",
   "scripts/validate-phase8.mjs",
   "scripts/validate-supabase-security.mjs",

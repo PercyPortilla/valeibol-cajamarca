@@ -5,7 +5,7 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !anonKey || !serviceRole) {
-  console.error("SKIP: configura NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY para la prueba de integración Fase 6.");
+  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY y SUPABASE_SERVICE_ROLE_KEY para la prueba de integración Fase 6.");
   process.exit(2);
 }
 
