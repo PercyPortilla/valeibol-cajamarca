@@ -8,17 +8,18 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types tests/*.test.ts",
-    "qa": "node scripts/validate-phase7.mjs && node scripts/validate-production-hardening.mjs && npm test",
+    "qa": "node scripts/validate-supabase-security.mjs && node scripts/validate-phase7.mjs && node scripts/validate-production-hardening.mjs && npm test",
     "supabase:start": "supabase start",
     "supabase:reset": "supabase db reset",
-    "supabase:test": "psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase3.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase4.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase5.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase6.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase7.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase7_hardening.sql",
+    "supabase:test": "psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase3.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase4.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase5.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase6.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase7.sql && psql \"$LOCAL_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/phase7_hardening.sql && psql \\\"$LOCAL_DB_URL\\\" -v ON_ERROR_STOP=1 -f supabase/tests/security-baseline.sql",
     "smoke:supabase": "node scripts/smoke-supabase.mjs",
     "integration:phase4": "node scripts/integration-phase4-concurrency.mjs",
     "integration:phase5": "node scripts/integration-phase5-auth.mjs",
     "lint": "eslint .",
     "integration:phase6": "node scripts/integration-phase6-concurrency.mjs",
     "validate:repo": "node scripts/validate-repository.mjs",
-    "validate:hardening": "node scripts/validate-production-hardening.mjs"
+    "validate:hardening": "node scripts/validate-production-hardening.mjs",
+    "validate:supabase-security": "node scripts/validate-supabase-security.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -36,4 +37,4 @@
     "eslint-config-next": "16.4.0"
   },
   "type": "module"
-}
+}\n
