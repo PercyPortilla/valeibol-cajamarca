@@ -9,15 +9,23 @@ import { getPublicCurrentPricing } from "@/lib/data/publicPricingService";
 import { formatMoney } from "@/lib/booking";
 
 const services = [
-  { icon: "01", title: "Cancha cubierta", text: "Espacio deportivo techado para práctica de vóley." },
-  { icon: "02", title: "Uso por hora", text: "Consulta bloques disponibles antes de contactar al negocio." },
-  { icon: "03", title: "Iluminación opcional", text: "Tarifa diferenciada para uso sin luz o con iluminación." },
+  { icon: "⌂", title: "Cancha cubierta", text: "Espacio techado para jugar vóley con mayor comodidad." },
+  { icon: "◷", title: "Reserva por hora", text: "Consulta bloques disponibles y solicita el horario que prefieras." },
+  { icon: "☼", title: "Iluminación opcional", text: "Elige la tarifa correspondiente según necesites iluminación." },
+];
+
+const galleryItems = [
+  { label: "Vista general", detail: "Imagen del local próximamente" },
+  { label: "Cancha", detail: "Imagen del local próximamente" },
+  { label: "Red y zona de juego", detail: "Imagen del local próximamente" },
+  { label: "Ingreso", detail: "Imagen del local próximamente" },
 ];
 
 export default async function HomePage() {
   const pricing = await getPublicCurrentPricing();
   const pricingAvailable = pricing.withoutLights !== null && pricing.withLights !== null;
   const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.address)}`;
+  const mapsEmbedHref = `https://www.google.com/maps?q=${encodeURIComponent(businessConfig.address)}&output=embed`;
   const phoneDigits = businessConfig.phone.replace(/\D/g, "");
   const phoneHref = `tel:+51${phoneDigits}`;
   const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
@@ -75,13 +83,13 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section section--raised availability-section" id="disponibilidad">
+        <section className="section section--commercial availability-section" id="disponibilidad">
           <div className="shell">
-            <div className="section-heading section-heading--availability">
+            <div className="section-heading section-heading--commercial section-heading--availability">
               <div>
-                <span className="eyebrow">CONSULTA PRIMERO, RESERVA DESPUÉS</span>
-                <h2>Disponibilidad semanal</h2>
-                <p>Revisa rápidamente los bloques disponibles y elige el horario que mejor te convenga antes de enviar tu solicitud.</p>
+                <span className="eyebrow">HORARIOS</span>
+                <h2>Horarios disponibles</h2>
+                <p>Selecciona un día, revisa los bloques y solicita el horario que más te convenga.</p>
               </div>
               <div className="privacy-pill">Tus datos se solicitan solo al reservar</div>
             </div>
@@ -89,47 +97,19 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section shell" id="precios">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">TARIFAS VIGENTES</span>
-              <h2>Precios claros por hora.</h2>
-              <p>{pricing.source === "supabase" ? "Tarifas vigentes para hoy." : pricing.source === "mock-provisional" ? "Precios referenciales para orientarte antes de solicitar." : "Consulta el precio aplicable al momento de solicitar tu horario."}</p>
-            </div>
-          </div>
-          {pricingAvailable ? (
-            <div className="price-grid">
-              <Card className="price-card">
-                <Badge tone={pricing.source === "supabase" ? "success" : "neutral"}>{pricing.source === "supabase" ? "Vigente" : "Referencial"}</Badge>
-                <span>Sin luz</span>
-                <strong>{formatMoney(pricing.withoutLights!, pricing.currency)}<small>/hora</small></strong>
-                <p>Tarifa aplicable hoy para una hora de uso de cancha sin iluminación.</p>
-              </Card>
-              <Card className="price-card price-card--featured">
-                <Badge tone="warning">Con iluminación</Badge>
-                <span>Con luz</span>
-                <strong>{formatMoney(pricing.withLights!, pricing.currency)}<small>/hora</small></strong>
-                <p>Tarifa aplicable hoy para una hora de uso de cancha con iluminación.</p>
-              </Card>
-            </div>
-          ) : (
-            <Card className="price-card"><Badge tone="warning">Temporalmente no disponible</Badge><p>No mostramos una tarifa posiblemente desactualizada. Intenta nuevamente o confirma el precio al solicitar.</p></Card>
-          )}
-        </section>
-
-        <section className="section section--soft" id="servicios">
+        <section className="section section--commercial section--services" id="servicios">
           <div className="shell">
-            <div className="section-heading">
+            <div className="section-heading section-heading--commercial">
               <div>
                 <span className="eyebrow">SERVICIOS</span>
-                <h2>Lo esencial para jugar.</h2>
-                <p>Solo se muestran características conocidas; no se inventan servicios no confirmados.</p>
+                <h2>Nuestros servicios</h2>
+                <p>Lo esencial para organizar tu próxima hora de vóley.</p>
               </div>
             </div>
-            <div className="feature-grid">
+            <div className="feature-grid feature-grid--commercial">
               {services.map((service) => (
-                <Card key={service.title}>
-                  <span className="feature-icon">{service.icon}</span>
+                <Card key={service.title} className="service-card">
+                  <span className="feature-icon" aria-hidden="true">{service.icon}</span>
                   <h3>{service.title}</h3>
                   <p>{service.text}</p>
                 </Card>
@@ -138,54 +118,113 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section shell" id="galeria">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">GALERÍA</span>
-              <h2>Conoce el espacio.</h2>
-              <p>Estamos preparando nuevas imágenes del local. Mientras tanto, puedes consultar horarios, precios y ubicación.</p>
-            </div>
-          </div>
-          <div className="gallery-grid">
-            {["Vista general", "Cancha", "Red", "Techo", "Iluminación", "Ingreso"].map((label, index) => (
-              <div className="gallery-placeholder" key={label}>
-                <span>0{index + 1}</span>
-                <strong>{label}</strong>
-                <small>Imagen próximamente</small>
+        <section className="section section--commercial price-section" id="precios">
+          <div className="shell price-layout">
+            <div className="section-heading section-heading--commercial price-layout__intro">
+              <div>
+                <span className="eyebrow">PRECIOS</span>
+                <h2>Tarifas por hora</h2>
+                <p>
+                  {pricing.source === "supabase"
+                    ? "Tarifas vigentes para hoy."
+                    : pricingAvailable
+                      ? "Precios referenciales para ayudarte a planificar."
+                      : "Consulta el precio aplicable al momento de solicitar tu horario."}
+                </p>
               </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="section section--soft" id="informacion">
-          <div className="shell info-grid">
-            <div>
-              <span className="eyebrow">INFORMACIÓN</span>
-              <h2>{businessConfig.name}</h2>
-              <p className="info-lead">{businessConfig.category} en {businessConfig.city}. El sitio está diseñado para que disponibilidad y precios sean lo primero que el cliente pueda resolver.</p>
-              <dl className="info-list">
-                <div><dt>Ciudad</dt><dd>{businessConfig.city}, {businessConfig.country}</dd></div>
-                <div><dt>Dirección</dt><dd>{businessConfig.address}</dd></div>
-                <div><dt>Horario de atención</dt><dd>Consulta los bloques disponibles en el calendario</dd></div>
-                <div><dt>Reserva</dt><dd>Envía tu solicitud desde un horario disponible y espera la confirmación</dd></div>
-              </dl>
             </div>
-            <CourtVisual />
+
+            {pricingAvailable ? (
+              <div className="price-grid price-grid--commercial">
+                <Card className="price-card price-card--commercial price-card--featured">
+                  <Badge tone={pricing.source === "supabase" ? "success" : "neutral"}>
+                    {pricing.source === "supabase" ? "Tarifa vigente" : "Referencial"}
+                  </Badge>
+                  <span>Sin iluminación</span>
+                  <strong>{formatMoney(pricing.withoutLights!, pricing.currency)}<small>/hora</small></strong>
+                  <ul className="price-benefits">
+                    <li>Uso de cancha cubierta</li>
+                    <li>Reserva por bloques de una hora</li>
+                  </ul>
+                </Card>
+                <Card className="price-card price-card--commercial price-card--light">
+                  <Badge tone="warning">Con iluminación</Badge>
+                  <span>Con iluminación</span>
+                  <strong>{formatMoney(pricing.withLights!, pricing.currency)}<small>/hora</small></strong>
+                  <ul className="price-benefits">
+                    <li>Uso de cancha cubierta</li>
+                    <li>Iluminación incluida en esta tarifa</li>
+                  </ul>
+                </Card>
+              </div>
+            ) : (
+              <Card className="price-card price-card--commercial">
+                <Badge tone="warning">Consultar tarifa</Badge>
+                <p>La tarifa no está disponible en este momento. Confírmala al solicitar tu horario.</p>
+              </Card>
+            )}
           </div>
         </section>
 
-        <section className="section shell" id="ubicacion">
-          <div className="contact-panel">
-            <div>
+        <section className="section section--commercial gallery-section" id="galeria">
+          <div className="shell">
+            <div className="section-heading section-heading--commercial gallery-heading">
+              <div>
+                <span className="eyebrow">GALERÍA</span>
+                <h2>Conoce nuestras instalaciones</h2>
+                <p>Las fotografías reales del local se incorporarán cuando estén disponibles.</p>
+              </div>
+              <a href="#ubicacion" className="text-link">Ver ubicación <span aria-hidden="true">→</span></a>
+            </div>
+            <div className="gallery-grid gallery-grid--commercial">
+              {galleryItems.map((item, index) => (
+                <div className="gallery-placeholder gallery-placeholder--commercial" key={item.label}>
+                  <span className="gallery-placeholder__number">0{index + 1}</span>
+                  <div>
+                    <strong>{item.label}</strong>
+                    <small>{item.detail}</small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section section--commercial location-section" id="ubicacion">
+          <div className="shell location-layout">
+            <div className="location-copy">
               <span className="eyebrow">UBICACIÓN Y CONTACTO</span>
-              <h2>¿Encontraste un horario libre?</h2>
-              <p>Si un bloque aparece disponible, puedes iniciar la solicitud digital desde el calendario. La solicitud queda pendiente hasta que el propietario la apruebe; también conservamos el contacto directo del negocio.</p>
+              <h2>Encuéntranos en Cajamarca</h2>
+              <p>Consulta un horario disponible y contáctanos directamente si necesitas ayuda antes de reservar.</p>
+
+              <div className="location-facts" id="contacto">
+                <a href={mapsHref} target="_blank" rel="noreferrer">
+                  <span aria-hidden="true">⌖</span>
+                  <div><small>Dirección</small><strong>{businessConfig.address}</strong></div>
+                </a>
+                <a href={phoneHref}>
+                  <span aria-hidden="true">☎</span>
+                  <div><small>Teléfono</small><strong>{businessConfig.phone}</strong></div>
+                </a>
+                <a href={whatsappHref} target="_blank" rel="noreferrer">
+                  <span aria-hidden="true">●</span>
+                  <div><small>WhatsApp</small><strong>Consultar disponibilidad</strong></div>
+                </a>
+              </div>
+
+              <div className="location-actions">
+                <a className="button button--primary" href="#disponibilidad">Reservar ahora</a>
+                <a className="button button--commercial-outline" href={mapsHref} target="_blank" rel="noreferrer">Abrir en Google Maps</a>
+              </div>
             </div>
-            <div className="contact-actions" id="contacto">
-              <a className="button button--primary" href={whatsappHref} target="_blank" rel="noreferrer">Consultar por WhatsApp</a>
-              <a className="button button--secondary" href={phoneHref}>Llamar al {businessConfig.phone}</a>
-              <a className="button button--secondary" href={mapsHref} target="_blank" rel="noreferrer">Ver ubicación</a>
-              <address>{businessConfig.address}</address>
+
+            <div className="map-card">
+              <iframe
+                src={mapsEmbedHref}
+                title={`Mapa de ${businessConfig.name} en Cajamarca`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </div>
           </div>
         </section>
