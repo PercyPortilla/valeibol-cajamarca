@@ -21,17 +21,7 @@ const checks = [
   ["official Cloud API", client.includes("graph.facebook.com") && client.includes('messaging_product: "whatsapp"')],
   ["API version explicit", client.includes('required("WHATSAPP_API_VERSION")')],
   ["constant-time processor secret", route.includes("timingSafeEqual")],
-  ["E.164 literal plus", client.includes("/^[+][1-9][0-9]{7,14}$/") && migration.includes("'^[+][1-9][0-9]{7,14}
-];
-
-let failed = 0;
-for (const [name, ok] of checks) {
-  console.log(`${ok ? "PASS" : "FAIL"} · ${name}`);
-  if (!ok) failed += 1;
-}
-if (failed) process.exit(1);
-console.log(`QA Fase 8: ${checks.length}/${checks.length} PASS`);
-")],
+  ["E.164 literal plus", client.includes("/^[+][1-9][0-9]{7,14}$/") && migration.includes("'^[+][1-9][0-9]{7,14}$'")],
   ["stale processing recovery", migration.includes("o.status = 'processing'") && migration.includes("interval '5 minutes'")],
   ["no PII response", route.includes("claimed: claimed.length") && !route.includes("recipient_e164, sent")],
 ];
