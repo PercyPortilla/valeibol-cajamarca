@@ -31,7 +31,7 @@ begin
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'public'
-    and (p.proname like 'admin\_%' escape '\\' or p.proname like 'get\_admin\_%' escape '\\')
+    and (p.proname like 'admin\_%' escape '\' or p.proname like 'get\_admin\_%' escape '\')
     and has_function_privilege('anon', p.oid, 'EXECUTE');
 
   if exposed_functions is not null then
