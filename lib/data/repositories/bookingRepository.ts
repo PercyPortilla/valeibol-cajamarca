@@ -71,6 +71,7 @@ export type BookingErrorCode =
   | "pricing_not_found"
   | "not_found"
   | "configuration"
+  | "rate_limited"
   | "network"
   | "unknown";
 
