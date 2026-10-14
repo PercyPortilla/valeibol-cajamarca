@@ -26,7 +26,7 @@ jobs:
             exit 0
           fi
 
-          for part in .recovery/part-{00..09}; do
+          for part in .recovery/part-{00..07} .recovery/part-08a .recovery/part-08b .recovery/part-08c .recovery/part-09; do
             test -f "$part" || { echo "Missing $part" >&2; exit 1; }
           done
 
