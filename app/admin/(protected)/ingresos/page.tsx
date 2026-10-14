@@ -67,7 +67,7 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
           </Card>
         </div>
 
-        <Card className="phase7-payments-pending"><Badge tone="neutral">Fase futura</Badge><h2>Dinero efectivamente cobrado</h2><p>No disponible todavía. Se habilitará cuando exista un módulo de pagos que pueda demostrar el cobro real.</p></Card>
+        <Card className="phase7-payments-pending"><Badge tone="neutral">Próximamente</Badge><h2>Dinero efectivamente cobrado</h2><p>No disponible todavía. Se habilitará cuando exista un módulo de pagos que pueda demostrar el cobro real.</p></Card>
       </>
     );
   } catch (error) {
