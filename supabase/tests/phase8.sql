@@ -2,8 +2,19 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- La normalización conserva E.164 válido y admite formato peruano local.
+do $
+begin
+  if public.phase8_normalize_peru_phone('+51911111118') <> '+51911111118' then
+    raise exception 'FAIL: E.164 válido no se conserva';
+  end if;
+  if public.phase8_normalize_peru_phone('911 111 118') <> '+51911111118' then
+    raise exception 'FAIL: teléfono peruano local no se normaliza';
+  end if;
+end $;
+
 -- El outbox contiene PII operativa y nunca debe ser visible para navegador.
-do $$
+do $
 begin
   if has_table_privilege('anon', 'public.whatsapp_outbox', 'SELECT')
      or has_table_privilege('authenticated', 'public.whatsapp_outbox', 'SELECT')
@@ -65,6 +76,35 @@ begin
   end if;
 end $$;
 
+insert into public.whatsapp_outbox (
+  id, business_id, reservation_id, kind, recipient_e164,
+  template_key, template_variables, status, attempts, locked_at
+) values (
+  '50000000-0000-4000-8000-000000000008',
+  '10000000-0000-4000-8000-000000000001',
+  null,
+  'customer_reminder',
+  '+51911111118',
+  'customer_reminder',
+  '[]'::jsonb,
+  'processing',
+  1,
+  now() - interval '10 minutes'
+);
+
+do $
+declare
+  n integer;
+begin
+  select count(*) into n
+  from public.phase8_claim_whatsapp_messages(20)
+  where message_id = '50000000-0000-4000-8000-000000000008';
+
+  if n <> 1 then
+    raise exception 'FAIL: mensaje processing atascado no fue recuperado';
+  end if;
+end $;
+
 update public.reservations
 set status = 'confirmed'
 where id = '40000000-0000-4000-8000-000000000008';
@@ -103,4 +143,4 @@ begin
 end $$;
 
 rollback;
-\echo 'PASS phase8.sql · privacidad/outbox/idempotencia/transiciones'
+\echo 'PASS phase8.sql · privacidad/E.164/outbox/idempotencia/recovery/transiciones'
