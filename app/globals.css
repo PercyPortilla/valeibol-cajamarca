@@ -2604,3 +2604,18 @@ button { cursor: pointer; }
 .booking-quote small {
   color: #53657a;
 }
+
+
+/* UI commercial reference · tokens públicos */
+.commercial-main {
+  --surface: #ffffff;
+  --surface-2: #f5f8fb;
+  --surface-soft: #f8fafc;
+  --border: rgba(16, 38, 76, .14);
+  --border-strong: rgba(16, 38, 76, .22);
+  --text: #10264c;
+  --muted: #4d5f74;
+  --blue-soft: rgba(47, 117, 200, .11);
+  --green-soft: rgba(18, 135, 83, .11);
+  --red-soft: rgba(204, 55, 67, .09);
+}
