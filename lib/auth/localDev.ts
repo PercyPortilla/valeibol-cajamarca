@@ -1,4 +1,5 @@
 export const LOCAL_DEV_ADMIN_COOKIE = "valeibol_local_admin";
+export const LOCAL_DEV_ADMIN_USER_ID = "local-dev-admin";
 
 const LOCAL_DEV_ADMIN_USERNAME = "admin";
 const LOCAL_DEV_ADMIN_PASSWORD = "12345";
@@ -30,5 +31,9 @@ export function validateLocalDevAdminCredentials(input: {
     input.username.trim() === LOCAL_DEV_ADMIN_USERNAME &&
     input.password === LOCAL_DEV_ADMIN_PASSWORD
   );
+}
+
+export function isLocalDevAdminUserId(userId: string | null | undefined) {
+  return userId === LOCAL_DEV_ADMIN_USER_ID;
 }
 

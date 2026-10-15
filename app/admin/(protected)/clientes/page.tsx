@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import { requireAdminContext } from "@/lib/auth/server";
+import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { createPhase7Repository } from "@/lib/data/phase7Service";
 import { Phase7RepositoryError } from "@/lib/data/repositories/phase7Repository";
 import { formatAdminDateTime, formatMoney, lightingLabel, reservationStatusLabel, reservationStatusTone } from "@/lib/admin/reservations";
@@ -14,7 +15,7 @@ function isUuid(value: string | undefined) {
 export default async function AdminCustomersPage({ searchParams }: { searchParams: Promise<{ cliente?: string }> }) {
   const context = await requireAdminContext();
   const { cliente } = await searchParams;
-  const repository = createPhase7Repository();
+  const repository = createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) });
 
   try {
     const customers = await repository.listCustomers(200);

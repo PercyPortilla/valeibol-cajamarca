@@ -4,6 +4,7 @@ import { EmptyState, ErrorState } from "@/components/ui/States";
 import { createAdminReservationRepository } from "@/lib/data/adminService";
 import { AdminReservationRepositoryError } from "@/lib/data/repositories/adminReservationRepository";
 import { requireAdminContext } from "@/lib/auth/server";
+import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import {
   formatAdminDateTime,
   formatMoney,
@@ -17,7 +18,7 @@ export default async function AdminReservationsPage() {
   let reservations;
 
   try {
-    reservations = await createAdminReservationRepository().list(100);
+    reservations = await createAdminReservationRepository({ local: isLocalDevAdminUserId(context.userId) }).list(100);
   } catch (error) {
     return (
       <>

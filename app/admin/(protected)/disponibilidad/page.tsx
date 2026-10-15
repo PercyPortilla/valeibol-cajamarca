@@ -3,6 +3,7 @@ import { AdminScheduleBoard } from "../../../../components/admin/AdminScheduleBo
 import { Badge } from "../../../../components/ui/Badge.tsx";
 import { EmptyState, ErrorState } from "../../../../components/ui/States.tsx";
 import { requireAdminContext } from "../../../../lib/auth/server.ts";
+import { isLocalDevAdminUserId } from "../../../../lib/auth/localDev.ts";
 import { addDays, businessTodayDateKey, formatWeekRange } from "../../../../lib/availability.ts";
 import { getAdminWeekRange } from "../../../../lib/admin/schedule.ts";
 import type { AdminPricingRule } from "../../../../lib/admin/phase7.ts";
@@ -29,7 +30,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
 
   let snapshot;
   try {
-    snapshot = await createAdminOperationsRepository().getSchedule(range.from, range.to, context.timezone);
+    snapshot = await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).getSchedule(range.from, range.to, context.timezone);
   } catch (error) {
     return (
       <>
@@ -41,7 +42,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
 
   let pricingRules: AdminPricingRule[] = [];
   try {
-    pricingRules = await createPhase7Repository().listPricingRules();
+    pricingRules = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).listPricingRules();
   } catch {
     pricingRules = [];
   }

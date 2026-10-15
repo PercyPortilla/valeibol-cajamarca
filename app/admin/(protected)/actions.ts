@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { AdminAuthError, getAdminContext } from "../../../lib/auth/server.ts";
+import { isLocalDevAdminUserId } from "../../../lib/auth/localDev.ts";
+import type { AdminContext } from "../../../lib/auth/server.ts";
 import { canPerformAdminOperation } from "../../../lib/admin/operations.ts";
 import { canPerformPhase7Operation, type SchedulePricingInput } from "../../../lib/admin/phase7.ts";
 import { createPhase7Repository } from "../../../lib/data/phase7Service.ts";
@@ -48,14 +50,14 @@ function isClockTime(value: string) {
 
 async function runAuthorized(
   operation: Parameters<typeof canPerformAdminOperation>[1],
-  work: () => Promise<string>,
+  work: (context: AdminContext) => Promise<string>,
 ): Promise<AdminActionResult> {
   try {
     const context = await getAdminContext();
     if (!canPerformAdminOperation(context.role, operation)) {
       return fail("unauthorized", "Tu rol no permite realizar esta operación.");
     }
-    const message = await work();
+    const message = await work(context);
     refreshScheduleViews();
     return { ok: true, message };
   } catch (error) {
@@ -75,16 +77,16 @@ async function runAuthorized(
 
 export async function confirmReservationAction(reservationId: string): Promise<AdminActionResult> {
   if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
-  return runAuthorized("confirm_reservation", async () => {
-    await createAdminOperationsRepository().confirmReservation(reservationId);
+  return runAuthorized("confirm_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).confirmReservation(reservationId);
     return "Solicitud confirmada. El intervalo permanece ocupado sin crear una segunda ocupación.";
   });
 }
 
 export async function cancelReservationAction(reservationId: string): Promise<AdminActionResult> {
   if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
-  return runAuthorized("cancel_reservation", async () => {
-    await createAdminOperationsRepository().cancelReservation(reservationId);
+  return runAuthorized("cancel_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).cancelReservation(reservationId);
     return "Reserva cancelada. El intervalo quedó liberado según las reglas de agenda.";
   });
 }
@@ -117,8 +119,8 @@ export async function createManualReservationAction(
 ): Promise<AdminActionResult> {
   const validated = validateReservationInput(raw);
   if (!validated.ok) return validated.result;
-  return runAuthorized("create_manual_reservation", async () => {
-    const result = await createAdminOperationsRepository().createManualReservation(validated.input);
+  return runAuthorized("create_manual_reservation", async (context) => {
+    const result = await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).createManualReservation(validated.input);
     return `Reserva manual confirmada. Total autoritativo: ${result.currency ?? "PEN"} ${Number(result.totalAmount ?? 0).toFixed(2)}.`;
   });
 }
@@ -128,8 +130,8 @@ export async function editReservationAction(raw: EditReservationInput): Promise<
   const validated = validateReservationInput({ ...raw, source: "admin" });
   if (!validated.ok) return validated.result;
 
-  return runAuthorized("edit_reservation", async () => {
-    await createAdminOperationsRepository().editReservation({
+  return runAuthorized("edit_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).editReservation({
       reservationId: raw.reservationId,
       courtId: validated.input.courtId,
       date: validated.input.date,
@@ -153,16 +155,16 @@ export async function createScheduleBlockAction(raw: CreateScheduleBlockInput): 
   }
   const internalNote = raw.internalNote?.trim().slice(0, 500) || null;
 
-  return runAuthorized("create_block", async () => {
-    await createAdminOperationsRepository().createScheduleBlock({ ...raw, internalNote });
+  return runAuthorized("create_block", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).createScheduleBlock({ ...raw, internalNote });
     return "Horario bloqueado. La web pública lo mostrará como No disponible.";
   });
 }
 
 export async function unblockScheduleAction(blockId: string): Promise<AdminActionResult> {
   if (!isUuid(blockId)) return fail("validation", "Identificador de bloqueo inválido.");
-  return runAuthorized("unblock", async () => {
-    await createAdminOperationsRepository().unblock(blockId);
+  return runAuthorized("unblock", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).unblock(blockId);
     return "Bloqueo retirado. El intervalo vuelve a calcularse desde la agenda real.";
   });
 }
@@ -170,14 +172,14 @@ export async function unblockScheduleAction(blockId: string): Promise<AdminActio
 
 async function runPhase7Authorized(
   operation: Parameters<typeof canPerformPhase7Operation>[1],
-  work: () => Promise<string>,
+  work: (context: AdminContext) => Promise<string>,
 ): Promise<AdminActionResult> {
   try {
     const context = await getAdminContext();
     if (!canPerformPhase7Operation(context.role, operation)) {
       return fail("unauthorized", "Tu rol no permite realizar esta operación.");
     }
-    const message = await work();
+    const message = await work(context);
     revalidatePath("/");
     revalidatePath("/admin");
     revalidatePath("/admin/precios");
@@ -209,8 +211,8 @@ export async function schedulePricingRuleAction(raw: SchedulePricingInput): Prom
     return fail("validation", "Ingresa una tarifa válida mayor que cero.");
   }
 
-  return runPhase7Authorized("manage_pricing", async () => {
-    const result = await createPhase7Repository().schedulePricingRule({
+  return runPhase7Authorized("manage_pricing", async (context) => {
+    const result = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).schedulePricingRule({
       ...raw,
       hourlyRate: Number(raw.hourlyRate.toFixed(2)),
     });

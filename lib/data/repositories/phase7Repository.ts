@@ -16,11 +16,14 @@ export interface Phase7Repository {
 }
 
 export class Phase7RepositoryError extends Error {
+  readonly code: "unauthorized" | "validation" | "conflict" | "not_found" | "network" | "unknown";
+
   constructor(
-    public readonly code: "unauthorized" | "validation" | "conflict" | "not_found" | "network" | "unknown",
+    code: "unauthorized" | "validation" | "conflict" | "not_found" | "network" | "unknown",
     message: string,
   ) {
     super(message);
+    this.code = code;
     this.name = "Phase7RepositoryError";
   }
 }

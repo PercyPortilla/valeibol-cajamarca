@@ -4,8 +4,6 @@ import { Card } from "@/components/ui/Card";
 
 const modules = {
   whatsapp: { title: "WhatsApp", phase: "Fase 8", detail: "Notificaciones oficiales y automatizaciones posteriores." },
-  reportes: { title: "Reportes", phase: "Fase posterior", detail: "Reportes derivados de información real, sin métricas ficticias." },
-  configuracion: { title: "Configuración", phase: "Fase posterior", detail: "Ajustes administrativos del negocio." },
 } as const;
 
 type ModuleKey = keyof typeof modules;

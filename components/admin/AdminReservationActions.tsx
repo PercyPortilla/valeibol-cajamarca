@@ -57,7 +57,7 @@ export function AdminReservationActions({
           Cancelar
         </button>
       ) : null}
-      {result ? <span className={result.ok ? "admin-inline-feedback admin-inline-feedback--success" : "admin-inline-feedback admin-inline-feedback--error"} role="status">{result.message}</span> : null}
+      {result ? <span className={result.ok ? "admin-inline-feedback admin-inline-feedback--success" : "admin-inline-feedback admin-inline-feedback--error"} role={result.ok ? "status" : "alert"}>{result.message}</span> : null}
     </div>
   );
 }
