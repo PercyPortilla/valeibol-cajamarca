@@ -20,6 +20,7 @@ function reasonMessage(reason: LoginReason) {
 
 export function AdminLoginForm() {
   const configured = hasPublicSupabaseConfig();
+  const localDev = process.env.NODE_ENV !== "production";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,11 +35,32 @@ export function AdminLoginForm() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!configured || busy) return;
+    if ((!configured && !localDev) || busy) return;
 
     setBusy(true);
     setMessage(null);
     try {
+      if (localDev && email.trim() === "admin") {
+        const response = await fetch("/api/dev/admin-session", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ username: email.trim(), password }),
+        });
+        if (!response.ok) {
+          setMessage("Usuario o contraseña incorrectos.");
+          return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        window.location.assign(safeAdminRedirectPath(params.get("next")));
+        return;
+      }
+
+      if (!configured) {
+        setMessage("En modo local usa el usuario admin con la contraseña configurada para desarrollo.");
+        return;
+      }
+
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
@@ -55,9 +77,11 @@ export function AdminLoginForm() {
     }
   }
 
-  const notice = !configured
-    ? "El acceso administrativo todavía no está disponible. Completa la configuración del servicio de autenticación para habilitarlo."
-    : reasonMessage(reason);
+  const notice = localDev
+    ? "Modo local habilitado: usa admin / 12345. Este acceso solo funciona en localhost y nunca se habilita en producción."
+    : !configured
+      ? "El acceso administrativo todavía no está disponible. Completa la configuración del servicio de autenticación para habilitarlo."
+      : reasonMessage(reason);
 
   return (
     <>
@@ -68,14 +92,14 @@ export function AdminLoginForm() {
       ) : null}
       <form className="auth-form" onSubmit={onSubmit} noValidate>
         <Input
-          label="Correo"
+          label={localDev ? "Usuario o correo" : "Correo"}
           name="email"
-          type="email"
+          type={localDev ? "text" : "email"}
           autoComplete="username"
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="administrador@ejemplo.com"
+          placeholder={localDev ? "admin" : "administrador@ejemplo.com"}
         />
         <Input
           label="Contraseña"
@@ -83,16 +107,17 @@ export function AdminLoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          minLength={8}
+          minLength={localDev ? 5 : 8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="••••••••"
         />
         {message ? <div className="auth-error" role="alert">{message}</div> : null}
-        <Button fullWidth type="submit" disabled={!configured || busy}>
+        <Button fullWidth type="submit" disabled={(!configured && !localDev) || busy}>
           {busy ? "Validando sesión…" : "Entrar al panel"}
         </Button>
       </form>
     </>
   );
 }
+
