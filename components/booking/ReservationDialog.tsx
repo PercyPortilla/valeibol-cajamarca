@@ -3,14 +3,18 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type SyntheticEvent } from "react";
 import { businessConfig } from "@/config/business";
 import {
+  bookingLightingForInterval,
   calculateBookingPreview,
+  crossesLightingCutoff,
   formatMoney,
   getContiguousEndOptions,
   isPastLocalStart,
+  isNetHeightCm,
   isValidCustomerName,
+  NET_HEIGHT_PRESETS,
+  netHeightLabel,
   normalizeCustomerName,
   normalizePeruWhatsApp,
-  type LightingMode,
 } from "@/lib/booking";
 import type { AvailabilitySlot } from "@/lib/availability";
 import { createPublicBookingRepository } from "@/lib/data/bookingService";
@@ -60,7 +64,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
   const repository = useMemo(() => createPublicBookingRepository(), []);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [lighting, setLighting] = useState<LightingMode>("without_lights");
+  const [netHeightPreset, setNetHeightPreset] = useState("");
+  const [customNetHeightCm, setCustomNetHeightCm] = useState("");
   const [endTime, setEndTime] = useState("");
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [requestToken, setRequestToken] = useState("");
@@ -76,7 +81,10 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
   const [pricingError, setPricingError] = useState<string | null>(null);
 
   const endOptions = useMemo(
-    () => selection ? getContiguousEndOptions(selection.daySlots, selection.slot.id) : [],
+    () => selection
+      ? getContiguousEndOptions(selection.daySlots, selection.slot.id)
+        .filter((option) => !crossesLightingCutoff(selection.slot.start, option.end))
+      : [],
     [selection],
   );
 
@@ -92,8 +100,13 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
     if (!selection) return;
     setName("");
     setPhone("");
-    setLighting("without_lights");
-    setEndTime(getContiguousEndOptions(selection.daySlots, selection.slot.id)[0]?.end ?? selection.slot.end);
+    setNetHeightPreset("");
+    setCustomNetHeightCm("");
+    setEndTime(
+      getContiguousEndOptions(selection.daySlots, selection.slot.id)
+        .find((option) => !crossesLightingCutoff(selection.slot.start, option.end))?.end
+        ?? selection.slot.end,
+    );
     setMarketingOptIn(false);
     setRequestToken(makeRequestToken());
     setSubmitting(false);
@@ -140,6 +153,10 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
     return <dialog ref={dialogRef} className="booking-dialog" aria-label="Solicitar reserva" />;
   }
 
+  const lighting = bookingLightingForInterval(
+    selection.slot.start,
+    endTime || selection.slot.end,
+  );
   const preview = calculateBookingPreview(
     selection.slot.start,
     endTime || selection.slot.end,
@@ -174,6 +191,14 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
       setError("Selecciona una hora de fin válida y consecutiva.");
       return;
     }
+    const preset = NET_HEIGHT_PRESETS.find((option) => option.id === netHeightPreset);
+    const parsedNetHeight = netHeightPreset === "custom"
+      ? Number(customNetHeightCm)
+      : preset?.cm;
+    if (!isNetHeightCm(parsedNetHeight)) {
+      setError("Selecciona la altura de red para tu reserva.");
+      return;
+    }
     if (!demoMode && isPastLocalStart(currentSelection.slot.date, currentSelection.slot.start)) {
       setError("Ese horario ya pasó. Actualiza la disponibilidad y elige otro.");
       onAvailabilityStale();
@@ -188,7 +213,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
         date: currentSelection.slot.date,
         start: currentSelection.slot.start,
         end: endTime,
-        lighting,
+        netHeightCm: parsedNetHeight,
         customerName: normalizedName,
         phoneE164: normalizedPhone,
         marketingOptIn,
@@ -250,6 +275,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
                 <p>Mientras está pendiente, el intervalo queda ocupado para evitar que dos personas soliciten la misma cancha al mismo tiempo.</p>
                 <dl className="booking-summary booking-summary--success">
                   <div><dt>Estado</dt><dd>Pendiente</dd></div>
+                  <div><dt>Altura de red</dt><dd>{netHeightLabel(result.netHeightCm)}</dd></div>
+                  <div><dt>Iluminación</dt><dd>{result.lighting === "with_lights" ? "Con luz" : "Sin luz"}</dd></div>
                   <div><dt>Tarifa validada por servidor</dt><dd>{formatMoney(result.hourlyRate, result.currency)}/h</dd></div>
                   <div><dt>Total validado por servidor</dt><dd>{formatMoney(result.totalAmount, result.currency)}</dd></div>
                 </dl>
@@ -292,18 +319,56 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
             </label>
 
             <fieldset className="lighting-picker">
-              <legend>Servicio</legend>
-              <label className={lighting === "without_lights" ? "lighting-option lighting-option--selected" : "lighting-option"}>
-                <input type="radio" name="lighting" value="without_lights" checked={lighting === "without_lights"} onChange={() => setLighting("without_lights")} />
-                <span><strong>Sin luz</strong><small>{pricingLoading ? "Consultando tarifa…" : pricingError ? "Tarifa por confirmar" : `${formatMoney(pricingRates.withoutLights, pricingCurrency)} por hora`}</small></span>
-              </label>
-              <label className={lighting === "with_lights" ? "lighting-option lighting-option--selected" : "lighting-option"}>
-                <input type="radio" name="lighting" value="with_lights" checked={lighting === "with_lights"} onChange={() => setLighting("with_lights")} />
-                <span><strong>Con luz</strong><small>{pricingLoading ? "Consultando tarifa…" : pricingError ? "Tarifa por confirmar" : `${formatMoney(pricingRates.withLights, pricingCurrency)} por hora`}</small></span>
-              </label>
+              <legend>Iluminación automática</legend>
+              <div className="lighting-option lighting-option--selected">
+                <span>
+                  <strong>{lighting === "with_lights" ? "Con luz" : "Sin luz"}</strong>
+                  <small>
+                    {pricingLoading
+                      ? "Consultando tarifa…"
+                      : pricingError
+                        ? "Tarifa por confirmar"
+                        : `${formatMoney(lighting === "with_lights" ? pricingRates.withLights : pricingRates.withoutLights, pricingCurrency)} por hora`}
+                  </small>
+                </span>
+              </div>
+              <small className="field__hint">De 07:00 a 17:59 se reserva sin luz; desde las 18:00, con luz. Un mismo bloque no puede cruzar las 18:00.</small>
             </fieldset>
 
             <div className="booking-fields">
+              <label className="field" htmlFor="booking-net-height">
+                <span className="field__label">Altura de red</span>
+                <select
+                  className="field__control"
+                  id="booking-net-height"
+                  value={netHeightPreset}
+                  onChange={(event: ChangeEvent<HTMLSelectElement>) => setNetHeightPreset(event.target.value)}
+                  required
+                >
+                  <option value="">Selecciona una altura</option>
+                  {NET_HEIGHT_PRESETS.map((option) => (
+                    <option key={option.id} value={option.id}>{option.label}</option>
+                  ))}
+                  <option value="custom">Personalizada · 1.80 m a 2.50 m</option>
+                </select>
+              </label>
+              {netHeightPreset === "custom" ? (
+                <label className="field" htmlFor="booking-net-height-custom">
+                  <span className="field__label">Altura personalizada (cm)</span>
+                  <input
+                    className="field__control"
+                    id="booking-net-height-custom"
+                    type="number"
+                    min={180}
+                    max={250}
+                    step={1}
+                    inputMode="numeric"
+                    value={customNetHeightCm}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setCustomNetHeightCm(event.target.value)}
+                    required
+                  />
+                </label>
+              ) : null}
               <label className="field" htmlFor="booking-name">
                 <span className="field__label">Nombre</span>
                 <input

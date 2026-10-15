@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
 
 export function Footer() {
@@ -9,8 +11,7 @@ export function Footer() {
     <footer className="site-footer site-footer--commercial">
       <div className="shell commercial-footer">
         <div className="commercial-footer__brand">
-          <strong><span>mi</span> valeibol</strong>
-          <small>CLUB DE VOLEIBOL</small>
+          <BrandLogo context="footer" />
           <p>{businessConfig.address}</p>
         </div>
 
@@ -26,7 +27,7 @@ export function Footer() {
 
         <div className="commercial-footer__contact">
           <a className="footer-whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
-            <span aria-hidden="true">●</span>
+            <Icon name="whatsapp" size={18} />
             Escríbenos por WhatsApp
           </a>
           <a href={`tel:+51${phoneDigits}`}>{businessConfig.phone}</a>

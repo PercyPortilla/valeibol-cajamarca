@@ -51,7 +51,7 @@ try {
     p_date: "2099-12-15",
     p_start_time: "18:00",
     p_end_time: "19:00",
-    p_lighting: "without_lights",
+    p_net_height_cm: 243,
     p_customer_name: "Cliente temporal Fase 5",
     p_phone_e164: phone,
     p_marketing_opt_in: false,

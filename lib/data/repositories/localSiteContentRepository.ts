@@ -2,6 +2,7 @@ import {
   defaultSiteContent,
   normalizeSiteGallery,
   normalizeSiteServices,
+  normalizeSiteTheme,
   type SiteContent,
 } from "../../siteContent.ts";
 import type { SiteContentRepository, UpdateSiteContentInput } from "./siteContentRepository.ts";
@@ -24,6 +25,7 @@ export class LocalSiteContentRepository implements SiteContentRepository {
     const next: SiteContent = {
       services: normalizeSiteServices(input.services),
       gallery: normalizeSiteGallery(input.gallery),
+      theme: normalizeSiteTheme(input.theme),
       updatedAt: new Date().toISOString(),
       source: "local",
     };

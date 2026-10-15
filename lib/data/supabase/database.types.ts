@@ -58,6 +58,7 @@ export type Database = {
           end_at: string;
           status: ReservationStatus;
           lighting: LightingMode;
+          net_height_cm: number | null;
           hourly_rate: number | string;
           total_amount: number | string;
           source: ReservationSource;
@@ -131,6 +132,7 @@ export type Database = {
           business_id: string;
           services: Json;
           gallery: Json;
+          theme: Json;
           updated_at: string | null;
         }>;
       };
@@ -140,15 +142,17 @@ export type Database = {
           business_id: string;
           services: Json;
           gallery: Json;
+          theme: Json;
           updated_at: string | null;
         }>;
       };
       admin_update_site_content: {
-        Args: { p_services: Json; p_gallery: Json };
+        Args: { p_services: Json; p_gallery: Json; p_theme: Json };
         Returns: Array<{
           business_id: string;
           services: Json;
           gallery: Json;
+          theme: Json;
           updated_at: string;
         }>;
       };
@@ -207,7 +211,7 @@ export type Database = {
           p_date: string;
           p_start_time: string;
           p_end_time: string;
-          p_lighting: LightingMode;
+          p_net_height_cm: number;
           p_customer_name: string;
           p_phone_e164: string;
           p_marketing_opt_in: boolean;
@@ -220,6 +224,7 @@ export type Database = {
           start_at: string;
           end_at: string;
           lighting: LightingMode;
+          net_height_cm: number;
           hourly_rate: number | string;
           total_amount: number | string;
           currency: string;
@@ -250,6 +255,7 @@ export type Database = {
           end_at: string;
           status: ReservationStatus;
           lighting: LightingMode;
+          net_height_cm: number | null;
           hourly_rate: number | string;
           total_amount: number | string;
           currency: string;
@@ -294,7 +300,7 @@ export type Database = {
           p_date: string;
           p_start_time: string;
           p_end_time: string;
-          p_lighting: LightingMode;
+          p_net_height_cm: number;
           p_customer_name: string;
           p_phone_e164: string;
           p_source: Exclude<ReservationSource, "public_web">;
@@ -306,6 +312,7 @@ export type Database = {
           start_at: string;
           end_at: string;
           lighting: LightingMode;
+          net_height_cm: number;
           hourly_rate: number | string;
           total_amount: number | string;
           currency: string;
@@ -318,7 +325,7 @@ export type Database = {
           p_date: string;
           p_start_time: string;
           p_end_time: string;
-          p_lighting: LightingMode;
+          p_net_height_cm: number;
           p_customer_name: string;
           p_phone_e164: string;
         };
@@ -329,6 +336,7 @@ export type Database = {
           start_at: string;
           end_at: string;
           lighting: LightingMode;
+          net_height_cm: number;
           hourly_rate: number | string;
           total_amount: number | string;
           currency: string;
@@ -357,6 +365,29 @@ export type Database = {
         Returns: Array<{
           block_id: string;
           block_status: BlockStatus;
+          updated_at: string;
+        }>;
+      };
+      get_admin_export_reservations: {
+        Args: { p_from: string; p_to: string };
+        Returns: Array<{
+          reservation_id: string;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone_e164: string | null;
+          marketing_opt_in: boolean;
+          court_id: string;
+          court_name: string;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          hourly_rate: number | string;
+          total_amount: number | string;
+          currency: string;
+          source: ReservationSource;
+          created_at: string;
           updated_at: string;
         }>;
       };

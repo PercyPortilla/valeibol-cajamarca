@@ -6,7 +6,10 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 const calendar = read("components/availability/AvailabilityCalendar.tsx");
 const page = read("app/page.tsx");
 const config = read("config/business.ts");
-const css = read("app/globals.css");
+const css = [
+  read("app/globals.css"),
+  ...[1, 2, 3, 4, 5].map((part) => read(`app/styles/globals-${part}.css`)),
+].join("\n");
 const preview = read("preview/index.html");
 const previewJs = read("preview/app.js");
 const publicSource = [calendar, page, preview, previewJs].join("\n");

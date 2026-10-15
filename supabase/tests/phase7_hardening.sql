@@ -8,7 +8,7 @@ do $$
 begin
   if has_function_privilege(
     'anon',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) then
     raise exception 'FAIL: anon todavía puede escribir reservas directamente';
@@ -16,7 +16,7 @@ begin
 
   if has_function_privilege(
     'authenticated',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) then
     raise exception 'FAIL: authenticated todavía puede escribir reservas públicas directamente';
@@ -24,7 +24,7 @@ begin
 
   if not has_function_privilege(
     'service_role',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) then
     raise exception 'FAIL: service_role necesita ejecutar la RPC desde el endpoint seguro';

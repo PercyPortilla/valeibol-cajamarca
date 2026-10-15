@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <div className="info-grid">
         <section>
           <h2>Datos que se solicitan</h2>
-          <p>Al solicitar un horario se puede pedir tu nombre, número de WhatsApp, horario elegido y preferencia de iluminación.</p>
+          <p>Al solicitar un horario se puede pedir tu nombre, número de WhatsApp, horario elegido y altura de red. La iluminación se asigna automáticamente según la hora de inicio.</p>
         </section>
         <section>
           <h2>Para qué se usan</h2>

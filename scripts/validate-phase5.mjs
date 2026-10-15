@@ -16,7 +16,10 @@ const adminRepo = read("lib/data/repositories/supabaseAdminReservationRepository
 const publicCalendar = read("components/availability/AvailabilityCalendar.tsx");
 const publicDialog = read("components/booking/ReservationDialog.tsx");
 const config = read("config/business.ts");
-const css = read("app/globals.css");
+const css = [
+  read("app/globals.css"),
+  ...[1, 2, 3, 4, 5].map((part) => read(`app/styles/globals-${part}.css`)),
+].join("\n");
 const env = read(".env.example");
 
 check("versión Fase 5", packageJson.version === "0.5.0");

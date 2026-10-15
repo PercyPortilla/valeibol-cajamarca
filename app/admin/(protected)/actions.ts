@@ -8,11 +8,11 @@ import { canPerformAdminOperation } from "../../../lib/admin/operations.ts";
 import { canPerformPhase7Operation, type SchedulePricingInput } from "../../../lib/admin/phase7.ts";
 import { createPhase7Repository } from "../../../lib/data/phase7Service.ts";
 import { Phase7RepositoryError } from "../../../lib/data/repositories/phase7Repository.ts";
-import { normalizeCustomerName, normalizePeruWhatsApp } from "../../../lib/booking.ts";
+import { isNetHeightCm, normalizeCustomerName, normalizePeruWhatsApp } from "../../../lib/booking.ts";
 import { createAdminOperationsRepository } from "../../../lib/data/adminOperationsService.ts";
 import { createSiteContentRepository } from "../../../lib/data/siteContentService.ts";
 import { SiteContentRepositoryError } from "../../../lib/data/repositories/siteContentRepository.ts";
-import { normalizeSiteGallery, normalizeSiteServices, type SiteGalleryItem, type SiteService } from "../../../lib/siteContent.ts";
+import { isAccessibleSiteTheme, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
 import {
   AdminOperationsRepositoryError,
   type CreateManualReservationInput,
@@ -101,9 +101,7 @@ function validateReservationInput(
   if (!isDateKey(raw.date) || !isClockTime(raw.startTime) || !isClockTime(raw.endTime)) {
     return { ok: false, result: fail("validation", "Fecha u horario inválido.") };
   }
-  if (raw.lighting !== "without_lights" && raw.lighting !== "with_lights") {
-    return { ok: false, result: fail("validation", "Modalidad de iluminación inválida.") };
-  }
+  if (!isNetHeightCm(raw.netHeightCm)) return { ok: false, result: fail("validation", "La altura de red debe estar entre 180 y 250 cm.") };
   if (!["admin", "phone", "whatsapp", "other"].includes(raw.source)) {
     return { ok: false, result: fail("validation", "Origen administrativo inválido.") };
   }
@@ -140,7 +138,7 @@ export async function editReservationAction(raw: EditReservationInput): Promise<
       date: validated.input.date,
       startTime: validated.input.startTime,
       endTime: validated.input.endTime,
-      lighting: validated.input.lighting,
+      netHeightCm: validated.input.netHeightCm,
       customerName: validated.input.customerName,
       phoneE164: validated.input.phoneE164,
     });
@@ -226,6 +224,7 @@ export async function schedulePricingRuleAction(raw: SchedulePricingInput): Prom
 export async function updateSiteContentAction(raw: {
   services: SiteService[];
   gallery: SiteGalleryItem[];
+  theme: SiteTheme;
 }): Promise<AdminActionResult> {
   try {
     const context = await getAdminContext();
@@ -241,14 +240,18 @@ export async function updateSiteContentAction(raw: {
 
     const services = normalizeSiteServices(raw.services);
     const gallery = normalizeSiteGallery(raw.gallery);
+    const theme = normalizeSiteTheme(raw.theme);
     if (services.length !== raw.services.length || gallery.length !== raw.gallery.length) {
       return fail("validation", "Revisa títulos, descripciones y datos de la galería antes de guardar.");
     }
+    if (!isAccessibleSiteTheme(theme)) {
+      return fail("validation", "La paleta necesita más contraste. Usa colores principales suficientemente oscuros y mantén buen contraste entre fondo y texto.");
+    }
 
-    await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery });
+    await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery, theme });
     revalidatePath("/");
     revalidatePath("/admin/configuracion");
-    return { ok: true, message: "Contenido público actualizado. Servicios y galería ya usan esta configuración." };
+    return { ok: true, message: "Contenido público actualizado. Servicios, galería y paleta ya usan esta configuración." };
   } catch (error) {
     if (error instanceof AdminAuthError) {
       if (error.code === "unauthenticated") return fail("unauthenticated", "La sesión expiró. Vuelve a iniciar sesión.");

@@ -51,8 +51,8 @@ begin
     and p.proname = 'create_public_reservation_request'
   limit 1;
 
-  if args ~* '(hourly_rate|total_amount|price)' then
-    raise exception 'La RPC pública no debe aceptar precio/total del cliente: %', args;
+  if args ~* '(hourly_rate|total_amount|price|lighting)' then
+    raise exception 'La RPC pública no debe aceptar precio/total/lighting del cliente: %', args;
   end if;
 end;
 $$;
@@ -61,11 +61,11 @@ $$;
 set local role service_role;
 select * from public.create_public_reservation_request(
   'valeibol-cajamarca',
-  '20000000-0000-4000-8000-000000000001',
-  current_date + 30,
-  time '17:00', time '18:00',
-  'without_lights',
-  'Cliente test fase 4',
+    '20000000-0000-4000-8000-000000000001',
+    current_date + 30,
+    time '17:00', time '18:00',
+    224,
+    'Cliente test fase 4',
   '+51999999991',
   false,
   '40000000-0000-4000-8000-000000000091'
@@ -84,7 +84,7 @@ begin
     '20000000-0000-4000-8000-000000000001',
     test_date,
     time '08:00', time '09:00',
-    'without_lights', 'Tarifa sin luz', '+51999999992', false,
+    224, 'Tarifa sin luz', '+51999999992', false,
     '40000000-0000-4000-8000-000000000092'
   );
   if row1.request_status <> 'pending' or row1.hourly_rate <> 35 or row1.total_amount <> 35 then
@@ -95,8 +95,8 @@ begin
     'valeibol-cajamarca',
     '20000000-0000-4000-8000-000000000001',
     test_date,
-    time '09:00', time '11:00',
-    'with_lights', 'Tarifa con luz', '+51999999993', false,
+    time '19:00', time '21:00',
+    243, 'Tarifa con luz', '+51999999993', false,
     '40000000-0000-4000-8000-000000000093'
   );
   if row2.request_status <> 'pending' or row2.hourly_rate <> 60 or row2.total_amount <> 120 then
@@ -146,7 +146,7 @@ begin
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      closed_date, time '12:00', time '13:00', 'without_lights',
+      closed_date, time '12:00', time '13:00', 224,
       'Día cerrado', '+51999999997', false, '40000000-0000-4000-8000-000000000097'
     );
     raise exception 'ERROR: se permitió reservar un día cerrado';
@@ -161,7 +161,7 @@ begin
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      current_date - 1, time '12:00', time '13:00', 'without_lights',
+      current_date - 1, time '12:00', time '13:00', 224,
       'Pasado', '+51999999994', false, '40000000-0000-4000-8000-000000000094'
     );
     raise exception 'ERROR: se permitió una solicitud en el pasado';
@@ -171,7 +171,7 @@ begin
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      current_date + 30, time '07:00', time '08:00', 'without_lights',
+      current_date + 30, time '07:00', time '08:00', 224,
       'Fuera de horario', '+51999999995', false, '40000000-0000-4000-8000-000000000095'
     );
     raise exception 'ERROR: se permitió una solicitud fuera de operación';
@@ -181,10 +181,30 @@ begin
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      current_date + 30, time '11:30', time '12:30', 'without_lights',
+      current_date + 30, time '11:30', time '12:30', 224,
       'Incremento inválido', '+51999999996', false, '40000000-0000-4000-8000-000000000096'
     );
     raise exception 'ERROR: se permitió un inicio fuera del incremento de 60 min';
+  exception when invalid_parameter_value then null;
+  end;
+
+  begin
+    perform * from public.create_public_reservation_request(
+      'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
+      current_date + 30, time '17:00', time '19:00', 235,
+      'Cruce 18', '+51999999969', false, '40000000-0000-4000-8000-000000000069'
+    );
+    raise exception 'ERROR: se permitió una reserva que cruza las 18:00';
+  exception when invalid_parameter_value then null;
+  end;
+
+  begin
+    perform * from public.create_public_reservation_request(
+      'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
+      current_date + 30, time '16:00', time '17:00', 179,
+      'Altura inválida', '+51999999968', false, '40000000-0000-4000-8000-000000000068'
+    );
+    raise exception 'ERROR: se permitió altura de red fuera de rango';
   exception when invalid_parameter_value then null;
   end;
 end;
@@ -197,14 +217,14 @@ declare
 begin
   perform * from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '12:00', time '14:00', 'with_lights',
+    test_date, time '12:00', time '14:00', 243,
     'Base solape', '+51999999971', false, '40000000-0000-4000-8000-000000000071'
   );
 
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      test_date, time '13:00', time '14:00', 'without_lights',
+      test_date, time '13:00', time '14:00', 224,
       'Parcial', '+51999999972', false, '40000000-0000-4000-8000-000000000072'
     );
     raise exception 'ERROR: se permitió solapamiento parcial';
@@ -214,7 +234,7 @@ begin
   begin
     perform * from public.create_public_reservation_request(
       'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-      test_date, time '12:00', time '14:00', 'without_lights',
+      test_date, time '12:00', time '14:00', 224,
       'Total', '+51999999973', false, '40000000-0000-4000-8000-000000000073'
     );
     raise exception 'ERROR: se permitió solapamiento total';
@@ -224,7 +244,7 @@ begin
   -- Contiguo a la derecha: permitido.
   perform * from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '14:00', time '15:00', 'without_lights',
+    test_date, time '14:00', time '15:00', 235,
     'Contiguo', '+51999999974', false, '40000000-0000-4000-8000-000000000074'
   );
 end;
@@ -244,12 +264,12 @@ begin
 
   select request_id into first_id from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '15:00', time '16:00', 'without_lights',
+    test_date, time '15:00', time '16:00', 235,
     'Idempotente', '+51999999981', false, token
   );
   select request_id into second_id from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '15:00', time '16:00', 'without_lights',
+    test_date, time '15:00', time '16:00', 235,
     'Idempotente', '+51999999981', false, token
   );
 

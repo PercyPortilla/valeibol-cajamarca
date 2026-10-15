@@ -15,6 +15,7 @@ export type AdminReservation = {
   endAt: string;
   status: AdminReservationStatus;
   lighting: AdminLightingMode;
+  netHeightCm: number | null;
   hourlyRate: number;
   totalAmount: number;
   currency: string;

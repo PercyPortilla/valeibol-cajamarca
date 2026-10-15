@@ -20,6 +20,7 @@ export type AdminReservationScheduleEntry = {
   customerName: string | null;
   customerPhoneE164: string | null;
   lighting: AdminLightingMode;
+  netHeightCm: number | null;
   hourlyRate: number;
   totalAmount: number;
   currency: string;
@@ -37,6 +38,7 @@ export type AdminBlockScheduleEntry = {
   customerName: null;
   customerPhoneE164: null;
   lighting: null;
+  netHeightCm: null;
   hourlyRate: null;
   totalAmount: null;
   currency: string;

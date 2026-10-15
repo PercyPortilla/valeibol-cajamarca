@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
 
 export function Header() {
@@ -6,12 +8,7 @@ export function Header() {
     <header className="site-header site-header--commercial">
       <div className="shell site-header__inner">
         <Link className="brand brand--commercial" href="#inicio" aria-label={`${businessConfig.name}, inicio`}>
-          <span className="brand__symbol" aria-hidden="true">◉</span>
-          <span className="brand__word">
-            <small>mi</small>
-            <strong>valeibol</strong>
-            <em>CLUB DE VOLEIBOL</em>
-          </span>
+          <BrandLogo />
         </Link>
 
         <nav className="site-nav site-nav--commercial" aria-label="Principal">
@@ -23,7 +20,7 @@ export function Header() {
           <a href="#ubicacion">Ubicación</a>
           <a href="#contacto">Contacto</a>
           <a className="site-nav__reserve" href="#disponibilidad">
-            <span aria-hidden="true">▣</span>
+            <Icon name="calendar" size={18} />
             Reservar ahora
           </a>
         </nav>

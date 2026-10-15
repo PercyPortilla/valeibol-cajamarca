@@ -1,4 +1,4 @@
-import type { LightingMode } from "@/lib/booking";
+import type { LightingMode, NetHeightCm } from "@/lib/booking";
 
 export type PublicBookingPricing = {
   lighting: LightingMode;
@@ -40,7 +40,7 @@ export type PublicBookingRequest = {
   date: string;
   start: string;
   end: string;
-  lighting: LightingMode;
+  netHeightCm: NetHeightCm;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
@@ -55,6 +55,7 @@ export type PublicBookingResult = {
   startAt: string | null;
   endAt: string | null;
   lighting: LightingMode;
+  netHeightCm: NetHeightCm;
   hourlyRate: number;
   totalAmount: number;
   currency: string;
@@ -68,6 +69,8 @@ export type BookingErrorCode =
   | "court_closed"
   | "outside_operating_hours"
   | "reservation_in_past"
+  | "lighting_cutoff_crossed"
+  | "invalid_net_height"
   | "pricing_not_found"
   | "not_found"
   | "configuration"

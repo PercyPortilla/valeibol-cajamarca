@@ -19,7 +19,13 @@ import {
   type AdminScheduleEntry,
   type AdminScheduleSnapshot,
 } from "../../lib/admin/schedule.ts";
-import { calculateBookingPreview, formatMoney } from "../../lib/booking.ts";
+import {
+  bookingLightingForInterval,
+  calculateBookingPreview,
+  formatMoney,
+  NET_HEIGHT_PRESETS,
+  netHeightLabel,
+} from "../../lib/booking.ts";
 import {
   cancelReservationAction,
   confirmReservationAction,
@@ -96,12 +102,12 @@ function calculateAdminPricePreview(
   date: string,
   start: string,
   end: string,
-  lighting: "without_lights" | "with_lights",
 ) {
   const pricing = pricingForDate(pricingRules, courtId, date);
   if (!pricing) return null;
+  const lighting = bookingLightingForInterval(start, end);
   const preview = calculateBookingPreview(start, end, lighting, pricing.rates);
-  return { ...preview, currency: pricing.currency };
+  return { ...preview, currency: pricing.currency, lighting };
 }
 
 function ActionFeedback({ result }: { result: AdminActionResult | null }) {
@@ -204,6 +210,7 @@ export function AdminScheduleBoard({
         <strong>{entry.customerName ?? "Cliente sin nombre"}</strong>
         <small>{entry.customerPhoneE164 ?? "Sin teléfono"}</small>
         <small>{entry.lighting === "with_lights" ? "Con luz" : "Sin luz"} · {formatMoney(entry.totalAmount, entry.currency)}</small>
+        <small>Red: {netHeightLabel(entry.netHeightCm)}</small>
         <small>{sourceLabel(entry.source)}</small>
         <div className="admin-slot__actions">
           {entry.status === "pending" && canPerformAdminOperation(role, "confirm_reservation") ? (
@@ -430,6 +437,7 @@ function AdminOperationPanel({
   const initialDate = panel.kind === "edit" ? editParts?.date ?? snapshot.from : panel.date;
   const initialStart = panel.kind === "edit" ? editParts?.time ?? "18:00" : panel.startTime ?? "18:00";
   const initialEnd = panel.kind === "edit" ? editEnd?.time ?? "19:00" : panel.endTime ?? "19:00";
+  const [netHeightChoice, setNetHeightChoice] = useState(panel.kind === "edit" && panel.entry.netHeightCm ? "custom" : "");
   const [preview, setPreview] = useState(() => {
     if (panel.kind === "block") return null;
     try {
@@ -439,7 +447,6 @@ function AdminOperationPanel({
         initialDate,
         initialStart,
         initialEnd,
-        panel.kind === "edit" ? panel.entry.lighting : "without_lights",
       );
     } catch {
       return null;
@@ -461,7 +468,10 @@ function AdminOperationPanel({
       return;
     }
 
-    const lighting = String(form.get("lighting") ?? "without_lights") as "without_lights" | "with_lights";
+    const preset = NET_HEIGHT_PRESETS.find((option) => option.id === netHeightChoice);
+    const netHeightCm = netHeightChoice === "custom"
+      ? Number(form.get("customNetHeightCm"))
+      : preset?.cm ?? Number.NaN;
     const customerName = String(form.get("customerName") ?? "");
     const phoneE164 = String(form.get("phoneE164") ?? "");
 
@@ -472,7 +482,7 @@ function AdminOperationPanel({
         date,
         startTime,
         endTime,
-        lighting,
+        netHeightCm,
         customerName,
         phoneE164,
       }));
@@ -480,7 +490,7 @@ function AdminOperationPanel({
     }
 
     const source = String(form.get("source") ?? "admin") as "admin" | "phone" | "whatsapp" | "other";
-    onSubmit(() => createManualReservationAction({ courtId, date, startTime, endTime, lighting, customerName, phoneE164, source }));
+    onSubmit(() => createManualReservationAction({ courtId, date, startTime, endTime, netHeightCm, customerName, phoneE164, source }));
   }
 
   function updatePreview(form: HTMLFormElement) {
@@ -493,7 +503,6 @@ function AdminOperationPanel({
         String(data.get("date") ?? ""),
         String(data.get("startTime") ?? ""),
         String(data.get("endTime") ?? ""),
-        String(data.get("lighting") ?? "without_lights") as "without_lights" | "with_lights",
       ));
     } catch {
       setPreview(null);
@@ -529,13 +538,26 @@ function AdminOperationPanel({
                 <label className="field"><span className="field__label">WhatsApp</span><input className="field__control" name="phoneE164" inputMode="tel" defaultValue={panel.kind === "edit" ? panel.entry.customerPhoneE164 ?? "" : ""} placeholder="935 059 868" required /></label>
               </div>
               <div className="admin-form-grid">
-                <label className="field"><span className="field__label">Modalidad</span><select className="field__control" name="lighting" defaultValue={panel.kind === "edit" ? panel.entry.lighting : "without_lights"}><option value="without_lights">Sin luz</option><option value="with_lights">Con luz</option></select></label>
+                <label className="field">
+                  <span className="field__label">Altura de red</span>
+                  <select className="field__control" name="netHeightChoice" value={netHeightChoice} onChange={(event) => setNetHeightChoice(event.target.value)} required>
+                    <option value="">Selecciona una altura</option>
+                    {NET_HEIGHT_PRESETS.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+                    <option value="custom">Personalizada · 1.80 m a 2.50 m</option>
+                  </select>
+                </label>
+                {netHeightChoice === "custom" ? (
+                  <label className="field">
+                    <span className="field__label">Altura personalizada (cm)</span>
+                    <input className="field__control" name="customNetHeightCm" type="number" min={180} max={250} step={1} defaultValue={panel.kind === "edit" ? panel.entry.netHeightCm ?? "" : ""} required />
+                  </label>
+                ) : null}
                 {panel.kind === "manual" ? <label className="field"><span className="field__label">Origen</span><select className="field__control" name="source" defaultValue="admin"><option value="admin">Panel administrativo</option><option value="phone">Llamada</option><option value="whatsapp">WhatsApp</option><option value="other">Otro</option></select></label> : null}
               </div>
               <div className="admin-price-preview" role="status" aria-live="polite">
                 <span>Estimación con tarifa vigente</span>
                 <strong>{preview ? `${preview.durationHours} h · ${formatMoney(preview.total, preview.currency)}` : "Tarifa vigente no disponible"}</strong>
-                <small>{preview ? `${formatMoney(preview.hourlyRate, preview.currency)}/h para la fecha y cancha seleccionadas.` : "La operación puede enviarse; el servidor validará la tarifa aplicable antes de guardar."}</small>
+                <small>{preview ? `${preview.lighting === "with_lights" ? "Con luz" : "Sin luz"} · ${formatMoney(preview.hourlyRate, preview.currency)}/h. La iluminación se aplica automáticamente.` : "El servidor validará horario, cambio de tarifa de las 18:00 y precio antes de guardar."}</small>
               </div>
             </>
           )}

@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  bookingLightingForInterval,
   calculateBookingPreview,
+  crossesLightingCutoff,
   getContiguousEndOptions,
+  isNetHeightCm,
   isPastLocalStart,
   normalizePeruWhatsApp,
 } from "../lib/booking.ts";
@@ -20,6 +23,19 @@ test("calcula S/60 por hora con luz y S/120 por dos horas", () => {
   assert.equal(quote.durationHours, 2);
   assert.equal(quote.hourlyRate, 60);
   assert.equal(quote.total, 120);
+});
+
+test("deriva iluminación por hora de inicio y bloquea cruces de las 18:00", () => {
+  assert.equal(bookingLightingForInterval("07:00", "08:00"), "without_lights");
+  assert.equal(bookingLightingForInterval("17:00", "18:00"), "without_lights");
+  assert.equal(bookingLightingForInterval("18:00", "19:00"), "with_lights");
+  assert.equal(crossesLightingCutoff("17:00", "19:00"), true);
+  assert.throws(() => bookingLightingForInterval("17:00", "19:00"), /18:00/);
+});
+
+test("acepta alturas de red personalizadas solo entre 180 y 250 cm", () => {
+  for (const value of [180, 224, 235, 243, 250]) assert.equal(isNetHeightCm(value), true);
+  for (const value of [179, 250.5, 251, "243"]) assert.equal(isNetHeightCm(value), false);
 });
 
 test("normaliza WhatsApp peruano sin inventar números", () => {

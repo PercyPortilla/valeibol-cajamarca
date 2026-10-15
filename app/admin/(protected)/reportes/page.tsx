@@ -21,7 +21,14 @@ export default async function AdminReportsPage() {
           <h1>Resumen del mes</h1>
           <p className="admin-subtitle">Indicadores derivados de reservas y agenda. No representan pagos cobrados.</p>
         </div>
-        <Badge tone="info">{from} → {today}</Badge>
+        <div className="admin-config-actions">
+          <Badge tone="info">{from} → {today}</Badge>
+          {context.role === "owner" || context.role === "admin" ? (
+            <a className="button button--secondary" href={`/api/admin/export.xlsx?from=${from}&to=${today}`}>
+              Exportar Excel
+            </a>
+          ) : null}
+        </div>
       </header>
 
       <div className="phase7-metric-grid">

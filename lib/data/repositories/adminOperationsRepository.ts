@@ -1,4 +1,5 @@
 import type { AdminLightingMode, AdminReservationStatus } from "../../admin/reservations.ts";
+import type { NetHeightCm } from "../../booking.ts";
 import type { AdminBlockReason } from "../../admin/operations.ts";
 import type { AdminScheduleDay, AdminScheduleSnapshot } from "../../admin/schedule.ts";
 
@@ -9,6 +10,7 @@ export type AdminMutationReservationResult = {
   startAt?: string;
   endAt?: string;
   lighting?: AdminLightingMode;
+  netHeightCm?: NetHeightCm;
   hourlyRate?: number;
   totalAmount?: number;
   currency?: string;
@@ -28,7 +30,7 @@ export type CreateManualReservationInput = {
   date: string;
   startTime: string;
   endTime: string;
-  lighting: AdminLightingMode;
+  netHeightCm: NetHeightCm;
   customerName: string;
   phoneE164: string;
   source: "admin" | "phone" | "whatsapp" | "other";
@@ -40,7 +42,7 @@ export type EditReservationInput = {
   date: string;
   startTime: string;
   endTime: string;
-  lighting: AdminLightingMode;
+  netHeightCm: NetHeightCm;
   customerName: string;
   phoneE164: string;
 };

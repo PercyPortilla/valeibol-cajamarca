@@ -2,6 +2,14 @@ import { businessConfig } from "../config/business.ts";
 import { zonedLocalDateTimeToUtc, type AvailabilitySlot } from "./availability.ts";
 
 export type LightingMode = "without_lights" | "with_lights";
+export type NetHeightCm = number;
+
+export const NET_HEIGHT_PRESETS = [
+  { id: "women", cm: 224, label: "Damas · 2.24 m (FIVB)" },
+  { id: "men", cm: 243, label: "Varones · 2.43 m (FIVB)" },
+  { id: "mixed", cm: 243, label: "Mixto · 2.43 m (referencia USAV)" },
+  { id: "reverse-mixed", cm: 224, label: "Mixto reverse · 2.24 m (referencia USAV)" },
+] as const;
 
 export type BookingEndOption = {
   end: string;
@@ -12,6 +20,35 @@ export type BookingEndOption = {
 function timeToMinutes(time: string) {
   const [hours, minutes] = time.slice(0, 5).split(":").map(Number);
   return hours * 60 + minutes;
+}
+
+const LIGHTING_CUTOFF_MINUTES = 18 * 60;
+
+export function crossesLightingCutoff(start: string, end: string) {
+  return timeToMinutes(start) < LIGHTING_CUTOFF_MINUTES && timeToMinutes(end) > LIGHTING_CUTOFF_MINUTES;
+}
+
+export function bookingLightingForInterval(start: string, end: string): LightingMode {
+  const startMinutes = timeToMinutes(start);
+  const endMinutes = timeToMinutes(end);
+  if (endMinutes <= startMinutes) {
+    throw new Error("El horario final debe ser posterior al horario inicial.");
+  }
+  if (crossesLightingCutoff(start, end)) {
+    throw new Error("Las reservas no pueden cruzar las 18:00 porque cambia la tarifa de iluminación.");
+  }
+  return startMinutes >= LIGHTING_CUTOFF_MINUTES ? "with_lights" : "without_lights";
+}
+
+export function isNetHeightCm(value: unknown): value is NetHeightCm {
+  return typeof value === "number"
+    && Number.isInteger(value)
+    && value >= 180
+    && value <= 250;
+}
+
+export function netHeightLabel(value: NetHeightCm | null | undefined) {
+  return isNetHeightCm(value) ? `${value} cm` : "No registrada";
 }
 
 export function durationMinutes(start: string, end: string) {

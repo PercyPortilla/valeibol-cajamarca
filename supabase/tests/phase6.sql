@@ -33,7 +33,7 @@ begin
   end if;
 
   if not has_function_privilege('authenticated', 'public.admin_confirm_reservation(uuid)', 'EXECUTE')
-     or not has_function_privilege('authenticated', 'public.admin_create_manual_reservation(uuid,date,time without time zone,time without time zone,public.lighting_mode,text,text,public.reservation_source)', 'EXECUTE')
+     or not has_function_privilege('authenticated', 'public.admin_create_manual_reservation(uuid,date,time without time zone,time without time zone,smallint,text,text,public.reservation_source)', 'EXECUTE')
      or not has_function_privilege('authenticated', 'public.admin_create_schedule_block(uuid,date,time without time zone,time without time zone,public.block_reason,text)', 'EXECUTE') then
     raise exception 'FAIL: authenticated autorizado necesita RPCs operativas';
   end if;
@@ -52,9 +52,9 @@ do $$
 declare
   args text;
 begin
-  select pg_get_function_arguments('public.admin_create_manual_reservation(uuid,date,time without time zone,time without time zone,public.lighting_mode,text,text,public.reservation_source)'::regprocedure)
+  select pg_get_function_arguments('public.admin_create_manual_reservation(uuid,date,time without time zone,time without time zone,smallint,text,text,public.reservation_source)'::regprocedure)
     into args;
-  if args ~* '(business_id|hourly_rate|total_amount|status)' then
+  if args ~* '(business_id|hourly_rate|total_amount|status|lighting)' then
     raise exception 'FAIL: create manual acepta campo autoritativo manipulable: %', args;
   end if;
 
@@ -75,7 +75,7 @@ begin
   select request_id into rid from public.create_public_reservation_request(
     'valeibol-cajamarca',
     '20000000-0000-4000-8000-000000000001',
-    test_date, time '18:00', time '19:00', 'without_lights',
+    test_date, time '18:00', time '19:00', 243,
     'Cliente test phase6', '+51999000001', false,
     '61000000-0000-4000-8000-000000000001'
   );
@@ -119,7 +119,7 @@ declare
 begin
   select request_id into rid from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '19:00', time '20:00', 'with_lights',
+    test_date, time '19:00', time '20:00', 243,
     'Cancel test', '+51999000002', false,
     '61000000-0000-4000-8000-000000000002'
   );
@@ -153,12 +153,12 @@ begin
   set local role authenticated;
   select * into r35 from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '08:00', time '09:00', 'without_lights',
+    time '08:00', time '09:00', 224,
     'Manual 35', '+51999000003', 'phone'
   );
   select * into r60 from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '09:00', time '11:00', 'with_lights',
+    time '19:00', time '21:00', 243,
     'Manual 120', '+51999000004', 'whatsapp'
   );
   reset role;
@@ -177,6 +177,10 @@ begin
   ) then
     raise exception 'FAIL: falta trazabilidad del actor en reserva manual';
   end if;
+  if r35.net_height_cm <> 224 or r60.net_height_cm <> 243
+     or r35.lighting <> 'without_lights' or r60.lighting <> 'with_lights' then
+    raise exception 'FAIL: altura/iluminación derivada incorrecta: % / %', row_to_json(r35), row_to_json(r60);
+  end if;
 end $$;
 
 -- 6) Staff puede operar confirm/cancel/manual/bloqueo pero NO editar una reserva existente.
@@ -189,14 +193,14 @@ begin
   set local role authenticated;
   select * into r from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '12:00', time '13:00', 'without_lights',
+    time '12:00', time '13:00', 243,
     'Staff original', '+51999000005', 'admin'
   );
   begin
     perform * from public.admin_edit_reservation(
       r.reservation_id,
       '20000000-0000-4000-8000-000000000001', d,
-      time '13:00', time '14:00', 'with_lights',
+      time '13:00', time '14:00', 224,
       'Staff edit', '+51999000005'
     );
     raise exception 'FAIL: staff logró editar reserva';
@@ -216,18 +220,19 @@ begin
   set local role authenticated;
   select * into r from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '10:00', time '11:00', 'without_lights',
+    time '10:00', time '11:00', 224,
     'Edit owner', '+51999000006', 'admin'
   );
   select * into edited from public.admin_edit_reservation(
     r.reservation_id,
     '20000000-0000-4000-8000-000000000001', d,
-    time '10:00', time '12:00', 'with_lights',
+    time '18:00', time '20:00', 243,
     'Edit owner actualizado', '+51999000006'
   );
   reset role;
 
-  if edited.hourly_rate <> 60 or edited.total_amount <> 120 then
+  if edited.hourly_rate <> 60 or edited.total_amount <> 120
+     or edited.lighting <> 'with_lights' or edited.net_height_cm <> 243 then
     raise exception 'FAIL: edición no recalculó tarifa autoritativa: %', row_to_json(edited);
   end if;
 end $$;
@@ -277,7 +282,7 @@ begin
   set local role authenticated;
   perform * from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '12:00', time '14:00', 'without_lights', 'Base conflicto', '+51999000007', 'admin'
+    time '12:00', time '14:00', 224, 'Base conflicto', '+51999000007', 'admin'
   );
 
   begin
@@ -292,7 +297,7 @@ begin
   begin
     perform * from public.admin_create_manual_reservation(
       '20000000-0000-4000-8000-000000000001', d,
-      time '12:00', time '14:00', 'with_lights', 'Total conflicto', '+51999000008', 'admin'
+      time '12:00', time '14:00', 243, 'Total conflicto', '+51999000008', 'admin'
     );
     raise exception 'FAIL: reserva total solapada fue permitida';
   exception when exclusion_violation then null;
