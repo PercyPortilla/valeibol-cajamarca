@@ -10,6 +10,9 @@ import { createPhase7Repository } from "../../../lib/data/phase7Service.ts";
 import { Phase7RepositoryError } from "../../../lib/data/repositories/phase7Repository.ts";
 import { normalizeCustomerName, normalizePeruWhatsApp } from "../../../lib/booking.ts";
 import { createAdminOperationsRepository } from "../../../lib/data/adminOperationsService.ts";
+import { createSiteContentRepository } from "../../../lib/data/siteContentService.ts";
+import { SiteContentRepositoryError } from "../../../lib/data/repositories/siteContentRepository.ts";
+import { normalizeSiteGallery, normalizeSiteServices, type SiteGalleryItem, type SiteService } from "../../../lib/siteContent.ts";
 import {
   AdminOperationsRepositoryError,
   type CreateManualReservationInput,
@@ -218,4 +221,45 @@ export async function schedulePricingRuleAction(raw: SchedulePricingInput): Prom
     });
     return `Nueva tarifa programada: ${result.currency} ${result.hourlyRate.toFixed(2)} desde ${result.effectiveFrom}. Las reservas históricas conservan su precio.`;
   });
+}
+
+export async function updateSiteContentAction(raw: {
+  services: SiteService[];
+  gallery: SiteGalleryItem[];
+}): Promise<AdminActionResult> {
+  try {
+    const context = await getAdminContext();
+    if (context.role !== "owner" && context.role !== "admin") {
+      return fail("unauthorized", "Solo propietario y administrador pueden editar el contenido público.");
+    }
+    if (!Array.isArray(raw.services) || raw.services.length < 1 || raw.services.length > 24) {
+      return fail("validation", "Configura entre 1 y 24 servicios.");
+    }
+    if (!Array.isArray(raw.gallery) || raw.gallery.length > 16) {
+      return fail("validation", "La galería admite hasta 16 elementos.");
+    }
+
+    const services = normalizeSiteServices(raw.services);
+    const gallery = normalizeSiteGallery(raw.gallery);
+    if (services.length !== raw.services.length || gallery.length !== raw.gallery.length) {
+      return fail("validation", "Revisa títulos, descripciones y datos de la galería antes de guardar.");
+    }
+
+    await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery });
+    revalidatePath("/");
+    revalidatePath("/admin/configuracion");
+    return { ok: true, message: "Contenido público actualizado. Servicios y galería ya usan esta configuración." };
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      if (error.code === "unauthenticated") return fail("unauthenticated", "La sesión expiró. Vuelve a iniciar sesión.");
+      if (error.code === "unauthorized") return fail("unauthorized", "Tu cuenta no tiene un perfil administrativo autorizado.");
+      if (error.code === "network") return fail("network", "No pudimos validar tu sesión con Supabase.");
+      return fail("unknown", "Supabase/Auth no está configurado.");
+    }
+    if (error instanceof SiteContentRepositoryError) {
+      const code = error.code === "unauthorized" || error.code === "validation" || error.code === "network" ? error.code : "unknown";
+      return fail(code, error.message);
+    }
+    return fail("unknown", "No pudimos actualizar el contenido público.");
+  }
 }

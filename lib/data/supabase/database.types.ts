@@ -125,6 +125,33 @@ export type Database = {
           timezone: string;
         }>;
       };
+      get_public_site_content: {
+        Args: { p_business_slug: string };
+        Returns: Array<{
+          business_id: string;
+          services: Json;
+          gallery: Json;
+          updated_at: string | null;
+        }>;
+      };
+      get_admin_site_content: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          business_id: string;
+          services: Json;
+          gallery: Json;
+          updated_at: string | null;
+        }>;
+      };
+      admin_update_site_content: {
+        Args: { p_services: Json; p_gallery: Json };
+        Returns: Array<{
+          business_id: string;
+          services: Json;
+          gallery: Json;
+          updated_at: string;
+        }>;
+      };
       get_public_availability: {
         Args: {
           p_business_slug: string;
