@@ -1,29 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
-import {
-  createServerSupabaseClient,
-  hasPublicSupabaseServerConfig,
-} from "@/lib/data/supabase/server";
+import { AdminAuthError, getAdminContext } from "@/lib/auth/server";
 
 export default async function AdminLoginPage() {
-  // Restauración de sesión: si ya existe una cookie válida y además el usuario
-  // posee perfil administrativo activo, no obligamos a iniciar sesión otra vez.
-  if (hasPublicSupabaseServerConfig()) {
-    let sessionTarget: string | null = null;
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { data: authData } = await supabase.auth.getUser();
-      if (authData.user) {
-        const { data: context } = await supabase.rpc("get_current_admin_context");
-        sessionTarget = (context ?? []).length > 0 ? "/admin" : "/admin/acceso-denegado";
-      }
-    } catch {
-      // Un fallo de red no convierte una sesión en válida. La pantalla de login
-      // seguirá disponible y mostrará errores al intentar autenticar.
+  let sessionTarget: string | null = null;
+  try {
+    await getAdminContext();
+    sessionTarget = "/admin";
+  } catch (error) {
+    if (error instanceof AdminAuthError && error.code === "unauthorized") {
+      sessionTarget = "/admin/acceso-denegado";
     }
-    if (sessionTarget) redirect(sessionTarget);
   }
+  if (sessionTarget) redirect(sessionTarget);
 
   return (
     <main className="auth-page">
@@ -44,3 +34,4 @@ export default async function AdminLoginPage() {
     </main>
   );
 }
+

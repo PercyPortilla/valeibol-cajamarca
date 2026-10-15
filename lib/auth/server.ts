@@ -1,7 +1,14 @@
 import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
+import { businessConfig } from "@/config/business";
 import { hasPublicSupabaseServerConfig } from "@/lib/data/supabase/server";
 import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 import { adminRoleLabel, isAdminRole, type AdminRole } from "@/lib/auth";
+import {
+  LOCAL_DEV_ADMIN_COOKIE,
+  hostnameFromHostHeader,
+  isLocalDevAdminAllowed,
+} from "@/lib/auth/localDev";
 import type { Database } from "@/lib/data/supabase/database.types";
 
 export type AdminContext = {
@@ -25,7 +32,30 @@ export class AdminAuthError extends Error {
   }
 }
 
+async function getLocalDevAdminContext(): Promise<AdminContext | null> {
+  const headerStore = await headers();
+  const hostname = hostnameFromHostHeader(headerStore.get("host"));
+  if (!isLocalDevAdminAllowed({ nodeEnv: process.env.NODE_ENV, hostname })) return null;
+
+  const cookieStore = await cookies();
+  if (cookieStore.get(LOCAL_DEV_ADMIN_COOKIE)?.value !== "1") return null;
+
+  return {
+    userId: "local-dev-admin",
+    email: null,
+    businessId: "00000000-0000-4000-8000-000000000001",
+    businessName: `${businessConfig.name} · modo local`,
+    role: "owner",
+    roleLabel: adminRoleLabel("owner"),
+    displayName: "Administrador local",
+    timezone: businessConfig.timezone,
+  };
+}
+
 export async function getAdminContext(): Promise<AdminContext> {
+  const localContext = await getLocalDevAdminContext();
+  if (localContext) return localContext;
+
   if (!hasPublicSupabaseServerConfig()) {
     throw new AdminAuthError("unconfigured", "Supabase/Auth no está configurado.");
   }
@@ -76,3 +106,4 @@ export async function requireAdminContext(): Promise<AdminContext> {
     throw error;
   }
 }
+

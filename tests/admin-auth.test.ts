@@ -7,6 +7,12 @@ import {
   safeAdminRedirectPath,
 } from "../lib/auth.ts";
 import {
+  hostnameFromHostHeader,
+  isLocalDevAdminAllowed,
+  isLocalDevHostname,
+  validateLocalDevAdminCredentials,
+} from "../lib/auth/localDev.ts";
+import {
   ADMIN_RESERVATION_STATUSES,
   canReadAdminReservations,
   formatAdminDateTime,
@@ -45,6 +51,22 @@ test("next de login evita open redirects y rutas de bucle", () => {
   assert.equal(safeAdminRedirectPath("/admin/login"), "/admin");
 });
 
+test("el acceso admin local solo funciona en desarrollo y localhost", () => {
+  assert.equal(isLocalDevHostname("localhost"), true);
+  assert.equal(isLocalDevHostname("127.0.0.1"), true);
+  assert.equal(isLocalDevHostname("192.168.1.10"), false);
+  assert.equal(hostnameFromHostHeader("localhost:3000"), "localhost");
+  assert.equal(isLocalDevAdminAllowed({ nodeEnv: "development", hostname: "localhost" }), true);
+  assert.equal(isLocalDevAdminAllowed({ nodeEnv: "production", hostname: "localhost" }), false);
+  assert.equal(isLocalDevAdminAllowed({ nodeEnv: "development", hostname: "example.com" }), false);
+});
+
+test("las credenciales locales admin/12345 no habilitan producción", () => {
+  assert.equal(validateLocalDevAdminCredentials({ nodeEnv: "development", hostname: "localhost", username: "admin", password: "12345" }), true);
+  assert.equal(validateLocalDevAdminCredentials({ nodeEnv: "development", hostname: "localhost", username: "admin", password: "incorrecta" }), false);
+  assert.equal(validateLocalDevAdminCredentials({ nodeEnv: "production", hostname: "localhost", username: "admin", password: "12345" }), false);
+});
+
 test("mapea los cuatro estados del modelo sin inventar estados nuevos", () => {
   assert.deepEqual(ADMIN_RESERVATION_STATUSES, ["pending", "confirmed", "cancelled", "completed"]);
   assert.equal(reservationStatusLabel("pending"), "Pendiente");
@@ -64,3 +86,4 @@ test("etiqueta modalidad sin alterar la tarifa autoritativa", () => {
   assert.equal(lightingLabel("without_lights"), "Sin luz");
   assert.equal(lightingLabel("with_lights"), "Con luz");
 });
+
