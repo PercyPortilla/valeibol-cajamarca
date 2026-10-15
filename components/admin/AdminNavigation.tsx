@@ -10,7 +10,6 @@ const navigation = [
   ["Clientes", "/admin/clientes"],
   ["Precios", "/admin/precios"],
   ["Ingresos", "/admin/ingresos"],
-  ["WhatsApp", "/admin/whatsapp"],
   ["Reportes", "/admin/reportes"],
   ["Configuración", "/admin/configuracion"],
 ] as const;

@@ -6,23 +6,16 @@ import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { businessConfig } from "@/config/business";
 import { getPublicCurrentPricing } from "@/lib/data/publicPricingService";
+import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { formatMoney } from "@/lib/booking";
 
-const services = [
-  { icon: "⌂", title: "Cancha cubierta", text: "Espacio techado para jugar vóley con mayor comodidad." },
-  { icon: "◷", title: "Reserva por hora", text: "Consulta bloques disponibles y solicita el horario que prefieras." },
-  { icon: "☼", title: "Iluminación opcional", text: "Elige la tarifa correspondiente según necesites iluminación." },
-];
-
-const galleryItems = [
-  { label: "Vista general", detail: "Imagen del local próximamente" },
-  { label: "Cancha", detail: "Imagen del local próximamente" },
-  { label: "Red y zona de juego", detail: "Imagen del local próximamente" },
-  { label: "Ingreso", detail: "Imagen del local próximamente" },
-];
-
 export default async function HomePage() {
-  const pricing = await getPublicCurrentPricing();
+  const [pricing, siteContent] = await Promise.all([
+    getPublicCurrentPricing(),
+    getPublicSiteContent(),
+  ]);
+  const services = siteContent.services.filter((service) => service.isVisible);
+  const galleryItems = siteContent.gallery.filter((item) => item.isVisible);
   const pricingAvailable = pricing.withoutLights !== null && pricing.withLights !== null;
   const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.address)}`;
   const mapsEmbedHref = `https://www.google.com/maps?q=${encodeURIComponent(businessConfig.address)}&output=embed`;
@@ -102,16 +95,16 @@ export default async function HomePage() {
             <div className="section-heading section-heading--commercial">
               <div>
                 <span className="eyebrow">SERVICIOS</span>
-                <h2>Nuestros servicios</h2>
-                <p>Lo esencial para organizar tu próxima hora de vóley.</p>
+                <h2>Servicios incluidos</h2>
+                <p>Más comodidad, mejor ambiente y todo lo necesario para disfrutar tu turno.</p>
               </div>
             </div>
             <div className="feature-grid feature-grid--commercial">
               {services.map((service) => (
-                <Card key={service.title} className="service-card">
+                <Card key={service.id} className="service-card">
                   <span className="feature-icon" aria-hidden="true">{service.icon}</span>
                   <h3>{service.title}</h3>
-                  <p>{service.text}</p>
+                  <p>{service.description}</p>
                 </Card>
               ))}
             </div>
@@ -172,17 +165,22 @@ export default async function HomePage() {
               <div>
                 <span className="eyebrow">GALERÍA</span>
                 <h2>Conoce nuestras instalaciones</h2>
-                <p>Las fotografías reales del local se incorporarán cuando estén disponibles.</p>
+                <p>{galleryItems.some((item) => item.imageUrl) ? "Mira algunos espacios y detalles de la cancha." : "Las fotografías reales del local se incorporarán cuando estén disponibles."}</p>
               </div>
               <a href="#ubicacion" className="text-link">Ver ubicación <span aria-hidden="true">→</span></a>
             </div>
             <div className="gallery-grid gallery-grid--commercial">
-              {galleryItems.map((item, index) => (
-                <div className="gallery-placeholder gallery-placeholder--commercial" key={item.label}>
-                  <span className="gallery-placeholder__number">0{index + 1}</span>
+              {galleryItems.map((item, index) => item.imageUrl ? (
+                <figure className="gallery-media-card" key={item.id}>
+                  <div className="gallery-media-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} role="img" aria-label={item.altText || item.title} />
+                  <figcaption><strong>{item.title}</strong><small>{item.altText}</small></figcaption>
+                </figure>
+              ) : (
+                <div className="gallery-placeholder gallery-placeholder--commercial" key={item.id}>
+                  <span className="gallery-placeholder__number">{String(index + 1).padStart(2, "0")}</span>
                   <div>
-                    <strong>{item.label}</strong>
-                    <small>{item.detail}</small>
+                    <strong>{item.title}</strong>
+                    <small>Imagen del local próximamente</small>
                   </div>
                 </div>
               ))}

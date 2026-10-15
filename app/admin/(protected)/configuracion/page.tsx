@@ -1,13 +1,22 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { AdminSiteContentEditor } from "@/components/admin/AdminSiteContentEditor";
 import { businessConfig } from "@/config/business";
 import { requireAdminContext } from "@/lib/auth/server";
 import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
+import { createSiteContentRepository } from "@/lib/data/siteContentService";
+import { defaultSiteContent } from "@/lib/siteContent";
 
 export default async function AdminConfigurationPage() {
   const context = await requireAdminContext();
   const localMode = isLocalDevAdminUserId(context.userId);
+  let content = defaultSiteContent();
+  try {
+    content = await createSiteContentRepository({ local: localMode }).getAdminContent();
+  } catch {
+    // La configuración base queda disponible para editar incluso si Supabase aún no tiene la migración aplicada.
+  }
 
   return (
     <>
@@ -41,6 +50,10 @@ export default async function AdminConfigurationPage() {
             <Link className="button button--ghost" href="/admin/disponibilidad">Administrar disponibilidad</Link>
           </div>
         </Card>
+      </div>
+
+      <div className="admin-config-content-block">
+        <AdminSiteContentEditor content={content} role={context.role} localMode={localMode} />
       </div>
     </>
   );
