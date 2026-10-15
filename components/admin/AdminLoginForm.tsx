@@ -25,10 +25,14 @@ export function AdminLoginForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageKind, setMessageKind] = useState<"error" | "success">("error");
   const [reason, setReason] = useState<LoginReason>(null);
 
   useEffect(() => {
-    const localHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "::1";
+    const localHost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "::1";
     setLocalDev(process.env.NODE_ENV !== "production" && localHost);
     const params = new URLSearchParams(window.location.search);
     const raw = params.get("reason");
@@ -41,6 +45,7 @@ export function AdminLoginForm() {
 
     setBusy(true);
     setMessage(null);
+    setMessageKind("error");
     try {
       if (localDev && email.trim() === "admin") {
         const response = await fetch("/api/dev/admin-session", {
@@ -74,6 +79,47 @@ export function AdminLoginForm() {
       window.location.assign(safeAdminRedirectPath(params.get("next")));
     } catch {
       setMessage("No pudimos conectar con el servicio de autenticación. Inténtalo nuevamente.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendMagicLink() {
+    if (!configured || localDev || busy) return;
+
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      setMessageKind("error");
+      setMessage("Ingresa tu correo administrativo primero.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage(null);
+    setMessageKind("error");
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", safeAdminRedirectPath(params.get("next")));
+
+      const supabase = createPublicBrowserSupabaseClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: callback.toString(),
+        },
+      });
+
+      if (error) {
+        setMessage("No pudimos enviar el enlace. Verifica el correo o inténtalo nuevamente.");
+        return;
+      }
+
+      setMessageKind("success");
+      setMessage("Te enviamos un enlace de acceso. Revisa tu correo y ábrelo para entrar al panel.");
+    } catch {
+      setMessage("No pudimos enviar el enlace de acceso. Inténtalo nuevamente.");
     } finally {
       setBusy(false);
     }
@@ -114,12 +160,23 @@ export function AdminLoginForm() {
           onChange={(event) => setPassword(event.target.value)}
           placeholder="••••••••"
         />
-        {message ? <div className="auth-error" role="alert">{message}</div> : null}
+        {message ? (
+          <div
+            className={messageKind === "success" ? "auth-notice auth-notice--success" : "auth-error"}
+            role={messageKind === "success" ? "status" : "alert"}
+          >
+            {message}
+          </div>
+        ) : null}
         <Button fullWidth type="submit" disabled={(!configured && !localDev) || busy}>
           {busy ? "Validando sesión…" : "Entrar al panel"}
         </Button>
+        {!localDev && configured ? (
+          <Button fullWidth type="button" variant="secondary" disabled={busy} onClick={sendMagicLink}>
+            Recibir enlace de acceso por correo
+          </Button>
+        ) : null}
       </form>
     </>
   );
 }
-
