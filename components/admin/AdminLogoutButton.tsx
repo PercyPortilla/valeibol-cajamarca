@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
+import {
+  createPublicBrowserSupabaseClient,
+  hasPublicSupabaseConfig,
+} from "@/lib/data/supabase/browser";
 
 export function AdminLogoutButton() {
   const router = useRouter();
@@ -12,8 +15,13 @@ export function AdminLogoutButton() {
     if (busy) return;
     setBusy(true);
     try {
-      const supabase = createPublicBrowserSupabaseClient();
-      await supabase.auth.signOut();
+      if (process.env.NODE_ENV !== "production") {
+        await fetch("/api/dev/admin-session", { method: "DELETE" });
+      }
+      if (hasPublicSupabaseConfig()) {
+        const supabase = createPublicBrowserSupabaseClient();
+        await supabase.auth.signOut();
+      }
     } finally {
       router.replace("/admin/login?reason=logout");
       router.refresh();
@@ -26,3 +34,4 @@ export function AdminLogoutButton() {
     </button>
   );
 }
+
