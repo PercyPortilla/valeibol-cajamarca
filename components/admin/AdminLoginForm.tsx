@@ -20,7 +20,7 @@ function reasonMessage(reason: LoginReason) {
 
 export function AdminLoginForm() {
   const configured = hasPublicSupabaseConfig();
-  const localDev = process.env.NODE_ENV !== "production";
+  const [localDev, setLocalDev] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -28,6 +28,8 @@ export function AdminLoginForm() {
   const [reason, setReason] = useState<LoginReason>(null);
 
   useEffect(() => {
+    const localHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.hostname === "::1";
+    setLocalDev(process.env.NODE_ENV !== "production" && localHost);
     const params = new URLSearchParams(window.location.search);
     const raw = params.get("reason");
     if (raw === "config" || raw === "session" || raw === "logout") setReason(raw);

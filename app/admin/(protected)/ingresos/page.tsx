@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ErrorState } from "@/components/ui/States";
 import { requireAdminContext } from "@/lib/auth/server";
+import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { METRIC_DEFINITIONS } from "@/lib/admin/phase7";
 import { formatMoney } from "@/lib/admin/reservations";
 import { businessTodayDateKey } from "@/lib/availability";
@@ -19,7 +20,7 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
   const to = validDate(params.to) ?? today;
 
   try {
-    const metrics = await createPhase7Repository().getOperationalMetrics(from, to);
+    const metrics = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).getOperationalMetrics(from, to);
     return (
       <>
         <header className="admin-topbar">

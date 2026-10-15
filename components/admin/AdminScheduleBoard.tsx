@@ -107,7 +107,7 @@ function calculateAdminPricePreview(
 function ActionFeedback({ result }: { result: AdminActionResult | null }) {
   if (!result) return null;
   return (
-    <div className={result.ok ? "admin-feedback admin-feedback--success" : "admin-feedback admin-feedback--error"} role="status">
+    <div className={result.ok ? "admin-feedback admin-feedback--success" : "admin-feedback admin-feedback--error"} role={result.ok ? "status" : "alert"}>
       {result.message}
     </div>
   );

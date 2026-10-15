@@ -69,7 +69,7 @@ export function AdminPricingForm({ rules, role }: { rules: AdminPricingRule[]; r
         </label>
       </div>
       <p className="phase7-form-help">Se crea una nueva versión. La regla anterior se cierra temporalmente; ninguna reserva existente cambia su hourly_rate ni total_amount guardados.</p>
-      {result ? <div className={result.ok ? "admin-action-message admin-action-message--success" : "admin-action-message admin-action-message--error"} role="status">{result.message}</div> : null}
+      {result ? <div className={result.ok ? "admin-action-message admin-action-message--success" : "admin-action-message admin-action-message--error"} role={result.ok ? "status" : "alert"}>{result.message}</div> : null}
       <button className="button button--primary" type="submit" disabled={pending || !courtId || !hourlyRate || !effectiveFrom}>
         {pending ? "Validando y guardando…" : "Programar nueva tarifa"}
       </button>

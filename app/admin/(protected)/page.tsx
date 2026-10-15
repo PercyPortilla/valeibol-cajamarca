@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "../../../components/ui/Badge.tsx";
 import { Card } from "../../../components/ui/Card.tsx";
 import { requireAdminContext } from "../../../lib/auth/server.ts";
+import { isLocalDevAdminUserId } from "../../../lib/auth/localDev.ts";
 import { canPerformPhase7Operation } from "../../../lib/admin/phase7.ts";
 import { businessTodayDateKey } from "../../../lib/availability.ts";
 import { formatMoney } from "../../../lib/admin/reservations.ts";
@@ -13,7 +14,7 @@ export default async function AdminDashboardPage() {
   const monthFrom = `${today.slice(0, 7)}-01`;
   let metrics = null;
   try {
-    metrics = await createPhase7Repository().getOperationalMetrics(monthFrom, today);
+    metrics = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).getOperationalMetrics(monthFrom, today);
   } catch {
     // La navegación operativa permanece disponible si la consulta de métricas falla.
   }

@@ -74,11 +74,14 @@ export type AdminOperationsErrorCode =
   | "unknown";
 
 export class AdminOperationsRepositoryError extends Error {
+  readonly code: AdminOperationsErrorCode;
+
   constructor(
-    public readonly code: AdminOperationsErrorCode,
+    code: AdminOperationsErrorCode,
     message: string,
   ) {
     super(message);
+    this.code = code;
     this.name = "AdminOperationsRepositoryError";
   }
 }

@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 import { adminRoleLabel, isAdminRole, type AdminRole } from "@/lib/auth";
 import {
   LOCAL_DEV_ADMIN_COOKIE,
+  LOCAL_DEV_ADMIN_USER_ID,
   hostnameFromHostHeader,
   isLocalDevAdminAllowed,
 } from "@/lib/auth/localDev";
@@ -41,7 +42,7 @@ async function getLocalDevAdminContext(): Promise<AdminContext | null> {
   if (cookieStore.get(LOCAL_DEV_ADMIN_COOKIE)?.value !== "1") return null;
 
   return {
-    userId: "local-dev-admin",
+    userId: LOCAL_DEV_ADMIN_USER_ID,
     email: null,
     businessId: "00000000-0000-4000-8000-000000000001",
     businessName: `${businessConfig.name} · modo local`,

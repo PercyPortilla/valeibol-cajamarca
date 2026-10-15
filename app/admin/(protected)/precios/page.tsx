@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { EmptyState, ErrorState } from "@/components/ui/States";
 import { requireAdminContext } from "@/lib/auth/server";
+import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { lightingModeLabel, pricingTemporalLabel, pricingTemporalStatus } from "@/lib/admin/phase7";
 import { formatMoney } from "@/lib/admin/reservations";
 import { createPhase7Repository } from "@/lib/data/phase7Service";
@@ -17,7 +18,7 @@ function formatDate(value: string | null) {
 export default async function AdminPricingPage() {
   const context = await requireAdminContext();
   try {
-    const rules = await createPhase7Repository().listPricingRules();
+    const rules = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).listPricingRules();
     return (
       <>
         <header className="admin-topbar">
