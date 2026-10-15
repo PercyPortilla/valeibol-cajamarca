@@ -1919,6 +1919,7 @@ button { cursor: pointer; }
   background: #f9fbfd;
   color: #65758a;
 }
+.commercial-main .state-box strong { color: #10264c; }
 
 /* Servicios */
 .feature-grid--commercial {
