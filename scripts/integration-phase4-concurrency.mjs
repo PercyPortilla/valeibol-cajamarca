@@ -19,7 +19,7 @@ const baseArgs = {
   p_date: dateKey,
   p_start_time: "18:00",
   p_end_time: "20:00",
-  p_lighting: "with_lights",
+  p_net_height_cm: 243,
   p_customer_name: "Concurrency test",
   p_marketing_opt_in: false,
 };

@@ -35,7 +35,7 @@ test("modo local alimenta dashboard, reservas, agenda, clientes y precios sin Su
     date: addDays(tomorrow, 1),
     startTime: "10:00",
     endTime: "11:00",
-    lighting: "without_lights",
+    netHeightCm: 224,
     customerName: "Cliente Local",
     phoneE164: "+51911111111",
     source: "admin",
@@ -47,13 +47,29 @@ test("modo local alimenta dashboard, reservas, agenda, clientes y precios sin Su
     reservationId: manual.reservationId,
     courtId: LOCAL_COURT_ID,
     date: addDays(tomorrow, 1),
-    startTime: "11:00",
-    endTime: "12:00",
-    lighting: "with_lights",
+    startTime: "18:00",
+    endTime: "19:00",
+    netHeightCm: 243,
     customerName: "Cliente Local Editado",
     phoneE164: "+51911111111",
   });
   assert.equal(edited.totalAmount, 60);
+  assert.equal(edited.lighting, "with_lights");
+  assert.equal(edited.netHeightCm, 243);
+
+  await assert.rejects(
+    operations.createManualReservation({
+      courtId: LOCAL_COURT_ID,
+      date: addDays(tomorrow, 1),
+      startTime: "17:00",
+      endTime: "19:00",
+      netHeightCm: 235,
+      customerName: "Cruce no permitido",
+      phoneE164: "+51922222222",
+      source: "admin",
+    }),
+    /18:00/,
+  );
 
   const block = await operations.createScheduleBlock({
     courtId: LOCAL_COURT_ID,

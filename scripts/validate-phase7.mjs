@@ -11,7 +11,10 @@ const migration = read(migrationPath);
 const publicPage = read("app/page.tsx");
 const dialog = read("components/booking/ReservationDialog.tsx");
 const actions = read("app/admin/(protected)/actions.ts");
-const css = read("app/globals.css");
+const css = [
+  read("app/globals.css"),
+  ...[1, 2, 3, 4, 5].map((part) => read(`app/styles/globals-${part}.css`)),
+].join("\n");
 const types = read("lib/data/supabase/database.types.ts");
 
 check("migración Fase 7 existe", existsSync(resolve(root, migrationPath)));

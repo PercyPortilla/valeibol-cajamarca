@@ -2,12 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { updateSiteContentAction, type AdminActionResult } from "@/app/admin/(protected)/actions";
+import { Icon } from "@/components/ui/Icon";
 import type { AdminRole } from "@/lib/auth";
+import { SERVICE_ICON_OPTIONS, type ServiceIconKey } from "@/lib/icons";
 import {
   DEFAULT_SITE_SERVICES,
+  SITE_THEME_PRESETS,
   type SiteContent,
   type SiteGalleryItem,
   type SiteService,
+  type SiteTheme,
 } from "@/lib/siteContent";
 
 function resequence<T extends { sortOrder: number }>(items: T[]) {
@@ -25,6 +29,7 @@ function move<T extends { sortOrder: number }>(items: T[], index: number, direct
 export function AdminSiteContentEditor({ content, role, localMode }: { content: SiteContent; role: AdminRole; localMode: boolean }) {
   const [services, setServices] = useState(content.services);
   const [gallery, setGallery] = useState(content.gallery);
+  const [theme, setTheme] = useState(content.theme);
   const [result, setResult] = useState<AdminActionResult | null>(null);
   const [pending, startTransition] = useTransition();
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
@@ -38,10 +43,14 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
     setGallery((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item));
   }
 
+  function patchTheme(patch: Partial<SiteTheme>) {
+    setTheme((current) => ({ ...current, ...patch, presetId: patch.presetId ?? "custom" }));
+  }
+
   function addService() {
     setServices((current) => [...current, {
       id: `service-${Date.now()}`,
-      icon: "•",
+      icon: "ball",
       title: "Nuevo servicio",
       description: "Describe brevemente qué incluye este servicio.",
       sortOrder: (current.length + 1) * 10,
@@ -63,7 +72,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
   function save() {
     setResult(null);
     startTransition(async () => {
-      const next = await updateSiteContentAction({ services: resequence(services), gallery: resequence(gallery) });
+      const next = await updateSiteContentAction({ services: resequence(services), gallery: resequence(gallery), theme });
       setResult(next);
       if (next.ok) {
         setServices((current) => resequence(current));
@@ -120,7 +129,15 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
                 <button type="button" onClick={() => setServices((items) => move(items, index, -1))} disabled={index === 0} aria-label={`Subir ${service.title}`}>↑</button>
                 <button type="button" onClick={() => setServices((items) => move(items, index, 1))} disabled={index === services.length - 1} aria-label={`Bajar ${service.title}`}>↓</button>
               </div>
-              <label className="field admin-service-editor__icon"><span className="field__label">Icono</span><input className="field__control" value={service.icon} maxLength={8} onChange={(event) => patchService(index, { icon: event.target.value })} /></label>
+              <label className="field admin-service-editor__icon">
+                <span className="field__label">Icono</span>
+                <span className="admin-icon-select">
+                  <Icon name={service.icon} size={20} />
+                  <select className="field__control" value={service.icon} onChange={(event) => patchService(index, { icon: event.target.value as ServiceIconKey })}>
+                    {SERVICE_ICON_OPTIONS.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}
+                  </select>
+                </span>
+              </label>
               <label className="field"><span className="field__label">Nombre</span><input className="field__control" value={service.title} maxLength={80} onChange={(event) => patchService(index, { title: event.target.value })} /></label>
               <label className="field admin-service-editor__description"><span className="field__label">Descripción</span><input className="field__control" value={service.description} maxLength={220} onChange={(event) => patchService(index, { description: event.target.value })} /></label>
               <label className="admin-content-toggle"><input type="checkbox" checked={service.isVisible} onChange={(event) => patchService(index, { isVisible: event.target.checked })} /><span>Visible</span></label>
@@ -163,6 +180,55 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
                 <button className="button button--danger-soft" type="button" onClick={() => setGallery((items) => resequence(items.filter((_, itemIndex) => itemIndex !== index)))}>Quitar</button>
               </div>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="admin-content-editor__section" aria-labelledby="theme-editor-title">
+        <div className="admin-content-editor__head">
+          <div>
+            <span className="metric-label">IDENTIDAD VISUAL</span>
+            <h2 id="theme-editor-title">Paleta de colores</h2>
+            <p>Elige una base de Mi Valeibol o ajusta cada color. La misma paleta se aplica a la web pública y al panel.</p>
+          </div>
+        </div>
+
+        <div className="admin-theme-presets" role="group" aria-label="Paletas predefinidas">
+          {SITE_THEME_PRESETS.map((preset) => (
+            <button
+              className={theme.presetId === preset.id ? "admin-theme-preset admin-theme-preset--active" : "admin-theme-preset"}
+              type="button"
+              key={preset.id}
+              onClick={() => setTheme({ ...preset.theme })}
+            >
+              <span className="admin-theme-preset__swatches" aria-hidden="true">
+                {[preset.theme.navy, preset.theme.blue, preset.theme.red, preset.theme.yellow, preset.theme.canvas].map((color) => (
+                  <i key={color} style={{ background: color }} />
+                ))}
+              </span>
+              <strong>{preset.name}</strong>
+              <small>{preset.description}</small>
+            </button>
+          ))}
+        </div>
+
+        <div className="admin-theme-colors">
+          {([
+            ["navy", "Azul marino"],
+            ["blue", "Azul principal"],
+            ["blueDark", "Azul oscuro"],
+            ["red", "Rojo principal"],
+            ["redDark", "Rojo oscuro"],
+            ["yellow", "Amarillo"],
+            ["canvas", "Fondo general"],
+          ] as const).map(([key, label]) => (
+            <label className="admin-theme-color" key={key}>
+              <span>{label}</span>
+              <span className="admin-theme-color__controls">
+                <input type="color" value={theme[key]} onChange={(event) => patchTheme({ [key]: event.target.value.toUpperCase() } as Partial<SiteTheme>)} aria-label={`Elegir ${label}`} />
+                <input className="field__control" value={theme[key]} maxLength={7} pattern="^#[0-9A-Fa-f]{6}$" onChange={(event) => patchTheme({ [key]: event.target.value.toUpperCase() } as Partial<SiteTheme>)} />
+              </span>
+            </label>
           ))}
         </div>
       </section>

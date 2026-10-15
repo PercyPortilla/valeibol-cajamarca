@@ -7,6 +7,7 @@ import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { createPhase7Repository } from "@/lib/data/phase7Service";
 import { Phase7RepositoryError } from "@/lib/data/repositories/phase7Repository";
 import { formatAdminDateTime, formatMoney, lightingLabel, reservationStatusLabel, reservationStatusTone } from "@/lib/admin/reservations";
+import { netHeightLabel } from "@/lib/booking";
 
 function isUuid(value: string | undefined) {
   return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
@@ -69,7 +70,7 @@ export default async function AdminCustomersPage({ searchParams }: { searchParam
                   {history.length === 0 ? <EmptyState title="Sin reservas asociadas" detail="El cliente existe, pero aún no tiene historial de reservas visible." /> : history.map((item) => (
                     <article className="phase7-history-row" key={item.id}>
                       <div><strong>{item.courtName}</strong><span>{formatAdminDateTime(item.startAt, context.timezone)} → {formatAdminDateTime(item.endAt, context.timezone)}</span></div>
-                      <div><Badge tone={reservationStatusTone(item.status)}>{reservationStatusLabel(item.status)}</Badge><span>{lightingLabel(item.lighting)}</span></div>
+                      <div><Badge tone={reservationStatusTone(item.status)}>{reservationStatusLabel(item.status)}</Badge><span>{lightingLabel(item.lighting)} · Red {netHeightLabel(item.netHeightCm)}</span></div>
                       <div><span>{formatMoney(item.hourlyRate, item.currency)}/h</span><strong>{formatMoney(item.totalAmount, item.currency)}</strong></div>
                     </article>
                   ))}

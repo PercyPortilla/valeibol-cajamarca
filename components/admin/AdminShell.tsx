@@ -1,18 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import type { AdminContext } from "@/lib/auth/server";
 import { AdminNavigation } from "@/components/admin/AdminNavigation";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
 import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
+import { themeCssVariables, type SiteTheme } from "@/lib/siteContent";
+import type { CSSProperties } from "react";
 
-export function AdminShell({ context, children }: { context: AdminContext; children: ReactNode }) {
+export function AdminShell({ context, children, theme }: { context: AdminContext; children: ReactNode; theme: SiteTheme }) {
   const localMode = isLocalDevAdminUserId(context.userId);
   return (
-    <main className="admin-shell">
+    <main className="admin-shell" style={themeCssVariables(theme) as CSSProperties}>
       <aside className="admin-sidebar">
         <Link href="/admin" className="brand brand--admin" aria-label="Valeibol Administración">
-          <span className="brand__mark">V</span>
-          <span><strong>Valeibol</strong><small>Administración</small></span>
+          <BrandLogo context="admin" />
         </Link>
         <AdminNavigation />
         <div className="admin-account">

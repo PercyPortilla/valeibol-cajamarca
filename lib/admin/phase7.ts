@@ -42,6 +42,7 @@ export type AdminCustomerHistoryItem = {
   endAt: string;
   status: ReservationStatus;
   lighting: LightingMode;
+  netHeightCm: number | null;
   hourlyRate: number;
   totalAmount: number;
   source: ReservationSource;

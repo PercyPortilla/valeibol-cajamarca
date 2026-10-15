@@ -1,8 +1,9 @@
-import type { SiteContent, SiteGalleryItem, SiteService } from "../../siteContent.ts";
+import type { SiteContent, SiteGalleryItem, SiteService, SiteTheme } from "../../siteContent.ts";
 
 export type UpdateSiteContentInput = {
   services: SiteService[];
   gallery: SiteGalleryItem[];
+  theme: SiteTheme;
 };
 
 export interface SiteContentRepository {

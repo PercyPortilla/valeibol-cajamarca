@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { AdminAuthError, getAdminContext } from "@/lib/auth/server";
 
 export default async function AdminLoginPage() {
@@ -20,8 +21,8 @@ export default async function AdminLoginPage() {
       <section className="auth-card" aria-labelledby="admin-login-title">
         <Link className="auth-back" href="/">← Volver a la web pública</Link>
         <div className="brand brand--auth">
-          <span className="brand__mark">V</span>
-          <span><strong>Valeibol Admin</strong><small>Acceso privado</small></span>
+          <BrandLogo context="auth" />
+          <span className="brand-context-label">Administración · acceso privado</span>
         </div>
         <div className="auth-card__title">
           <span className="eyebrow">ÁREA PRIVADA</span>
@@ -34,4 +35,3 @@ export default async function AdminLoginPage() {
     </main>
   );
 }
-

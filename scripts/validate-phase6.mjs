@@ -16,7 +16,10 @@ const publicCalendar = read("components/availability/AvailabilityCalendar.tsx");
 const publicAvailability = read("lib/data/repositories/supabaseAvailabilityRepository.ts");
 const publicRealtime = read("lib/data/availabilityRealtime.ts");
 const config = read("config/business.ts");
-const css = read("app/globals.css");
+const css = [
+  read("app/globals.css"),
+  ...[1, 2, 3, 4, 5].map((part) => read(`app/styles/globals-${part}.css`)),
+].join("\n");
 const env = read(".env.example");
 const sqlTest = read("supabase/tests/phase6.sql");
 

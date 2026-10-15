@@ -76,6 +76,7 @@ export class SupabasePhase7Repository implements Phase7Repository {
       endAt: row.end_at,
       status: row.status,
       lighting: row.lighting,
+      netHeightCm: row.net_height_cm,
       hourlyRate: toNumber(row.hourly_rate),
       totalAmount: toNumber(row.total_amount),
       source: row.source,

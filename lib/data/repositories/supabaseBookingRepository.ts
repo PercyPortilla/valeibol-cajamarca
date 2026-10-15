@@ -1,4 +1,5 @@
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
+import { isNetHeightCm } from "@/lib/booking";
 import type { Database, Json } from "@/lib/data/supabase/database.types";
 import {
   BookingRepositoryError,
@@ -70,6 +71,12 @@ function mapError(message: string, code?: string): BookingRepositoryError {
   } else if (normalized.includes("outside_operating_hours")) {
     mapped = "outside_operating_hours";
     userMessage = "El intervalo está fuera del horario configurado.";
+  } else if (normalized.includes("lighting_cutoff_crossed")) {
+    mapped = "lighting_cutoff_crossed";
+    userMessage = "Ese intervalo cruza las 18:00. Elige un bloque que termine a las 18:00 o empiece desde las 18:00.";
+  } else if (normalized.includes("invalid_net_height")) {
+    mapped = "invalid_net_height";
+    userMessage = "Selecciona una altura de red válida.";
   } else if (normalized.includes("invalid_interval") || normalized.includes("invalid_booking_increment")) {
     mapped = "invalid_interval";
     userMessage = "El intervalo seleccionado ya no es válido.";
@@ -159,7 +166,7 @@ export class SupabaseBookingRepository implements BookingRepository {
           date: request.date,
           start: request.start,
           end: request.end,
-          lighting: request.lighting,
+          netHeightCm: request.netHeightCm,
           customerName: request.customerName,
           phoneE164: request.phoneE164,
           marketingOptIn: request.marketingOptIn,
@@ -183,6 +190,7 @@ export class SupabaseBookingRepository implements BookingRepository {
           startAt?: string;
           endAt?: string;
           lighting?: string;
+          netHeightCm?: number;
           hourlyRate?: number | string;
           totalAmount?: number | string;
           currency?: string;
@@ -200,6 +208,7 @@ export class SupabaseBookingRepository implements BookingRepository {
       typeof payload.startAt !== "string" ||
       typeof payload.endAt !== "string" ||
       (payload.lighting !== "without_lights" && payload.lighting !== "with_lights") ||
+      !isNetHeightCm(payload.netHeightCm) ||
       (typeof payload.hourlyRate !== "number" && typeof payload.hourlyRate !== "string") ||
       (typeof payload.totalAmount !== "number" && typeof payload.totalAmount !== "string") ||
       typeof payload.currency !== "string"
@@ -215,6 +224,7 @@ export class SupabaseBookingRepository implements BookingRepository {
       startAt: payload.startAt,
       endAt: payload.endAt,
       lighting: payload.lighting,
+      netHeightCm: payload.netHeightCm,
       hourlyRate: toNumber(payload.hourlyRate),
       totalAmount: toNumber(payload.totalAmount),
       currency: payload.currency,

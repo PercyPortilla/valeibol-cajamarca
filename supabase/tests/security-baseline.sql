@@ -91,11 +91,11 @@ do $$
 begin
   if has_function_privilege(
     'anon',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) or has_function_privilege(
     'authenticated',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) then
     raise exception 'FAIL: navegador puede ejecutar la RPC autoritativa de reserva';
@@ -103,7 +103,7 @@ begin
 
   if not has_function_privilege(
     'service_role',
-    'public.create_public_reservation_request(text,uuid,date,time,time,public.lighting_mode,text,text,boolean,uuid)',
+    'public.create_public_reservation_request(text,uuid,date,time,time,smallint,text,text,boolean,uuid)',
     'EXECUTE'
   ) then
     raise exception 'FAIL: service_role no puede ejecutar la RPC autoritativa';

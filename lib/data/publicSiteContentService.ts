@@ -1,5 +1,5 @@
 import { businessConfig } from "@/config/business";
-import { defaultSiteContent, normalizeSiteGallery, normalizeSiteServices, type SiteContent } from "@/lib/siteContent";
+import { defaultSiteContent, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "@/lib/siteContent";
 import { createServerSupabaseClient, hasPublicSupabaseServerConfig } from "@/lib/data/supabase/server";
 import type { Database } from "@/lib/data/supabase/database.types";
 import { cookies, headers } from "next/headers";
@@ -28,6 +28,7 @@ export async function getPublicSiteContent(): Promise<SiteContent> {
     return {
       services: normalizeSiteServices(row.services),
       gallery: normalizeSiteGallery(row.gallery),
+      theme: normalizeSiteTheme(row.theme),
       updatedAt: row.updated_at,
       source: "supabase",
     };

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export default function AdminAccessDeniedPage() {
   return (
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="access-denied-title">
         <div className="brand brand--auth">
-          <span className="brand__mark">V</span>
-          <span><strong>Valeibol Admin</strong><small>Acceso restringido</small></span>
+          <BrandLogo context="auth" />
+          <span className="brand-context-label">Administración · acceso restringido</span>
         </div>
         <div className="auth-card__title">
           <span className="eyebrow">SIN AUTORIZACIÓN</span>

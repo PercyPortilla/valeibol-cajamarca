@@ -1,5 +1,6 @@
 import { businessConfig } from "../../../config/business.ts";
 import { addDays, zonedLocalDateTimeToUtc } from "../../availability.ts";
+import { bookingLightingForInterval, isNetHeightCm } from "../../booking.ts";
 import type { AdminScheduleDay } from "../../admin/schedule.ts";
 import {
   AdminOperationsRepositoryError,
@@ -78,6 +79,7 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
             customerName: item.customerName,
             customerPhoneE164: item.customerPhoneE164,
             lighting: item.lighting,
+            netHeightCm: item.netHeightCm,
             hourlyRate: item.hourlyRate,
             totalAmount: item.totalAmount,
             currency: item.currency,
@@ -94,6 +96,7 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
             customerName: null,
             customerPhoneE164: null,
             lighting: null,
+            netHeightCm: null,
             hourlyRate: null,
             totalAmount: null,
             currency: businessConfig.currency,
@@ -125,8 +128,15 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
 
   async createManualReservation(input: CreateManualReservationInput): Promise<AdminMutationReservationResult> {
     const { startAt, endAt } = validateWindow(input.date, input.startTime, input.endTime);
+    if (!isNetHeightCm(input.netHeightCm)) throw new AdminOperationsRepositoryError("validation", "La altura de red debe estar entre 180 y 250 cm.");
+    let lighting: "without_lights" | "with_lights";
+    try {
+      lighting = bookingLightingForInterval(input.startTime, input.endTime);
+    } catch (error) {
+      throw new AdminOperationsRepositoryError("validation", error instanceof Error ? error.message : "El horario cruza el cambio de tarifa de las 18:00.");
+    }
     if (overlaps(startAt, endAt)) throw new AdminOperationsRepositoryError("conflict", "Ese horario local ya está ocupado o bloqueado.");
-    const pricing = localPricingFor(input.date, input.lighting);
+    const pricing = localPricingFor(input.date, lighting);
     if (!pricing) throw new AdminOperationsRepositoryError("validation", "No existe una tarifa local para esa modalidad.");
     const durationHours = (new Date(endAt).getTime() - new Date(startAt).getTime()) / 3_600_000;
     const reservationId = nextLocalAdminUuid("30000000");
@@ -141,14 +151,15 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
       startAt,
       endAt,
       status: "confirmed",
-      lighting: input.lighting,
+      lighting,
+      netHeightCm: input.netHeightCm,
       hourlyRate: pricing.hourlyRate,
       totalAmount: pricing.hourlyRate * durationHours,
       currency: pricing.currency,
       source: input.source,
       createdAt: new Date().toISOString(),
     });
-    return { reservationId, status: "confirmed", courtId: input.courtId, startAt, endAt, lighting: input.lighting, hourlyRate: pricing.hourlyRate, totalAmount: pricing.hourlyRate * durationHours, currency: pricing.currency };
+    return { reservationId, status: "confirmed", courtId: input.courtId, startAt, endAt, lighting, netHeightCm: input.netHeightCm, hourlyRate: pricing.hourlyRate, totalAmount: pricing.hourlyRate * durationHours, currency: pricing.currency };
   }
 
   async editReservation(input: EditReservationInput): Promise<AdminMutationReservationResult> {
@@ -157,12 +168,19 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
     if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
     if (reservation.status !== "pending" && reservation.status !== "confirmed") throw new AdminOperationsRepositoryError("validation", "La reserva ya no es editable.");
     const { startAt, endAt } = validateWindow(input.date, input.startTime, input.endTime);
+    if (!isNetHeightCm(input.netHeightCm)) throw new AdminOperationsRepositoryError("validation", "La altura de red debe estar entre 180 y 250 cm.");
+    let lighting: "without_lights" | "with_lights";
+    try {
+      lighting = bookingLightingForInterval(input.startTime, input.endTime);
+    } catch (error) {
+      throw new AdminOperationsRepositoryError("validation", error instanceof Error ? error.message : "El horario cruza el cambio de tarifa de las 18:00.");
+    }
     if (overlaps(startAt, endAt, input.reservationId)) throw new AdminOperationsRepositoryError("conflict", "Ese horario local ya está ocupado o bloqueado.");
-    const pricing = localPricingFor(input.date, input.lighting);
+    const pricing = localPricingFor(input.date, lighting);
     if (!pricing) throw new AdminOperationsRepositoryError("validation", "No existe una tarifa local para esa modalidad.");
     const durationHours = (new Date(endAt).getTime() - new Date(startAt).getTime()) / 3_600_000;
-    Object.assign(reservation, { courtId: input.courtId, courtName: LOCAL_COURT_NAME, startAt, endAt, lighting: input.lighting, customerName: input.customerName, customerPhoneE164: input.phoneE164, hourlyRate: pricing.hourlyRate, totalAmount: pricing.hourlyRate * durationHours });
-    return { reservationId: reservation.id, status: reservation.status, courtId: reservation.courtId, startAt, endAt, lighting: reservation.lighting, hourlyRate: reservation.hourlyRate, totalAmount: reservation.totalAmount, currency: reservation.currency };
+    Object.assign(reservation, { courtId: input.courtId, courtName: LOCAL_COURT_NAME, startAt, endAt, lighting, netHeightCm: input.netHeightCm, customerName: input.customerName, customerPhoneE164: input.phoneE164, hourlyRate: pricing.hourlyRate, totalAmount: pricing.hourlyRate * durationHours });
+    return { reservationId: reservation.id, status: reservation.status, courtId: reservation.courtId, startAt, endAt, lighting: reservation.lighting, netHeightCm: reservation.netHeightCm ?? undefined, hourlyRate: reservation.hourlyRate, totalAmount: reservation.totalAmount, currency: reservation.currency };
   }
 
   async createScheduleBlock(input: CreateScheduleBlockInput): Promise<AdminMutationBlockResult> {

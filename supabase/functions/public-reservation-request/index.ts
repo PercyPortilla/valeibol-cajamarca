@@ -1,14 +1,12 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
-type LightingMode = "without_lights" | "with_lights";
-
 type PublicRequestBody = {
   businessSlug: string;
   courtId: string;
   date: string;
   start: string;
   end: string;
-  lighting: LightingMode;
+  netHeightCm: number;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
@@ -21,7 +19,7 @@ const ALLOWED_KEYS = new Set([
   "date",
   "start",
   "end",
-  "lighting",
+  "netHeightCm",
   "customerName",
   "phoneE164",
   "marketingOptIn",
@@ -48,7 +46,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
     date,
     start,
     end,
-    lighting,
+    netHeightCm,
     customerName,
     phoneE164,
     marketingOptIn,
@@ -61,7 +59,10 @@ function parseBody(value: unknown): PublicRequestBody | null {
     typeof date !== "string" ||
     typeof start !== "string" ||
     typeof end !== "string" ||
-    (lighting !== "without_lights" && lighting !== "with_lights") ||
+    typeof netHeightCm !== "number" ||
+    !Number.isInteger(netHeightCm) ||
+    netHeightCm < 180 ||
+    netHeightCm > 250 ||
     typeof customerName !== "string" ||
     typeof phoneE164 !== "string" ||
     typeof marketingOptIn !== "boolean" ||
@@ -87,7 +88,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
     date,
     start,
     end,
-    lighting,
+    netHeightCm,
     customerName: customerName.trim(),
     phoneE164: phoneE164.trim(),
     marketingOptIn,
@@ -138,6 +139,8 @@ function mapDatabaseError(message: string, code?: string) {
   if (normalized.includes("reservation_in_past")) return { code: "reservation_in_past", status: 400 };
   if (normalized.includes("court_closed")) return { code: "court_closed", status: 409 };
   if (normalized.includes("outside_operating_hours")) return { code: "outside_operating_hours", status: 400 };
+  if (normalized.includes("lighting_cutoff_crossed")) return { code: "lighting_cutoff_crossed", status: 400 };
+  if (normalized.includes("invalid_net_height")) return { code: "invalid_net_height", status: 400 };
   if (normalized.includes("invalid_interval") || normalized.includes("invalid_booking_increment")) {
     return { code: "invalid_interval", status: 400 };
   }
@@ -198,7 +201,7 @@ Deno.serve(async (request) => {
     p_date: body.date,
     p_start_time: body.start,
     p_end_time: body.end,
-    p_lighting: body.lighting,
+    p_net_height_cm: body.netHeightCm,
     p_customer_name: body.customerName,
     p_phone_e164: body.phoneE164,
     p_marketing_opt_in: body.marketingOptIn,
@@ -221,6 +224,7 @@ Deno.serve(async (request) => {
     startAt: row.start_at,
     endAt: row.end_at,
     lighting: row.lighting,
+    netHeightCm: row.net_height_cm,
     hourlyRate: row.hourly_rate,
     totalAmount: row.total_amount,
     currency: row.currency,

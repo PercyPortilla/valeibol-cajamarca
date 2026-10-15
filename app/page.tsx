@@ -4,10 +4,13 @@ import { Card } from "@/components/ui/Card";
 import { CourtVisual } from "@/components/site/CourtVisual";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
+import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
 import { getPublicCurrentPricing } from "@/lib/data/publicPricingService";
 import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { formatMoney } from "@/lib/booking";
+import { themeCssVariables } from "@/lib/siteContent";
+import type { CSSProperties } from "react";
 
 export default async function HomePage() {
   const [pricing, siteContent] = await Promise.all([
@@ -15,7 +18,25 @@ export default async function HomePage() {
     getPublicSiteContent(),
   ]);
   const services = siteContent.services.filter((service) => service.isVisible);
-  const galleryItems = siteContent.gallery.filter((item) => item.isVisible);
+  const configuredGalleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
+  const galleryItems = configuredGalleryItems.length > 0 ? configuredGalleryItems : [
+    {
+      id: "valeibol-wide",
+      title: "Vista de la cancha",
+      imageUrl: "/images/valeibol-court-wide.webp",
+      altText: "Vista amplia de las instalaciones de mi valeibol",
+      sortOrder: 10,
+      isVisible: true,
+    },
+    {
+      id: "valeibol-portrait",
+      title: "Instalaciones",
+      imageUrl: "/images/valeibol-court-portrait.webp",
+      altText: "Vista vertical de las instalaciones de mi valeibol",
+      sortOrder: 20,
+      isVisible: true,
+    },
+  ];
   const pricingAvailable = pricing.withoutLights !== null && pricing.withLights !== null;
   const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.address)}`;
   const mapsEmbedHref = `https://www.google.com/maps?q=${encodeURIComponent(businessConfig.address)}&output=embed`;
@@ -24,7 +45,7 @@ export default async function HomePage() {
   const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
 
   return (
-    <>
+    <div className="site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
       <Header />
       <main className="commercial-main">
         <section className="hero hero--commercial" id="inicio">
@@ -41,15 +62,15 @@ export default async function HomePage() {
               </p>
               <div className="hero__actions hero-commercial__actions">
                 <a className="button button--primary" href="#disponibilidad">
-                  <span aria-hidden="true">▣</span>
+                  <Icon name="calendar" size={18} />
                   Reservar ahora
                 </a>
                 <a className="button button--hero-outline" href={phoneHref}>
-                  <span aria-hidden="true">☎</span>
+                  <Icon name="phone" size={18} />
                   Llamar
                 </a>
                 <a className="button button--whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
-                  <span aria-hidden="true">●</span>
+                  <Icon name="whatsapp" size={18} />
                   WhatsApp
                 </a>
               </div>
@@ -59,19 +80,19 @@ export default async function HomePage() {
 
         <section className="trust-strip shell" aria-label="Información principal">
           <div className="trust-item">
-            <span className="trust-item__icon" aria-hidden="true">✓</span>
+            <span className="trust-item__icon"><Icon name="check" size={20} /></span>
             <div><strong>Reserva por hora</strong><small>Elige un bloque disponible</small></div>
           </div>
           <div className="trust-item">
-            <span className="trust-item__icon" aria-hidden="true">◷</span>
+            <span className="trust-item__icon"><Icon name="clock" size={20} /></span>
             <div><strong>Disponibilidad en línea</strong><small>Consulta antes de solicitar</small></div>
           </div>
           <div className="trust-item">
-            <span className="trust-item__icon" aria-hidden="true">⌖</span>
+            <span className="trust-item__icon"><Icon name="location" size={20} /></span>
             <div><strong>{businessConfig.address}</strong><small>Ubicación en Cajamarca</small></div>
           </div>
           <div className="trust-item">
-            <span className="trust-item__icon" aria-hidden="true">☎</span>
+            <span className="trust-item__icon"><Icon name="phone" size={20} /></span>
             <div><strong>{businessConfig.phone}</strong><small>Llámanos o escríbenos por WhatsApp</small></div>
           </div>
         </section>
@@ -102,7 +123,7 @@ export default async function HomePage() {
             <div className="feature-grid feature-grid--commercial">
               {services.map((service) => (
                 <Card key={service.id} className="service-card">
-                  <span className="feature-icon" aria-hidden="true">{service.icon}</span>
+                  <span className="feature-icon"><Icon name={service.icon} size={26} /></span>
                   <h3>{service.title}</h3>
                   <p>{service.description}</p>
                 </Card>
@@ -119,9 +140,9 @@ export default async function HomePage() {
                 <h2>Tarifas por hora</h2>
                 <p>
                   {pricing.source === "supabase"
-                    ? "Tarifas vigentes para hoy."
+                    ? "La tarifa se asigna automáticamente según la hora de inicio: de 07:00 a 17:59 sin luz; desde las 18:00 con luz."
                     : pricingAvailable
-                      ? "Precios referenciales para ayudarte a planificar."
+                      ? "Precios referenciales. La iluminación se asigna automáticamente según el horario."
                       : "Consulta el precio aplicable al momento de solicitar tu horario."}
                 </p>
               </div>
@@ -137,7 +158,7 @@ export default async function HomePage() {
                   <strong>{formatMoney(pricing.withoutLights!, pricing.currency)}<small>/hora</small></strong>
                   <ul className="price-benefits">
                     <li>Uso de cancha cubierta</li>
-                    <li>Reserva por bloques de una hora</li>
+                    <li>Aplica a reservas que empiezan de 07:00 a 17:59</li>
                   </ul>
                 </Card>
                 <Card className="price-card price-card--commercial price-card--light">
@@ -146,7 +167,7 @@ export default async function HomePage() {
                   <strong>{formatMoney(pricing.withLights!, pricing.currency)}<small>/hora</small></strong>
                   <ul className="price-benefits">
                     <li>Uso de cancha cubierta</li>
-                    <li>Iluminación incluida en esta tarifa</li>
+                    <li>Se aplica automáticamente desde las 18:00</li>
                   </ul>
                 </Card>
               </div>
@@ -165,25 +186,17 @@ export default async function HomePage() {
               <div>
                 <span className="eyebrow">GALERÍA</span>
                 <h2>Conoce nuestras instalaciones</h2>
-                <p>{galleryItems.some((item) => item.imageUrl) ? "Mira algunos espacios y detalles de la cancha." : "Las fotografías reales del local se incorporarán cuando estén disponibles."}</p>
+                <p>Mira algunos espacios y detalles reales de la cancha.</p>
               </div>
               <a href="#ubicacion" className="text-link">Ver ubicación <span aria-hidden="true">→</span></a>
             </div>
             <div className="gallery-grid gallery-grid--commercial">
-              {galleryItems.map((item, index) => item.imageUrl ? (
+              {galleryItems.map((item) => item.imageUrl ? (
                 <figure className="gallery-media-card" key={item.id}>
                   <div className="gallery-media-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} role="img" aria-label={item.altText || item.title} />
                   <figcaption><strong>{item.title}</strong><small>{item.altText}</small></figcaption>
                 </figure>
-              ) : (
-                <div className="gallery-placeholder gallery-placeholder--commercial" key={item.id}>
-                  <span className="gallery-placeholder__number">{String(index + 1).padStart(2, "0")}</span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <small>Imagen del local próximamente</small>
-                  </div>
-                </div>
-              ))}
+              ) : null)}
             </div>
           </div>
         </section>
@@ -197,15 +210,15 @@ export default async function HomePage() {
 
               <div className="location-facts" id="contacto">
                 <a href={mapsHref} target="_blank" rel="noreferrer">
-                  <span aria-hidden="true">⌖</span>
+                  <span><Icon name="location" size={20} /></span>
                   <div><small>Dirección</small><strong>{businessConfig.address}</strong></div>
                 </a>
                 <a href={phoneHref}>
-                  <span aria-hidden="true">☎</span>
+                  <span><Icon name="phone" size={20} /></span>
                   <div><small>Teléfono</small><strong>{businessConfig.phone}</strong></div>
                 </a>
                 <a href={whatsappHref} target="_blank" rel="noreferrer">
-                  <span aria-hidden="true">●</span>
+                  <span><Icon name="whatsapp" size={20} /></span>
                   <div><small>WhatsApp</small><strong>Consultar disponibilidad</strong></div>
                 </a>
               </div>
@@ -224,7 +237,7 @@ export default async function HomePage() {
                 referrerPolicy="no-referrer-when-downgrade"
               />
               <a className="map-card__label" href={mapsHref} target="_blank" rel="noreferrer">
-                <span aria-hidden="true">⌖</span>
+                <span><Icon name="location" size={20} /></span>
                 <div>
                   <strong>{businessConfig.name}</strong>
                   <small>{businessConfig.address}</small>
@@ -235,6 +248,6 @@ export default async function HomePage() {
         </section>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

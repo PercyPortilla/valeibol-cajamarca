@@ -12,6 +12,7 @@ import {
   reservationStatusLabel,
   reservationStatusTone,
 } from "@/lib/admin/reservations";
+import { netHeightLabel } from "@/lib/booking";
 
 export default async function AdminReservationsPage() {
   const context = await requireAdminContext();
@@ -59,6 +60,7 @@ export default async function AdminReservationsPage() {
                 <div><dt>Cliente</dt><dd>{reservation.customerName ?? "Sin nombre disponible"}</dd></div>
                 <div><dt>WhatsApp</dt><dd>{reservation.customerPhoneE164 ?? "Sin teléfono disponible"}</dd></div>
                 <div><dt>Modalidad</dt><dd>{lightingLabel(reservation.lighting)}</dd></div>
+                <div><dt>Altura de red</dt><dd>{netHeightLabel(reservation.netHeightCm)}</dd></div>
                 <div><dt>Tarifa aplicada</dt><dd>{formatMoney(reservation.hourlyRate, reservation.currency)}/h</dd></div>
                 <div><dt>Total autoritativo</dt><dd>{formatMoney(reservation.totalAmount, reservation.currency)}</dd></div>
                 <div><dt>Origen</dt><dd>{reservation.source === "public_web" ? "Web pública" : reservation.source}</dd></div>

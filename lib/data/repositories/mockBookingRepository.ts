@@ -1,5 +1,5 @@
 import { businessConfig } from "@/config/business";
-import { calculateBookingPreview } from "@/lib/booking";
+import { bookingLightingForInterval, calculateBookingPreview } from "@/lib/booking";
 import type {
   BookingRepository,
   PublicBookingContext,
@@ -45,7 +45,8 @@ export class MockBookingRepository implements BookingRepository {
   }
 
   async submit(request: PublicBookingRequest): Promise<PublicBookingResult> {
-    const quote = calculateBookingPreview(request.start, request.end, request.lighting);
+    const lighting = bookingLightingForInterval(request.start, request.end);
+    const quote = calculateBookingPreview(request.start, request.end, lighting);
     return {
       persisted: false,
       requestId: null,
@@ -53,7 +54,8 @@ export class MockBookingRepository implements BookingRepository {
       courtId: request.courtId,
       startAt: null,
       endAt: null,
-      lighting: request.lighting,
+      lighting,
+      netHeightCm: request.netHeightCm,
       hourlyRate: quote.hourlyRate,
       totalAmount: quote.total,
       currency: businessConfig.currency,

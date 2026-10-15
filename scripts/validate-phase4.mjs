@@ -12,7 +12,10 @@ const calendar = read("components/availability/AvailabilityCalendar.tsx");
 const dialog = read("components/booking/ReservationDialog.tsx");
 const bookingRepo = read("lib/data/repositories/supabaseBookingRepository.ts");
 const mockRepo = read("lib/data/repositories/mockBookingRepository.ts");
-const css = read("app/globals.css");
+const css = [
+  read("app/globals.css"),
+  ...[1, 2, 3, 4, 5].map((part) => read(`app/styles/globals-${part}.css`)),
+].join("\n");
 const config = read("config/business.ts");
 const envExample = read(".env.example");
 

@@ -9,7 +9,7 @@ const ALLOWED_KEYS = new Set([
   "date",
   "start",
   "end",
-  "lighting",
+  "netHeightCm",
   "customerName",
   "phoneE164",
   "marketingOptIn",
@@ -22,7 +22,7 @@ type PublicRequestBody = {
   date: string;
   start: string;
   end: string;
-  lighting: "without_lights" | "with_lights";
+  netHeightCm: number;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
@@ -48,7 +48,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
   if (Object.keys(record).some((key) => !ALLOWED_KEYS.has(key))) return null;
 
   const {
-    businessSlug, courtId, date, start, end, lighting,
+    businessSlug, courtId, date, start, end, netHeightCm,
     customerName, phoneE164, marketingOptIn, requestToken,
   } = record;
 
@@ -58,7 +58,10 @@ function parseBody(value: unknown): PublicRequestBody | null {
     typeof date !== "string" ||
     typeof start !== "string" ||
     typeof end !== "string" ||
-    (lighting !== "without_lights" && lighting !== "with_lights") ||
+    typeof netHeightCm !== "number" ||
+    !Number.isInteger(netHeightCm) ||
+    netHeightCm < 180 ||
+    netHeightCm > 250 ||
     typeof customerName !== "string" ||
     typeof phoneE164 !== "string" ||
     typeof marketingOptIn !== "boolean" ||
@@ -84,7 +87,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
     date,
     start,
     end,
-    lighting,
+    netHeightCm,
     customerName: customerName.trim(),
     phoneE164: phoneE164.trim(),
     marketingOptIn,

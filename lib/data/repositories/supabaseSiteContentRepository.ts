@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from "../supabase/server.ts";
 import type { Database } from "../supabase/database.types.ts";
-import { normalizeSiteGallery, normalizeSiteServices, type SiteContent } from "../../siteContent.ts";
+import { normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "../../siteContent.ts";
 import { SiteContentRepositoryError, type SiteContentRepository, type UpdateSiteContentInput } from "./siteContentRepository.ts";
 
 function mapError(message: string, code?: string) {
@@ -21,6 +21,7 @@ function contentFromRow(row: Database["public"]["Functions"]["get_admin_site_con
   return {
     services: normalizeSiteServices(row.services),
     gallery: normalizeSiteGallery(row.gallery),
+    theme: normalizeSiteTheme(row.theme),
     updatedAt: row.updated_at,
     source: "supabase",
   };
@@ -41,9 +42,11 @@ export class SupabaseSiteContentRepository implements SiteContentRepository {
     const client = await createServerSupabaseClient();
     const services = normalizeSiteServices(input.services);
     const gallery = normalizeSiteGallery(input.gallery);
+    const theme = normalizeSiteTheme(input.theme);
     const { data, error } = await client.rpc("admin_update_site_content", {
       p_services: services,
       p_gallery: gallery,
+      p_theme: theme,
     });
     if (error) throw mapError(error.message, error.code);
     type Row = Database["public"]["Functions"]["admin_update_site_content"]["Returns"][number];
@@ -52,6 +55,7 @@ export class SupabaseSiteContentRepository implements SiteContentRepository {
     return {
       services: normalizeSiteServices(row.services),
       gallery: normalizeSiteGallery(row.gallery),
+      theme: normalizeSiteTheme(row.theme),
       updatedAt: row.updated_at,
       source: "supabase",
     };

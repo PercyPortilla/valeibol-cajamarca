@@ -52,7 +52,7 @@ export class LocalPhase7Repository implements Phase7Repository {
       .filter((item) => item.customerId === customerId)
       .sort((a, b) => b.startAt.localeCompare(a.startAt))
       .slice(0, Math.max(1, Math.min(limit, 500)))
-      .map((item) => ({ id: item.id, courtId: item.courtId, courtName: item.courtName, startAt: item.startAt, endAt: item.endAt, status: item.status, lighting: item.lighting, hourlyRate: item.hourlyRate, totalAmount: item.totalAmount, source: item.source, createdAt: item.createdAt, updatedAt: item.createdAt, currency: item.currency }));
+      .map((item) => ({ id: item.id, courtId: item.courtId, courtName: item.courtName, startAt: item.startAt, endAt: item.endAt, status: item.status, lighting: item.lighting, netHeightCm: item.netHeightCm, hourlyRate: item.hourlyRate, totalAmount: item.totalAmount, source: item.source, createdAt: item.createdAt, updatedAt: item.createdAt, currency: item.currency }));
   }
 
   async listPricingRules(): Promise<AdminPricingRule[]> {
