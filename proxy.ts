@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeAdminRedirectPath } from "@/lib/auth";
+import { LOCAL_DEV_ADMIN_COOKIE, isLocalDevAdminAllowed } from "@/lib/auth/localDev";
 
 function isPublicAdminPath(pathname: string) {
   return pathname === "/admin/login" || pathname.startsWith("/admin/login/");
@@ -9,6 +10,14 @@ function isPublicAdminPath(pathname: string) {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (!pathname.startsWith("/admin") || isPublicAdminPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  const localDevAdmin =
+    isLocalDevAdminAllowed({ nodeEnv: process.env.NODE_ENV, hostname: request.nextUrl.hostname }) &&
+    request.cookies.get(LOCAL_DEV_ADMIN_COOKIE)?.value === "1";
+
+  if (localDevAdmin) {
     return NextResponse.next();
   }
 
@@ -54,3 +63,4 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: ["/admin/:path*"],
 };
+
