@@ -17,8 +17,12 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/**"]
+site_url = "https://valeibol-cajamarca-live.vercel.app"
+additional_redirect_urls = [
+  "https://valeibol-cajamarca-live.vercel.app/**",
+  "http://localhost:3000/**",
+  "http://127.0.0.1:3000/**"
+]
 
 [functions.public-reservation-request]
 verify_jwt = false
