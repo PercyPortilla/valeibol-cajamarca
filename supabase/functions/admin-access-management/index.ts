@@ -19,7 +19,7 @@ type UpdateRequest = {
 type RequestBody = ListRequest | InviteRequest | UpdateRequest;
 
 const PROD_ORIGIN = "https://valeibol-cajamarca-live.vercel.app";
-const DEFAULT_INVITE_REDIRECT = `${PROD_ORIGIN}/auth/callback?next=%2Fadmin%2Fconfiguracion%23mi-cuenta`;
+const DEFAULT_INVITE_REDIRECT = `${PROD_ORIGIN}/admin/activar`;
 const ALLOWED_ORIGINS = new Set([
   PROD_ORIGIN,
   "http://localhost:3000",
@@ -292,4 +292,5 @@ Deno.serve(async (request) => {
 
   return json(request, { ok: true, user: sanitizeUser(profile, targetData.user) });
 });
+
 

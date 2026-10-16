@@ -12,9 +12,9 @@ import {
 type LoginReason = "config" | "session" | "logout" | null;
 
 function reasonMessage(reason: LoginReason) {
-  if (reason === "config") return "El acceso administrativo todavÃ­a no estÃ¡ configurado para este sitio.";
-  if (reason === "session") return "Tu sesiÃ³n no existe o expirÃ³. Inicia sesiÃ³n nuevamente.";
-  if (reason === "logout") return "SesiÃ³n cerrada correctamente.";
+  if (reason === "config") return "El acceso administrativo todavía no está configurado para este sitio.";
+  if (reason === "session") return "Tu sesión no existe o expiró. Inicia sesión nuevamente.";
+  if (reason === "logout") return "Sesión cerrada correctamente.";
   return null;
 }
 
@@ -54,7 +54,7 @@ export function AdminLoginForm() {
           body: JSON.stringify({ username: email.trim(), password }),
         });
         if (!response.ok) {
-          setMessage("Usuario o contraseÃ±a incorrectos.");
+          setMessage("Usuario o contraseña incorrectos.");
           return;
         }
 
@@ -64,21 +64,21 @@ export function AdminLoginForm() {
       }
 
       if (!configured) {
-        setMessage("En modo local usa el usuario admin con la contraseÃ±a configurada para desarrollo.");
+        setMessage("En modo local usa el usuario admin con la contraseña configurada para desarrollo.");
         return;
       }
 
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
-        setMessage("Correo o contraseÃ±a incorrectos, o la cuenta no estÃ¡ disponible.");
+        setMessage("Correo o contraseña incorrectos, o la cuenta no está disponible.");
         return;
       }
 
       const params = new URLSearchParams(window.location.search);
       window.location.assign(safeAdminRedirectPath(params.get("next")));
     } catch {
-      setMessage("No pudimos conectar con el servicio de autenticaciÃ³n. IntÃ©ntalo nuevamente.");
+      setMessage("No pudimos conectar con el servicio de autenticación. Inténtalo nuevamente.");
     } finally {
       setBusy(false);
     }
@@ -90,7 +90,7 @@ export function AdminLoginForm() {
     const normalizedEmail = email.trim();
     if (!normalizedEmail) {
       setMessageKind("error");
-      setMessage("Ingresa tu correo administrativo para recuperar la contraseÃ±a.");
+      setMessage("Ingresa tu correo administrativo para recuperar la contraseña.");
       return;
     }
 
@@ -107,23 +107,23 @@ export function AdminLoginForm() {
       });
 
       if (error) {
-        setMessage("No pudimos iniciar la recuperaciÃ³n. Verifica el correo o intÃ©ntalo nuevamente.");
+        setMessage("No pudimos iniciar la recuperación. Verifica el correo o inténtalo nuevamente.");
         return;
       }
 
       setMessageKind("success");
-      setMessage("Si el correo corresponde a una cuenta habilitada, recibirÃ¡s instrucciones para crear una nueva contraseÃ±a.");
+      setMessage("Si el correo corresponde a una cuenta habilitada, recibirás instrucciones para crear una nueva contraseña.");
     } catch {
-      setMessage("No pudimos iniciar la recuperaciÃ³n de contraseÃ±a. IntÃ©ntalo nuevamente.");
+      setMessage("No pudimos iniciar la recuperación de contraseña. Inténtalo nuevamente.");
     } finally {
       setBusy(false);
     }
   }
 
   const notice = localDev
-    ? "Modo local habilitado: usa admin / 12345. Este acceso solo funciona en localhost y nunca se habilita en producciÃ³n."
+    ? "Modo local habilitado: usa admin / 12345. Este acceso solo funciona en localhost y nunca se habilita en producción."
     : !configured
-      ? "El acceso administrativo todavÃ­a no estÃ¡ disponible. Completa la configuraciÃ³n del servicio de autenticaciÃ³n para habilitarlo."
+      ? "El acceso administrativo todavía no está disponible. Completa la configuración del servicio de autenticación para habilitarlo."
       : reasonMessage(reason);
 
   return (
@@ -145,7 +145,7 @@ export function AdminLoginForm() {
           placeholder={localDev ? "admin" : "administrador@ejemplo.com"}
         />
         <Input
-          label="ContraseÃ±a"
+          label="Contraseña"
           name="password"
           type="password"
           autoComplete="current-password"
@@ -153,7 +153,7 @@ export function AdminLoginForm() {
           minLength={localDev ? 5 : 8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+          placeholder="••••••••"
         />
         {message ? (
           <div
@@ -164,15 +164,16 @@ export function AdminLoginForm() {
           </div>
         ) : null}
         <Button fullWidth type="submit" disabled={(!configured && !localDev) || busy}>
-          {busy ? "Validando sesiÃ³nâ€¦" : "Entrar al panel"}
+          {busy ? "Validando sesión…" : "Entrar al panel"}
         </Button>
         {!localDev && configured ? (
           <Button fullWidth type="button" variant="secondary" disabled={busy} onClick={sendPasswordRecovery}>
-            OlvidÃ© mi contraseÃ±a
+            Olvidé mi contraseña
           </Button>
         ) : null}
       </form>
     </>
   );
 }
+
 

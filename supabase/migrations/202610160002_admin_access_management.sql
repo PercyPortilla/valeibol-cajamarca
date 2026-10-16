@@ -1,5 +1,5 @@
--- Valeibol Â· gestiÃ³n segura de usuarios administrativos.
--- Las mutaciones de perfiles de acceso son invocadas Ãºnicamente por la Edge Function
+-- Valeibol · gestión segura de usuarios administrativos.
+-- Las mutaciones de perfiles de acceso son invocadas únicamente por la Edge Function
 -- con service_role/secret key. El navegador nunca recibe esa credencial.
 
 create or replace function public.admin_access_create_invited_profile(
@@ -198,4 +198,5 @@ comment on function public.admin_access_create_invited_profile(uuid, uuid, publi
   'Edge-only: asigna a un usuario invitado al negocio del owner autenticado y activa su perfil.';
 comment on function public.admin_access_update_profile(uuid, uuid, public.app_role, text, boolean, boolean) is
   'Edge-only: actualiza rol/nombre/estado dentro del negocio y conserva al menos un owner activo.';
+
 
