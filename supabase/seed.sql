@@ -40,7 +40,7 @@ insert into public.courts (
   '20000000-0000-4000-8000-000000000001',
   '10000000-0000-4000-8000-000000000001',
   'cancha-demo',
-  'Cancha principal (demo)',
+  'Cancha principal',
   'provisional',
   true,
   0

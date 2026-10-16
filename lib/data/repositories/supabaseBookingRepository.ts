@@ -86,6 +86,13 @@ function mapError(message: string, code?: string): BookingRepositoryError {
   } else if (normalized.includes("rate_limited")) {
     mapped = "rate_limited";
     userMessage = "Recibimos demasiados intentos seguidos. Espera unos minutos antes de volver a solicitar.";
+  } else if (
+    normalized.includes("unauthorized")
+    || normalized.includes("configuration")
+    || normalized.includes("service_unavailable")
+  ) {
+    mapped = "network";
+    userMessage = "El sistema de reservas está temporalmente no disponible. Inténtalo nuevamente en unos minutos.";
   } else if (normalized.includes("not_found")) {
     mapped = "not_found";
     userMessage = "La cancha o el negocio ya no están disponibles.";

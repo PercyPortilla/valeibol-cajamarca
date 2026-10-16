@@ -92,8 +92,13 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    if (selection && !dialog.open) dialog.showModal();
-    if (!selection && dialog.open) dialog.close();
+    try {
+      if (selection && !dialog.open) dialog.showModal();
+      if (!selection && dialog.open) dialog.close();
+    } catch {
+      // Avoid crashing the whole page during a rapid close/open transition.
+      if (!selection) dialog.removeAttribute("open");
+    }
   }, [selection]);
 
   useEffect(() => {
@@ -153,13 +158,13 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
     return <dialog ref={dialogRef} className="booking-dialog" aria-label="Solicitar reserva" />;
   }
 
-  const lighting = bookingLightingForInterval(
-    selection.slot.start,
-    endTime || selection.slot.end,
-  );
+  const effectiveEndTime = endOptions.some((option) => option.end === endTime)
+    ? endTime
+    : endOptions[0]?.end ?? selection.slot.end;
+  const lighting = bookingLightingForInterval(selection.slot.start, effectiveEndTime);
   const preview = calculateBookingPreview(
     selection.slot.start,
-    endTime || selection.slot.end,
+    effectiveEndTime,
     lighting,
     pricingRates,
   );
@@ -187,7 +192,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
       setError("Ingresa un WhatsApp peruano válido, por ejemplo 935 059 868.");
       return;
     }
-    if (!endTime || !endOptions.some((option) => option.end === endTime)) {
+    if (!effectiveEndTime || !endOptions.some((option) => option.end === effectiveEndTime)) {
       setError("Selecciona una hora de fin válida y consecutiva.");
       return;
     }
@@ -212,7 +217,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
         courtId: currentSelection.courtId,
         date: currentSelection.slot.date,
         start: currentSelection.slot.start,
-        end: endTime,
+        end: effectiveEndTime,
         netHeightCm: parsedNetHeight,
         customerName: normalizedName,
         phoneE164: normalizedPhone,
@@ -307,7 +312,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
               <select
                 className="field__control"
                 id="booking-end"
-                value={endTime}
+                value={effectiveEndTime}
                 onChange={(event: ChangeEvent<HTMLSelectElement>) => setEndTime(event.target.value)}
                 required
               >
