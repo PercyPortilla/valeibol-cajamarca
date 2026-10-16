@@ -97,7 +97,7 @@ function AdminAccessUserRow({
         <div className="admin-access-user__badges">
           <Badge tone={user.isActive ? "success" : "neutral"}>{user.isActive ? "Activo" : "Desactivado"}</Badge>
           <Badge tone={user.emailConfirmed ? "info" : "warning"}>
-            {user.emailConfirmed ? "Correo verificado" : "InvitaciÃ³n pendiente"}
+            {user.emailConfirmed ? "Correo verificado" : "Invitación pendiente"}
           </Badge>
         </div>
       </div>
@@ -130,11 +130,11 @@ function AdminAccessUserRow({
       </div>
 
       <div className="admin-access-user__footer">
-        <small>Ãšltimo ingreso: {formatAccessDate(user.lastSignInAt)}</small>
+        <small>Último ingreso: {formatAccessDate(user.lastSignInAt)}</small>
         <div className="admin-access-user__actions">
           {message ? <span role="status">{message}</span> : null}
           <Button type="button" variant="secondary" disabled={busy} onClick={save}>
-            {busy ? "Guardandoâ€¦" : "Guardar cambios"}
+            {busy ? "Guardando…" : "Guardar cambios"}
           </Button>
         </div>
       </div>
@@ -167,7 +167,7 @@ export function AdminAccessManagement({
       const data = await invokeAccessManagement({ action: "list" });
       setUsers(Array.isArray(data.users) ? data.users : []);
     } catch {
-      setLoadError("No pudimos cargar las cuentas con acceso. IntÃ©ntalo nuevamente.");
+      setLoadError("No pudimos cargar las cuentas con acceso. Inténtalo nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -210,9 +210,9 @@ export function AdminAccessManagement({
       setInviteName("");
       setInviteRole("staff");
       setInviteMessageKind("success");
-      setInviteMessage("InvitaciÃ³n enviada. La persona recibirÃ¡ un correo para activar su acceso.");
+      setInviteMessage("Invitación enviada. La persona recibirá un correo para activar su acceso.");
     } catch {
-      setInviteMessage("No pudimos enviar la invitaciÃ³n. Revisa el correo o intÃ©ntalo nuevamente.");
+      setInviteMessage("No pudimos enviar la invitación. Revisa el correo o inténtalo nuevamente.");
     } finally {
       setInviteBusy(false);
     }
@@ -228,13 +228,13 @@ export function AdminAccessManagement({
         <div>
           <span className="metric-label">SEGURIDAD</span>
           <h2 id="usuarios-accesos-title">Usuarios y accesos</h2>
-          <p>Invita personas, asigna Owner/Admin/Staff y controla quiÃ©n puede entrar al panel.</p>
+          <p>Invita personas, asigna Owner/Admin/Staff y controla quién puede entrar al panel.</p>
         </div>
       </div>
 
       {localMode ? (
         <div className="auth-notice" role="status">
-          La gestiÃ³n de usuarios estÃ¡ disponible cuando el panel usa la autenticaciÃ³n de producciÃ³n.
+          La gestión de usuarios está disponible cuando el panel usa la autenticación de producción.
         </div>
       ) : (
         <>
@@ -264,7 +264,7 @@ export function AdminAccessManagement({
               onChange={(event) => setInviteRole(event.target.value as AdminRole)}
             />
             <Button type="submit" disabled={inviteBusy}>
-              {inviteBusy ? "Enviandoâ€¦" : "Invitar usuario"}
+              {inviteBusy ? "Enviando…" : "Invitar usuario"}
             </Button>
           </form>
 
@@ -278,7 +278,7 @@ export function AdminAccessManagement({
           ) : null}
 
           <div className="admin-access-list" aria-live="polite">
-            {loading ? <div className="state-card">Cargando usuariosâ€¦</div> : null}
+            {loading ? <div className="state-card">Cargando usuarios…</div> : null}
             {!loading && loadError ? (
               <div className="state-card">
                 <p>{loadError}</p>
@@ -288,7 +288,7 @@ export function AdminAccessManagement({
               </div>
             ) : null}
             {!loading && !loadError && users.length === 0 ? (
-              <div className="state-card">TodavÃ­a no hay otros usuarios para mostrar.</div>
+              <div className="state-card">Todavía no hay otros usuarios para mostrar.</div>
             ) : null}
             {!loading && !loadError
               ? users.map((user) => (
@@ -306,4 +306,5 @@ export function AdminAccessManagement({
     </section>
   );
 }
+
 

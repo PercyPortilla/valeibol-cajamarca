@@ -23,13 +23,13 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
 
     if (password.length < 8) {
       setMessageKind("error");
-      setMessage("La contraseÃ±a debe tener al menos 8 caracteres.");
+      setMessage("La contraseña debe tener al menos 8 caracteres.");
       return;
     }
 
     if (password !== confirmPassword) {
       setMessageKind("error");
-      setMessage("Las contraseÃ±as no coinciden.");
+      setMessage("Las contraseñas no coinciden.");
       return;
     }
 
@@ -40,16 +40,16 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        setMessage("No pudimos actualizar la contraseÃ±a. Vuelve a iniciar sesiÃ³n e intÃ©ntalo nuevamente.");
+        setMessage("No pudimos actualizar la contraseña. Vuelve a iniciar sesión e inténtalo nuevamente.");
         return;
       }
 
       setPassword("");
       setConfirmPassword("");
       setMessageKind("success");
-      setMessage("ContraseÃ±a actualizada correctamente.");
+      setMessage("Contraseña actualizada correctamente.");
     } catch {
-      setMessage("No pudimos conectar con el servicio de autenticaciÃ³n. IntÃ©ntalo nuevamente.");
+      setMessage("No pudimos conectar con el servicio de autenticación. Inténtalo nuevamente.");
     } finally {
       setBusy(false);
     }
@@ -60,23 +60,23 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
       <div className="admin-content-editor__head">
         <div>
           <span className="metric-label">MI CUENTA</span>
-          <h2 id="mi-cuenta-title">ContraseÃ±a de acceso</h2>
+          <h2 id="mi-cuenta-title">Contraseña de acceso</h2>
           <p>
             {email
-              ? `Cuenta: ${email}. Puedes crear o cambiar tu contraseÃ±a desde aquÃ­.`
-              : "Puedes crear o cambiar tu contraseÃ±a desde aquÃ­."}
+              ? `Cuenta: ${email}. Puedes crear o cambiar tu contraseña desde aquí.`
+              : "Puedes crear o cambiar tu contraseña desde aquí."}
           </p>
         </div>
       </div>
 
       {localMode ? (
         <div className="auth-notice" role="status">
-          El acceso local usa las credenciales de desarrollo y no permite cambiar contraseÃ±a desde el panel.
+          El acceso local usa las credenciales de desarrollo y no permite cambiar contraseña desde el panel.
         </div>
       ) : (
         <form className="admin-account-form" onSubmit={onSubmit} noValidate>
           <Input
-            label="Nueva contraseÃ±a"
+            label="Nueva contraseña"
             name="new-password"
             type="password"
             autoComplete="new-password"
@@ -84,10 +84,10 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            hint="MÃ­nimo 8 caracteres."
+            hint="Mínimo 8 caracteres."
           />
           <Input
-            label="Confirmar nueva contraseÃ±a"
+            label="Confirmar nueva contraseña"
             name="confirm-password"
             type="password"
             autoComplete="new-password"
@@ -108,7 +108,7 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
 
           <div className="admin-config-actions">
             <Button type="submit" disabled={busy}>
-              {busy ? "Guardandoâ€¦" : "Guardar contraseÃ±a"}
+              {busy ? "Guardando…" : "Guardar contraseña"}
             </Button>
           </div>
         </form>
@@ -116,4 +116,5 @@ export function AdminAccountSecurity({ email, localMode }: AdminAccountSecurityP
     </section>
   );
 }
+
 

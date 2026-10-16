@@ -4,7 +4,10 @@ import { safeAdminRedirectPath } from "@/lib/auth";
 import { LOCAL_DEV_ADMIN_COOKIE, isLocalDevAdminAllowed } from "@/lib/auth/localDev";
 
 function isPublicAdminPath(pathname: string) {
-  return pathname === "/admin/login" || pathname.startsWith("/admin/login/");
+  return pathname === "/admin/login"
+    || pathname.startsWith("/admin/login/")
+    || pathname === "/admin/activar"
+    || pathname.startsWith("/admin/activar/");
 }
 
 export async function proxy(request: NextRequest) {
