@@ -263,6 +263,10 @@ Deno.serve(async (request) => {
 
     const profile = Array.isArray(profileRows) ? profileRows[0] as ProfileRow | undefined : undefined;
     if (profileError || !profile) {
+      const cleanup = await admin.auth.admin.deleteUser(invitedUser.id);
+      if (cleanup.error) {
+        console.error("[admin-access-management] failed to rollback invited auth user", cleanup.error.message);
+      }
       const mapped = mapError(profileError?.message ?? "profile_create_failed");
       return json(request, { ok: false, code: mapped.code }, mapped.status);
     }
@@ -292,5 +296,6 @@ Deno.serve(async (request) => {
 
   return json(request, { ok: true, user: sanitizeUser(profile, targetData.user) });
 });
+
 
 

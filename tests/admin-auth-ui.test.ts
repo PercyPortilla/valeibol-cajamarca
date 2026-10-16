@@ -26,6 +26,8 @@ test("las invitaciones usan activación separada y obligan a crear contraseña",
   assert.match(activation, /exchangeCodeForSession/);
   assert.match(activation, /updateUser\(\{ password \}\)/);
   assert.match(proxy, /\/admin\/activar/);
+  assert.match(accessEdge, /auth\.admin\.deleteUser\(invitedUser\.id\)/);
 });
+
 
 

@@ -8,10 +8,14 @@
   --brand-yellow-soft: #fff5cf;
   --brand-canvas: #f3f7fb;
   --brand-surface: #ffffff;
+  --brand-surface-soft: #f7faff;
   --brand-text: #102a46;
   --brand-muted: #53657a;
   --brand-border: #cfdae6;
+  --brand-border-strong: #b7c7d7;
   --brand-focus: #0b63b6;
+  --brand-blue-soft: #eaf3ff;
+  --brand-red-soft: #fff3f4;
   --brand-success: #087a47;
   --bg: #071a2b;
   --bg-elevated: #0b2238;
@@ -479,3 +483,4 @@ button { cursor: pointer; }
     repeating-linear-gradient(135deg, rgba(45,156,255,.06) 0 20px, rgba(255,255,255,.02) 20px 40px),
     #0b1722;
 }
+

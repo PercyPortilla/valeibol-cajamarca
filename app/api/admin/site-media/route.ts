@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { NextResponse } from "next/server";
-import { getAdminContext } from "@/lib/auth/server";
+import { AdminAuthError, getAdminContext } from "@/lib/auth/server";
 import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 
@@ -59,7 +59,13 @@ export async function POST(request: Request) {
 
     const { data } = client.storage.from("business-gallery").getPublicUrl(path);
     return NextResponse.json({ ok: true, url: data.publicUrl, path });
-  } catch {
-    return NextResponse.json({ ok: false, code: "unauthenticated" }, { status: 401 });
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      const status = error.code === "unauthenticated" ? 401 : error.code === "unauthorized" ? 403 : 503;
+      return NextResponse.json({ ok: false, code: error.code }, { status });
+    }
+    console.error("[site-media] upload failed", error instanceof Error ? error.message : "unknown");
+    return NextResponse.json({ ok: false, code: "upload_failed" }, { status: 500 });
   }
 }
+

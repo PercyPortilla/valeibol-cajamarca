@@ -12,7 +12,7 @@ import { isNetHeightCm, normalizeCustomerName, normalizePeruWhatsApp } from "../
 import { createAdminOperationsRepository } from "../../../lib/data/adminOperationsService.ts";
 import { createSiteContentRepository } from "../../../lib/data/siteContentService.ts";
 import { SiteContentRepositoryError } from "../../../lib/data/repositories/siteContentRepository.ts";
-import { isAccessibleSiteTheme, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
+import { isAccessibleSiteTheme, isValidSiteThemeInput, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
 import {
   AdminOperationsRepositoryError,
   type CreateManualReservationInput,
@@ -240,6 +240,9 @@ export async function updateSiteContentAction(raw: {
 
     const services = normalizeSiteServices(raw.services);
     const gallery = normalizeSiteGallery(raw.gallery);
+    if (!isValidSiteThemeInput(raw.theme)) {
+      return fail("validation", "Revisa la paleta: cada color debe usar el formato hexadecimal #RRGGBB.");
+    }
     const theme = normalizeSiteTheme(raw.theme);
     if (services.length !== raw.services.length || gallery.length !== raw.gallery.length) {
       return fail("validation", "Revisa títulos, descripciones y datos de la galería antes de guardar.");
@@ -250,6 +253,7 @@ export async function updateSiteContentAction(raw: {
 
     await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery, theme });
     revalidatePath("/");
+    revalidatePath("/admin", "layout");
     revalidatePath("/admin/configuracion");
     return { ok: true, message: "Contenido público actualizado. Servicios, galería y paleta ya usan esta configuración." };
   } catch (error) {
@@ -266,3 +270,4 @@ export async function updateSiteContentAction(raw: {
     return fail("unknown", "No pudimos actualizar el contenido público.");
   }
 }
+
