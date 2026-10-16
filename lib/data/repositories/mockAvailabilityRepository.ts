@@ -13,12 +13,12 @@ export class MockAvailabilityRepository implements AvailabilityRepository {
     return {
       businessId: null,
       source: "mock-provisional",
-      sourceLabel: "Modo demostración · Supabase no configurado",
+      sourceLabel: "Disponibilidad provisional · Supabase no configurado",
       isProvisional: true,
       courts: [
         {
           courtId: "mock-court",
-          courtName: "Cancha demo (provisional)",
+          courtName: "Cancha principal",
           timezone: businessConfig.timezone,
           days: buildCalendarDays(query.referenceDateKey, query.todayDateKey),
         },

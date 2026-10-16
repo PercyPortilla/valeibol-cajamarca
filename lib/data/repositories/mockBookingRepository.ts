@@ -19,7 +19,7 @@ export class MockBookingRepository implements BookingRepository {
       bookingIncrementMinutes: businessConfig.availability.slotMinutes,
       courts: [{
         courtId: "mock-court",
-        courtName: "Cancha demo (provisional)",
+        courtName: "Cancha principal",
         pricing: [
           { lighting: "without_lights", label: "Sin luz", hourlyRate: businessConfig.pricing.withoutLights, status: "confirmed" },
           { lighting: "with_lights", label: "Con luz", hourlyRate: businessConfig.pricing.withLights, status: "confirmed" },
@@ -35,7 +35,7 @@ export class MockBookingRepository implements BookingRepository {
       currency: businessConfig.currency,
       timezone: businessConfig.timezone,
       courtId,
-      courtName: "Cancha demo (provisional)",
+      courtName: "Cancha principal",
       date,
       pricing: [
         { lighting: "without_lights", label: "Sin luz", hourlyRate: businessConfig.pricing.withoutLights, status: "confirmed" },

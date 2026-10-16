@@ -17,7 +17,7 @@ function fallbackSnapshot(date: string): PublicPricingSnapshot {
     source: "mock-provisional",
     currency: businessConfig.currency,
     date,
-    courtName: "Cancha demo (provisional)",
+    courtName: "Cancha principal",
     withoutLights: businessConfig.pricing.withoutLights,
     withLights: businessConfig.pricing.withLights,
   };

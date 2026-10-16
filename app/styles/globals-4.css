@@ -205,6 +205,19 @@
   color: #10264c;
 }
 
+.booking-source-note {
+  border-color: #b9ded6;
+  background: #eef9f6;
+}
+.booking-source-note strong { color: #0b6558; }
+.booking-source-note span { color: #476b65; }
+.booking-source-note--demo {
+  border-color: #f0c89f;
+  background: #fff7ee;
+}
+.booking-source-note--demo strong { color: #8a4300; }
+.booking-source-note--demo span { color: #73583d; }
+
 .booking-summary > div,
 .lighting-option {
   border-color: #dfe6ee;
@@ -248,6 +261,15 @@
 .booking-quote > div strong { color: #173154; }
 .booking-quote__total { border-top-color: #d7e5f4; }
 .booking-quote__total strong { color: #175ca8 !important; }
+
+.booking-error {
+  border-color: #edb7bc;
+  background: #fff3f4;
+  color: #962834;
+}
+.booking-policy { color: #53657a; }
+.booking-result h3 { color: #10264c; }
+.booking-result p { color: #53657a; }
 
 @media (max-width: 1024px) {
   .gallery-grid--commercial { grid-template-columns: repeat(2, 1fr); }
