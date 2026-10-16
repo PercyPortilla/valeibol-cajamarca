@@ -17,6 +17,7 @@ port = 54323
 
 [auth]
 enabled = true
+enable_signup = false
 site_url = "https://valeibol-cajamarca-live.vercel.app"
 additional_redirect_urls = [
   "https://valeibol-cajamarca-live.vercel.app/**",
@@ -24,5 +25,13 @@ additional_redirect_urls = [
   "http://127.0.0.1:3000/**"
 ]
 
+[auth.email]
+enable_signup = false
+secure_password_change = true
+
 [functions.public-reservation-request]
 verify_jwt = false
+
+[functions.admin-access-management]
+verify_jwt = true
+

@@ -12,9 +12,9 @@ import {
 type LoginReason = "config" | "session" | "logout" | null;
 
 function reasonMessage(reason: LoginReason) {
-  if (reason === "config") return "El acceso administrativo todavía no está configurado para este sitio.";
-  if (reason === "session") return "Tu sesión no existe o expiró. Inicia sesión nuevamente.";
-  if (reason === "logout") return "Sesión cerrada correctamente.";
+  if (reason === "config") return "El acceso administrativo todavÃ­a no estÃ¡ configurado para este sitio.";
+  if (reason === "session") return "Tu sesiÃ³n no existe o expirÃ³. Inicia sesiÃ³n nuevamente.";
+  if (reason === "logout") return "SesiÃ³n cerrada correctamente.";
   return null;
 }
 
@@ -54,7 +54,7 @@ export function AdminLoginForm() {
           body: JSON.stringify({ username: email.trim(), password }),
         });
         if (!response.ok) {
-          setMessage("Usuario o contraseña incorrectos.");
+          setMessage("Usuario o contraseÃ±a incorrectos.");
           return;
         }
 
@@ -64,33 +64,33 @@ export function AdminLoginForm() {
       }
 
       if (!configured) {
-        setMessage("En modo local usa el usuario admin con la contraseña configurada para desarrollo.");
+        setMessage("En modo local usa el usuario admin con la contraseÃ±a configurada para desarrollo.");
         return;
       }
 
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
-        setMessage("Correo o contraseña incorrectos, o la cuenta no está disponible.");
+        setMessage("Correo o contraseÃ±a incorrectos, o la cuenta no estÃ¡ disponible.");
         return;
       }
 
       const params = new URLSearchParams(window.location.search);
       window.location.assign(safeAdminRedirectPath(params.get("next")));
     } catch {
-      setMessage("No pudimos conectar con el servicio de autenticación. Inténtalo nuevamente.");
+      setMessage("No pudimos conectar con el servicio de autenticaciÃ³n. IntÃ©ntalo nuevamente.");
     } finally {
       setBusy(false);
     }
   }
 
-  async function sendMagicLink() {
+  async function sendPasswordRecovery() {
     if (!configured || localDev || busy) return;
 
     const normalizedEmail = email.trim();
     if (!normalizedEmail) {
       setMessageKind("error");
-      setMessage("Ingresa tu correo administrativo primero.");
+      setMessage("Ingresa tu correo administrativo para recuperar la contraseÃ±a.");
       return;
     }
 
@@ -98,37 +98,32 @@ export function AdminLoginForm() {
     setMessage(null);
     setMessageKind("error");
     try {
-      const params = new URLSearchParams(window.location.search);
       const callback = new URL("/auth/callback", window.location.origin);
-      callback.searchParams.set("next", safeAdminRedirectPath(params.get("next")));
+      callback.searchParams.set("next", "/admin/configuracion?passwordRecovery=1");
 
       const supabase = createPublicBrowserSupabaseClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email: normalizedEmail,
-        options: {
-          shouldCreateUser: false,
-          emailRedirectTo: callback.toString(),
-        },
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: callback.toString(),
       });
 
       if (error) {
-        setMessage("No pudimos enviar el enlace. Verifica el correo o inténtalo nuevamente.");
+        setMessage("No pudimos iniciar la recuperaciÃ³n. Verifica el correo o intÃ©ntalo nuevamente.");
         return;
       }
 
       setMessageKind("success");
-      setMessage("Te enviamos un enlace de acceso. Revisa tu correo y ábrelo para entrar al panel.");
+      setMessage("Si el correo corresponde a una cuenta habilitada, recibirÃ¡s instrucciones para crear una nueva contraseÃ±a.");
     } catch {
-      setMessage("No pudimos enviar el enlace de acceso. Inténtalo nuevamente.");
+      setMessage("No pudimos iniciar la recuperaciÃ³n de contraseÃ±a. IntÃ©ntalo nuevamente.");
     } finally {
       setBusy(false);
     }
   }
 
   const notice = localDev
-    ? "Modo local habilitado: usa admin / 12345. Este acceso solo funciona en localhost y nunca se habilita en producción."
+    ? "Modo local habilitado: usa admin / 12345. Este acceso solo funciona en localhost y nunca se habilita en producciÃ³n."
     : !configured
-      ? "El acceso administrativo todavía no está disponible. Completa la configuración del servicio de autenticación para habilitarlo."
+      ? "El acceso administrativo todavÃ­a no estÃ¡ disponible. Completa la configuraciÃ³n del servicio de autenticaciÃ³n para habilitarlo."
       : reasonMessage(reason);
 
   return (
@@ -150,7 +145,7 @@ export function AdminLoginForm() {
           placeholder={localDev ? "admin" : "administrador@ejemplo.com"}
         />
         <Input
-          label="Contraseña"
+          label="ContraseÃ±a"
           name="password"
           type="password"
           autoComplete="current-password"
@@ -158,7 +153,7 @@ export function AdminLoginForm() {
           minLength={localDev ? 5 : 8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="••••••••"
+          placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
         />
         {message ? (
           <div
@@ -169,14 +164,15 @@ export function AdminLoginForm() {
           </div>
         ) : null}
         <Button fullWidth type="submit" disabled={(!configured && !localDev) || busy}>
-          {busy ? "Validando sesión…" : "Entrar al panel"}
+          {busy ? "Validando sesiÃ³nâ€¦" : "Entrar al panel"}
         </Button>
         {!localDev && configured ? (
-          <Button fullWidth type="button" variant="secondary" disabled={busy} onClick={sendMagicLink}>
-            Recibir enlace de acceso por correo
+          <Button fullWidth type="button" variant="secondary" disabled={busy} onClick={sendPasswordRecovery}>
+            OlvidÃ© mi contraseÃ±a
           </Button>
         ) : null}
       </form>
     </>
   );
 }
+
