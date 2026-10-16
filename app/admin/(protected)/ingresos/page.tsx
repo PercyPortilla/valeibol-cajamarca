@@ -36,6 +36,9 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
           <label className="field"><span className="field__label">Desde</span><input className="field__control" type="date" name="from" defaultValue={from} /></label>
           <label className="field"><span className="field__label">Hasta</span><input className="field__control" type="date" name="to" defaultValue={to} /></label>
           <button className="button button--secondary" type="submit">Aplicar periodo</button>
+          {context.role === "owner" || context.role === "admin" ? (
+            <a className="button button--ghost" href={`/api/admin/export.xlsx?from=${from}&to=${to}`}>Exportar Excel</a>
+          ) : null}
           <span>{metrics.timezone}</span>
         </form>
 
@@ -75,3 +78,4 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
     return <ErrorState title={error instanceof Phase7RepositoryError ? error.message : `No pudimos calcular las métricas de ${context.businessName}.`} />;
   }
 }
+

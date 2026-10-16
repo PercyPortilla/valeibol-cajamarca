@@ -20,6 +20,8 @@ const required = [
   "supabase/migrations/202610150017_booking_rules_net_height.sql",
   "supabase/migrations/202610150018_site_theme_palettes.sql",
   "supabase/migrations/202610150019_site_theme_brand_gallery.sql",
+  "supabase/migrations/202610160001_fix_production_booking_content.sql",
+  "supabase/migrations/202610160002_admin_access_management.sql",
   "supabase/tests/phase3.sql",
   "supabase/tests/phase4.sql",
   "supabase/tests/phase5.sql",
@@ -32,6 +34,7 @@ const required = [
   "tests/availability.test.ts",
   "tests/booking.test.ts",
   "tests/admin-auth.test.ts",
+  "tests/admin-auth-ui.test.ts",
   "tests/admin-operations.test.ts",
   "tests/phase7.test.ts",
   "tests/production-hardening.test.ts",
@@ -49,6 +52,7 @@ const required = [
   "app/api/public/reservation-requests/route.ts",
   "app/api/admin/export.xlsx/route.ts",
   "supabase/functions/public-reservation-request/index.ts",
+  "supabase/functions/admin-access-management/index.ts",
   "components/brand/BrandLogo.tsx",
   "components/ui/Icon.tsx",
   "public/images/valeibol-court-wide.webp",
@@ -71,3 +75,4 @@ if (missing.length) {
 }
 
 console.log(`Repository completeness: ${required.length}/${required.length} required artifacts present.`);
+

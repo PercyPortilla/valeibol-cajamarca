@@ -120,6 +120,26 @@ export function contrastRatio(a: string, b: string) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+function mixHex(foreground: string, background: string, foregroundWeight: number) {
+  const weight = Math.max(0, Math.min(1, foregroundWeight));
+  const fg = cleanHex(foreground, "#000000");
+  const bg = cleanHex(background, "#FFFFFF");
+  const channels = [1, 3, 5].map((offset) => {
+    const a = Number.parseInt(fg.slice(offset, offset + 2), 16);
+    const b = Number.parseInt(bg.slice(offset, offset + 2), 16);
+    return Math.round(a * weight + b * (1 - weight)).toString(16).padStart(2, "0").toUpperCase();
+  });
+  return `#${channels.join("")}`;
+}
+
+function accessibleMixHex(foreground: string, backgrounds: string[], startingWeight = 0.68) {
+  for (let weight = startingWeight; weight <= 1.001; weight += 0.04) {
+    const candidate = mixHex(foreground, backgrounds[0] ?? "#FFFFFF", Math.min(1, weight));
+    if (backgrounds.every((background) => contrastRatio(candidate, background) >= 4.5)) return candidate;
+  }
+  return cleanHex(foreground, "#102A46");
+}
+
 const LEGACY_SERVICE_ICONS: Record<string, ServiceIconKey> = {
   "⌂": "court",
   "◷": "clock",
@@ -203,17 +223,37 @@ export function normalizeSiteTheme(value: unknown): SiteTheme {
   };
 }
 
+export function isValidSiteThemeInput(value: unknown): value is SiteTheme {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const validPreset = record.presetId === "classic"
+    || record.presetId === "competitive"
+    || record.presetId === "night"
+    || record.presetId === "custom";
+  if (!validPreset) return false;
+  return ["navy", "blue", "blueDark", "red", "redDark", "yellow", "canvas"].every((key) => {
+    const color = record[key];
+    return typeof color === "string" && /^#[0-9A-Fa-f]{6}$/.test(color);
+  });
+}
+
 export function isAccessibleSiteTheme(theme: SiteTheme) {
+  const surface = mixHex(theme.canvas, "#FFFFFF", 0.45);
+  const muted = accessibleMixHex(theme.navy, [theme.canvas, surface]);
   return contrastRatio(theme.red, "#FFFFFF") >= 4.5
     && contrastRatio(theme.redDark, "#FFFFFF") >= 4.5
     && contrastRatio(theme.blue, "#FFFFFF") >= 4.5
     && contrastRatio(theme.blueDark, "#FFFFFF") >= 4.5
     && contrastRatio(theme.navy, "#FFFFFF") >= 4.5
     && contrastRatio(theme.navy, theme.canvas) >= 4.5
-    && contrastRatio("#102A46", theme.canvas) >= 4.5;
+    && contrastRatio(muted, theme.canvas) >= 4.5
+    && contrastRatio(muted, surface) >= 4.5;
 }
 
 export function themeCssVariables(theme: SiteTheme) {
+  const surface = mixHex(theme.canvas, "#FFFFFF", 0.45);
+  const surfaceSoft = mixHex(theme.canvas, "#FFFFFF", 0.8);
+  const muted = accessibleMixHex(theme.navy, [theme.canvas, surface]);
   return {
     "--brand-navy": theme.navy,
     "--brand-blue": theme.blue,
@@ -221,12 +261,23 @@ export function themeCssVariables(theme: SiteTheme) {
     "--brand-red": theme.red,
     "--brand-red-dark": theme.redDark,
     "--brand-yellow": theme.yellow,
-    "--brand-yellow-soft": "color-mix(in srgb, " + theme.yellow + " 24%, white)",
     "--brand-canvas": theme.canvas,
+    "--brand-surface": surface,
+    "--brand-surface-soft": surfaceSoft,
+    "--brand-text": theme.navy,
+    "--brand-muted": muted,
+    "--brand-border": mixHex(theme.navy, theme.canvas, 0.18),
+    "--brand-border-strong": mixHex(theme.navy, theme.canvas, 0.3),
+    "--brand-focus": theme.blueDark,
+    "--brand-blue-soft": mixHex(theme.blue, surface, 0.12),
+    "--brand-red-soft": mixHex(theme.red, surface, 0.1),
+    "--brand-yellow-soft": mixHex(theme.yellow, surface, 0.28),
     "--blue": theme.blue,
+    "--blue-soft": mixHex(theme.blue, surface, 0.12),
     "--orange": theme.red,
     "--orange-2": theme.redDark,
     "--red": theme.red,
+    "--red-soft": mixHex(theme.red, surface, 0.1),
   } as const;
 }
 
@@ -239,3 +290,4 @@ export function defaultSiteContent(): SiteContent {
     source: "default",
   };
 }
+

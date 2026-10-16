@@ -14,10 +14,11 @@ export default async function AdminConfigurationPage() {
   const context = await requireAdminContext();
   const localMode = isLocalDevAdminUserId(context.userId);
   let content = defaultSiteContent();
+  let contentLoadFailed = false;
   try {
     content = await createSiteContentRepository({ local: localMode }).getAdminContent();
   } catch {
-    // La configuración base queda disponible para editar incluso si Supabase aún no tiene la migración aplicada.
+    contentLoadFailed = true;
   }
 
   return (
@@ -28,7 +29,9 @@ export default async function AdminConfigurationPage() {
           <h1>Datos del negocio</h1>
           <p className="admin-subtitle">Resumen de la configuración activa utilizada por la web y el panel.</p>
         </div>
-        <Badge tone={localMode ? "warning" : "success"}>{localMode ? "Modo local" : "Conectado"}</Badge>
+        <Badge tone={contentLoadFailed ? "danger" : localMode ? "warning" : "success"}>
+          {contentLoadFailed ? "Error de conexión" : localMode ? "Modo local" : "Conectado"}
+        </Badge>
       </header>
 
       <div className="admin-config-grid">
@@ -65,10 +68,18 @@ export default async function AdminConfigurationPage() {
       ) : null}
 
       <div className="admin-config-content-block">
-        <AdminSiteContentEditor content={content} role={context.role} localMode={localMode} />
+        {contentLoadFailed ? (
+          <div className="state-box state-box--error" role="alert">
+            <strong>No pudimos cargar la configuración remota.</strong>
+            <span>No se habilita el editor para evitar reemplazar por accidente servicios, galería o paleta con valores de respaldo. Recarga la página y vuelve a intentarlo.</span>
+          </div>
+        ) : (
+          <AdminSiteContentEditor content={content} role={context.role} localMode={localMode} />
+        )}
       </div>
     </>
   );
 }
+
 
 

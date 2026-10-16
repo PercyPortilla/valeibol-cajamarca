@@ -4,10 +4,13 @@ import {
   DEFAULT_SITE_GALLERY,
   DEFAULT_SITE_SERVICES,
   SITE_THEME_PRESETS,
+  contrastRatio,
   isAccessibleSiteTheme,
+  isValidSiteThemeInput,
   normalizeSiteGallery,
   normalizeSiteServices,
   normalizeSiteTheme,
+  themeCssVariables,
 } from "../lib/siteContent.ts";
 import {
   LocalSiteContentRepository,
@@ -50,8 +53,38 @@ test("normalización limita contenido y conserva orden/visibilidad", () => {
 
 test("paletas base cumplen contraste y colores inválidos vuelven a la base", () => {
   for (const preset of SITE_THEME_PRESETS) assert.equal(isAccessibleSiteTheme(preset.theme), true, preset.name);
+  for (const preset of SITE_THEME_PRESETS) assert.equal(isValidSiteThemeInput(preset.theme), true, preset.name + " debe tener HEX válidos");
   const normalized = normalizeSiteTheme({ presetId: "custom", navy: "no", blue: "#155FA8", blueDark: "#0F4B88", red: "#B72F34", redDark: "#92252A", yellow: "#F4C430", canvas: "#F3F7FB" });
   assert.equal(normalized.navy, "#0C2B4A");
+  assert.equal(isValidSiteThemeInput({ ...SITE_THEME_PRESETS[0].theme, navy: "#123" }), false);
+});
+
+test("la paleta genera tokens semánticos distintos para público y admin", () => {
+  const classic = themeCssVariables(SITE_THEME_PRESETS[0].theme);
+  const night = themeCssVariables(SITE_THEME_PRESETS[2].theme);
+  assert.equal(night["--brand-text"], SITE_THEME_PRESETS[2].theme.navy);
+  assert.equal(night["--brand-focus"], SITE_THEME_PRESETS[2].theme.blueDark);
+  assert.notEqual(classic["--brand-surface-soft"], night["--brand-surface-soft"]);
+  assert.notEqual(classic["--brand-blue-soft"], night["--brand-blue-soft"]);
+  assert.notEqual(classic["--brand-border"], night["--brand-border"]);
+  assert.ok(contrastRatio(night["--brand-muted"], SITE_THEME_PRESETS[2].theme.canvas) >= 4.5);
+  const thresholdTheme = {
+    ...SITE_THEME_PRESETS[0].theme,
+    presetId: "custom" as const,
+    navy: "#767676",
+    canvas: "#FFFFFF",
+  };
+  const thresholdVars = themeCssVariables(thresholdTheme);
+  assert.ok(contrastRatio(thresholdVars["--brand-muted"], thresholdTheme.canvas) >= 4.5);
+});
+
+test("el editor refresca el shell y la ruta pública después de guardar la paleta", async () => {
+  const editor = await readFile("components/admin/AdminSiteContentEditor.tsx", "utf8");
+  const actions = await readFile("app/admin/(protected)/actions.ts", "utf8");
+  assert.match(editor, /router\.refresh\(\)/);
+  assert.match(editor, /querySelector<HTMLElement>\("\.admin-shell"\)/);
+  assert.match(actions, /revalidatePath\("\/admin", "layout"\)/);
+  assert.match(actions, /revalidatePath\("\/"\)/);
 });
 
 test("repositorio local permite editar servicios y galería sin tocar Supabase", async () => {
@@ -87,3 +120,4 @@ test("migración de contenido mantiene tablas privadas y expone solo RPC públic
   assert.match(themeSql, /\^\/images\//i);
   assert.match(themeSql, /revoke all on public\.business_site_content from public, anon, authenticated/i);
 });
+

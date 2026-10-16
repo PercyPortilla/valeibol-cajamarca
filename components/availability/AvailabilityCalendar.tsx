@@ -145,7 +145,8 @@ export function AvailabilityCalendar() {
       .catch((error: unknown) => {
         if (cancelled) return;
         setSnapshot(null);
-        setLoadError(error instanceof Error ? error.message : "Error desconocido al cargar disponibilidad.");
+        console.error("[availability] No se pudo actualizar la agenda pública.", error);
+        setLoadError("No pudimos cargar la disponibilidad");
         setLoadState("error");
       });
 
@@ -239,7 +240,7 @@ export function AvailabilityCalendar() {
   if (demoState === "error" || loadState === "error") {
     return (
       <ErrorState
-        title={loadError ? `No pudimos cargar la disponibilidad: ${loadError}` : "No pudimos cargar la disponibilidad"}
+        title={loadError ?? "No pudimos cargar la disponibilidad"}
       />
     );
   }
@@ -389,3 +390,4 @@ export function AvailabilityCalendar() {
     </div>
   );
 }
+

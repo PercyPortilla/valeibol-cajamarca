@@ -265,3 +265,293 @@
   .admin-access-user__badges { justify-content: start; }
 }
 
+/* =========================================================
+   PALETA GLOBAL · CLIENTES + STAFF
+   Los tokens vienen de business_site_content.theme.
+   ========================================================= */
+.site-theme,
+.admin-shell {
+  --surface: var(--brand-surface);
+  --surface-2: var(--brand-surface-soft);
+  --surface-soft: var(--brand-surface-soft);
+  --border: var(--brand-border);
+  --border-strong: var(--brand-border-strong);
+  --text: var(--brand-text);
+  --muted: var(--brand-muted);
+  --blue-soft: var(--brand-blue-soft);
+  --red-soft: var(--brand-red-soft);
+}
+
+/* Vista clientes */
+.site-theme .site-header--commercial {
+  background: color-mix(in srgb, var(--brand-surface) 96%, transparent);
+  color: var(--brand-text);
+  border-bottom-color: var(--brand-border);
+}
+.site-theme .site-nav--commercial { color: var(--brand-muted); }
+.site-theme .trust-strip,
+.site-theme .commercial-main .availability-app,
+.site-theme .commercial-main .service-card,
+.site-theme .commercial-main .price-card--commercial,
+.site-theme .booking-dialog,
+.site-theme .map-card__label {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+}
+.site-theme .trust-item,
+.site-theme .trust-item strong,
+.site-theme .commercial-main .section-heading--commercial h2,
+.site-theme .commercial-main .service-card h3,
+.site-theme .commercial-main .price-card--commercial > strong,
+.site-theme .location-facts > a,
+.site-theme .location-facts strong,
+.site-theme .booking-dialog__header h2,
+.site-theme .booking-summary dd,
+.site-theme .lighting-picker legend,
+.site-theme .lighting-option strong,
+.site-theme .booking-result h3,
+.site-theme .map-card__label,
+.site-theme .map-card__label strong {
+  color: var(--brand-text);
+}
+.site-theme .trust-item small,
+.site-theme .commercial-main .section-heading--commercial p,
+.site-theme .commercial-main .service-card p,
+.site-theme .commercial-main .price-card--commercial > span:not(.badge),
+.site-theme .commercial-main .price-card--commercial > strong small,
+.site-theme .location-copy > p,
+.site-theme .location-facts small,
+.site-theme .booking-summary dt,
+.site-theme .lighting-option small,
+.site-theme .booking-quote small,
+.site-theme .booking-policy,
+.site-theme .booking-result p,
+.site-theme .map-card__label small {
+  color: var(--brand-muted);
+}
+.site-theme .commercial-main .availability-section,
+.site-theme .commercial-main .location-section {
+  background: var(--brand-surface-soft);
+  border-color: var(--brand-border);
+}
+.site-theme .commercial-main .section--services {
+  background: var(--brand-blue-soft);
+  border-color: var(--brand-border);
+}
+.site-theme .commercial-main .price-section {
+  background: var(--brand-yellow-soft);
+  border-color: var(--brand-border);
+}
+.site-theme .commercial-main .gallery-section {
+  background: var(--brand-navy);
+  border-color: var(--brand-border-strong);
+}
+.site-theme .commercial-main .service-card .feature-icon,
+.site-theme .location-facts > a > span {
+  background: var(--brand-blue-soft);
+  color: var(--brand-blue-dark);
+}
+.site-theme .commercial-main .state-box,
+.site-theme .booking-summary > div,
+.site-theme .lighting-option,
+.site-theme .booking-dialog__close,
+.site-theme .booking-form .field__control,
+.site-theme .button--commercial-outline {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+}
+.site-theme .booking-dialog__header {
+  border-bottom-color: var(--brand-border);
+  background: color-mix(in srgb, var(--brand-surface) 96%, transparent);
+}
+.site-theme .booking-quote {
+  border-color: var(--brand-border);
+  background: var(--brand-blue-soft);
+}
+.site-theme .booking-quote > div,
+.site-theme .consent-row,
+.site-theme .booking-form .field__label { color: var(--brand-muted); }
+.site-theme .booking-quote > div strong,
+.site-theme .consent-row strong,
+.site-theme .booking-quote__total strong { color: var(--brand-blue-dark) !important; }
+
+@media (max-width: 1060px) {
+  .site-theme .site-nav--commercial > a {
+    border-color: var(--brand-border);
+    background: var(--brand-surface);
+    color: var(--brand-text);
+  }
+}
+
+/* Vista staff/admin */
+.admin-shell .admin-sidebar,
+.admin-shell .admin-logout,
+.admin-shell .card,
+.admin-shell .admin-reservation-card,
+.admin-shell .admin-week-navigation,
+.admin-shell .admin-schedule-legend,
+.admin-shell .admin-court-tab,
+.admin-shell .admin-day-column,
+.admin-shell .admin-operation-modal,
+.admin-shell .phase7-period-filter,
+.admin-shell .phase7-history-row,
+.admin-shell .state-card,
+.admin-shell .state-box {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+}
+.admin-shell .admin-content {
+  background:
+    radial-gradient(circle at 88% 4%, var(--brand-blue-soft), transparent 26%),
+    var(--brand-canvas);
+}
+.admin-shell .admin-nav-item,
+.admin-shell .admin-account__meta small,
+.admin-shell .admin-exit,
+.admin-shell .admin-subtitle,
+.admin-shell .metric-label,
+.admin-shell .admin-status-card small,
+.admin-shell .admin-reservation-card__head small,
+.admin-shell .admin-reservation-card__note,
+.admin-shell .admin-reservation-details dt,
+.admin-shell .admin-week-navigation > div small,
+.admin-shell .admin-schedule-legend span,
+.admin-shell .admin-day-column__header small,
+.admin-shell .admin-day-closed,
+.admin-shell .admin-slot__head b,
+.admin-shell .admin-slot__entry small,
+.admin-shell .phase7-card-head span,
+.admin-shell .phase7-footnote,
+.admin-shell .phase7-form-help,
+.admin-shell .phase7-history-row span,
+.admin-shell .phase7-permission-note span,
+.admin-shell .phase7-period-filter > span,
+.admin-shell .phase7-metric-grid small,
+.admin-shell .admin-config-card p {
+  color: var(--brand-muted);
+}
+.admin-shell .admin-topbar h1,
+.admin-shell .admin-readonly-callout h2,
+.admin-shell .admin-pending-module h2,
+.admin-shell .phase7-pricing-editor h2,
+.admin-shell .admin-operation-modal h2,
+.admin-shell .admin-config-card h2,
+.admin-shell .admin-account__meta strong,
+.admin-shell .admin-status-card > strong,
+.admin-shell .phase7-metric-grid strong,
+.admin-shell .phase7-price-value,
+.admin-shell .phase7-mini-stats dd,
+.admin-shell .phase7-rule-meta dd,
+.admin-shell .phase7-state-breakdown dd,
+.admin-shell .admin-reservation-card__head strong,
+.admin-shell .admin-reservation-details dd,
+.admin-shell .admin-day-column__header span,
+.admin-shell .admin-slot__head span,
+.admin-shell .admin-slot__entry strong,
+.admin-shell .admin-price-preview strong,
+.admin-shell .state-box strong {
+  color: var(--brand-text);
+}
+.admin-shell .admin-nav-item:hover,
+.admin-shell .admin-nav-item--active,
+.admin-shell .admin-nav-item--active:hover,
+.admin-shell .admin-court-tab--active,
+.admin-shell .admin-mini-action,
+.admin-shell .admin-slot__quick-actions button,
+.admin-shell .eyebrow,
+.admin-shell .admin-reservation-card__court {
+  color: var(--brand-blue-dark);
+}
+.admin-shell .admin-nav-item:hover,
+.admin-shell .admin-nav-item--active,
+.admin-shell .admin-court-tab--active,
+.admin-shell .admin-mini-action:hover,
+.admin-shell .admin-slot__quick-actions button:hover,
+.admin-shell .admin-account__avatar {
+  background: var(--brand-blue-soft);
+}
+.admin-shell .admin-court-tab--active { border-color: var(--brand-blue); }
+.admin-shell .admin-account,
+.admin-shell .admin-reservation-details > div,
+.admin-shell .phase7-mini-stats div,
+.admin-shell .phase7-rule-meta div,
+.admin-shell .phase7-state-breakdown div,
+.admin-shell .phase7-permission-note {
+  border-color: var(--brand-border);
+  background: var(--brand-surface-soft);
+}
+.admin-shell .field__label { color: var(--brand-muted); }
+.admin-shell .field__control {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+}
+.admin-shell .admin-day-column__header {
+  border-bottom-color: var(--brand-border);
+  background: var(--brand-surface-soft);
+}
+
+/* Editor de Configuración: también debe responder a la vista previa de paleta. */
+.admin-content-editor__head h2,
+.admin-content-editor__savebar strong,
+.admin-access-user__identity strong,
+.admin-theme-preset { color: var(--brand-text); }
+.admin-content-editor__head p,
+.admin-theme-preset small,
+.admin-access-user__identity span,
+.admin-access-user__footer small,
+.admin-access-user__actions span,
+.admin-content-editor__savebar span,
+.admin-gallery-editor__upload small,
+.admin-content-toggle,
+.admin-theme-color { color: var(--brand-muted); }
+.admin-content-editor__section,
+.admin-account-card,
+.admin-access-card {
+  border-color: var(--brand-border);
+  background: var(--brand-surface-soft);
+}
+.admin-service-editor,
+.admin-gallery-editor,
+.admin-access-invite,
+.admin-access-user,
+.admin-theme-preset,
+.admin-content-editor__savebar {
+  border-color: var(--brand-border);
+  background: var(--brand-surface);
+}
+.admin-service-editor__order button,
+.admin-access-toggle,
+.admin-theme-color input[type="color"] {
+  border-color: var(--brand-border);
+  background: var(--brand-surface-soft);
+  color: var(--brand-blue-dark);
+}
+.admin-gallery-editor__preview {
+  border-color: var(--brand-border-strong);
+  background: linear-gradient(135deg, var(--brand-blue-soft), var(--brand-surface-soft));
+  color: var(--brand-muted);
+}
+
+/* Páginas públicas auxiliares también heredan la paleta de clientes. */
+.privacy-page {
+  min-height: 100vh;
+  background: var(--brand-canvas);
+  color: var(--brand-text);
+}
+.privacy-page .section-heading h1,
+.privacy-page .info-grid h2 { color: var(--brand-text); }
+.privacy-page .section-heading p,
+.privacy-page .info-grid p { color: var(--brand-muted); }
+.privacy-page .eyebrow,
+.privacy-page a { color: var(--brand-blue-dark); }
+.privacy-page .info-grid section {
+  border: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--brand-navy) 8%, transparent);
+}
+
+

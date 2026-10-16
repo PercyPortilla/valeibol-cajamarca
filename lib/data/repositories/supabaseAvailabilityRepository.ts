@@ -47,7 +47,7 @@ export class SupabaseAvailabilityRepository implements AvailabilityRepository {
     });
 
     if (error) {
-      throw new Error(`No se pudo leer la disponibilidad pública: ${error.message}`);
+      throw new Error("availability_unavailable");
     }
 
     type PublicAvailabilityRow = Database["public"]["Functions"]["get_public_availability"]["Returns"][number];
@@ -105,3 +105,4 @@ export class SupabaseAvailabilityRepository implements AvailabilityRepository {
     };
   }
 }
+

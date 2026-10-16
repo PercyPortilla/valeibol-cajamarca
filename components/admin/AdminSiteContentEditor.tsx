@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { updateSiteContentAction, type AdminActionResult } from "@/app/admin/(protected)/actions";
 import { Icon } from "@/components/ui/Icon";
 import type { AdminRole } from "@/lib/auth";
@@ -8,6 +9,10 @@ import { SERVICE_ICON_OPTIONS, type ServiceIconKey } from "@/lib/icons";
 import {
   DEFAULT_SITE_SERVICES,
   SITE_THEME_PRESETS,
+  isAccessibleSiteTheme,
+  isValidSiteThemeInput,
+  normalizeSiteTheme,
+  themeCssVariables,
   type SiteContent,
   type SiteGalleryItem,
   type SiteService,
@@ -27,6 +32,7 @@ function move<T extends { sortOrder: number }>(items: T[], index: number, direct
 }
 
 export function AdminSiteContentEditor({ content, role, localMode }: { content: SiteContent; role: AdminRole; localMode: boolean }) {
+  const router = useRouter();
   const [services, setServices] = useState(content.services);
   const [gallery, setGallery] = useState(content.gallery);
   const [theme, setTheme] = useState(content.theme);
@@ -34,6 +40,28 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
   const [pending, startTransition] = useTransition();
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const canManage = role === "owner" || role === "admin";
+  const normalizedTheme = normalizeSiteTheme(theme);
+  const themeIsValid = isValidSiteThemeInput(theme) && isAccessibleSiteTheme(normalizedTheme);
+
+  useEffect(() => {
+    if (!canManage) return;
+    const shell = document.querySelector<HTMLElement>(".admin-shell");
+    if (!shell) return;
+
+    const variables = themeCssVariables(normalizeSiteTheme(theme));
+    const previous = new Map<string, string>();
+    Object.entries(variables).forEach(([name, value]) => {
+      previous.set(name, shell.style.getPropertyValue(name));
+      shell.style.setProperty(name, value);
+    });
+
+    return () => {
+      previous.forEach((value, name) => {
+        if (value) shell.style.setProperty(name, value);
+        else shell.style.removeProperty(name);
+      });
+    };
+  }, [canManage, theme]);
 
   function patchService(index: number, patch: Partial<SiteService>) {
     setServices((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item));
@@ -77,6 +105,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
       if (next.ok) {
         setServices((current) => resequence(current));
         setGallery((current) => resequence(current));
+        router.refresh();
       }
     });
   }
@@ -189,7 +218,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
           <div>
             <span className="metric-label">IDENTIDAD VISUAL</span>
             <h2 id="theme-editor-title">Paleta de colores</h2>
-            <p>Elige una base de Mi Valeibol o ajusta cada color. La misma paleta se aplica a la web pública y al panel.</p>
+            <p>Elige una base de Mi Valeibol o ajusta cada color. La vista del panel cambia en vivo; al guardar, la misma paleta se publica para clientes y staff.</p>
           </div>
         </div>
 
@@ -231,6 +260,11 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
             </label>
           ))}
         </div>
+        {!themeIsValid ? (
+          <div className="admin-action-message admin-action-message--error" role="alert">
+            Revisa la paleta: usa colores completos en formato #RRGGBB y suficiente contraste para que textos y botones sigan siendo legibles.
+          </div>
+        ) : null}
       </section>
 
       <div className="admin-content-editor__savebar">
@@ -239,8 +273,9 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
           <span>{localMode ? "Los cambios duran mientras siga activo este servidor local." : "Al guardar, la web pública leerá la nueva configuración."}</span>
         </div>
         {result ? <div className={result.ok ? "admin-action-message admin-action-message--success" : "admin-action-message admin-action-message--error"} role={result.ok ? "status" : "alert"}>{result.message}</div> : null}
-        <button className="button button--primary" type="button" onClick={save} disabled={pending}>{pending ? "Guardando…" : "Guardar contenido"}</button>
+        <button className="button button--primary" type="button" onClick={save} disabled={pending || !themeIsValid}>{pending ? "Guardando…" : "Guardar contenido"}</button>
       </div>
     </div>
   );
 }
+
