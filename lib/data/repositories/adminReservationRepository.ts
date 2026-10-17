@@ -1,7 +1,7 @@
 import type { AdminReservation } from "@/lib/admin/reservations";
 
 export interface AdminReservationRepository {
-  list(limit?: number): Promise<AdminReservation[]>;
+  list(limit?: number, includeArchived?: boolean): Promise<AdminReservation[]>;
 }
 
 export class AdminReservationRepositoryError extends Error {

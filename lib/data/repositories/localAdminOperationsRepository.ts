@@ -126,6 +126,22 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
     return { reservationId, status: reservation.status };
   }
 
+  async archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
+    if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status !== "cancelled") throw new AdminOperationsRepositoryError("validation", "Solo una reserva cancelada puede archivarse.");
+    reservation.archivedAt ??= new Date().toISOString();
+    return { reservationId, status: reservation.status, archivedAt: reservation.archivedAt };
+  }
+
+  async restoreArchivedReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
+    if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status !== "cancelled") throw new AdminOperationsRepositoryError("validation", "Solo una reserva cancelada puede restaurarse.");
+    reservation.archivedAt = null;
+    return { reservationId, status: reservation.status, archivedAt: null };
+  }
+
   async createManualReservation(input: CreateManualReservationInput): Promise<AdminMutationReservationResult> {
     const { startAt, endAt } = validateWindow(input.date, input.startTime, input.endTime);
     if (!isNetHeightCm(input.netHeightCm)) throw new AdminOperationsRepositoryError("validation", "La altura de red debe estar entre 180 y 250 cm.");
@@ -158,6 +174,7 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
       currency: pricing.currency,
       source: input.source,
       createdAt: new Date().toISOString(),
+      archivedAt: null,
     });
     return { reservationId, status: "confirmed", courtId: input.courtId, startAt, endAt, lighting, netHeightCm: input.netHeightCm, hourlyRate: pricing.hourlyRate, totalAmount: pricing.hourlyRate * durationHours, currency: pricing.currency };
   }

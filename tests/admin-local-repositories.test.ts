@@ -82,6 +82,17 @@ test("modo local alimenta dashboard, reservas, agenda, clientes y precios sin Su
   assert.equal(block.status, "active");
   assert.equal((await operations.unblock(block.blockId)).status, "cancelled");
   assert.equal((await operations.cancelReservation(manual.reservationId)).status, "cancelled");
+
+  const archived = await operations.archiveCancelledReservation(manual.reservationId);
+  assert.ok(archived.archivedAt);
+  assert.equal((await operations.archiveCancelledReservation(manual.reservationId)).archivedAt, archived.archivedAt);
+  assert.equal((await reservations.list()).some((item) => item.id === manual.reservationId), false);
+  assert.equal((await reservations.list(100, true)).find((item) => item.id === manual.reservationId)?.archivedAt, archived.archivedAt);
+
+  const restored = await operations.restoreArchivedReservation(manual.reservationId);
+  assert.equal(restored.archivedAt, null);
+  assert.equal((await operations.restoreArchivedReservation(manual.reservationId)).archivedAt, null);
+  assert.equal((await reservations.list()).some((item) => item.id === manual.reservationId), true);
 });
 
 test("modo local permite programar tarifa futura sin alterar producción", async () => {

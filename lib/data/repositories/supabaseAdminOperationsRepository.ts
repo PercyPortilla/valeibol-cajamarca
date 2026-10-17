@@ -127,7 +127,8 @@ function mapSupabaseError(error: { code?: string; message: string }) {
     text.includes("outside_operating_hours") ||
     text.includes("court_closed") ||
     text.includes("schedule_in_past") ||
-    text.includes("not_editable")
+    text.includes("not_editable") ||
+    text.includes("not_cancelled")
   ) {
     return new AdminOperationsRepositoryError("validation", "La operación no cumple las reglas actuales de horario, estado o datos.");
   }
@@ -176,6 +177,24 @@ export class SupabaseAdminOperationsRepository implements AdminOperationsReposit
     const row = data?.[0];
     if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la reserva cancelada.");
     return { reservationId: row.reservation_id, status: row.reservation_status };
+  }
+
+  async archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("admin_archive_cancelled_reservation", { p_reservation_id: reservationId });
+    if (error) throw mapSupabaseError(error);
+    const row = data?.[0];
+    if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la reserva archivada.");
+    return { reservationId: row.reservation_id, status: row.reservation_status, archivedAt: row.archived_at };
+  }
+
+  async restoreArchivedReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("admin_restore_archived_reservation", { p_reservation_id: reservationId });
+    if (error) throw mapSupabaseError(error);
+    const row = data?.[0];
+    if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la reserva restaurada.");
+    return { reservationId: row.reservation_id, status: row.reservation_status, archivedAt: row.archived_at };
   }
 
   async createManualReservation(input: CreateManualReservationInput): Promise<AdminMutationReservationResult> {

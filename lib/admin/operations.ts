@@ -4,6 +4,8 @@ export type AdminOperation =
   | "read_schedule"
   | "confirm_reservation"
   | "cancel_reservation"
+  | "archive_reservation"
+  | "restore_archived_reservation"
   | "create_manual_reservation"
   | "edit_reservation"
   | "create_block"
@@ -31,6 +33,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
     "read_schedule",
     "confirm_reservation",
     "cancel_reservation",
+    "archive_reservation",
+    "restore_archived_reservation",
     "create_manual_reservation",
     "edit_reservation",
     "create_block",
@@ -40,6 +44,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
     "read_schedule",
     "confirm_reservation",
     "cancel_reservation",
+    "archive_reservation",
+    "restore_archived_reservation",
     "create_manual_reservation",
     "edit_reservation",
     "create_block",

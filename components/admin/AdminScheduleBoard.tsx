@@ -39,6 +39,8 @@ import {
 const WEEKDAY = new Intl.DateTimeFormat("es-PE", { weekday: "short", timeZone: "UTC" });
 const MONTH_DAY = new Intl.DateTimeFormat("es-PE", { day: "2-digit", month: "short", timeZone: "UTC" });
 
+type AdminBoardSlotView = ReturnType<typeof buildAdminBoardSlots>[number];
+
 type PanelState =
   | { kind: "manual"; courtId: string; date: string; startTime?: string; endTime?: string }
   | { kind: "block"; courtId: string; date: string; startTime?: string; endTime?: string }
@@ -56,6 +58,17 @@ function shortDay(dateKey: string) {
 
 function dayMonth(dateKey: string) {
   return MONTH_DAY.format(dateToUtcNoon(dateKey)).replace(".", "");
+}
+
+function localDateKey(timezone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day}`;
 }
 
 function statusClass(status: ReturnType<typeof buildAdminBoardSlots>[number]["status"]) {
@@ -131,8 +144,13 @@ export function AdminScheduleBoard({
   pricingRules: AdminPricingRule[];
 }) {
   const router = useRouter();
+  const todayDate = useMemo(() => localDateKey(timezone), [timezone]);
+  const initialSelectedDate = snapshot.courts[0]?.days.some((day) => day.date === todayDate)
+    ? todayDate
+    : snapshot.from;
   const [activeCourtId, setActiveCourtId] = useState(snapshot.courts[0]?.courtId ?? "");
-  const [selectedDate, setSelectedDate] = useState(snapshot.from);
+  const [selectedDate, setSelectedDate] = useState(initialSelectedDate);
+  const [activeSlotId, setActiveSlotId] = useState<string | null>(null);
   const [panel, setPanel] = useState<PanelState>(null);
   const [feedback, setFeedback] = useState<AdminActionResult | null>(null);
   const [pending, startTransition] = useTransition();
@@ -158,6 +176,7 @@ export function AdminScheduleBoard({
     event.preventDefault();
     const nextDay = days[nextIndex];
     setSelectedDate(nextDay.date);
+    setActiveSlotId(null);
     window.requestAnimationFrame(() => document.getElementById(adminDayTabId(nextDay.date))?.focus());
   }
 
@@ -190,28 +209,44 @@ export function AdminScheduleBoard({
     completeAction(() => unblockScheduleAction(id));
   }
 
-  function renderEntry(entry: AdminScheduleEntry) {
+  function renderEntrySummary(entry: AdminScheduleEntry) {
     if (entry.entryKind === "block") {
       return (
-        <div className="admin-slot__entry">
+        <div className="admin-slot__summary">
           <strong>{blockReasonLabel(entry.blockReason)}</strong>
-          {entry.internalNote ? <small>{entry.internalNote}</small> : null}
+          <small>Bloqueo operativo</small>
+        </div>
+      );
+    }
+
+    return (
+      <div className="admin-slot__summary">
+        <strong>{entry.customerName ?? "Cliente sin nombre"}</strong>
+        <small>{entry.lighting === "with_lights" ? "Con luz" : "Sin luz"} · {formatMoney(entry.totalAmount, entry.currency)}</small>
+      </div>
+    );
+  }
+
+  function renderEntryDetails(entry: AdminScheduleEntry) {
+    if (entry.entryKind === "block") {
+      return (
+        <div className="admin-slot__details">
+          {entry.internalNote ? <small>{entry.internalNote}</small> : <small>Sin nota interna.</small>}
           {entry.status === "active" && canPerformAdminOperation(role, "unblock") ? (
-            <button className="admin-mini-action admin-mini-action--danger" type="button" disabled={pending} onClick={() => unblock(entry.id)}>
-              Desbloquear
-            </button>
+            <div className="admin-slot__actions">
+              <button className="admin-mini-action admin-mini-action--danger" type="button" disabled={pending} onClick={() => unblock(entry.id)}>
+                Desbloquear
+              </button>
+            </div>
           ) : null}
         </div>
       );
     }
 
     return (
-      <div className="admin-slot__entry">
-        <strong>{entry.customerName ?? "Cliente sin nombre"}</strong>
+      <div className="admin-slot__details">
         <small>{entry.customerPhoneE164 ?? "Sin teléfono"}</small>
-        <small>{entry.lighting === "with_lights" ? "Con luz" : "Sin luz"} · {formatMoney(entry.totalAmount, entry.currency)}</small>
-        <small>Red: {netHeightLabel(entry.netHeightCm)}</small>
-        <small>{sourceLabel(entry.source)}</small>
+        <small>Red: {netHeightLabel(entry.netHeightCm)} · {sourceLabel(entry.source)}</small>
         <div className="admin-slot__actions">
           {entry.status === "pending" && canPerformAdminOperation(role, "confirm_reservation") ? (
             <button className="admin-mini-action" type="button" disabled={pending} onClick={() => confirmReservation(entry.id)}>Confirmar</button>
@@ -224,6 +259,66 @@ export function AdminScheduleBoard({
           ) : null}
         </div>
       </div>
+    );
+  }
+
+  function renderSlot(
+    slot: AdminBoardSlotView,
+    day: { courtId: string; date: string },
+    scope: "desktop" | "mobile",
+  ) {
+    const interactive = slot.status !== "unavailable";
+    const expanded = interactive && activeSlotId === slot.id;
+    const detailId = `admin-slot-detail-${scope}-${slot.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+    const entryLabel = slot.entry?.entryKind === "reservation"
+      ? slot.entry.customerName ?? "reserva"
+      : slot.entry?.entryKind === "block"
+        ? blockReasonLabel(slot.entry.blockReason)
+        : adminScheduleStatusLabel(slot.status);
+
+    return (
+      <article className={`${statusClass(slot.status)}${expanded ? " admin-slot--expanded" : ""}`} key={`${scope}-${slot.id}`}>
+        {interactive ? (
+          <button
+            type="button"
+            className="admin-slot__toggle"
+            aria-expanded={expanded}
+            aria-controls={expanded ? detailId : undefined}
+            aria-label={`${slot.start} a ${slot.end}, ${adminScheduleStatusLabel(slot.status)}, ${entryLabel}. ${expanded ? "Ocultar acciones" : "Mostrar acciones"}`}
+            onClick={() => setActiveSlotId((current) => current === slot.id ? null : slot.id)}
+          >
+            <div className="admin-slot__head">
+              <span>{slot.start}–{slot.end}</span>
+              {slot.status === "available" ? null : <b>{adminScheduleStatusLabel(slot.status)}</b>}
+            </div>
+            {slot.entry ? renderEntrySummary(slot.entry) : null}
+          </button>
+        ) : (
+          <div className="admin-slot__static" aria-label={`${slot.start} a ${slot.end}, no disponible`}>
+            <div className="admin-slot__head">
+              <span>{slot.start}–{slot.end}</span>
+            </div>
+          </div>
+        )}
+
+        {expanded ? (
+          <div className="admin-slot__context" id={detailId}>
+            {slot.entry ? renderEntryDetails(slot.entry) : (
+              <div className="admin-slot__quick-actions" aria-label={`Acciones para ${slot.start} a ${slot.end}`}>
+                {canPerformAdminOperation(role, "create_manual_reservation") ? (
+                  <button type="button" onClick={() => setPanel({ kind: "manual", courtId: day.courtId, date: day.date, startTime: slot.start, endTime: slot.end })}>Reservar</button>
+                ) : null}
+                {canPerformAdminOperation(role, "create_block") ? (
+                  <button type="button" onClick={() => setPanel({ kind: "block", courtId: day.courtId, date: day.date, startTime: slot.start, endTime: slot.end })}>Bloquear</button>
+                ) : null}
+                {!canPerformAdminOperation(role, "create_manual_reservation") && !canPerformAdminOperation(role, "create_block") ? (
+                  <small>Sin acciones disponibles para tu rol.</small>
+                ) : null}
+              </div>
+            )}
+          </div>
+        ) : null}
+      </article>
     );
   }
 
@@ -245,7 +340,8 @@ export function AdminScheduleBoard({
               aria-pressed={court.courtId === activeCourt.courtId}
               onClick={() => {
                 setActiveCourtId(court.courtId);
-                setSelectedDate(court.days[0]?.date ?? snapshot.from);
+                setSelectedDate(court.days.some((day) => day.date === todayDate) ? todayDate : court.days[0]?.date ?? snapshot.from);
+                setActiveSlotId(null);
                 setPanel(null);
               }}
             >
@@ -282,30 +378,18 @@ export function AdminScheduleBoard({
       <div className="admin-week-board" aria-label={`Pizarra semanal de ${activeCourt.courtName}`}>
         {days.map((day) => {
           const slots = daySlots.get(day.date) ?? [];
+          const isToday = day.date === todayDate;
           return (
-            <section className="admin-day-column" key={day.date} aria-label={`${shortDay(day.date)} ${dayMonth(day.date)}`}>
+            <section className={isToday ? "admin-day-column admin-day-column--today" : "admin-day-column"} key={day.date} aria-label={`${shortDay(day.date)} ${dayMonth(day.date)}${isToday ? ", hoy" : ""}`}>
               <header className="admin-day-column__header">
-                <strong>{shortDay(day.date)}</strong>
+                <div className="admin-day-column__title">
+                  <strong>{shortDay(day.date)}</strong>
+                  {isToday ? <b className="admin-day-today">HOY</b> : null}
+                </div>
                 <span>{dayMonth(day.date)}</span>
-                <small>{day.scheduleStatus === "provisional" ? "Horario provisional" : "Horario confirmado"}</small>
               </header>
               <div className="admin-day-column__slots">
-                {!day.isOpen || slots.length === 0 ? <div className="admin-day-closed">No disponible</div> : slots.map((slot) => (
-                  <article className={statusClass(slot.status)} key={slot.id}>
-                    <div className="admin-slot__head">
-                      <span>{slot.start}–{slot.end}</span>
-                      <b>{adminScheduleStatusLabel(slot.status)}</b>
-                    </div>
-                    {slot.entry ? renderEntry(slot.entry) : null}
-                    {!slot.entry && slot.status === "available" ? (
-                      <div className="admin-slot__quick-actions">
-                        <button type="button" onClick={() => setPanel({ kind: "manual", courtId: day.courtId, date: day.date, startTime: slot.start, endTime: slot.end })}>Reservar</button>
-                        <button type="button" onClick={() => setPanel({ kind: "block", courtId: day.courtId, date: day.date, startTime: slot.start, endTime: slot.end })}>Bloquear</button>
-                      </div>
-                    ) : null}
-                    {slot.releasedEntries.length ? <small className="admin-slot__released">{slot.releasedEntries.length} registro cancelado/liberado</small> : null}
-                  </article>
-                ))}
+                {!day.isOpen || slots.length === 0 ? <div className="admin-day-closed">No disponible</div> : slots.map((slot) => renderSlot(slot, day, "desktop"))}
               </div>
             </section>
           );
@@ -313,23 +397,31 @@ export function AdminScheduleBoard({
       </div>
 
       <div className="admin-mobile-days" role="tablist" aria-label="Seleccionar día">
-        {days.map((day) => (
-          <button
-            key={day.date}
-            id={adminDayTabId(day.date)}
-            type="button"
-            role="tab"
-            aria-selected={selectedDay?.date === day.date}
-            aria-controls={adminDayPanelId(day.date)}
-            tabIndex={selectedDay?.date === day.date ? 0 : -1}
-            className={selectedDay?.date === day.date ? "admin-mobile-day admin-mobile-day--active" : "admin-mobile-day"}
-            onClick={() => setSelectedDate(day.date)}
-            onKeyDown={(event) => handleMobileDayKeyDown(event, days.indexOf(day))}
-          >
-            <span>{shortDay(day.date)}</span>
-            <strong>{dayMonth(day.date)}</strong>
-          </button>
-        ))}
+        {days.map((day) => {
+          const isSelected = selectedDay?.date === day.date;
+          const isToday = day.date === todayDate;
+          return (
+            <button
+              key={day.date}
+              id={adminDayTabId(day.date)}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              aria-controls={adminDayPanelId(day.date)}
+              aria-label={`${shortDay(day.date)} ${dayMonth(day.date)}${isToday ? ", hoy" : ""}`}
+              tabIndex={isSelected ? 0 : -1}
+              className={`${isSelected ? "admin-mobile-day admin-mobile-day--active" : "admin-mobile-day"}${isToday ? " admin-mobile-day--today" : ""}`}
+              onClick={() => {
+                setSelectedDate(day.date);
+                setActiveSlotId(null);
+              }}
+              onKeyDown={(event) => handleMobileDayKeyDown(event, days.indexOf(day))}
+            >
+              <span>{shortDay(day.date)}{isToday ? <em>HOY</em> : null}</span>
+              <strong>{dayMonth(day.date)}</strong>
+            </button>
+          );
+        })}
       </div>
 
       {selectedDay ? (
@@ -339,18 +431,7 @@ export function AdminScheduleBoard({
           role="tabpanel"
           aria-labelledby={adminDayTabId(selectedDay.date)}
         >
-          {(daySlots.get(selectedDay.date) ?? []).map((slot) => (
-            <article className={statusClass(slot.status)} key={`mobile-${slot.id}`}>
-              <div className="admin-slot__head"><span>{slot.start}–{slot.end}</span><b>{adminScheduleStatusLabel(slot.status)}</b></div>
-              {slot.entry ? renderEntry(slot.entry) : null}
-              {!slot.entry && slot.status === "available" ? (
-                <div className="admin-slot__quick-actions">
-                  <button type="button" onClick={() => setPanel({ kind: "manual", courtId: selectedDay.courtId, date: selectedDay.date, startTime: slot.start, endTime: slot.end })}>Reservar</button>
-                  <button type="button" onClick={() => setPanel({ kind: "block", courtId: selectedDay.courtId, date: selectedDay.date, startTime: slot.start, endTime: slot.end })}>Bloquear</button>
-                </div>
-              ) : null}
-            </article>
-          ))}
+          {(daySlots.get(selectedDay.date) ?? []).map((slot) => renderSlot(slot, selectedDay, "mobile"))}
         </section>
       ) : null}
 

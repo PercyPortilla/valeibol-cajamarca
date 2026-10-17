@@ -21,6 +21,7 @@ export type AdminReservation = {
   currency: string;
   source: "public_web" | "admin" | "phone" | "whatsapp" | "other";
   createdAt: string;
+  archivedAt: string | null;
 };
 
 export const ADMIN_RESERVATION_STATUSES: AdminReservationStatus[] = [
