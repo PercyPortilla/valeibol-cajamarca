@@ -554,4 +554,229 @@
   box-shadow: 0 10px 28px color-mix(in srgb, var(--brand-navy) 8%, transparent);
 }
 
+/* Pizarra administrativa: lectura rápida y acciones contextuales. */
+.admin-shell .admin-day-column--today {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-blue) 14%, transparent),
+    0 10px 26px color-mix(in srgb, var(--brand-navy) 8%, transparent);
+}
+.admin-day-column__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.admin-shell .admin-day-column__header { min-height: 68px; }
+.admin-day-today {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: var(--brand-blue);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.admin-shell .admin-slot {
+  overflow: hidden;
+  padding: 0;
+  border-color: var(--brand-border);
+}
+.admin-slot__toggle,
+.admin-slot__static {
+  width: 100%;
+  padding: 8px;
+}
+.admin-slot__toggle {
+  display: block;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.admin-slot__toggle:hover {
+  background: color-mix(in srgb, var(--brand-blue-soft) 55%, transparent);
+}
+.admin-slot__toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand-blue) 42%, transparent);
+  outline-offset: -3px;
+}
+.admin-slot--expanded .admin-slot__toggle {
+  background: color-mix(in srgb, var(--brand-blue-soft) 42%, transparent);
+}
+.admin-slot__summary {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+}
+.admin-slot__summary strong {
+  color: var(--brand-text);
+  font-size: 9px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.admin-slot__summary small,
+.admin-slot__details small,
+.admin-slot__quick-actions small {
+  color: var(--brand-muted);
+  font-size: 8px;
+  line-height: 1.3;
+}
+.admin-slot__context {
+  padding: 0 8px 8px;
+  border-top: 1px solid color-mix(in srgb, var(--brand-border) 78%, transparent);
+}
+.admin-slot__details {
+  display: grid;
+  gap: 3px;
+  padding-top: 7px;
+}
+.admin-slot__context .admin-slot__actions,
+.admin-slot__context .admin-slot__quick-actions {
+  margin-top: 6px;
+}
+.admin-shell .admin-slot--unavailable {
+  opacity: .48;
+  border-color: var(--brand-border);
+  background: var(--brand-surface-soft);
+}
+.admin-slot--unavailable .admin-slot__static { padding-block: 6px; }
+.admin-slot--unavailable .admin-slot__head span,
+.admin-slot--unavailable .admin-slot__head b {
+  color: var(--brand-muted);
+  font-weight: 700;
+}
+.admin-shell .admin-slot__quick-actions button,
+.admin-shell .admin-mini-action {
+  min-height: 32px;
+  border-color: var(--brand-border-strong);
+  background: var(--brand-surface);
+  color: var(--brand-blue-dark);
+}
+.admin-shell .admin-slot__quick-actions button:hover,
+.admin-shell .admin-mini-action:hover {
+  background: var(--brand-blue-soft);
+}
+.admin-shell .admin-mini-action--danger {
+  border-color: color-mix(in srgb, var(--brand-red) 35%, var(--brand-border));
+  background: color-mix(in srgb, var(--brand-red) 7%, var(--brand-surface));
+  color: var(--brand-red-dark);
+}
+
+.admin-mobile-day--today {
+  border-color: color-mix(in srgb, var(--brand-blue) 60%, var(--brand-border));
+}
+.admin-mobile-day span em {
+  margin-left: 4px;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background: var(--brand-blue);
+  color: #fff;
+  font-size: 6px;
+  font-style: normal;
+  letter-spacing: .06em;
+}
+
+@media (min-width: 1081px) {
+  .admin-week-board { display: grid; }
+  .admin-mobile-days,
+  .admin-mobile-slot-list { display: none; }
+  .admin-slot__head { display: flex; }
+  .admin-slot__actions { display: flex; }
+}
+
+@media (max-width: 1080px) {
+  .admin-week-board { display: none; }
+  .admin-mobile-days {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 0 7px;
+    scrollbar-width: thin;
+  }
+  .admin-mobile-slot-list { display: grid; gap: 8px; }
+  .admin-mobile-day {
+    min-width: 82px;
+    border-color: var(--brand-border);
+    background: var(--brand-surface);
+    color: var(--brand-muted);
+  }
+  .admin-mobile-day--active {
+    border-color: var(--brand-blue);
+    background: var(--brand-blue-soft);
+    color: var(--brand-text);
+  }
+  .admin-mobile-slot-list .admin-slot__toggle,
+  .admin-mobile-slot-list .admin-slot__static { padding: 12px; }
+  .admin-mobile-slot-list .admin-slot__context { padding: 0 12px 12px; }
+  .admin-mobile-slot-list .admin-slot__head { display: flex; }
+  .admin-mobile-slot-list .admin-slot__summary strong { font-size: 12px; }
+  .admin-mobile-slot-list .admin-slot__summary small,
+  .admin-mobile-slot-list .admin-slot__details small { font-size: 10px; }
+  .admin-mobile-slot-list .admin-slot__quick-actions button,
+  .admin-mobile-slot-list .admin-mini-action { min-height: 40px; font-size: 10px; }
+}
+
+/* Historial de reservas: vistas operativas y archivado reversible. */
+.admin-reservation-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  overflow-x: auto;
+  padding: 2px 1px 7px;
+  scrollbar-width: thin;
+}
+.admin-reservation-filter {
+  flex: 0 0 auto;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 13px;
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  background: var(--brand-surface);
+  color: var(--brand-muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .16s ease, border-color .16s ease, color .16s ease;
+}
+.admin-reservation-filter:hover {
+  border-color: var(--brand-border-strong);
+  background: var(--brand-surface-soft);
+  color: var(--brand-text);
+}
+.admin-reservation-filter:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand-focus) 38%, transparent);
+  outline-offset: 2px;
+}
+.admin-reservation-filter--active,
+.admin-reservation-filter--active:hover {
+  border-color: var(--brand-blue);
+  background: var(--brand-blue-soft);
+  color: var(--brand-blue-dark);
+}
+.admin-reservation-card__badges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.admin-shell .admin-reservation-card--archived {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--brand-surface-soft) 72%, var(--brand-surface));
+}
+
+@media (max-width: 640px) {
+  .admin-reservation-filters { margin-bottom: 12px; }
+  .admin-reservation-filter { min-height: 42px; padding-inline: 12px; }
+  .admin-reservation-card__badges { justify-content: flex-start; }
+}
+
 

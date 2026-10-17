@@ -11,10 +11,11 @@ function toNumber(value: number | string) {
 }
 
 export class SupabaseAdminReservationRepository implements AdminReservationRepository {
-  async list(limit = 100): Promise<AdminReservation[]> {
+  async list(limit = 100, includeArchived = false): Promise<AdminReservation[]> {
     const client = await createServerSupabaseClient();
     const { data, error } = await client.rpc("get_admin_reservation_requests", {
       p_limit: Math.max(1, Math.min(limit, 200)),
+      p_include_archived: includeArchived,
     });
 
     if (error) {
@@ -47,6 +48,7 @@ export class SupabaseAdminReservationRepository implements AdminReservationRepos
       currency: row.currency,
       source: row.source,
       createdAt: row.created_at,
+      archivedAt: row.archived_at,
     }));
   }
 }

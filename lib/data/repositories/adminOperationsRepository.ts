@@ -14,6 +14,7 @@ export type AdminMutationReservationResult = {
   hourlyRate?: number;
   totalAmount?: number;
   currency?: string;
+  archivedAt?: string | null;
 };
 
 export type AdminMutationBlockResult = {
@@ -60,6 +61,8 @@ export interface AdminOperationsRepository {
   getSchedule(from: string, to: string, timezone: string): Promise<AdminScheduleSnapshot>;
   confirmReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   cancelReservation(reservationId: string): Promise<AdminMutationReservationResult>;
+  archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult>;
+  restoreArchivedReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   createManualReservation(input: CreateManualReservationInput): Promise<AdminMutationReservationResult>;
   editReservation(input: EditReservationInput): Promise<AdminMutationReservationResult>;
   createScheduleBlock(input: CreateScheduleBlockInput): Promise<AdminMutationBlockResult>;

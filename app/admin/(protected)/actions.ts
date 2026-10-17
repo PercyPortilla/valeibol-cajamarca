@@ -94,6 +94,22 @@ export async function cancelReservationAction(reservationId: string): Promise<Ad
   });
 }
 
+export async function archiveCancelledReservationAction(reservationId: string): Promise<AdminActionResult> {
+  if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
+  return runAuthorized("archive_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).archiveCancelledReservation(reservationId);
+    return "Reserva cancelada archivada. Se conserva para auditoría y puede restaurarse.";
+  });
+}
+
+export async function restoreArchivedReservationAction(reservationId: string): Promise<AdminActionResult> {
+  if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
+  return runAuthorized("restore_archived_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).restoreArchivedReservation(reservationId);
+    return "Reserva restaurada al historial principal.";
+  });
+}
+
 function validateReservationInput(
   raw: Omit<CreateManualReservationInput, "phoneE164"> & { phoneE164: string },
 ): { ok: true; input: CreateManualReservationInput } | { ok: false; result: AdminActionResult } {

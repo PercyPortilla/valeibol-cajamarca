@@ -69,6 +69,7 @@ function seedState(): LocalAdminState {
       currency: businessConfig.currency,
       source: "whatsapp",
       createdAt: now,
+      archivedAt: null,
     },
     {
       id: "30000000-0000-4000-8000-000000000002",
@@ -88,6 +89,7 @@ function seedState(): LocalAdminState {
       currency: businessConfig.currency,
       source: "public_web",
       createdAt: now,
+      archivedAt: null,
     },
     {
       id: "30000000-0000-4000-8000-000000000003",
@@ -107,6 +109,7 @@ function seedState(): LocalAdminState {
       currency: businessConfig.currency,
       source: "admin",
       createdAt: now,
+      archivedAt: null,
     },
   ];
 

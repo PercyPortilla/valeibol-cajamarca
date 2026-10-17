@@ -242,7 +242,7 @@ export type Database = {
         }>;
       };
       get_admin_reservation_requests: {
-        Args: { p_limit?: number };
+        Args: { p_limit?: number; p_include_archived?: boolean };
         Returns: Array<{
           reservation_id: string;
           business_id: string;
@@ -261,6 +261,7 @@ export type Database = {
           currency: string;
           source: ReservationSource;
           created_at: string;
+          archived_at: string | null;
         }>;
       };
       get_admin_schedule: {
@@ -291,6 +292,24 @@ export type Database = {
         Returns: Array<{
           reservation_id: string;
           reservation_status: ReservationStatus;
+          updated_at: string;
+        }>;
+      };
+      admin_archive_cancelled_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          archived_at: string | null;
+          updated_at: string;
+        }>;
+      };
+      admin_restore_archived_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          archived_at: string | null;
           updated_at: string;
         }>;
       };

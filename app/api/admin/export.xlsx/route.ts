@@ -93,7 +93,9 @@ async function loadProductionExport(from: string, to: string) {
 async function loadLocalExport(from: string, to: string, timezone: string) {
   const reservationsRepo = createAdminReservationRepository({ local: true });
   const phase7Repo = createPhase7Repository({ local: true });
-  const all = await reservationsRepo.list(200);
+  // El archivado es solo una limpieza visual del historial administrativo.
+  // Los exportes conservan también esas reservas para no perder trazabilidad.
+  const all = await reservationsRepo.list(200, true);
   const reservations: ExportReservation[] = all
     .filter((item) => {
       const localDate = new Intl.DateTimeFormat("en-CA", {

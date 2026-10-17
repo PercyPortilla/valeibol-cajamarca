@@ -30,6 +30,8 @@ const baseDay: AdminScheduleDay = {
 test("owner y admin pueden editar; staff opera agenda pero no reescribe reservas", () => {
   for (const role of ["owner", "admin"] as const) {
     assert.equal(canPerformAdminOperation(role, "edit_reservation"), true);
+    assert.equal(canPerformAdminOperation(role, "archive_reservation"), true);
+    assert.equal(canPerformAdminOperation(role, "restore_archived_reservation"), true);
     assert.equal(canPerformAdminOperation(role, "create_block"), true);
   }
   assert.equal(canPerformAdminOperation("staff", "confirm_reservation"), true);
@@ -38,6 +40,8 @@ test("owner y admin pueden editar; staff opera agenda pero no reescribe reservas
   assert.equal(canPerformAdminOperation("staff", "create_block"), true);
   assert.equal(canPerformAdminOperation("staff", "unblock"), true);
   assert.equal(canPerformAdminOperation("staff", "edit_reservation"), false);
+  assert.equal(canPerformAdminOperation("staff", "archive_reservation"), false);
+  assert.equal(canPerformAdminOperation("staff", "restore_archived_reservation"), false);
 });
 
 test("pending -> confirmed y confirmed -> confirmed es idempotente", () => {
