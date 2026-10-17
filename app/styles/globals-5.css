@@ -339,6 +339,9 @@
   background: var(--brand-blue-soft);
   border-color: var(--brand-border);
 }
+.site-theme .commercial-main .section--services .section-heading--commercial p {
+  color: var(--brand-text);
+}
 .site-theme .commercial-main .price-section {
   background: var(--brand-yellow-soft);
   border-color: var(--brand-border);
@@ -346,6 +349,14 @@
 .site-theme .commercial-main .gallery-section {
   background: var(--brand-navy);
   border-color: var(--brand-border-strong);
+}
+.site-theme .commercial-main .gallery-section .section-heading--commercial p {
+  color: #fff;
+}
+.site-theme .site-footer--commercial .commercial-footer__bottom,
+.site-theme .site-footer--commercial .commercial-footer__bottom small,
+.site-theme .site-footer--commercial .commercial-footer__bottom span {
+  color: #fff;
 }
 .site-theme .commercial-main .service-card .feature-icon,
 .site-theme .location-facts > a > span {
