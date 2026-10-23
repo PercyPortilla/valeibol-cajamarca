@@ -4,7 +4,6 @@ import { AvailabilityCalendar } from "@/components/availability/AvailabilityCale
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { getPublicPlatformCatalog } from "@/lib/data/platformService";
-import { getPublicPaymentMethods } from "@/lib/data/paymentService";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -43,7 +42,6 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
   if (!selectedCourt) notFound();
 
   const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
-  const paymentMethods = await getPublicPaymentMethods(businessSlug);
 
   return (
     <div className="platform-page">
@@ -59,10 +57,9 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
         <section className="platform-reservation-section">
           <div className="shell">
             <AvailabilityCalendar
-              businessSlug={businessSlug}
+              businessSlug={selectedCourt.businessSlug}
               initialCourtId={selectedCourt.courtId}
               courtSports={courtSports}
-              paymentMethods={paymentMethods}
             />
           </div>
         </section>

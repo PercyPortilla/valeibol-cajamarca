@@ -506,8 +506,10 @@
     background: rgba(9,19,29,.96);
     backdrop-filter: blur(14px);
   }
-  .brand--admin { min-width: 42px; padding: 0; border: 0; }
-  .brand--admin span:last-child { display: none; }
+  .brand--admin { min-width: 84px; min-height: 44px; padding: 0; border: 0; }
+  .brand--admin > .brand-logo { display: inline-flex; }
+  .brand--admin .brand-logo__image { width: 84px; }
+  .brand--admin .brand-logo__text-fallback { display: none; }
   .brand--admin .brand__mark { width: 38px; height: 38px; }
   .admin-sidebar nav {
     min-width: 0;

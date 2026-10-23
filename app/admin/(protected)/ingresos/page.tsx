@@ -29,7 +29,7 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
             <h1>Valor de reservas y actividad</h1>
             <p className="admin-subtitle">Sin módulo de pagos, estos importes representan valor autoritativo de reservas. No se presentan como dinero cobrado.</p>
           </div>
-          <Badge tone="warning">Pagos: pendiente</Badge>
+          <Badge tone="info">Cobros fuera de la plataforma</Badge>
         </header>
 
         <form className="phase7-period-filter" method="get">
@@ -71,7 +71,7 @@ export default async function AdminIncomePage({ searchParams }: { searchParams: 
           </Card>
         </div>
 
-        <Card className="phase7-payments-pending"><Badge tone="neutral">Próximamente</Badge><h2>Dinero efectivamente cobrado</h2><p>No disponible todavía. Se habilitará cuando exista un módulo de pagos que pueda demostrar el cobro real.</p></Card>
+        <Card className="phase7-payments-pending"><Badge tone="neutral">WhatsApp</Badge><h2>Coordinación económica fuera de la web</h2><p>Cualquier adelanto o pago se acuerda directamente entre el negocio y el cliente por WhatsApp. Estas métricas no acreditan cobros.</p></Card>
       </>
     );
   } catch (error) {

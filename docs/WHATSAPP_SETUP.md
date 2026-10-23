@@ -30,13 +30,15 @@ La base solo crea filas privadas en `whatsapp_outbox`. PostgreSQL no realiza HTT
 
 ## Procesador
 
-`POST /api/internal/whatsapp/process`
+`POST /api/internal/whatsapp/process` para ejecución manual/worker y `GET /api/internal/whatsapp/process` para schedulers HTTP.
 
 Requiere:
 
 ```http
 Authorization: Bearer <WHATSAPP_PROCESSOR_SECRET>
 ```
+
+Cuando el scheduler sea Vercel Cron, también se acepta `CRON_SECRET` como Bearer server-side. No reutilices ninguno de estos secretos en código cliente.
 
 El worker:
 
@@ -47,11 +49,25 @@ El worker:
 5. aplica backoff a fallos;
 6. nunca devuelve PII en la respuesta.
 
-Para producción, programa este endpoint desde un scheduler seguro compatible con tu plan de hosting. No expongas el secreto del procesador al navegador.
+### Activación del scheduler
+
+El repositorio deja el endpoint listo, pero **no activa un cron automáticamente** porque la frecuencia permitida depende del plan/infraestructura donde se despliegue. El recordatorio usa una ventana aproximada de 23–25 horas antes de la reserva, así que en producción el processor debe ejecutarse con una cadencia suficientemente frecuente (por ejemplo, horaria).
+
+Con Vercel Cron, los jobs llaman rutas mediante `GET` y pueden autenticarse con `CRON_SECRET`. Si el plan admite frecuencia horaria, una configuración típica es:
+
+```json
+{
+  "crons": [
+    { "path": "/api/internal/whatsapp/process", "schedule": "0 * * * *" }
+  ]
+}
+```
+
+No añadas este `vercel.json` a producción hasta confirmar que el plan del proyecto admite esa frecuencia. Como alternativa, Supabase Cron/pg_cron puede invocar un endpoint HTTP de forma programada guardando el secreto en Vault. La activación del scheduler es una tarea de infraestructura y debe verificarse en producción antes de afirmar que los avisos automáticos están activos.
 
 ## Consentimiento
 
-Los eventos anteriores son mensajes transaccionales de una reserva. El checkbox de marketing existente se mantiene separado para futuras campañas/promociones. Esta fase NO envía campañas masivas ni reenganche.
+Los eventos anteriores son mensajes transaccionales de una reserva. El flujo público actual **no solicita consentimiento de marketing ni ejecuta campañas promocionales**. El campo histórico `marketing_opt_in` permanece en el esquema por compatibilidad, pero la nueva reserva envía `false` y no lo presenta como una preferencia editable hasta que exista un flujo explícito de alta/revocación.
 
 ## Reglas de seguridad
 
@@ -60,3 +76,8 @@ Los eventos anteriores son mensajes transaccionales de una reserva. El checkbox 
 - Los templates y destinatarios se derivan de datos autoritativos de PostgreSQL.
 - La UI no puede decidir destinatario, template ni estado de entrega.
 - Los fallos de WhatsApp no revierten ni eliminan reservas.
+- Antes de reclamar mensajes, el worker descarta avisos incompatibles con el estado actual de la reserva.
+- Los recordatorios pendientes se refrescan cuando cambian cancha, fecha/hora o cliente, y se descartan si la reserva deja de estar confirmada.
+- Si una reserva confirmada se reprograma, un recordatorio aún no enviado se vuelve a calendarizar alrededor de 24 h antes de la nueva hora de inicio; no se envía inmediatamente con la fecha antigua.
+- Mensajes abandonados en `processing` solo se recuperan o descartan después de vencer el lease; los que pierden su reserva asociada se marcan `skipped` para no retener/envíar PII sin contexto.
+- La entrega hacia Meta es **at-least-once**: si el proveedor acepta un mensaje pero la respuesta se pierde antes de persistir su `provider_message_id`, un reintento podría duplicarlo. No se afirma garantía exactly-once sin reconciliación adicional.

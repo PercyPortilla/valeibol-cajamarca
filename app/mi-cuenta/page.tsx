@@ -1,25 +1,41 @@
 import Link from "next/link";
 import { CustomerAuthForm } from "@/components/account/CustomerAuthForm";
 import { CustomerLogoutButton } from "@/components/account/CustomerLogoutButton";
-import { PaymentReportForm } from "@/components/account/PaymentReportForm";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { Badge } from "@/components/ui/Badge";
 import { formatMoney } from "@/lib/booking";
 import { createServerSupabaseClient, hasPublicSupabaseServerConfig } from "@/lib/data/supabase/server";
 import type { Database } from "@/lib/data/supabase/database.types";
-import { getPublicPaymentMethods } from "@/lib/data/paymentService";
-import { paymentMethodLabel, paymentStatusLabel, type PublicPaymentMethod } from "@/lib/payments";
+
+export const dynamic = "force-dynamic";
+
+type CustomerReservation = Database["public"]["Functions"]["get_my_reservations"]["Returns"][number];
 
 function formatReservationDate(value: string) {
-  return new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Lima" }).format(new Date(value));
+  return new Intl.DateTimeFormat("es-PE", { weekday: "short", day: "2-digit", month: "short", year: "numeric", timeZone: "America/Lima" }).format(new Date(value));
+}
+
+function formatReservationTime(value: string) {
+  return new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "America/Lima" }).format(new Date(value));
+}
+
+function reservationStatusMeta(status: CustomerReservation["status"]) {
+  if (status === "confirmed") return { label: "Confirmada", tone: "success" as const, detail: "El negocio confirmó tu reserva." };
+  if (status === "completed") return { label: "Completada", tone: "info" as const, detail: "La reserva ya finalizó." };
+  if (status === "cancelled") return { label: "Cancelada", tone: "danger" as const, detail: "Esta reserva fue cancelada." };
+  return { label: "Pendiente", tone: "warning" as const, detail: "Esperando confirmación del negocio." };
+}
+
+function reservationMode(reservation: CustomerReservation) {
+  const lighting = reservation.lighting === "with_lights" ? "Con luz" : "Sin luz";
+  return reservation.net_height_cm === null ? lighting : `${lighting} · Red ${reservation.net_height_cm} cm`;
 }
 
 export default async function CustomerAccountPage() {
   let userEmail: string | null = null;
   let reservations: Database["public"]["Functions"]["get_my_reservations"]["Returns"] = [];
-  let payments: Database["public"]["Functions"]["get_my_payments"]["Returns"] = [];
-  const methodsByBusiness: Record<string, PublicPaymentMethod[]> = {};
+  let historyLoadFailed = false;
 
   if (hasPublicSupabaseServerConfig()) {
     try {
@@ -28,21 +44,13 @@ export default async function CustomerAccountPage() {
       userEmail = data.user?.email ?? null;
       if (data.user) {
         const { data: history, error } = await supabase.rpc("get_my_reservations");
-        if (!error) reservations = history ?? [];
-        const { data: paymentHistory, error: paymentError } = await supabase.rpc("get_my_payments");
-        if (!paymentError) payments = paymentHistory ?? [];
+        if (error) historyLoadFailed = true;
+        else reservations = history ?? [];
       }
     } catch {
       userEmail = null;
     }
   }
-
-  if (userEmail) {
-    const slugs = [...new Set(reservations.map((reservation) => reservation.business_slug))];
-    await Promise.all(slugs.map(async (slug) => { methodsByBusiness[slug] = await getPublicPaymentMethods(slug); }));
-  }
-
-  const paymentsByReservation = new Map(payments.map((payment) => [payment.reservation_id, payment]));
 
   return (
     <div className="platform-page">
@@ -51,36 +59,48 @@ export default async function CustomerAccountPage() {
         <div className="shell account-page__inner">
           <header className="account-page__heading">
             <span className="eyebrow">MI CUENTA</span>
-            <h1>{userEmail ? "Tus reservas" : "Accede a tu cuenta"}</h1>
-            <p>{userEmail ? "Consulta las reservas vinculadas a tu sesión. Las reservas guest siguen funcionando sin cuenta." : "Crea una cuenta o inicia sesión para conservar un historial personal de nuevas reservas."}</p>
+            <h1>Mi cuenta</h1>
+            <p>{userEmail ? "Consulta tus reservas y su estado. Las coordinaciones adicionales se realizan directamente con el negocio por WhatsApp." : "Inicia sesión o crea una cuenta para conservar el historial de las reservas que hagas con tu sesión activa."}</p>
           </header>
 
           {!userEmail ? <CustomerAuthForm /> : (
             <>
-              <div className="account-user-bar"><div><small>Sesión iniciada</small><strong>{userEmail}</strong></div><CustomerLogoutButton /></div>
-              {reservations.length === 0 ? (
-                <div className="account-empty"><h2>Aún no tienes reservas vinculadas</h2><p>Puedes seguir reservando como siempre; cuando reserves con esta sesión activa, aparecerá aquí.</p><Link className="button button--primary" href="/buscar">Buscar canchas</Link></div>
-              ) : (
-                <div className="account-reservation-list">
-                  {reservations.map((reservation) => (
-                    <article className="account-reservation-card" key={reservation.reservation_id}>
-                      <div><Badge tone={reservation.status === "confirmed" || reservation.status === "completed" ? "success" : reservation.status === "cancelled" ? "danger" : "warning"}>{reservation.status}</Badge><h2>{reservation.business_name}</h2><p>{reservation.court_name} · {reservation.sport_name}</p></div>
-                      <dl><div><dt>Inicio</dt><dd>{formatReservationDate(reservation.start_at)}</dd></div><div><dt>Total</dt><dd>{formatMoney(Number(reservation.total_amount), reservation.currency)}</dd></div></dl>
-                      <div className="account-reservation-actions">
-                        <Link href={`/complejo/${encodeURIComponent(reservation.business_slug)}`}>Ver complejo →</Link>
-                        {paymentsByReservation.get(reservation.reservation_id) ? (
-                          <div className="payment-status-pill">
-                            <small>{paymentMethodLabel(paymentsByReservation.get(reservation.reservation_id)!.method)}</small>
-                            <strong>{paymentStatusLabel(paymentsByReservation.get(reservation.reservation_id)!.status)}</strong>
-                          </div>
-                        ) : reservation.status !== "cancelled" ? (
-                          <PaymentReportForm reservationId={reservation.reservation_id} methods={methodsByBusiness[reservation.business_slug] ?? []} />
-                        ) : null}
-                      </div>
-                    </article>
-                  ))}
+              <div className="account-user-bar">
+                <div><small>Sesión iniciada</small><strong>{userEmail}</strong></div>
+                <div className="account-user-actions"><Link className="button button--secondary" href="/buscar">Buscar cancha</Link><CustomerLogoutButton /></div>
+              </div>
+              <section className="account-reservations" aria-labelledby="account-reservations-title">
+                <div className="account-section-heading">
+                  <div><span className="eyebrow">HISTORIAL</span><h2 id="account-reservations-title">Tus reservas</h2><p>{historyLoadFailed ? "No pudimos actualizar el historial." : reservations.length === 1 ? "1 reserva vinculada a tu cuenta." : `${reservations.length} reservas vinculadas a tu cuenta.`}</p></div>
                 </div>
-              )}
+                {historyLoadFailed ? (
+                  <div className="account-empty account-empty--error"><h3>No pudimos cargar tu historial</h3><p>Tu sesión sigue activa. Vuelve a intentarlo sin crear una reserva nueva.</p><Link className="button button--secondary" href="/mi-cuenta">Reintentar</Link></div>
+                ) : reservations.length === 0 ? (
+                  <div className="account-empty"><h3>Aún no tienes reservas vinculadas</h3><p>Puedes reservar sin cuenta, pero solo las nuevas reservas hechas con esta sesión activa aparecerán en tu historial.</p><Link className="button button--primary" href="/buscar">Buscar canchas</Link></div>
+                ) : (
+                  <div className="account-reservation-list">
+                    {reservations.map((reservation) => {
+                      const status = reservationStatusMeta(reservation.status);
+                      return (
+                        <article className="account-reservation-card" key={reservation.reservation_id}>
+                          <div className="account-reservation-card__identity">
+                            <div className="account-reservation-status"><Badge tone={status.tone}>{status.label}</Badge><small>{status.detail}</small></div>
+                            <h3>{reservation.business_name}</h3>
+                            <p>{reservation.court_name} · {reservation.sport_name}</p>
+                          </div>
+                          <dl>
+                            <div><dt>Fecha</dt><dd>{formatReservationDate(reservation.start_at)}</dd></div>
+                            <div><dt>Horario</dt><dd>{formatReservationTime(reservation.start_at)}–{formatReservationTime(reservation.end_at)}</dd></div>
+                            <div><dt>Modalidad</dt><dd>{reservationMode(reservation)}</dd></div>
+                            <div><dt>Valor de reserva</dt><dd>{formatMoney(Number(reservation.total_amount), reservation.currency)}</dd></div>
+                          </dl>
+                          <div className="account-reservation-actions"><Link href={`/complejo/${encodeURIComponent(reservation.business_slug)}`}>Ver complejo →</Link></div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
             </>
           )}
         </div>

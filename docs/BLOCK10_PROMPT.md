@@ -12,4 +12,8 @@ Reemplazar `/` por la portada global del marketplace: buscador por deporte/ciuda
 
 Actualizar metadata global y sitemap para reflejar el marketplace, manteniendo metadata específica para Valeibol.
 
-No borrar componentes heredados, no cambiar reservas, auth, DB o pagos. No hacer deploy. Validar TypeScript, lint, tests y build.
+- La marca del header global vuelve a `/`, no a una búsqueda filtrada.
+- Los complejos genéricos generan metadata pública con nombre y ciudad cuando el catálogo los resuelve.
+- El sitemap conserva rutas base y Valeibol como fallback, y añade automáticamente los complejos activos devueltos por el catálogo público sin duplicar URLs.
+
+No borrar componentes heredados, no cambiar reservas, auth o DB y no reintroducir módulos de pagos. No hacer deploy. Validar TypeScript, lint, tests y build.

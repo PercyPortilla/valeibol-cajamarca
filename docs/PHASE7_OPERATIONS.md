@@ -6,7 +6,7 @@ Fase 7 añade tres módulos administrativos sin alterar las invariantes de Fases
 
 1. **Clientes**: solo datos reales creados por reservas/solicitudes.
 2. **Precios**: `pricing_rules` versionadas por fecha, con cambios únicamente por owner/admin.
-3. **Resumen / Actividad**: métricas derivadas de reservas y agenda. No existe todavía contabilidad de pagos.
+3. **Resumen / Actividad**: métricas derivadas de reservas y agenda. La plataforma no procesa ni acredita cobros.
 
 ## Matriz de permisos
 
@@ -35,7 +35,7 @@ La autorización crítica vuelve a comprobarse dentro de PostgreSQL. El `busines
 - **Capacidad abierta**: suma de horas configuradas como abiertas en `operating_hours` para todas las canchas activas y fechas del periodo.
 - **Agenda ocupada**: horas de `court_schedule_entries` con `blocks_availability = true`; incluye reservas que bloquean y bloqueos operativos activos.
 - **Ocupación de agenda**: `agenda_occupied_hours / open_capacity_hours × 100`, limitada visualmente a 100 %.
-- **Dinero cobrado**: no disponible hasta una fase de pagos.
+- **Dinero cobrado**: fuera del alcance de la plataforma; cualquier coordinación económica se realiza directamente entre negocio y cliente.
 
 ## Versionado de precios
 

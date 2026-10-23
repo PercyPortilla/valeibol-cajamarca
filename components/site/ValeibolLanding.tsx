@@ -6,6 +6,8 @@ import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
+import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import { demoCourt } from "@/lib/data/demoPlatform";
 import { getPublicCurrentPricing } from "@/lib/data/publicPricingService";
 import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { formatMoney } from "@/lib/booking";
@@ -13,10 +15,14 @@ import { themeCssVariables } from "@/lib/siteContent";
 import type { CSSProperties } from "react";
 
 export async function ValeibolLanding() {
-  const [pricing, siteContent] = await Promise.all([
+  const [pricing, siteContent, catalog] = await Promise.all([
     getPublicCurrentPricing(),
     getPublicSiteContent(),
+    getPublicPlatformCatalog({ businessSlug: businessConfig.slug }),
   ]);
+  const initialCourtId = catalog[0]?.courtId ?? demoCourt.id;
+  const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
+  if (catalog.length === 0) courtSports[demoCourt.id] = "voley";
   const services = siteContent.services.filter((service) => service.isVisible);
   const configuredGalleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
   const galleryItems = configuredGalleryItems.length > 0 ? configuredGalleryItems : [
@@ -107,7 +113,11 @@ export async function ValeibolLanding() {
               </div>
               <div className="privacy-pill">Tus datos se solicitan solo al reservar</div>
             </div>
-            <AvailabilityCalendar />
+            <AvailabilityCalendar
+              businessSlug={businessConfig.slug}
+              initialCourtId={initialCourtId}
+              courtSports={courtSports}
+            />
           </div>
         </section>
 

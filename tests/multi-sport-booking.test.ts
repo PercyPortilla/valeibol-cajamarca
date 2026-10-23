@@ -6,6 +6,9 @@ import { sportRequiresNetHeight } from "../config/sports.ts";
 const migration = readFileSync("supabase/migrations/20261023090448_multi_sport_booking_rules.sql", "utf8");
 const apiRoute = readFileSync("app/api/public/reservation-requests/route.ts", "utf8");
 const edge = readFileSync("supabase/functions/public-reservation-request/index.ts", "utf8");
+const calendar = readFileSync("components/availability/AvailabilityCalendar.tsx", "utf8");
+const reservationPage = readFileSync("app/reservar/page.tsx", "utf8");
+const legacyLanding = readFileSync("components/site/ValeibolLanding.tsx", "utf8");
 
 test("reglas de reserva por deporte mantienen altura obligatoria solo para vóley", () => {
   assert.equal(sportRequiresNetHeight("voley"), true);
@@ -29,4 +32,22 @@ test("proxy y Edge permiten null pero siguen rechazando alturas fuera de rango",
     assert.match(source, /netHeightCm < 180/);
     assert.match(source, /netHeightCm > 250/);
   }
+});
+
+test("flujo booking exige negocio/cancha/deporte explícitos y no vuelve silenciosamente a vóley", () => {
+  assert.match(calendar, /businessSlug: string;/);
+  assert.match(calendar, /initialCourtId: string \| null;/);
+  assert.match(calendar, /courtSports: Record<string, string>;/);
+  assert.doesNotMatch(calendar, /businessSlug = businessConfig\.slug/);
+  assert.doesNotMatch(calendar, /\?\? "voley"/);
+  assert.match(calendar, /const sportSlug = courtSports\[activeCourt\.courtId\];/);
+});
+
+test("rutas global y legacy parametrizan el calendario sin depender de defaults internos", () => {
+  assert.match(reservationPage, /businessSlug=\{selectedCourt\.businessSlug\}/);
+  assert.match(reservationPage, /initialCourtId=\{selectedCourt\.courtId\}/);
+  assert.match(reservationPage, /courtSports=\{courtSports\}/);
+  assert.match(legacyLanding, /businessSlug=\{businessConfig\.slug\}/);
+  assert.match(legacyLanding, /initialCourtId=\{initialCourtId\}/);
+  assert.match(legacyLanding, /courtSports=\{courtSports\}/);
 });

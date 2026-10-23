@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
@@ -11,19 +12,29 @@ export type PlatformAdminBusiness = {
   city: string | null;
   country: string | null;
   isActive: boolean;
-  ownerUserId: string | null;
   venueCount: number;
   courtCount: number;
   reservationCount: number;
 };
 
-export function PlatformAdminBusinessList({ businesses }: { businesses: PlatformAdminBusiness[] }) {
+type Props = {
+  businesses: PlatformAdminBusiness[];
+  totalBusinesses: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+};
+
+export function PlatformAdminBusinessList({ businesses, totalBusinesses, currentPage, totalPages, pageSize }: Props) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const firstVisible = totalBusinesses === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastVisible = Math.min(currentPage * pageSize, totalBusinesses);
 
   async function setActive(business: PlatformAdminBusiness, active: boolean) {
     if (busyId) return;
+    if (!active && !window.confirm(`¿Desactivar ${business.name}? Dejará de ofrecerse públicamente hasta que vuelvas a activarlo.`)) return;
     setBusyId(business.businessId);
     setMessage(null);
     try {
@@ -48,7 +59,7 @@ export function PlatformAdminBusinessList({ businesses }: { businesses: Platform
     <section className="global-admin-board">
       <div className="global-admin-board__heading">
         <div><span className="eyebrow">NEGOCIOS</span><h2>Tenants de la plataforma</h2></div>
-        <span>{businesses.length} registrados</span>
+        <span>{totalBusinesses === 0 ? "0 registrados" : `Mostrando ${firstVisible}–${lastVisible} de ${totalBusinesses}`}</span>
       </div>
       {message ? <div className="global-admin-notice" role="status">{message}</div> : null}
       <div className="global-admin-business-list">
@@ -66,7 +77,7 @@ export function PlatformAdminBusinessList({ businesses }: { businesses: Platform
             <button
               type="button"
               className={business.isActive ? "button button--secondary" : "button button--primary"}
-              disabled={busyId === business.businessId}
+              disabled={Boolean(busyId)}
               onClick={() => setActive(business, !business.isActive)}
             >
               {busyId === business.businessId ? "Actualizando…" : business.isActive ? "Desactivar" : "Activar"}
@@ -74,6 +85,13 @@ export function PlatformAdminBusinessList({ businesses }: { businesses: Platform
           </article>
         ))}
       </div>
+      {totalPages > 1 ? (
+        <nav className="global-admin-pagination" aria-label="Paginación de negocios">
+          <div>{currentPage > 1 ? <Link className="button button--secondary" href={`/admin-global?page=${currentPage - 1}`}>← Anterior</Link> : null}</div>
+          <span className="global-admin-pagination__status">Página {currentPage} de {totalPages}</span>
+          <div>{currentPage < totalPages ? <Link className="button button--secondary" href={`/admin-global?page=${currentPage + 1}`}>Siguiente →</Link> : null}</div>
+        </nav>
+      ) : null}
     </section>
   );
 }

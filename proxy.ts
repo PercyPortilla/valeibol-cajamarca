@@ -10,13 +10,20 @@ function isPublicAdminPath(pathname: string) {
     || pathname.startsWith("/admin/activar/");
 }
 
+function isCustomerAccountPath(pathname: string) {
+  return pathname === "/mi-cuenta" || pathname.startsWith("/mi-cuenta/");
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (!pathname.startsWith("/admin") || isPublicAdminPath(pathname)) {
+  const adminPath = pathname.startsWith("/admin");
+  const customerAccountPath = isCustomerAccountPath(pathname);
+  if ((!adminPath && !customerAccountPath) || (adminPath && isPublicAdminPath(pathname))) {
     return NextResponse.next();
   }
 
   const localDevAdmin =
+    adminPath &&
     isLocalDevAdminAllowed({ nodeEnv: process.env.NODE_ENV, hostname: request.nextUrl.hostname }) &&
     request.cookies.get(LOCAL_DEV_ADMIN_COOKIE)?.value === "1";
 
@@ -28,6 +35,7 @@ export async function proxy(request: NextRequest) {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
+    if (customerAccountPath) return NextResponse.next();
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.search = "";
@@ -51,7 +59,7 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) {
+  if (adminPath && (error || !data.user)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.search = "";
@@ -64,6 +72,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/mi-cuenta/:path*"],
 };
 

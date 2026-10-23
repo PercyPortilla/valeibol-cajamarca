@@ -28,6 +28,7 @@ const required = [
   "supabase/migrations/20261023091203_customer_accounts_history.sql",
   "supabase/migrations/20261023091715_manual_payments.sql",
   "supabase/migrations/20261023092310_platform_admin_dashboard.sql",
+  "supabase/migrations/20261023213107_block9_platform_admin_metrics.sql",
   "supabase/tests/phase3.sql",
   "supabase/tests/phase4.sql",
   "supabase/tests/phase5.sql",
@@ -83,6 +84,7 @@ const required = [
   "app/api/internal/whatsapp/process/route.ts",
   "app/admin/(protected)/whatsapp/page.tsx",
   "docs/WHATSAPP_SETUP.md",
+  "docs/BLOCK13_PROMPT.md",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

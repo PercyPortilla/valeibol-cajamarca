@@ -51,6 +51,7 @@ export type PublicBookingResult = {
   persisted: boolean;
   requestId: string | null;
   status: "pending" | "demo";
+  accountLinked: boolean | null;
   courtId: string;
   startAt: string | null;
   endAt: string | null;

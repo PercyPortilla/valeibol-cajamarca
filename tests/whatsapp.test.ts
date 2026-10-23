@@ -1,11 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   hasWhatsAppServerConfig,
+  isWhatsAppTemplateKey,
   normalizeWhatsAppRecipient,
   sendWhatsAppTemplate,
 } from "../lib/whatsapp/cloudApi.ts";
 import { isProcessorAuthorizationValid } from "../lib/whatsapp/processorAuth.ts";
+import { buildWhatsAppChatHref } from "../lib/whatsapp/links.ts";
 
 const KEYS = [
   "WHATSAPP_ACCESS_TOKEN",
@@ -69,6 +72,56 @@ test("WhatsApp rechaza destinatarios que no sean E.164", () => {
   assert.throws(() => normalizeWhatsAppRecipient("51911111111"), /Invalid WhatsApp recipient/);
   assert.throws(() => normalizeWhatsAppRecipient("+51 911 111 111"), /Invalid WhatsApp recipient/);
   assert.throws(() => normalizeWhatsAppRecipient("+00000000"), /Invalid WhatsApp recipient/);
+});
+
+test("solo acepta las cuatro claves transaccionales autorizadas", () => {
+  assert.equal(isWhatsAppTemplateKey("owner_new_request"), true);
+  assert.equal(isWhatsAppTemplateKey("customer_confirmed"), true);
+  assert.equal(isWhatsAppTemplateKey("customer_cancelled"), true);
+  assert.equal(isWhatsAppTemplateKey("customer_reminder"), true);
+  assert.equal(isWhatsAppTemplateKey("marketing_campaign"), false);
+  assert.equal(isWhatsAppTemplateKey(null), false);
+});
+
+test("enlace de chat usa wa.me solo con E.164 válido", () => {
+  assert.equal(
+    buildWhatsAppChatHref("+51911111111", "Hola, reserva confirmada"),
+    "https://wa.me/51911111111?text=Hola%2C%20reserva%20confirmada",
+  );
+  assert.equal(buildWhatsAppChatHref("51911111111", "Hola"), null);
+});
+
+test("admin de reservas ofrece chat directo sin exponer secretos", () => {
+  const page = readFileSync("app/admin/(protected)/reservas/page.tsx", "utf8");
+  assert.match(page, /buildWhatsAppChatHref/);
+  assert.match(page, /Abrir chat/);
+  assert.doesNotMatch(page, /WHATSAPP_ACCESS_TOKEN|WHATSAPP_PROCESSOR_SECRET|CRON_SECRET/);
+});
+
+test("flujo de reserva no ofrece marketing mientras no exista revocación", () => {
+  const dialog = readFileSync("components/booking/ReservationDialog.tsx", "utf8");
+  assert.doesNotMatch(dialog, /setMarketingOptIn|promociones por WhatsApp|consent-row/);
+  assert.match(dialog, /marketingOptIn: false/);
+});
+
+test("processor acepta POST manual y GET de cron con autenticación server-side", () => {
+  const route = readFileSync("app/api/internal/whatsapp/process/route.ts", "utf8");
+  assert.match(route, /WHATSAPP_PROCESSOR_SECRET/);
+  assert.match(route, /CRON_SECRET/);
+  assert.match(route, /export const POST = processWhatsAppOutbox/);
+  assert.match(route, /export const GET = processWhatsAppOutbox/);
+  assert.match(route, /persistenceFailures/);
+});
+
+test("migración de robustez descarta mensajes obsoletos y leases agotados", () => {
+  const migration = readFileSync("supabase/migrations/20261023211749_block8_whatsapp_reliability.sql", "utf8");
+  assert.match(migration, /reservation_state_changed_before_delivery/);
+  assert.match(migration, /processor_lease_expired_after_max_attempts/);
+  assert.match(migration, /reservation_missing_before_delivery/);
+  assert.match(migration, /greatest\(now\(\), new\.start_at - interval '24 hours'\)/i);
+  assert.match(migration, /update of status, start_at, end_at, court_id, customer_id/i);
+  assert.match(migration, /customer_reminder[\s\S]*r\.status = 'confirmed'[\s\S]*r\.start_at > now\(\)/i);
+  assert.match(migration, /revoke all on function public\.phase8_claim_whatsapp_messages\(integer\) from public, anon, authenticated/i);
 });
 
 test("el secreto del procesador exige Bearer exacto y comparación segura", () => {

@@ -169,7 +169,7 @@ export async function GET(request: NextRequest) {
       ["Reporte operativo", sanitizeExcelText(context.businessName)],
       ["Periodo", `${from} a ${to}`],
       ["Zona horaria", context.timezone],
-      ["Nota financiera", "Los importes son valores de reservas; no representan pagos cobrados."],
+      ["Nota financiera", "Los importes son valores de reservas; no acreditan cobros recibidos."],
     ];
 
     if (data.metrics) {

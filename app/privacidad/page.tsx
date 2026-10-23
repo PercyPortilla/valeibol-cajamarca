@@ -36,7 +36,7 @@ export default async function PrivacyPage() {
           </section>
           <section>
             <h2>Promociones</h2>
-            <p>La autorización para recibir promociones es opcional e independiente de la solicitud de reserva. No necesitas aceptarla para reservar.</p>
+            <p>La plataforma no solicita consentimiento promocional durante la reserva. El número de WhatsApp se usa únicamente para gestionar la solicitud y las comunicaciones transaccionales relacionadas.</p>
           </section>
           <section>
             <h2>Acceso</h2>

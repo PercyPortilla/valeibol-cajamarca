@@ -20,7 +20,16 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description: `Consulta disponibilidad, precios y reserva la cancha de ${businessConfig.name} en ${businessConfig.city}.`,
     };
   }
-  return { title: "Complejo deportivo" };
+
+  const catalog = await getPublicPlatformCatalog({ businessSlug: slug });
+  const business = buildBusinessDetail(catalog, slug);
+  if (!business) return { title: "Complejo deportivo" };
+
+  const location = business.city ? ` en ${business.city}` : "";
+  return {
+    title: `${business.name} | Complejo deportivo${location}`,
+    description: `Explora sedes, canchas, deportes y disponibilidad de ${business.name}${location}.`,
+  };
 }
 
 export default async function ComplexPage({ params }: { params: Params }) {

@@ -23,7 +23,6 @@ import {
   BookingRepositoryError,
   type PublicBookingResult,
 } from "@/lib/data/repositories/bookingRepository";
-import type { PublicPaymentMethod } from "@/lib/payments";
 
 export type ReservationSelection = {
   courtId: string;
@@ -38,7 +37,6 @@ export type ReservationSelection = {
 
 type Props = {
   businessSlug: string;
-  paymentMethods?: PublicPaymentMethod[];
   selection: ReservationSelection | null;
   onClose: () => void;
   onPersisted: () => void;
@@ -65,7 +63,7 @@ function makeRequestToken() {
   });
 }
 
-export function ReservationDialog({ businessSlug, paymentMethods = [], selection, onClose, onPersisted, onAvailabilityStale }: Props) {
+export function ReservationDialog({ businessSlug, selection, onClose, onPersisted, onAvailabilityStale }: Props) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const repository = useMemo(() => createPublicBookingRepository(), []);
   const [name, setName] = useState("");
@@ -73,7 +71,6 @@ export function ReservationDialog({ businessSlug, paymentMethods = [], selection
   const [netHeightPreset, setNetHeightPreset] = useState("");
   const [customNetHeightCm, setCustomNetHeightCm] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [requestToken, setRequestToken] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +115,6 @@ export function ReservationDialog({ businessSlug, paymentMethods = [], selection
         .find((option) => !crossesLightingCutoff(selection.slot.start, option.end))?.end
         ?? selection.slot.end,
     );
-    setMarketingOptIn(false);
     setRequestToken(makeRequestToken());
     setSubmitting(false);
     setError(null);
@@ -232,7 +228,7 @@ export function ReservationDialog({ businessSlug, paymentMethods = [], selection
         netHeightCm: parsedNetHeight,
         customerName: normalizedName,
         phoneE164: normalizedPhone,
-        marketingOptIn,
+        marketingOptIn: false,
         requestToken,
       });
       setResult(nextResult);
@@ -291,27 +287,31 @@ export function ReservationDialog({ businessSlug, paymentMethods = [], selection
                 <p>Mientras está pendiente, el intervalo queda ocupado para evitar que dos personas soliciten la misma cancha al mismo tiempo.</p>
                 <dl className="booking-summary booking-summary--success">
                   <div><dt>Estado</dt><dd>Pendiente</dd></div>
+                  <div><dt>Cancha</dt><dd>{selection.courtName}</dd></div>
+                  <div><dt>Fecha</dt><dd>{formatLocalDate(selection.slot.date)}</dd></div>
+                  <div><dt>Horario</dt><dd>{selection.slot.start}–{endTime}</dd></div>
                   {result.netHeightCm !== null ? <div><dt>Altura de red</dt><dd>{netHeightLabel(result.netHeightCm)}</dd></div> : null}
                   <div><dt>Iluminación</dt><dd>{result.lighting === "with_lights" ? "Con luz" : "Sin luz"}</dd></div>
-                  <div><dt>Tarifa validada por servidor</dt><dd>{formatMoney(result.hourlyRate, result.currency)}/h</dd></div>
-                  <div><dt>Total validado por servidor</dt><dd>{formatMoney(result.totalAmount, result.currency)}</dd></div>
+                  <div><dt>Tarifa por hora</dt><dd>{formatMoney(result.hourlyRate, result.currency)}/h</dd></div>
+                  <div><dt>Valor de reserva</dt><dd>{formatMoney(result.totalAmount, result.currency)}</dd></div>
+                  {result.requestId ? <div><dt>Referencia</dt><dd>{result.requestId}</dd></div> : null}
                 </dl>
-                {paymentMethods.length > 0 ? (
-                  <div className="booking-payment-options">
-                    <strong>Opciones de pago manual</strong>
-                    <p>Reportar un pago no lo confirma automáticamente. El negocio debe verificarlo.</p>
-                    <div>
-                      {paymentMethods.map((method) => (
-                        <article key={method.method}>
-                          <b>{method.label}</b>
-                          {method.destination ? <span>{method.destination}</span> : null}
-                          {method.instructions ? <small>{method.instructions}</small> : null}
-                        </article>
-                      ))}
-                    </div>
-                    <a className="text-link" href="/mi-cuenta">Ir a Mi cuenta para reportar el pago →</a>
+                {result.accountLinked === true ? (
+                  <div className="booking-source-note">
+                    <strong>Guardada en Mi cuenta</strong>
+                    <span>Esta solicitud quedó vinculada a tu sesión y podrás revisar su estado desde Mi cuenta.</span>
+                  </div>
+                ) : result.accountLinked === false ? (
+                  <div className="booking-source-note booking-source-note--account-warning">
+                    <strong>La solicitud se creó, pero no quedó vinculada a tu cuenta</strong>
+                    <span>No envíes otra solicitud por el mismo horario. Conserva estos datos y coordina con el negocio si necesitas recuperarla en tu historial.</span>
+                    <small className="booking-request-reference">Referencia: {result.requestId}</small>
                   </div>
                 ) : null}
+                <div className="booking-source-note" role="note">
+                  <strong>Seguimiento por WhatsApp</strong>
+                  <span>El negocio puede usar el número que ingresaste para coordinar esta reserva contigo.</span>
+                </div>
               </>
             ) : (
               <>
@@ -432,11 +432,6 @@ export function ReservationDialog({ businessSlug, paymentMethods = [], selection
                 <span className="field__hint">Se normaliza a formato internacional (+51…). El teléfono nunca se publica en el calendario.</span>
               </label>
             </div>
-
-            <label className="consent-row">
-              <input type="checkbox" checked={marketingOptIn} onChange={(event: ChangeEvent<HTMLInputElement>) => setMarketingOptIn(event.target.checked)} />
-              <span>Quiero recibir promociones y avisos de horarios disponibles por WhatsApp. <strong>Opcional.</strong></span>
-            </label>
 
             <div className="booking-quote" aria-live="polite">
               <div><span>Duración</span><strong>{preview.durationHours} h</strong></div>

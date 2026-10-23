@@ -9,7 +9,6 @@ const ownerSections = [
   ["Reservas", "Revisa solicitudes, confirma, cancela y consulta historial.", "/admin/reservas"],
   ["Clientes", "Consulta clientes e historial privado del negocio.", "/admin/clientes"],
   ["Precios", "Administra tarifas y vigencias por cancha.", "/admin/precios"],
-  ["Pagos", "Configura Yape/Plin y verifica reportes manuales.", "/admin/pagos"],
   ["Actividad y reportes", "Revisa ocupación, valor operativo y exportaciones.", "/admin/reportes"],
   ["Configuración", "Contenido público, cuenta y accesos administrativos.", "/admin/configuracion"],
 ] as const;
@@ -29,6 +28,7 @@ export default async function OwnerPortalPage() {
           <span className="eyebrow">PANEL DEL PROPIETARIO</span>
           <h1>{context.businessName}</h1>
           <p>Accede a las herramientas operativas ya validadas del negocio sin duplicar la lógica administrativa.</p>
+          <p>Las coordinaciones adicionales con cada cliente se realizan directamente por WhatsApp desde el flujo de reservas.</p>
           <Link className="button button--primary" href="/admin">Abrir resumen operativo</Link>
         </header>
         <section className="owner-portal__grid" aria-label="Herramientas del propietario">

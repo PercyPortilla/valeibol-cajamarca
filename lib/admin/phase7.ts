@@ -111,8 +111,8 @@ export type AdminOperationalMetrics = {
 export const METRIC_DEFINITIONS = {
   reservationCount: "Todas las reservas/solicitudes cuyo inicio cae dentro del periodo, incluidas canceladas.",
   pendingCount: "Solicitudes pending del periodo. Bloquean agenda, pero no están confirmadas.",
-  confirmedValue: "Suma del valor autoritativo de reservas confirmed del periodo. No significa dinero cobrado.",
-  completedValue: "Suma del valor autoritativo de reservas completed del periodo. Tampoco equivale a pago recibido.",
+  confirmedValue: "Suma del valor autoritativo de reservas confirmed del periodo. No acredita dinero recibido.",
+  completedValue: "Suma del valor autoritativo de reservas completed del periodo. Tampoco acredita cobro recibido.",
   reservedHours: "Horas de reservas confirmed + completed. Excluye pending y cancelled.",
   occupancyPercent: "Horas que bloquean agenda (reservas activas + bloqueos) / horas abiertas configuradas del periodo.",
 } as const;

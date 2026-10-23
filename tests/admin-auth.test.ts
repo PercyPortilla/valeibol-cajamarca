@@ -55,6 +55,9 @@ test("next de login evita open redirects y rutas de bucle", () => {
 test("callback de auth permite mi-cuenta sin abrir redirects externos", () => {
   assert.equal(safeAuthRedirectPath("/mi-cuenta"), "/mi-cuenta");
   assert.equal(safeAuthRedirectPath("/mi-cuenta?tab=reservas"), "/mi-cuenta?tab=reservas");
+  assert.equal(safeAuthRedirectPath("/mi-cuenta/perfil"), "/mi-cuenta/perfil");
+  assert.equal(safeAuthRedirectPath("/mi-cuenta-falsa"), "/admin");
+  assert.equal(safeAuthRedirectPath("/mi-cuenta/../admin"), "/admin");
   assert.equal(safeAuthRedirectPath("//evil.example/mi-cuenta"), "/admin");
   assert.equal(safeAuthRedirectPath("https://evil.example/mi-cuenta"), "/admin");
 });

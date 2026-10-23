@@ -4,6 +4,17 @@ export type WhatsAppTemplateKey =
   | "customer_cancelled"
   | "customer_reminder";
 
+const WHATSAPP_TEMPLATE_KEYS: WhatsAppTemplateKey[] = [
+  "owner_new_request",
+  "customer_confirmed",
+  "customer_cancelled",
+  "customer_reminder",
+];
+
+export function isWhatsAppTemplateKey(value: unknown): value is WhatsAppTemplateKey {
+  return typeof value === "string" && WHATSAPP_TEMPLATE_KEYS.includes(value as WhatsAppTemplateKey);
+}
+
 export type SendWhatsAppTemplateInput = {
   recipientE164: string;
   templateKey: WhatsAppTemplateKey;

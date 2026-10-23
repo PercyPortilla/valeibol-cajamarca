@@ -15,6 +15,7 @@ const viewports = [
   [360, 900],
   [390, 900],
   [430, 932],
+  [844, 390],
   [768, 1024],
   [1024, 900],
   [1440, 1000],
@@ -67,7 +68,15 @@ try {
         "button",
         "[role='tab']",
         ".button",
+        ".platform-brand",
+        ".platform-nav a",
+        ".platform-page .text-link",
+        ".platform-footer a",
         ".site-nav a",
+        ".owner-portal a",
+        ".global-admin-links a",
+        ".global-admin-pagination a",
+        ".account-reservation-actions a",
         ".time-slot button",
         ".icon-button",
       ].join(",");
@@ -120,6 +129,31 @@ try {
       fullPage: true,
     });
 
+    const searchResponse = await page.goto(`${baseUrl}/buscar?deporte=voley&ciudad=Cajamarca`, { waitUntil: "networkidle2", timeout: 60_000 });
+    const searchLayout = await page.evaluate(() => ({
+      hasSearch: Boolean(document.querySelector(".platform-search-form")),
+      hasResultsSection: Boolean(document.querySelector(".platform-section")),
+      scrollWidth: document.documentElement.scrollWidth,
+      innerWidth: window.innerWidth,
+    }));
+    record(Boolean(searchResponse && (searchResponse.ok() || searchResponse.status() === 304)), viewport, "Buscar HTTP", String(searchResponse?.status() ?? "no-response"));
+    record(searchLayout.hasSearch && searchLayout.hasResultsSection, viewport, "Buscar estructura", JSON.stringify(searchLayout));
+    record(searchLayout.scrollWidth <= searchLayout.innerWidth + 2, viewport, "Buscar sin overflow", `${searchLayout.scrollWidth}/${searchLayout.innerWidth}`);
+
+    await page.addScriptTag({ content: axe.source });
+    const searchAxe = await page.evaluate(async () => {
+      const result = await window.axe.run(document, { resultTypes: ["violations"] });
+      return result.violations
+        .filter((violation) => violation.impact === "critical" || violation.impact === "serious")
+        .map((violation) => ({ id: violation.id, impact: violation.impact, nodes: violation.nodes.length }));
+    });
+    record(searchAxe.length === 0, viewport, "Buscar Axe serious/critical", JSON.stringify(searchAxe));
+
+    await page.screenshot({
+      path: resolve(screenshots, `${label}-buscar-${width}x${height}.png`),
+      fullPage: true,
+    });
+
     const valeibolResponse = await page.goto(`${baseUrl}/complejo/valeibol-cajamarca`, { waitUntil: "networkidle2", timeout: 60_000 });
     const valeibolLayout = await page.evaluate(() => {
       const requiredIds = ["disponibilidad", "precios", "servicios", "galeria", "ubicacion"];
@@ -144,6 +178,49 @@ try {
 
     await page.screenshot({
       path: resolve(screenshots, `${label}-valeibol-${width}.png`),
+      fullPage: true,
+    });
+
+    const accountResponse = await page.goto(`${baseUrl}/mi-cuenta`, { waitUntil: "networkidle2", timeout: 60_000 });
+    const accountLayout = await page.evaluate(() => {
+      const root = document.documentElement;
+      const targets = [...document.querySelectorAll(".account-page button, .account-page .button")]
+        .filter((node) => {
+          if (!(node instanceof HTMLElement)) return false;
+          const style = getComputedStyle(node);
+          if (style.display === "none" || style.visibility === "hidden") return false;
+          const rect = node.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+        })
+        .slice(0, 12)
+        .map((node) => {
+          const rect = node.getBoundingClientRect();
+          return `${node.tagName.toLowerCase()}.${node.className}: ${Math.round(rect.width)}x${Math.round(rect.height)}`;
+        });
+      return {
+        hasHeading: Boolean(document.querySelector(".account-page__heading h1")),
+        hasAuthOrAccount: Boolean(document.querySelector(".customer-auth-card, .account-user-bar")),
+        scrollWidth: root.scrollWidth,
+        innerWidth: window.innerWidth,
+        undersizedTargets: targets,
+      };
+    });
+    record(Boolean(accountResponse && (accountResponse.ok() || accountResponse.status() === 304)), viewport, "Mi cuenta HTTP", String(accountResponse?.status() ?? "no-response"));
+    record(accountLayout.hasHeading && accountLayout.hasAuthOrAccount, viewport, "Mi cuenta estructura", JSON.stringify(accountLayout));
+    record(accountLayout.scrollWidth <= accountLayout.innerWidth + 2, viewport, "Mi cuenta sin overflow", `${accountLayout.scrollWidth}/${accountLayout.innerWidth}`);
+    record(accountLayout.undersizedTargets.length === 0, viewport, "Mi cuenta targets >=44px", accountLayout.undersizedTargets.join(" | "));
+
+    await page.addScriptTag({ content: axe.source });
+    const accountAxe = await page.evaluate(async () => {
+      const result = await window.axe.run(document, { resultTypes: ["violations"] });
+      return result.violations
+        .filter((violation) => violation.impact === "critical" || violation.impact === "serious")
+        .map((violation) => ({ id: violation.id, impact: violation.impact, nodes: violation.nodes.length }));
+    });
+    record(accountAxe.length === 0, viewport, "Mi cuenta Axe serious/critical", JSON.stringify(accountAxe));
+
+    await page.screenshot({
+      path: resolve(screenshots, `${label}-account-${width}x${height}.png`),
       fullPage: true,
     });
 

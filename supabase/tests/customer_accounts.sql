@@ -31,6 +31,23 @@ begin
      or has_function_privilege('authenticated', 'public.link_public_reservation_user(uuid,uuid)', 'EXECUTE') then
     raise exception 'FAIL: vínculo de usuario no puede ejecutarse desde navegador';
   end if;
+  if not has_function_privilege('service_role', 'public.link_public_reservation_user(uuid,uuid)', 'EXECUTE') then
+    raise exception 'FAIL: service_role necesita ejecutar vínculo reservation->user';
+  end if;
+end $$;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_attribute
+    where attrelid = 'public.reservations'::regclass
+      and attname = 'user_id'
+      and attnotnull
+      and not attisdropped
+  ) then
+    raise exception 'FAIL: reservations.user_id debe aceptar NULL para reservas guest';
+  end if;
 end $$;
 
 rollback;

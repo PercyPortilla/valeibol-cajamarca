@@ -193,6 +193,7 @@ export class SupabaseBookingRepository implements BookingRepository {
           code?: string;
           requestId?: string;
           status?: string;
+          accountLinked?: boolean | null;
           courtId?: string;
           startAt?: string;
           endAt?: string;
@@ -211,6 +212,7 @@ export class SupabaseBookingRepository implements BookingRepository {
     if (
       typeof payload.requestId !== "string" ||
       payload.status !== "pending" ||
+      (payload.accountLinked !== null && typeof payload.accountLinked !== "boolean") ||
       typeof payload.courtId !== "string" ||
       typeof payload.startAt !== "string" ||
       typeof payload.endAt !== "string" ||
@@ -227,6 +229,7 @@ export class SupabaseBookingRepository implements BookingRepository {
       persisted: true,
       requestId: payload.requestId,
       status: "pending",
+      accountLinked: payload.accountLinked,
       courtId: payload.courtId,
       startAt: payload.startAt,
       endAt: payload.endAt,

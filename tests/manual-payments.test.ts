@@ -4,6 +4,9 @@ import test from "node:test";
 
 const migration = readFileSync("supabase/migrations/20261023091715_manual_payments.sql", "utf8");
 const adminPage = readFileSync("app/admin/(protected)/pagos/page.tsx", "utf8");
+const reservationDialog = readFileSync("components/booking/ReservationDialog.tsx", "utf8");
+const accountPage = readFileSync("app/mi-cuenta/page.tsx", "utf8");
+const navigation = readFileSync("components/admin/AdminNavigation.tsx", "utf8");
 
 test("pagos manuales no incorporan pasarela ni estados de cobro inventados", () => {
   assert.match(migration, /payment_method as enum \('yape', 'plin', 'cash', 'bank_transfer'\)/i);
@@ -24,9 +27,13 @@ test("métodos públicos solo muestran configuraciones activas", () => {
   assert.match(migration, /false, valueset\.sort_order/i);
 });
 
-test("solo owner/admin revisan pagos y local no simula movimientos", () => {
+test("compatibilidad de datos conserva controles históricos sin exponer el módulo de pagos", () => {
   const review = migration.match(/create or replace function public\.admin_review_payment[\s\S]*?\$\$;/i)?.[0] ?? "";
   assert.match(review, /v_actor\.role not in \('owner','admin'\)/i);
   assert.match(review, /p_status not in \('verified','rejected'\)/i);
-  assert.match(adminPage, /Pagos manuales no se simulan en modo local/);
+  assert.match(adminPage, /redirect\("\/admin\/reservas"\)/);
+  assert.doesNotMatch(navigation, /\/admin\/pagos/);
+  assert.doesNotMatch(reservationDialog, /Opciones de pago manual|reportar el pago/i);
+  assert.doesNotMatch(accountPage, /PaymentReportForm|get_my_payments|getPublicPaymentMethods/);
+  assert.match(reservationDialog, /Seguimiento por WhatsApp/i);
 });

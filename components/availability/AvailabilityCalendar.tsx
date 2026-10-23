@@ -11,7 +11,6 @@ import {
   type AvailabilityWeekSnapshot,
   type SlotStatus,
 } from "@/lib/availability";
-import { businessConfig } from "@/config/business";
 import { isPastLocalStart } from "@/lib/booking";
 import { createPublicAvailabilityRepository } from "@/lib/data/availabilityService";
 import { subscribeToPublicAvailabilityChanges } from "@/lib/data/availabilityRealtime";
@@ -20,16 +19,14 @@ import {
   ReservationDialog,
   type ReservationSelection,
 } from "@/components/booking/ReservationDialog";
-import type { PublicPaymentMethod } from "@/lib/payments";
 
 type DemoState = "ready" | "loading" | "empty" | "error";
 type LoadState = "idle" | "loading" | "ready" | "error";
 
 type AvailabilityCalendarProps = {
-  businessSlug?: string;
-  initialCourtId?: string | null;
-  courtSports?: Record<string, string>;
-  paymentMethods?: PublicPaymentMethod[];
+  businessSlug: string;
+  initialCourtId: string | null;
+  courtSports: Record<string, string>;
 };
 
 const STATUS_LABELS: Record<SlotStatus, string> = {
@@ -108,11 +105,10 @@ function dayPanelId(date: string) {
 }
 
 export function AvailabilityCalendar({
-  businessSlug = businessConfig.slug,
-  initialCourtId = null,
-  courtSports = {},
-  paymentMethods = [],
-}: AvailabilityCalendarProps = {}) {
+  businessSlug,
+  initialCourtId,
+  courtSports,
+}: AvailabilityCalendarProps) {
   const repository = useMemo(() => createPublicAvailabilityRepository(), []);
   const [today, setToday] = useState<string | null>(null);
   const [weekReference, setWeekReference] = useState<string | null>(null);
@@ -132,6 +128,11 @@ export function AvailabilityCalendar({
     setSelectedDate(current);
     setDemoState(readDemoState());
   }, []);
+
+  useEffect(() => {
+    setActiveCourtId(initialCourtId);
+    setReservationSelection(null);
+  }, [businessSlug, initialCourtId]);
 
   useEffect(() => {
     if (!today || !weekReference || demoState !== "ready") return;
@@ -233,10 +234,12 @@ export function AvailabilityCalendar({
 
   function openReservation(slot: AvailabilitySlot, daySlots: AvailabilitySlot[]) {
     if (!snapshot || !activeCourt || slot.status !== "available" || isPastLocalStart(slot.date, slot.start, activeCourt.timezone)) return;
+    const sportSlug = courtSports[activeCourt.courtId];
+    if (!sportSlug) return;
     setReservationSelection({
       courtId: activeCourt.courtId,
       courtName: activeCourt.courtName,
-      sportSlug: courtSports[activeCourt.courtId] ?? "voley",
+      sportSlug,
       timezone: activeCourt.timezone,
       slot,
       daySlots,
@@ -244,6 +247,8 @@ export function AvailabilityCalendar({
       scheduleIsProvisional: snapshot.isProvisional,
     });
   }
+
+  const activeCourtHasSport = Boolean(activeCourt && courtSports[activeCourt.courtId]);
 
   function refreshAvailability() {
     setRefreshNonce((value) => value + 1);
@@ -329,7 +334,7 @@ export function AvailabilityCalendar({
                   key={slot.id}
                   slot={slot}
                   compact
-                  bookable={slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
+                  bookable={activeCourtHasSport && slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
                   onRequest={(requested) => openReservation(requested, day.slots)}
                 />
               )) : (
@@ -383,7 +388,7 @@ export function AvailabilityCalendar({
               <Slot
                 key={slot.id}
                 slot={slot}
-                bookable={slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
+                bookable={activeCourtHasSport && slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
                 onRequest={(requested) => openReservation(requested, selectedDay.slots)}
               />
             )) : (
@@ -399,7 +404,6 @@ export function AvailabilityCalendar({
 
       <ReservationDialog
         businessSlug={businessSlug}
-        paymentMethods={paymentMethods}
         selection={reservationSelection}
         onClose={() => setReservationSelection(null)}
         onPersisted={refreshAvailability}

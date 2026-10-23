@@ -25,8 +25,15 @@ export function safeAdminRedirectPath(candidate: string | null | undefined) {
 }
 
 export function safeAuthRedirectPath(candidate: string | null | undefined) {
-  if (candidate?.startsWith("/mi-cuenta") && !candidate.startsWith("//") && !candidate.includes("://")) {
-    return candidate;
+  if (candidate && candidate.startsWith("/") && !candidate.startsWith("//") && !candidate.includes("://")) {
+    try {
+      const normalized = new URL(candidate, "https://internal.invalid");
+      const customerAccountPath = normalized.pathname === "/mi-cuenta"
+        || normalized.pathname.startsWith("/mi-cuenta/");
+      if (customerAccountPath) return candidate;
+    } catch {
+      // Cualquier ruta malformada cae al redirect administrativo seguro.
+    }
   }
   return safeAdminRedirectPath(candidate);
 }

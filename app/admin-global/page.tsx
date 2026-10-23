@@ -5,26 +5,49 @@ import { requirePlatformAdminContext } from "@/lib/auth/platformAdmin";
 import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 import type { Database } from "@/lib/data/supabase/database.types";
 
+export const dynamic = "force-dynamic";
+
+const PAGE_SIZE = 25;
+
 function toNumber(value: number | string) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export default async function PlatformAdminPage() {
+function toPage(value: string | undefined) {
+  const parsed = Number.parseInt(value ?? "1", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+export default async function PlatformAdminPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const context = await requirePlatformAdminContext();
   const client = await createServerSupabaseClient();
-  const [summaryResult, businessesResult] = await Promise.all([
+  const params = await searchParams;
+  const [summaryResult, businessContextResult] = await Promise.all([
     client.rpc("get_platform_admin_summary"),
-    client.rpc("get_platform_admin_businesses", { p_limit: 200 }),
+    client.rpc("get_current_admin_context"),
   ]);
 
-  if (summaryResult.error || businessesResult.error) {
+  if (summaryResult.error) {
     throw new Error("No pudimos cargar el panel administrativo global.");
   }
 
   type SummaryRow = Database["public"]["Functions"]["get_platform_admin_summary"]["Returns"][number];
-  type BusinessRow = Database["public"]["Functions"]["get_platform_admin_businesses"]["Returns"][number];
   const summary = (summaryResult.data as SummaryRow[] | null)?.[0];
+  const totalBusinesses = summary ? toNumber(summary.businesses_total) : 0;
+  const hasBusinessAdminAccess = !businessContextResult.error && (businessContextResult.data?.length ?? 0) > 0;
+  const totalPages = Math.max(1, Math.ceil(totalBusinesses / PAGE_SIZE));
+  const page = Math.min(toPage(params.page), totalPages);
+  const businessesResult = await client.rpc("get_platform_admin_businesses_page", {
+    p_limit: PAGE_SIZE,
+    p_offset: (page - 1) * PAGE_SIZE,
+  });
+
+  if (businessesResult.error) {
+    throw new Error("No pudimos cargar los negocios de la administración global.");
+  }
+
+  type BusinessRow = Database["public"]["Functions"]["get_platform_admin_businesses_page"]["Returns"][number];
   const businesses: PlatformAdminBusiness[] = ((businessesResult.data ?? []) as BusinessRow[]).map((row) => ({
     businessId: row.business_id,
     slug: row.slug,
@@ -32,7 +55,6 @@ export default async function PlatformAdminPage() {
     city: row.city,
     country: row.country,
     isActive: row.is_active,
-    ownerUserId: row.owner_user_id,
     venueCount: toNumber(row.venue_count),
     courtCount: toNumber(row.court_count),
     reservationCount: toNumber(row.reservation_count),
@@ -55,7 +77,7 @@ export default async function PlatformAdminPage() {
 
         <nav className="global-admin-links" aria-label="Navegación global">
           <Link href="/buscar">Ver plataforma pública</Link>
-          <Link href="/admin">Panel de negocio</Link>
+          {hasBusinessAdminAccess ? <Link href="/admin">Panel de negocio</Link> : null}
         </nav>
 
         <section className="global-admin-metrics" aria-label="Métricas globales">
@@ -64,10 +86,15 @@ export default async function PlatformAdminPage() {
           <article><span>Canchas activas</span><strong>{summary ? toNumber(summary.courts_active) : 0}</strong></article>
           <article><span>Usuarios</span><strong>{summary ? toNumber(summary.users_total) : 0}</strong></article>
           <article><span>Reservas</span><strong>{summary ? toNumber(summary.reservations_total) : 0}</strong></article>
-          <article><span>Reportes de pago</span><strong>{summary ? toNumber(summary.payment_reports_total) : 0}</strong></article>
         </section>
 
-        <PlatformAdminBusinessList businesses={businesses} />
+        <PlatformAdminBusinessList
+          businesses={businesses}
+          totalBusinesses={totalBusinesses}
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={PAGE_SIZE}
+        />
 
         <p className="global-admin-footnote">El rol ADMIN global no se asigna automáticamente a administradores de negocios. Su alta requiere una acción privilegiada explícita fuera del cliente.</p>
       </div>

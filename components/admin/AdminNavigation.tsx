@@ -9,7 +9,6 @@ const navigation = [
   ["Disponibilidad", "/admin/disponibilidad"],
   ["Clientes", "/admin/clientes"],
   ["Precios", "/admin/precios"],
-  ["Pagos", "/admin/pagos"],
   ["Ingresos", "/admin/ingresos"],
   ["Reportes", "/admin/reportes"],
   ["Configuración", "/admin/configuracion"],

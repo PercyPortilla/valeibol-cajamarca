@@ -19,7 +19,7 @@ export default async function AdminReportsPage() {
         <div>
           <span className="eyebrow">REPORTES OPERATIVOS</span>
           <h1>Resumen del mes</h1>
-          <p className="admin-subtitle">Indicadores derivados de reservas y agenda. No representan pagos cobrados.</p>
+          <p className="admin-subtitle">Indicadores derivados de reservas y agenda. No representan cobros recibidos.</p>
         </div>
         <div className="admin-config-actions">
           <Badge tone="info">{from} → {today}</Badge>
@@ -33,7 +33,7 @@ export default async function AdminReportsPage() {
 
       <div className="phase7-metric-grid">
         <Card><span className="metric-label">Reservas</span><strong>{metrics.reservationCount}</strong><small>Total del periodo, incluidas canceladas.</small></Card>
-        <Card><span className="metric-label">Valor confirmado</span><strong>{formatMoney(metrics.confirmedValue, metrics.currency)}</strong><small>Reservas confirmadas, no dinero cobrado.</small></Card>
+        <Card><span className="metric-label">Valor confirmado</span><strong>{formatMoney(metrics.confirmedValue, metrics.currency)}</strong><small>Reservas confirmadas; no acredita cobro recibido.</small></Card>
         <Card><span className="metric-label">Horas reservadas</span><strong>{metrics.reservedHours.toFixed(1)} h</strong><small>Confirmed + completed.</small></Card>
         <Card><span className="metric-label">Ocupación</span><strong>{metrics.occupancyPercent.toFixed(1)}%</strong><small>Agenda ocupada / capacidad abierta.</small></Card>
       </div>

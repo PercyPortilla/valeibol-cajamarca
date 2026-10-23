@@ -14,6 +14,7 @@ import {
   reservationStatusTone,
 } from "@/lib/admin/reservations";
 import { netHeightLabel } from "@/lib/booking";
+import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
 
 type ReservationView = "active" | "completed" | "cancelled" | "archived";
 
@@ -97,7 +98,14 @@ export default async function AdminReservationsPage({ searchParams }: { searchPa
         <EmptyState title={VIEW_META[view].emptyTitle} detail={VIEW_META[view].emptyDetail} />
       ) : (
         <div className="admin-reservation-list" aria-label="Solicitudes de reserva">
-          {reservations.map((reservation) => (
+          {reservations.map((reservation) => {
+            const whatsappHref = reservation.customerPhoneE164
+              ? buildWhatsAppChatHref(
+                  reservation.customerPhoneE164,
+                  `Hola ${reservation.customerName ?? ""}. Te escribimos por tu reserva en ${reservation.courtName}.`,
+                )
+              : null;
+            return (
             <article className={reservation.archivedAt ? "admin-reservation-card admin-reservation-card--archived" : "admin-reservation-card"} key={reservation.id}>
               <div className="admin-reservation-card__head">
                 <div>
@@ -112,16 +120,23 @@ export default async function AdminReservationsPage({ searchParams }: { searchPa
               </div>
               <dl className="admin-reservation-details">
                 <div><dt>Cliente</dt><dd>{reservation.customerName ?? "Sin nombre disponible"}</dd></div>
-                <div><dt>WhatsApp</dt><dd>{reservation.customerPhoneE164 ?? "Sin teléfono disponible"}</dd></div>
+                <div>
+                  <dt>WhatsApp</dt>
+                  <dd>
+                    <span>{reservation.customerPhoneE164 ?? "Sin teléfono disponible"}</span>
+                    {whatsappHref ? <a className="admin-whatsapp-link" href={whatsappHref} target="_blank" rel="noreferrer">Abrir chat ↗</a> : null}
+                  </dd>
+                </div>
                 <div><dt>Modalidad</dt><dd>{lightingLabel(reservation.lighting)}</dd></div>
                 <div><dt>Altura de red</dt><dd>{netHeightLabel(reservation.netHeightCm)}</dd></div>
                 <div><dt>Tarifa aplicada</dt><dd>{formatMoney(reservation.hourlyRate, reservation.currency)}/h</dd></div>
-                <div><dt>Total autoritativo</dt><dd>{formatMoney(reservation.totalAmount, reservation.currency)}</dd></div>
+                <div><dt>Valor de reserva</dt><dd>{formatMoney(reservation.totalAmount, reservation.currency)}</dd></div>
                 <div><dt>Origen</dt><dd>{reservation.source === "public_web" ? "Web pública" : reservation.source}</dd></div>
               </dl>
               <AdminReservationActions reservationId={reservation.id} status={reservation.status} role={context.role} archivedAt={reservation.archivedAt} />
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </>

@@ -76,13 +76,21 @@ begin
   end if;
 end $$;
 
+update public.reservations
+set status = 'confirmed'
+where id = '40000000-0000-4000-8000-000000000008';
+
+update public.reservations
+set status = 'confirmed'
+where id = '40000000-0000-4000-8000-000000000008';
+
 insert into public.whatsapp_outbox (
   id, business_id, reservation_id, kind, recipient_e164,
   template_key, template_variables, status, attempts, locked_at
 ) values (
   '50000000-0000-4000-8000-000000000008',
   '10000000-0000-4000-8000-000000000001',
-  null,
+  '40000000-0000-4000-8000-000000000008',
   'customer_reminder',
   '+51911111118',
   'customer_reminder',
@@ -105,13 +113,33 @@ begin
   end if;
 end $$;
 
-update public.reservations
-set status = 'confirmed'
-where id = '40000000-0000-4000-8000-000000000008';
+select public.phase8_complete_whatsapp_message(
+  '50000000-0000-4000-8000-000000000008', false, null, 'test_retry'
+);
 
 update public.reservations
-set status = 'confirmed'
+set start_at = ((current_date + 12) + time '18:00') at time zone 'America/Lima',
+    end_at = ((current_date + 12) + time '19:00') at time zone 'America/Lima'
 where id = '40000000-0000-4000-8000-000000000008';
+
+do $$
+declare
+  reminder_available timestamptz;
+  reservation_start timestamptz;
+begin
+  select available_at into reminder_available
+  from public.whatsapp_outbox
+  where id = '50000000-0000-4000-8000-000000000008';
+
+  select start_at into reservation_start
+  from public.reservations
+  where id = '40000000-0000-4000-8000-000000000008';
+
+  if reminder_available < reservation_start - interval '24 hours' - interval '1 minute'
+     or reminder_available > reservation_start - interval '24 hours' + interval '1 minute' then
+    raise exception 'FAIL: reminder reprogramado no sigue nueva fecha/hora';
+  end if;
+end $$;
 
 update public.reservations
 set status = 'cancelled'
@@ -142,5 +170,81 @@ begin
   end if;
 end $$;
 
+do $$
+declare
+  reminder_status public.whatsapp_delivery_status;
+begin
+  select status into reminder_status
+  from public.whatsapp_outbox
+  where id = '50000000-0000-4000-8000-000000000008';
+
+  if reminder_status <> 'skipped' then
+    raise exception 'FAIL: reminder de reserva cancelada debe quedar skipped, obtuvo %', reminder_status;
+  end if;
+end $$;
+
+insert into public.whatsapp_outbox (
+  id, business_id, reservation_id, kind, recipient_e164,
+  template_key, template_variables, status, attempts, locked_at
+) values (
+  '50000000-0000-4000-8000-000000000009',
+  '10000000-0000-4000-8000-000000000001',
+  null,
+  'customer_reminder',
+  '+51911111118',
+  'customer_reminder',
+  '[]'::jsonb,
+  'processing',
+  5,
+  now() - interval '10 minutes'
+);
+
+select count(*) from public.phase8_claim_whatsapp_messages(20);
+
+do $$
+declare
+  exhausted_status public.whatsapp_delivery_status;
+  exhausted_locked timestamptz;
+begin
+  select status, locked_at into exhausted_status, exhausted_locked
+  from public.whatsapp_outbox
+  where id = '50000000-0000-4000-8000-000000000009';
+
+  if exhausted_status <> 'failed' or exhausted_locked is not null then
+    raise exception 'FAIL: lease agotado debe terminar failed y desbloqueado';
+  end if;
+end $$;
+
+insert into public.whatsapp_outbox (
+  id, business_id, reservation_id, kind, recipient_e164,
+  template_key, template_variables, status, attempts, locked_at
+) values (
+  '50000000-0000-4000-8000-000000000010',
+  '10000000-0000-4000-8000-000000000001',
+  null,
+  'customer_reminder',
+  '+51911111118',
+  'customer_reminder',
+  '[]'::jsonb,
+  'processing',
+  2,
+  now() - interval '10 minutes'
+);
+
+select count(*) from public.phase8_claim_whatsapp_messages(20);
+
+do $$
+declare
+  missing_status public.whatsapp_delivery_status;
+begin
+  select status into missing_status
+  from public.whatsapp_outbox
+  where id = '50000000-0000-4000-8000-000000000010';
+
+  if missing_status <> 'skipped' then
+    raise exception 'FAIL: mensaje huérfano stale debe quedar skipped';
+  end if;
+end $$;
+
 rollback;
-\echo 'PASS phase8.sql · privacidad/E.164/outbox/idempotencia/recovery/transiciones'
+\echo 'PASS phase8.sql · privacidad/E.164/outbox/idempotencia/recovery/transiciones/reminders'

@@ -1,10 +1,10 @@
-# Prompt operativo · Bloque 12 — QA final y publicación
+# Prompt operativo · Bloque 12 — QA final y preparación de publicación
 
 Trabaja sobre la plataforma global construida en los Bloques 1–11. No reabras bloques anteriores salvo que una validación final demuestre una regresión real.
 
 ## Objetivo
 
-Cerrar la versión con QA integral, preservar compatibilidad con Valeibol y publicar únicamente el artefacto validado.
+Cerrar la versión con QA integral, preservar compatibilidad con Valeibol y dejar preparado únicamente el artefacto validado. La publicación requiere autorización explícita separada.
 
 ## QA obligatorio
 
@@ -28,16 +28,15 @@ Cerrar la versión con QA integral, preservar compatibilidad con Valeibol y publ
 - Si el entorno local de Supabase no está levantado, registrar el bloqueo ambiental con precisión; no ocultarlo ni sustituirlo por una falsa validación.
 - Mantener RLS, grants, RPC sanitizadas y separación entre ADMIN global y admin de negocio.
 
-## Publicación
+## Preparación de publicación
 
 - Confirmar que el repositorio remoto corresponde a `PercyPortilla/valeibol-cajamarca` y que la rama de producción es `main`.
 - No publicar archivos temporales, secretos ni `.env`.
-- Crear un commit único y descriptivo para la plataforma global.
-- Empujar únicamente la rama validada.
-- Si Vercel está conectado por Git, usar el despliegue generado por ese push; no crear un proyecto Vercel duplicado.
-- Si la sesión no tiene acceso verificable a Vercel, no inventar estado de deployment: reportar el push y dejar explícita la limitación de inspección.
+- En esta ejecución no crear commit, no hacer push y no desplegar mientras el usuario no lo autorice explícitamente.
+- Cuando exista autorización posterior, crear un commit único y descriptivo, empujar únicamente la rama validada y reutilizar la integración Git/Vercel existente.
+- No crear un proyecto Vercel duplicado.
 
-## Validación posterior
+## Validación posterior a una publicación autorizada
 
 - Confirmar el SHA publicado.
 - Comprobar el estado de Git local después del commit/push.
@@ -48,7 +47,7 @@ Cerrar la versión con QA integral, preservar compatibilidad con Valeibol y publ
 - No ejecutar la actualización de seguridad de Next.js en este bloque.
 - No añadir funcionalidades nuevas.
 - No rediseñar UI.
-- No cambiar pagos, reservas, auth o esquema fuera de correcciones de regresión demostradas por QA.
+- No reintroducir pagos; no cambiar reservas, auth o esquema fuera de correcciones de regresión demostradas por QA.
 
 ## Entrega
 
@@ -57,7 +56,6 @@ Reportar:
 1. estado de Bloques 2–12;
 2. validaciones ejecutadas y resultados;
 3. bloqueo de Supabase local, si persiste;
-4. commit/SHA de publicación;
-5. estado del push;
-6. estado de Vercel solo si pudo verificarse;
-7. advertencia independiente de actualización de seguridad de Next.js.
+4. estado de Git y remoto;
+5. commit/SHA, push y Vercel solo si una publicación fue autorizada y realmente ejecutada;
+6. advertencia independiente de actualización de seguridad de Next.js.

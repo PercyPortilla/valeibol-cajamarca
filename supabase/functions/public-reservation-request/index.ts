@@ -226,13 +226,13 @@ Deno.serve(async (request) => {
   const row = Array.isArray(data) ? data[0] : null;
   if (!row || typeof row !== "object") return json({ ok: false, code: "unknown" }, 500);
 
-  let accountLinked = false;
+  let accountLinked: boolean | null = null;
   if (body.authenticatedUserId) {
     const { data: linked, error: linkError } = await admin.rpc("link_public_reservation_user", {
       p_reservation_id: row.request_id,
       p_user_id: body.authenticatedUserId,
     });
-    if (!linkError) accountLinked = linked === true;
+    accountLinked = !linkError && linked === true;
   }
 
   return json({

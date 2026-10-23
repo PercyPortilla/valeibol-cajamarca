@@ -369,7 +369,6 @@ export type Database = {
           courts_active: number | string;
           users_total: number | string;
           reservations_total: number | string;
-          payment_reports_total: number | string;
         }>;
       };
       get_platform_admin_businesses: {
@@ -382,6 +381,20 @@ export type Database = {
           country: string | null;
           is_active: boolean;
           owner_user_id: string | null;
+          venue_count: number | string;
+          court_count: number | string;
+          reservation_count: number | string;
+        }>;
+      };
+      get_platform_admin_businesses_page: {
+        Args: { p_limit?: number; p_offset?: number };
+        Returns: Array<{
+          business_id: string;
+          slug: string;
+          name: string;
+          city: string | null;
+          country: string | null;
+          is_active: boolean;
           venue_count: number | string;
           court_count: number | string;
           reservation_count: number | string;

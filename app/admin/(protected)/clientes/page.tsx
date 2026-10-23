@@ -43,7 +43,7 @@ export default async function AdminCustomersPage({ searchParams }: { searchParam
                 <Card className={selected?.id === customer.id ? "phase7-customer-card phase7-customer-card--selected" : "phase7-customer-card"} key={customer.id}>
                   <div className="phase7-card-head">
                     <div><strong>{customer.fullName}</strong><span>{customer.phoneE164 ?? "Sin WhatsApp registrado"}</span></div>
-                    <Badge tone={customer.marketingOptIn ? "success" : "neutral"}>{customer.marketingOptIn ? "Promos: sí" : "Promos: no"}</Badge>
+                    <Badge tone="neutral">Cliente</Badge>
                   </div>
                   <dl className="phase7-mini-stats">
                     <div><dt>Reservas</dt><dd>{customer.reservationCount}</dd></div>
@@ -55,7 +55,7 @@ export default async function AdminCustomersPage({ searchParams }: { searchParam
                   <Link className="button button--secondary button--small" href={`/admin/clientes?cliente=${customer.id}`}>Ver historial</Link>
                 </Card>
               ))}
-              <p className="phase7-footnote">* Valor de reservas completed; no implica dinero cobrado porque aún no existe módulo de pagos.</p>
+              <p className="phase7-footnote">* Valor acumulado de reservas completadas; es una métrica operativa del historial.</p>
             </section>
 
             <section className="phase7-customer-history" aria-live="polite">

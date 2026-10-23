@@ -12,6 +12,7 @@ export function AdminShell({ context, children, theme }: { context: AdminContext
   const localMode = isLocalDevAdminUserId(context.userId);
   return (
     <main className="admin-shell" style={themeCssVariables(theme) as CSSProperties}>
+      <a className="platform-skip-link" href="#admin-main">Saltar al contenido principal</a>
       <aside className="admin-sidebar">
         <Link href="/admin" className="brand brand--admin" aria-label="Valeibol Administración">
           <BrandLogo context="admin" />
@@ -28,7 +29,7 @@ export function AdminShell({ context, children, theme }: { context: AdminContext
         {context.role !== "staff" ? <Link href="/propietario" className="admin-exit">Panel propietario</Link> : null}
         <Link href="/" className="admin-exit">← Ver sitio público</Link>
       </aside>
-      <section className="admin-content">
+      <section className="admin-content" id="admin-main" tabIndex={-1}>
         {localMode ? <div className="admin-local-banner" role="status">Modo local de prueba · las acciones se guardan solo mientras este servidor de desarrollo esté activo.</div> : null}
         {children}
       </section>
