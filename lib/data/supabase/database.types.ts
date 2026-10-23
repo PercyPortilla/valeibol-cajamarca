@@ -3,6 +3,9 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type ReservationStatus = "pending" | "confirmed" | "cancelled" | "completed";
 export type LightingMode = "without_lights" | "with_lights";
 export type AppRole = "owner" | "admin" | "staff";
+export type PlatformRole = "customer" | "owner" | "admin";
+export type PaymentMethod = "yape" | "plin" | "cash" | "bank_transfer";
+export type PaymentStatus = "reported" | "verified" | "rejected" | "refunded";
 export type ReservationSource = "public_web" | "admin" | "phone" | "whatsapp" | "other";
 export type BlockReason = "maintenance" | "academy" | "tournament" | "event" | "closure" | "other";
 export type BlockStatus = "active" | "cancelled";
@@ -12,6 +15,32 @@ export type Database = {
     Tables: Record<string, never>;
     Views: Record<string, never>;
     Functions: {
+      get_public_platform_catalog: {
+        Args: { p_sport_slug?: string | null; p_city?: string | null };
+        Returns: Array<{
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          business_city: string | null;
+          business_country: string | null;
+          venue_id: string;
+          venue_slug: string;
+          venue_name: string;
+          venue_city: string | null;
+          venue_address: string | null;
+          latitude: number | string | null;
+          longitude: number | string | null;
+          court_id: string;
+          court_slug: string;
+          court_name: string;
+          court_surface: string | null;
+          sport_id: string;
+          sport_slug: string;
+          sport_name: string;
+          price_from: number | string | null;
+          currency: string;
+        }>;
+      };
       get_public_pricing_for_date: {
         Args: { p_business_slug: string; p_date: string };
         Returns: Array<{
@@ -211,7 +240,7 @@ export type Database = {
           p_date: string;
           p_start_time: string;
           p_end_time: string;
-          p_net_height_cm: number;
+          p_net_height_cm: number | null;
           p_customer_name: string;
           p_phone_e164: string;
           p_marketing_opt_in: boolean;
@@ -224,11 +253,143 @@ export type Database = {
           start_at: string;
           end_at: string;
           lighting: LightingMode;
-          net_height_cm: number;
+          net_height_cm: number | null;
           hourly_rate: number | string;
           total_amount: number | string;
           currency: string;
         }>;
+      };
+      link_public_reservation_user: {
+        Args: { p_reservation_id: string; p_user_id: string };
+        Returns: boolean;
+      };
+      get_my_reservations: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          reservation_id: string;
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          court_id: string;
+          court_name: string;
+          sport_slug: string;
+          sport_name: string;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          total_amount: number | string;
+          currency: string;
+          created_at: string;
+        }>;
+      };
+      get_public_payment_methods: {
+        Args: { p_business_slug: string };
+        Returns: Array<{
+          method: PaymentMethod;
+          label: string;
+          destination: string | null;
+          instructions: string | null;
+        }>;
+      };
+      report_my_payment: {
+        Args: { p_reservation_id: string; p_method: PaymentMethod; p_reference?: string | null };
+        Returns: Array<{
+          payment_id: string;
+          payment_status: PaymentStatus;
+          amount: number | string;
+          currency: string;
+        }>;
+      };
+      get_my_payments: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          payment_id: string;
+          reservation_id: string;
+          business_name: string;
+          method: PaymentMethod;
+          status: PaymentStatus;
+          amount: number | string;
+          currency: string;
+          customer_reference: string | null;
+          created_at: string;
+        }>;
+      };
+      get_admin_payment_methods: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          method: PaymentMethod;
+          label: string;
+          destination: string | null;
+          instructions: string | null;
+          is_active: boolean;
+          sort_order: number;
+        }>;
+      };
+      admin_set_payment_method: {
+        Args: { p_method: PaymentMethod; p_enabled: boolean; p_destination?: string | null; p_instructions?: string | null };
+        Returns: boolean;
+      };
+      get_admin_payments: {
+        Args: { p_limit?: number };
+        Returns: Array<{
+          payment_id: string;
+          reservation_id: string;
+          customer_name: string | null;
+          court_name: string;
+          method: PaymentMethod;
+          status: PaymentStatus;
+          amount: number | string;
+          currency: string;
+          customer_reference: string | null;
+          internal_note: string | null;
+          created_at: string;
+          reviewed_at: string | null;
+        }>;
+      };
+      admin_review_payment: {
+        Args: { p_payment_id: string; p_status: PaymentStatus; p_internal_note?: string | null };
+        Returns: boolean;
+      };
+      get_platform_admin_context: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          user_id: string;
+          display_name: string | null;
+          role: PlatformRole;
+        }>;
+      };
+      get_platform_admin_summary: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          businesses_total: number | string;
+          businesses_active: number | string;
+          venues_active: number | string;
+          courts_active: number | string;
+          users_total: number | string;
+          reservations_total: number | string;
+          payment_reports_total: number | string;
+        }>;
+      };
+      get_platform_admin_businesses: {
+        Args: { p_limit?: number };
+        Returns: Array<{
+          business_id: string;
+          slug: string;
+          name: string;
+          city: string | null;
+          country: string | null;
+          is_active: boolean;
+          owner_user_id: string | null;
+          venue_count: number | string;
+          court_count: number | string;
+          reservation_count: number | string;
+        }>;
+      };
+      platform_admin_set_business_active: {
+        Args: { p_business_id: string; p_active: boolean };
+        Returns: boolean;
       };
       get_current_admin_context: {
         Args: Record<string, never>;

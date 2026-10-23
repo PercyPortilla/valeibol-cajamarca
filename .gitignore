@@ -9,3 +9,4 @@ out
 
 *.tsbuildinfo
 public/uploads/local-gallery/
+supabase/.temp/

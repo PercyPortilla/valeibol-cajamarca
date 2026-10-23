@@ -197,7 +197,7 @@ export class SupabaseBookingRepository implements BookingRepository {
           startAt?: string;
           endAt?: string;
           lighting?: string;
-          netHeightCm?: number;
+          netHeightCm?: number | null;
           hourlyRate?: number | string;
           totalAmount?: number | string;
           currency?: string;
@@ -215,7 +215,7 @@ export class SupabaseBookingRepository implements BookingRepository {
       typeof payload.startAt !== "string" ||
       typeof payload.endAt !== "string" ||
       (payload.lighting !== "without_lights" && payload.lighting !== "with_lights") ||
-      !isNetHeightCm(payload.netHeightCm) ||
+      (payload.netHeightCm !== null && !isNetHeightCm(payload.netHeightCm)) ||
       (typeof payload.hourlyRate !== "number" && typeof payload.hourlyRate !== "string") ||
       (typeof payload.totalAmount !== "number" && typeof payload.totalAmount !== "string") ||
       typeof payload.currency !== "string"

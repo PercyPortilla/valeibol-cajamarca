@@ -20,9 +20,17 @@ import {
   ReservationDialog,
   type ReservationSelection,
 } from "@/components/booking/ReservationDialog";
+import type { PublicPaymentMethod } from "@/lib/payments";
 
 type DemoState = "ready" | "loading" | "empty" | "error";
 type LoadState = "idle" | "loading" | "ready" | "error";
+
+type AvailabilityCalendarProps = {
+  businessSlug?: string;
+  initialCourtId?: string | null;
+  courtSports?: Record<string, string>;
+  paymentMethods?: PublicPaymentMethod[];
+};
 
 const STATUS_LABELS: Record<SlotStatus, string> = {
   available: "Disponible",
@@ -99,7 +107,12 @@ function dayPanelId(date: string) {
   return `availability-day-panel-${date}`;
 }
 
-export function AvailabilityCalendar() {
+export function AvailabilityCalendar({
+  businessSlug = businessConfig.slug,
+  initialCourtId = null,
+  courtSports = {},
+  paymentMethods = [],
+}: AvailabilityCalendarProps = {}) {
   const repository = useMemo(() => createPublicAvailabilityRepository(), []);
   const [today, setToday] = useState<string | null>(null);
   const [weekReference, setWeekReference] = useState<string | null>(null);
@@ -129,7 +142,7 @@ export function AvailabilityCalendar() {
 
     repository
       .getWeek({
-        businessSlug: businessConfig.slug,
+        businessSlug,
         referenceDateKey: weekReference,
         todayDateKey: today,
       })
@@ -138,6 +151,7 @@ export function AvailabilityCalendar() {
         setSnapshot(nextSnapshot);
         setActiveCourtId((current) => {
           if (current && nextSnapshot.courts.some((court) => court.courtId === current)) return current;
+          if (initialCourtId && nextSnapshot.courts.some((court) => court.courtId === initialCourtId)) return initialCourtId;
           return nextSnapshot.courts[0]?.courtId ?? null;
         });
         setLoadState("ready");
@@ -153,7 +167,7 @@ export function AvailabilityCalendar() {
     return () => {
       cancelled = true;
     };
-  }, [demoState, repository, today, weekReference, refreshNonce]);
+  }, [businessSlug, demoState, initialCourtId, repository, today, weekReference, refreshNonce]);
 
   const snapshotSource = snapshot?.source;
   const snapshotBusinessId = snapshot?.businessId ?? null;
@@ -222,6 +236,8 @@ export function AvailabilityCalendar() {
     setReservationSelection({
       courtId: activeCourt.courtId,
       courtName: activeCourt.courtName,
+      sportSlug: courtSports[activeCourt.courtId] ?? "voley",
+      timezone: activeCourt.timezone,
       slot,
       daySlots,
       source: snapshot.source,
@@ -382,6 +398,8 @@ export function AvailabilityCalendar() {
       </p>
 
       <ReservationDialog
+        businessSlug={businessSlug}
+        paymentMethods={paymentMethods}
         selection={reservationSelection}
         onClose={() => setReservationSelection(null)}
         onPersisted={refreshAvailability}

@@ -40,7 +40,7 @@ export type PublicBookingRequest = {
   date: string;
   start: string;
   end: string;
-  netHeightCm: NetHeightCm;
+  netHeightCm: NetHeightCm | null;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
@@ -55,7 +55,7 @@ export type PublicBookingResult = {
   startAt: string | null;
   endAt: string | null;
   lighting: LightingMode;
-  netHeightCm: NetHeightCm;
+  netHeightCm: NetHeightCm | null;
   hourlyRate: number;
   totalAmount: number;
   currency: string;

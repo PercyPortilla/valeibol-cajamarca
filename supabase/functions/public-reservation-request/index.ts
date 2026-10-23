@@ -6,11 +6,12 @@ type PublicRequestBody = {
   date: string;
   start: string;
   end: string;
-  netHeightCm: number;
+  netHeightCm: number | null;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
   requestToken: string;
+  authenticatedUserId: string | null;
 };
 
 const ALLOWED_KEYS = new Set([
@@ -24,6 +25,7 @@ const ALLOWED_KEYS = new Set([
   "phoneE164",
   "marketingOptIn",
   "requestToken",
+  "authenticatedUserId",
 ]);
 
 const json = (body: unknown, status = 200) =>
@@ -51,6 +53,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
     phoneE164,
     marketingOptIn,
     requestToken,
+    authenticatedUserId,
   } = record;
 
   if (
@@ -59,14 +62,17 @@ function parseBody(value: unknown): PublicRequestBody | null {
     typeof date !== "string" ||
     typeof start !== "string" ||
     typeof end !== "string" ||
-    typeof netHeightCm !== "number" ||
-    !Number.isInteger(netHeightCm) ||
-    netHeightCm < 180 ||
-    netHeightCm > 250 ||
+    (netHeightCm !== null && (
+      typeof netHeightCm !== "number" ||
+      !Number.isInteger(netHeightCm) ||
+      netHeightCm < 180 ||
+      netHeightCm > 250
+    )) ||
     typeof customerName !== "string" ||
     typeof phoneE164 !== "string" ||
     typeof marketingOptIn !== "boolean" ||
-    typeof requestToken !== "string"
+    typeof requestToken !== "string" ||
+    (authenticatedUserId !== null && typeof authenticatedUserId !== "string")
   ) return null;
 
   if (
@@ -79,7 +85,8 @@ function parseBody(value: unknown): PublicRequestBody | null {
     customerName.trim().length < 2 ||
     customerName.trim().length > 120 ||
     !/^\+[1-9][0-9]{7,14}$/.test(phoneE164.trim()) ||
-    !/^[0-9a-f-]{36}$/i.test(requestToken)
+    !/^[0-9a-f-]{36}$/i.test(requestToken) ||
+    (authenticatedUserId !== null && !/^[0-9a-f-]{36}$/i.test(authenticatedUserId))
   ) return null;
 
   return {
@@ -93,6 +100,7 @@ function parseBody(value: unknown): PublicRequestBody | null {
     phoneE164: phoneE164.trim(),
     marketingOptIn,
     requestToken,
+    authenticatedUserId,
   };
 }
 
@@ -140,7 +148,9 @@ function mapDatabaseError(message: string, code?: string) {
   if (normalized.includes("court_closed")) return { code: "court_closed", status: 409 };
   if (normalized.includes("outside_operating_hours")) return { code: "outside_operating_hours", status: 400 };
   if (normalized.includes("lighting_cutoff_crossed")) return { code: "lighting_cutoff_crossed", status: 400 };
-  if (normalized.includes("invalid_net_height")) return { code: "invalid_net_height", status: 400 };
+  if (normalized.includes("invalid_net_height") || normalized.includes("net_height_not_applicable")) {
+    return { code: "invalid_net_height", status: 400 };
+  }
   if (normalized.includes("invalid_interval") || normalized.includes("invalid_booking_increment")) {
     return { code: "invalid_interval", status: 400 };
   }
@@ -216,6 +226,15 @@ Deno.serve(async (request) => {
   const row = Array.isArray(data) ? data[0] : null;
   if (!row || typeof row !== "object") return json({ ok: false, code: "unknown" }, 500);
 
+  let accountLinked = false;
+  if (body.authenticatedUserId) {
+    const { data: linked, error: linkError } = await admin.rpc("link_public_reservation_user", {
+      p_reservation_id: row.request_id,
+      p_user_id: body.authenticatedUserId,
+    });
+    if (!linkError) accountLinked = linked === true;
+  }
+
   return json({
     ok: true,
     requestId: row.request_id,
@@ -228,5 +247,6 @@ Deno.serve(async (request) => {
     hourlyRate: row.hourly_rate,
     totalAmount: row.total_amount,
     currency: row.currency,
+    accountLinked,
   }, 201);
 });

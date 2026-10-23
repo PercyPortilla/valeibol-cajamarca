@@ -6,6 +6,7 @@ import { businessConfig } from "@/config/business";
 export function Header() {
   return (
     <header className="site-header site-header--commercial">
+      <a className="platform-skip-link" href="#valeibol-main">Saltar al contenido principal</a>
       <div className="shell site-header__inner">
         <Link className="brand brand--commercial" href="#inicio" aria-label={`${businessConfig.name}, inicio`}>
           <BrandLogo />

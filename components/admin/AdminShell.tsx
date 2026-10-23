@@ -25,6 +25,7 @@ export function AdminShell({ context, children, theme }: { context: AdminContext
           </span>
         </div>
         <AdminLogoutButton />
+        {context.role !== "staff" ? <Link href="/propietario" className="admin-exit">Panel propietario</Link> : null}
         <Link href="/" className="admin-exit">← Ver sitio público</Link>
       </aside>
       <section className="admin-content">

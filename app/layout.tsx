@@ -3,12 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Valeibol | Cancha de vóley en Cajamarca",
-    template: "%s | Valeibol",
+    default: "Canchas | Reservas deportivas",
+    template: "%s | Canchas",
   },
-  description: "Consulta disponibilidad, precios y solicita tu horario para jugar vóley en Cajamarca.",
-  keywords: ["vóley Cajamarca", "cancha de vóley", "alquiler de cancha", "reserva de cancha Cajamarca"],
-  applicationName: "Valeibol",
+  description: "Encuentra complejos deportivos, compara canchas y consulta disponibilidad por ciudad y deporte.",
+  keywords: ["canchas deportivas", "reserva de cancha", "vóley", "fútbol", "futsal", "básquet"],
+  applicationName: "Canchas",
   robots: {
     index: true,
     follow: true,
@@ -16,14 +16,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_PE",
-    siteName: "Valeibol",
-    title: "Valeibol | Cancha de vóley en Cajamarca",
-    description: "Consulta disponibilidad, precios y solicita tu horario para jugar vóley en Cajamarca.",
+    siteName: "Canchas",
+    title: "Canchas | Reservas deportivas",
+    description: "Encuentra complejos deportivos y consulta disponibilidad desde una sola plataforma.",
   },
   twitter: {
     card: "summary",
-    title: "Valeibol | Cancha de vóley en Cajamarca",
-    description: "Consulta disponibilidad, precios y solicita tu horario para jugar vóley en Cajamarca.",
+    title: "Canchas | Reservas deportivas",
+    description: "Encuentra complejos deportivos y consulta disponibilidad desde una sola plataforma.",
   },
 };
 

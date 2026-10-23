@@ -1,4 +1,5 @@
 import { businessConfig } from "@/config/business";
+import { demoBusiness, demoCourt } from "@/lib/data/demoPlatform";
 import {
   buildCalendarDays,
   type AvailabilityWeekSnapshot,
@@ -11,14 +12,14 @@ import type {
 export class MockAvailabilityRepository implements AvailabilityRepository {
   async getWeek(query: AvailabilityWeekQuery): Promise<AvailabilityWeekSnapshot> {
     return {
-      businessId: null,
+      businessId: demoBusiness.id,
       source: "mock-provisional",
       sourceLabel: "Disponibilidad provisional · Supabase no configurado",
       isProvisional: true,
       courts: [
         {
-          courtId: "mock-court",
-          courtName: "Cancha principal",
+          courtId: demoCourt.id,
+          courtName: demoCourt.name,
           timezone: businessConfig.timezone,
           days: buildCalendarDays(query.referenceDateKey, query.todayDateKey),
         },

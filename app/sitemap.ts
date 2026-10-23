@@ -20,5 +20,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    { url: `${siteUrl}/buscar`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteUrl}/voley`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${siteUrl}/futbol`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${siteUrl}/complejo/valeibol-cajamarca`, changeFrequency: "daily", priority: 0.9 },
   ];
 }

@@ -5,6 +5,7 @@ import {
   decideAdminAccess,
   isAdminRole,
   safeAdminRedirectPath,
+  safeAuthRedirectPath,
 } from "../lib/auth.ts";
 import {
   hostnameFromHostHeader,
@@ -49,6 +50,13 @@ test("next de login evita open redirects y rutas de bucle", () => {
   assert.equal(safeAdminRedirectPath("//evil.example/admin"), "/admin");
   assert.equal(safeAdminRedirectPath("/public"), "/admin");
   assert.equal(safeAdminRedirectPath("/admin/login"), "/admin");
+});
+
+test("callback de auth permite mi-cuenta sin abrir redirects externos", () => {
+  assert.equal(safeAuthRedirectPath("/mi-cuenta"), "/mi-cuenta");
+  assert.equal(safeAuthRedirectPath("/mi-cuenta?tab=reservas"), "/mi-cuenta?tab=reservas");
+  assert.equal(safeAuthRedirectPath("//evil.example/mi-cuenta"), "/admin");
+  assert.equal(safeAuthRedirectPath("https://evil.example/mi-cuenta"), "/admin");
 });
 
 test("el acceso admin local solo funciona en desarrollo y localhost", () => {

@@ -24,6 +24,13 @@ export function safeAdminRedirectPath(candidate: string | null | undefined) {
   return candidate;
 }
 
+export function safeAuthRedirectPath(candidate: string | null | undefined) {
+  if (candidate?.startsWith("/mi-cuenta") && !candidate.startsWith("//") && !candidate.includes("://")) {
+    return candidate;
+  }
+  return safeAdminRedirectPath(candidate);
+}
+
 export function decideAdminAccess(input: {
   hasSupabaseConfig: boolean;
   userId?: string | null;

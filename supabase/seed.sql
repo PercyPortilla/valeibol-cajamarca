@@ -34,19 +34,44 @@ insert into public.businesses (
   is_active = excluded.is_active,
   booking_increment_minutes = excluded.booking_increment_minutes;
 
+insert into public.venues (
+  id, business_id, slug, name, city, address, is_active, sort_order
+) values (
+  '30000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000001',
+  'sede-principal',
+  'Valeibol Cajamarca',
+  'Cajamarca',
+  'Jr. Guillermo Urrelo 1674, Cajamarca 06001',
+  true,
+  0
+) on conflict (id) do update set
+  name = excluded.name,
+  city = excluded.city,
+  address = excluded.address,
+  is_active = excluded.is_active,
+  sort_order = excluded.sort_order;
+
 insert into public.courts (
-  id, business_id, slug, name, configuration_status, is_active, sort_order
+  id, business_id, venue_id, sport_id, slug, name, surface,
+  configuration_status, is_active, sort_order
 ) values (
   '20000000-0000-4000-8000-000000000001',
   '10000000-0000-4000-8000-000000000001',
+  '30000000-0000-4000-8000-000000000001',
+  '60000000-0000-4000-8000-000000000001',
   'cancha-demo',
   'Cancha principal',
+  'Cancha cubierta',
   'provisional',
   true,
   0
 ) on conflict (id) do update set
+  venue_id = excluded.venue_id,
+  sport_id = excluded.sport_id,
   slug = excluded.slug,
   name = excluded.name,
+  surface = excluded.surface,
   configuration_status = excluded.configuration_status,
   is_active = excluded.is_active,
   sort_order = excluded.sort_order;

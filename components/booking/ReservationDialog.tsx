@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent, type SyntheticEvent } from "react";
 import { businessConfig } from "@/config/business";
+import { sportRequiresNetHeight } from "@/config/sports";
 import {
   bookingLightingForInterval,
   calculateBookingPreview,
@@ -22,10 +23,13 @@ import {
   BookingRepositoryError,
   type PublicBookingResult,
 } from "@/lib/data/repositories/bookingRepository";
+import type { PublicPaymentMethod } from "@/lib/payments";
 
 export type ReservationSelection = {
   courtId: string;
   courtName: string;
+  sportSlug: string;
+  timezone: string;
   slot: AvailabilitySlot;
   daySlots: AvailabilitySlot[];
   source: "supabase" | "mock-provisional";
@@ -33,6 +37,8 @@ export type ReservationSelection = {
 };
 
 type Props = {
+  businessSlug: string;
+  paymentMethods?: PublicPaymentMethod[];
   selection: ReservationSelection | null;
   onClose: () => void;
   onPersisted: () => void;
@@ -59,7 +65,7 @@ function makeRequestToken() {
   });
 }
 
-export function ReservationDialog({ selection, onClose, onPersisted, onAvailabilityStale }: Props) {
+export function ReservationDialog({ businessSlug, paymentMethods = [], selection, onClose, onPersisted, onAvailabilityStale }: Props) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const repository = useMemo(() => createPublicBookingRepository(), []);
   const [name, setName] = useState("");
@@ -131,7 +137,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
 
     let cancelled = false;
     setPricingLoading(true);
-    repository.getPricingForDate(businessConfig.slug, selection.slot.date, selection.courtId)
+    repository.getPricingForDate(businessSlug, selection.slot.date, selection.courtId)
       .then((snapshot) => {
         if (cancelled) return;
         const withoutLights = snapshot.pricing.find((rule) => rule.lighting === "without_lights");
@@ -152,7 +158,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
       });
 
     return () => { cancelled = true; };
-  }, [selection, repository]);
+  }, [businessSlug, selection, repository]);
 
   if (!selection) {
     return <dialog ref={dialogRef} className="booking-dialog" aria-label="Solicitar reserva" />;
@@ -170,6 +176,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
   );
   const demoMode = selection.source === "mock-provisional";
   const pricingReady = demoMode || (!pricingLoading && !pricingError);
+  const requiresNetHeight = sportRequiresNetHeight(selection.sportSlug);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -196,15 +203,19 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
       setError("Selecciona una hora de fin válida y consecutiva.");
       return;
     }
-    const preset = NET_HEIGHT_PRESETS.find((option) => option.id === netHeightPreset);
-    const parsedNetHeight = netHeightPreset === "custom"
-      ? Number(customNetHeightCm)
-      : preset?.cm;
-    if (!isNetHeightCm(parsedNetHeight)) {
-      setError("Selecciona la altura de red para tu reserva.");
-      return;
+    let parsedNetHeight: number | null = null;
+    if (requiresNetHeight) {
+      const preset = NET_HEIGHT_PRESETS.find((option) => option.id === netHeightPreset);
+      const candidate = netHeightPreset === "custom"
+        ? Number(customNetHeightCm)
+        : preset?.cm;
+      if (!isNetHeightCm(candidate)) {
+        setError("Selecciona la altura de red para tu reserva.");
+        return;
+      }
+      parsedNetHeight = candidate;
     }
-    if (!demoMode && isPastLocalStart(currentSelection.slot.date, currentSelection.slot.start)) {
+    if (!demoMode && isPastLocalStart(currentSelection.slot.date, currentSelection.slot.start, currentSelection.timezone)) {
       setError("Ese horario ya pasó. Actualiza la disponibilidad y elige otro.");
       onAvailabilityStale();
       return;
@@ -213,7 +224,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
     setSubmitting(true);
     try {
       const nextResult = await repository.submit({
-        businessSlug: businessConfig.slug,
+        businessSlug,
         courtId: currentSelection.courtId,
         date: currentSelection.slot.date,
         start: currentSelection.slot.start,
@@ -280,11 +291,27 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
                 <p>Mientras está pendiente, el intervalo queda ocupado para evitar que dos personas soliciten la misma cancha al mismo tiempo.</p>
                 <dl className="booking-summary booking-summary--success">
                   <div><dt>Estado</dt><dd>Pendiente</dd></div>
-                  <div><dt>Altura de red</dt><dd>{netHeightLabel(result.netHeightCm)}</dd></div>
+                  {result.netHeightCm !== null ? <div><dt>Altura de red</dt><dd>{netHeightLabel(result.netHeightCm)}</dd></div> : null}
                   <div><dt>Iluminación</dt><dd>{result.lighting === "with_lights" ? "Con luz" : "Sin luz"}</dd></div>
                   <div><dt>Tarifa validada por servidor</dt><dd>{formatMoney(result.hourlyRate, result.currency)}/h</dd></div>
                   <div><dt>Total validado por servidor</dt><dd>{formatMoney(result.totalAmount, result.currency)}</dd></div>
                 </dl>
+                {paymentMethods.length > 0 ? (
+                  <div className="booking-payment-options">
+                    <strong>Opciones de pago manual</strong>
+                    <p>Reportar un pago no lo confirma automáticamente. El negocio debe verificarlo.</p>
+                    <div>
+                      {paymentMethods.map((method) => (
+                        <article key={method.method}>
+                          <b>{method.label}</b>
+                          {method.destination ? <span>{method.destination}</span> : null}
+                          {method.instructions ? <small>{method.instructions}</small> : null}
+                        </article>
+                      ))}
+                    </div>
+                    <a className="text-link" href="/mi-cuenta">Ir a Mi cuenta para reportar el pago →</a>
+                  </div>
+                ) : null}
               </>
             ) : (
               <>
@@ -341,7 +368,7 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
             </fieldset>
 
             <div className="booking-fields">
-              <label className="field" htmlFor="booking-net-height">
+              {requiresNetHeight ? <label className="field" htmlFor="booking-net-height">
                 <span className="field__label">Altura de red</span>
                 <select
                   className="field__control"
@@ -356,8 +383,8 @@ export function ReservationDialog({ selection, onClose, onPersisted, onAvailabil
                   ))}
                   <option value="custom">Personalizada · 1.80 m a 2.50 m</option>
                 </select>
-              </label>
-              {netHeightPreset === "custom" ? (
+              </label> : null}
+              {requiresNetHeight && netHeightPreset === "custom" ? (
                 <label className="field" htmlFor="booking-net-height-custom">
                   <span className="field__label">Altura personalizada (cm)</span>
                   <input

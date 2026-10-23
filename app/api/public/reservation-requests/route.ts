@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,7 +23,7 @@ type PublicRequestBody = {
   date: string;
   start: string;
   end: string;
-  netHeightCm: number;
+  netHeightCm: number | null;
   customerName: string;
   phoneE164: string;
   marketingOptIn: boolean;
@@ -58,10 +59,12 @@ function parseBody(value: unknown): PublicRequestBody | null {
     typeof date !== "string" ||
     typeof start !== "string" ||
     typeof end !== "string" ||
-    typeof netHeightCm !== "number" ||
-    !Number.isInteger(netHeightCm) ||
-    netHeightCm < 180 ||
-    netHeightCm > 250 ||
+    (netHeightCm !== null && (
+      typeof netHeightCm !== "number" ||
+      !Number.isInteger(netHeightCm) ||
+      netHeightCm < 180 ||
+      netHeightCm > 250
+    )) ||
     typeof customerName !== "string" ||
     typeof phoneE164 !== "string" ||
     typeof marketingOptIn !== "boolean" ||
@@ -111,6 +114,16 @@ export async function POST(request: NextRequest) {
   if (!supabaseUrl || !serverToken) return jsonError("configuration", 503);
 
   const endpoint = `${supabaseUrl.replace(/\/$/, "")}/functions/v1/public-reservation-request`;
+  let authenticatedUserId: string | null = null;
+  if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()) {
+    try {
+      const supabase = await createServerSupabaseClient();
+      const { data } = await supabase.auth.getUser();
+      authenticatedUserId = data.user?.id ?? null;
+    } catch {
+      authenticatedUserId = null;
+    }
+  }
 
   let response: Response;
   try {
@@ -122,7 +135,7 @@ export async function POST(request: NextRequest) {
         "x-valeibol-client-ip": readClientAddress(request),
         "x-valeibol-user-agent": request.headers.get("user-agent")?.slice(0, 256) || "unknown",
       },
-      body: JSON.stringify(parsed),
+      body: JSON.stringify({ ...parsed, authenticatedUserId }),
       cache: "no-store",
       signal: AbortSignal.timeout(12_000),
     });

@@ -1,5 +1,10 @@
 import { businessConfig } from "../../config/business.ts";
 import {
+  DEMO_BUSINESS_ID,
+  DEMO_COURT_ID,
+  DEMO_COURT_NAME,
+} from "./demoPlatform.ts";
+import {
   addDays,
   businessTodayDateKey,
   getDayKey,
@@ -9,9 +14,9 @@ import type { AdminBlockReason } from "../admin/operations.ts";
 import type { AdminPricingRule } from "../admin/phase7.ts";
 import type { AdminReservation } from "../admin/reservations.ts";
 
-export const LOCAL_BUSINESS_ID = "00000000-0000-4000-8000-000000000001";
-export const LOCAL_COURT_ID = "10000000-0000-4000-8000-000000000001";
-export const LOCAL_COURT_NAME = "Cancha principal";
+export const LOCAL_BUSINESS_ID = DEMO_BUSINESS_ID;
+export const LOCAL_COURT_ID = DEMO_COURT_ID;
+export const LOCAL_COURT_NAME = DEMO_COURT_NAME;
 
 export type LocalAdminBlock = {
   id: string;

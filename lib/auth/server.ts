@@ -11,6 +11,7 @@ import {
   isLocalDevAdminAllowed,
 } from "@/lib/auth/localDev";
 import type { Database } from "@/lib/data/supabase/database.types";
+import { DEMO_BUSINESS_ID } from "@/lib/data/demoPlatform";
 
 export type AdminContext = {
   userId: string;
@@ -44,7 +45,7 @@ async function getLocalDevAdminContext(): Promise<AdminContext | null> {
   return {
     userId: LOCAL_DEV_ADMIN_USER_ID,
     email: null,
-    businessId: "00000000-0000-4000-8000-000000000001",
+    businessId: DEMO_BUSINESS_ID,
     businessName: `${businessConfig.name} · modo local`,
     role: "owner",
     roleLabel: adminRoleLabel("owner"),
