@@ -14,7 +14,7 @@ export function PlatformHeader() {
           <Link href="/voley">Vóley</Link>
           <Link href="/futbol">Fútbol</Link>
           <Link href="/mi-cuenta">Mi cuenta</Link>
-          <Link href="/">Valeibol actual</Link>
+          <Link href="/complejo/valeibol-cajamarca">Valeibol actual</Link>
         </nav>
       </div>
     </header>

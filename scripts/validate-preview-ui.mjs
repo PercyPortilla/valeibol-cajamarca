@@ -52,8 +52,14 @@ try {
     const layout = await page.evaluate(() => {
       const root = document.documentElement;
       const bodyText = document.body.innerText;
-      const requiredIds = ["disponibilidad", "precios", "servicios", "galeria", "ubicacion"];
-      const missingSections = requiredIds.filter((id) => !document.getElementById(id));
+      const requiredPlatformSelectors = [
+        ".platform-home-hero",
+        ".platform-search-form",
+        ".platform-home-sports",
+        ".platform-home-featured",
+        ".platform-home-owner",
+      ];
+      const missingPlatformSections = requiredPlatformSelectors.filter((selector) => !document.querySelector(selector));
       const technicalCopy = ["Modo demostración", "Supabase no configurado", "checkpoint", "RPC", "backend"]
         .filter((term) => bodyText.toLowerCase().includes(term.toLowerCase()));
 
@@ -83,14 +89,14 @@ try {
       return {
         scrollWidth: root.scrollWidth,
         innerWidth: window.innerWidth,
-        missingSections,
+        missingPlatformSections,
         technicalCopy,
         undersizedTargets,
       };
     });
 
     record(layout.scrollWidth <= layout.innerWidth + 2, viewport, "sin overflow horizontal", `${layout.scrollWidth}/${layout.innerWidth}`);
-    record(layout.missingSections.length === 0, viewport, "secciones comerciales", layout.missingSections.join(","));
+    record(layout.missingPlatformSections.length === 0, viewport, "secciones plataforma", layout.missingPlatformSections.join(","));
     record(layout.technicalCopy.length === 0, viewport, "sin copy técnico visible", layout.technicalCopy.join(","));
     record(layout.undersizedTargets.length === 0, viewport, "targets táctiles >=44px", layout.undersizedTargets.join(" | "));
 
@@ -111,6 +117,33 @@ try {
 
     await page.screenshot({
       path: resolve(screenshots, `${label}-home-${width}.png`),
+      fullPage: true,
+    });
+
+    const valeibolResponse = await page.goto(`${baseUrl}/complejo/valeibol-cajamarca`, { waitUntil: "networkidle2", timeout: 60_000 });
+    const valeibolLayout = await page.evaluate(() => {
+      const requiredIds = ["disponibilidad", "precios", "servicios", "galeria", "ubicacion"];
+      return {
+        statusSections: requiredIds.filter((id) => !document.getElementById(id)),
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      };
+    });
+    record(Boolean(valeibolResponse && (valeibolResponse.ok() || valeibolResponse.status() === 304)), viewport, "Valeibol HTTP", String(valeibolResponse?.status() ?? "no-response"));
+    record(valeibolLayout.statusSections.length === 0, viewport, "secciones Valeibol", valeibolLayout.statusSections.join(","));
+    record(valeibolLayout.scrollWidth <= valeibolLayout.innerWidth + 2, viewport, "Valeibol sin overflow", `${valeibolLayout.scrollWidth}/${valeibolLayout.innerWidth}`);
+
+    await page.addScriptTag({ content: axe.source });
+    const valeibolAxe = await page.evaluate(async () => {
+      const result = await window.axe.run(document, { resultTypes: ["violations"] });
+      return result.violations
+        .filter((violation) => violation.impact === "critical" || violation.impact === "serious")
+        .map((violation) => ({ id: violation.id, impact: violation.impact, nodes: violation.nodes.length }));
+    });
+    record(valeibolAxe.length === 0, viewport, "Valeibol Axe serious/critical", JSON.stringify(valeibolAxe));
+
+    await page.screenshot({
+      path: resolve(screenshots, `${label}-valeibol-${width}.png`),
       fullPage: true,
     });
 
