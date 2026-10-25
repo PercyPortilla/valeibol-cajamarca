@@ -26,6 +26,7 @@ export const sqlTests = [
   "supabase/tests/platform_readiness.sql",
   "supabase/tests/platform_business_core_settings.sql",
   "supabase/tests/platform_dynamic_sports.sql",
+  "supabase/tests/platform_structure_corrections.sql",
 ];
 
 function getProjectId() {

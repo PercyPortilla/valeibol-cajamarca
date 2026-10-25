@@ -575,6 +575,10 @@ export type Database = {
         Args: { p_venue_id: string; p_name: string; p_city: string | null; p_address: string | null; p_latitude: number | null; p_longitude: number | null; p_active: boolean };
         Returns: boolean;
       };
+      admin_update_venue_slug: {
+        Args: { p_venue_id: string; p_slug: string };
+        Returns: boolean;
+      };
       admin_create_court: {
         Args: {
           p_venue_id: string;
@@ -590,6 +594,10 @@ export type Database = {
       };
       admin_update_court_identity: {
         Args: { p_court_id: string; p_name: string; p_surface: string | null };
+        Returns: boolean;
+      };
+      admin_update_court_structure: {
+        Args: { p_court_id: string; p_venue_id: string; p_sport_id: string; p_slug: string };
         Returns: boolean;
       };
       admin_set_court_active: {

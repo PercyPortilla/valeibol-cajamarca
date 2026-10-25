@@ -41,13 +41,21 @@ function mutationMessage(message: string) {
   if (normalized.includes("invalid_booking_increment")) return "Elige un intervalo válido entre 15 y 240 minutos que divida exactamente un día.";
   if (normalized.includes("court_has_future_reservations")) return "No puedes desactivar esta cancha mientras tenga reservas futuras pendientes o confirmadas.";
   if (normalized.includes("venue_has_active_courts")) return "Desactiva primero las canchas activas de esta sede.";
+  if (normalized.includes("business_must_be_unpublished_for_structure_correction")) return "Retira primero el negocio de publicación para corregir su estructura.";
+  if (normalized.includes("court_must_be_inactive_for_structure_correction")) return "Desactiva primero la cancha para corregir sede, deporte o slug.";
+  if (normalized.includes("court_structure_change_blocked_by_reservation_history")) return "Esta cancha ya tiene historial de reservas. No se puede cambiar su sede, deporte o slug sin alterar el historial.";
+  if (normalized.includes("court_structure_change_blocked_by_schedule_history")) return "Esta cancha ya tiene historial de bloqueos. No se puede cambiar su estructura.";
+  if (normalized.includes("target_venue_not_found_or_inactive")) return "La sede de destino no existe, pertenece a otro negocio o está inactiva.";
+  if (normalized.includes("target_sport_not_found_or_inactive")) return "El deporte de destino no existe o está inactivo.";
+  if (normalized.includes("venue_slug_taken") || normalized.includes("court_slug_taken")) return "Ese slug ya existe dentro del negocio.";
   if (normalized.includes("duplicate") || normalized.includes("unique")) return "Ese slug ya existe dentro del negocio.";
   if (normalized.includes("invalid_")) return "Revisa los datos ingresados.";
   return "No pudimos guardar el cambio.";
 }
 
-function VenueEditor({ venue, canManage, onSaved }: { venue: AdminInventoryVenue; canManage: boolean; onSaved: () => void }) {
+function VenueEditor({ venue, canManage, canCorrectStructure, onSaved }: { venue: AdminInventoryVenue; canManage: boolean; canCorrectStructure: boolean; onSaved: () => void }) {
   const [name, setName] = useState(venue.name);
+  const [slug, setSlug] = useState(venue.slug);
   const [city, setCity] = useState(venue.city ?? "");
   const [address, setAddress] = useState(venue.address ?? "");
   const [latitude, setLatitude] = useState(venue.latitude?.toString() ?? "");
@@ -55,6 +63,8 @@ function VenueEditor({ venue, canManage, onSaved }: { venue: AdminInventoryVenue
   const [active, setActive] = useState(venue.isActive);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [structureBusy, setStructureBusy] = useState(false);
+  const [structureFeedback, setStructureFeedback] = useState<Feedback>(null);
 
   async function save() {
     if (!canManage || busy) return;
@@ -73,6 +83,18 @@ function VenueEditor({ venue, canManage, onSaved }: { venue: AdminInventoryVenue
     setBusy(false);
   }
 
+  async function saveSlug() {
+    if (!canCorrectStructure || structureBusy || slug === venue.slug) return;
+    setStructureBusy(true); setStructureFeedback(null);
+    const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_venue_slug", {
+      p_venue_id: venue.venueId,
+      p_slug: slug,
+    });
+    if (error) setStructureFeedback({ kind: "error", message: mutationMessage(error.message) });
+    else { setStructureFeedback({ kind: "success", message: "Slug de sede corregido." }); onSaved(); }
+    setStructureBusy(false);
+  }
+
   return (
     <article className="admin-structure-item">
       <div className="admin-structure-item__head"><div><strong>{venue.name}</strong><small>{venue.slug}</small></div><Badge tone={venue.isActive ? "success" : "neutral"}>{venue.isActive ? "Activa" : "Inactiva"}</Badge></div>
@@ -86,15 +108,35 @@ function VenueEditor({ venue, canManage, onSaved }: { venue: AdminInventoryVenue
       </div>
       {canManage ? <Button type="button" variant="secondary" disabled={busy} onClick={() => void save()}>{busy ? "Guardando…" : "Guardar sede"}</Button> : null}
       <FeedbackMessage feedback={feedback} />
+      {canManage ? (
+        <div className="admin-structure-correction">
+          <div><strong>Corrección estructural</strong><p>El slug solo puede corregirse mientras el negocio está retirado de publicación.</p></div>
+          <div className="admin-structure-correction__grid">
+            <Input label="Slug de sede" name={`venue-slug-${venue.venueId}`} value={slug} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" disabled={!canCorrectStructure || structureBusy} onChange={(e) => setSlug(e.target.value)} />
+            <Button type="button" variant="ghost" disabled={!canCorrectStructure || structureBusy || slug === venue.slug} onClick={() => void saveSlug()}>{structureBusy ? "Corrigiendo…" : "Corregir slug"}</Button>
+          </div>
+          {!canCorrectStructure ? <small>Retira el negocio de publicación para habilitar esta corrección.</small> : null}
+          <FeedbackMessage feedback={structureFeedback} />
+        </div>
+      ) : null}
     </article>
   );
 }
 
-function CourtEditor({ court, businessToday, canManage, onSaved }: { court: AdminInventoryCourt; businessToday: string; canManage: boolean; onSaved: () => void }) {
+function CourtEditor({ court, currentVenueId, venues, sports, businessToday, canManage, canCorrectStructure, onSaved }: { court: AdminInventoryCourt; currentVenueId: string; venues: AdminInventoryVenue[]; sports: AdminBusinessStructure["sports"]; businessToday: string; canManage: boolean; canCorrectStructure: boolean; onSaved: () => void }) {
   const [name, setName] = useState(court.name);
   const [surface, setSurface] = useState(court.surface ?? "");
+  const [slug, setSlug] = useState(court.slug);
+  const [venueId, setVenueId] = useState(currentVenueId);
+  const [sportId, setSportId] = useState(court.sportId);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [structureBusy, setStructureBusy] = useState(false);
+  const [structureFeedback, setStructureFeedback] = useState<Feedback>(null);
+  const correctionEnabled = canCorrectStructure && !court.isActive;
+  const sportOptions = sports.some((sport) => sport.sportId === court.sportId)
+    ? sports
+    : [{ sportId: court.sportId, slug: court.sportSlug, name: `${court.sportName} (actual, inactivo)` }, ...sports];
 
   async function saveIdentity() {
     if (!canManage || busy) return;
@@ -115,6 +157,20 @@ function CourtEditor({ court, businessToday, canManage, onSaved }: { court: Admi
     setBusy(false);
   }
 
+  async function saveStructure() {
+    if (!correctionEnabled || structureBusy) return;
+    setStructureBusy(true); setStructureFeedback(null);
+    const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_court_structure", {
+      p_court_id: court.courtId,
+      p_venue_id: venueId,
+      p_sport_id: sportId,
+      p_slug: slug,
+    });
+    if (error) setStructureFeedback({ kind: "error", message: mutationMessage(error.message) });
+    else { setStructureFeedback({ kind: "success", message: "Estructura de cancha corregida sin alterar horarios ni tarifas." }); onSaved(); }
+    setStructureBusy(false);
+  }
+
   return (
     <article className="admin-court-item">
       <div className="admin-structure-item__head"><div><strong>{court.name}</strong><small>{court.sportName} · {court.slug}</small></div><Badge tone={court.isActive ? "success" : "neutral"}>{court.isActive ? "Activa" : "Inactiva"}</Badge></div>
@@ -125,6 +181,19 @@ function CourtEditor({ court, businessToday, canManage, onSaved }: { court: Admi
       </div>
       {canManage ? <div className="admin-structure-actions"><Button type="button" variant="secondary" disabled={busy} onClick={() => void saveIdentity()}>Guardar datos</Button><Button type="button" variant="ghost" disabled={busy} onClick={() => void toggle()}>{court.isActive ? "Desactivar" : "Activar"}</Button></div> : null}
       <FeedbackMessage feedback={feedback} />
+      {canManage ? (
+        <div className="admin-structure-correction">
+          <div><strong>Corregir alta de la cancha</strong><p>Solo antes del historial operativo. Debes retirar el negocio de publicación y desactivar la cancha.</p></div>
+          <div className="admin-structure-correction__grid admin-structure-correction__grid--court">
+            <Input label="Slug" name={`court-slug-${court.courtId}`} value={slug} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" disabled={!correctionEnabled || structureBusy} onChange={(e) => setSlug(e.target.value)} />
+            <Select label="Sede" name={`court-venue-${court.courtId}`} value={venueId} disabled={!correctionEnabled || structureBusy} onChange={(e) => setVenueId(e.target.value)} options={venues.map((venue) => ({ value: venue.venueId, label: `${venue.name}${venue.isActive ? "" : " (inactiva)"}` }))} />
+            <Select label="Deporte" name={`court-sport-${court.courtId}`} value={sportId} disabled={!correctionEnabled || structureBusy} onChange={(e) => setSportId(e.target.value)} options={sportOptions.map((sport) => ({ value: sport.sportId, label: sport.name }))} />
+            <Button type="button" variant="ghost" disabled={!correctionEnabled || structureBusy || (slug === court.slug && venueId === currentVenueId && sportId === court.sportId)} onClick={() => void saveStructure()}>{structureBusy ? "Corrigiendo…" : "Aplicar corrección"}</Button>
+          </div>
+          {!canCorrectStructure ? <small>Retira el negocio de publicación para habilitar correcciones estructurales.</small> : court.isActive ? <small>Desactiva esta cancha antes de corregir su estructura.</small> : <small>Si ya existen reservas o bloqueos históricos, PostgreSQL rechazará el cambio para proteger el historial.</small>}
+          <FeedbackMessage feedback={structureFeedback} />
+        </div>
+      ) : null}
       <AdminCourtHoursEditor court={court} businessToday={businessToday} canManage={canManage} onSaved={onSaved} />
     </article>
   );
@@ -145,6 +214,7 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
   const [courtCreateBusy, setCourtCreateBusy] = useState(false);
   const [hours, setHours] = useState<DayHours[]>(week.map(([weekday]) => ({ weekday, isOpen: false, opensAt: "08:00", closesAt: "22:00" })));
   const refresh = () => router.refresh();
+  const canCorrectStructure = canManage && !localMode && structure.configurationStatus === "provisional";
 
   useEffect(() => {
     setBookingIncrement(String(structure.bookingIncrementMinutes));
@@ -304,13 +374,13 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
 
       <section className="admin-structure-card" aria-labelledby="venues-title">
         <div className="admin-content-editor__head"><div><span className="metric-label">SEDES</span><h2 id="venues-title">Sedes físicas</h2><p>Las coordenadas son opcionales y nunca se geocodifican automáticamente.</p></div><span>{structure.venues.length} registradas</span></div>
-        <div className="admin-structure-list">{structure.venues.map((venue) => <VenueEditor key={venue.venueId} venue={venue} canManage={canManage && !localMode} onSaved={refresh} />)}</div>
+        <div className="admin-structure-list">{structure.venues.map((venue) => <VenueEditor key={venue.venueId} venue={venue} canManage={canManage && !localMode} canCorrectStructure={canCorrectStructure} onSaved={refresh} />)}</div>
         {canManage && !localMode ? <form className="admin-structure-create" onSubmit={createVenue}><h3>Añadir sede</h3><div className="admin-structure-form-grid"><Input id="new-venue-name" label="Nombre" name="name" required disabled={venueCreateBusy} /><Input id="new-venue-slug" label="Slug" name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" disabled={venueCreateBusy} /><Input id="new-venue-city" label="Ciudad" name="city" disabled={venueCreateBusy} /><Input id="new-venue-address" label="Dirección" name="address" disabled={venueCreateBusy} /><Input id="new-venue-latitude" label="Latitud" name="latitude" type="number" min="-90" max="90" step="0.000001" disabled={venueCreateBusy} /><Input id="new-venue-longitude" label="Longitud" name="longitude" type="number" min="-180" max="180" step="0.000001" disabled={venueCreateBusy} /></div><Button type="submit" disabled={venueCreateBusy}>{venueCreateBusy ? "Creando…" : "Crear sede"}</Button><FeedbackMessage feedback={venueCreateFeedback} /></form> : null}
       </section>
 
       <section className="admin-structure-card" aria-labelledby="courts-title">
         <div className="admin-content-editor__head"><div><span className="metric-label">CANCHAS</span><h2 id="courts-title">Inventario deportivo</h2><p>Las canchas nuevas se crean con horario y tarifas reales en una sola operación.</p></div></div>
-        <div className="admin-structure-list">{structure.venues.flatMap((venue) => venue.courts.map((court) => <CourtEditor key={court.courtId} court={court} businessToday={businessToday} canManage={canManage && !localMode} onSaved={refresh} />))}</div>
+        <div className="admin-structure-list">{structure.venues.flatMap((venue) => venue.courts.map((court) => <CourtEditor key={court.courtId} court={court} currentVenueId={venue.venueId} venues={structure.venues} sports={structure.sports} businessToday={businessToday} canManage={canManage && !localMode} canCorrectStructure={canCorrectStructure} onSaved={refresh} />))}</div>
         {canManage && !localMode && structure.venues.some((venue) => venue.isActive) ? (
           <form className="admin-structure-create" onSubmit={createCourt}>
             <h3>Añadir cancha</h3>

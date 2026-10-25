@@ -667,6 +667,14 @@
 .admin-structure-message { font-size: 13px; color: var(--muted); }
 .admin-structure-message--error { color: var(--danger, #b42318); font-weight: 700; }
 .admin-structure-readiness { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--muted); }
+.admin-structure-correction { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid var(--border); }
+.admin-structure-correction > div:first-child { display: grid; gap: 3px; }
+.admin-structure-correction p,
+.admin-structure-correction > small { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.admin-structure-correction__grid { display: grid; grid-template-columns: minmax(220px, 1fr) auto; gap: 12px; align-items: end; }
+.admin-structure-correction__grid--court { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+.admin-structure-correction__grid .field__control,
+.admin-structure-correction__grid .button { min-height: 44px; }
 .admin-publication-control {
   display: grid;
   gap: 12px;
@@ -733,6 +741,9 @@
   .admin-court-hours__date { max-width: none; }
   .admin-court-hours__actions .button { width: 100%; }
   .admin-structure-actions .button { width: 100%; }
+  .admin-structure-correction__grid,
+  .admin-structure-correction__grid--court { grid-template-columns: 1fr; }
+  .admin-structure-correction__grid .button { width: 100%; }
 }
 
 /* =========================================================
