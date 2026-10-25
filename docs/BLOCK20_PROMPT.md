@@ -64,5 +64,3 @@ Trabaja sobre B14–B19 validados. B20 cierra la brecha entre el marketplace mul
 9. `git diff --check`
 
 Ejecutar `supabase/tests/platform_inventory.sql` contra Postgres/Supabase local si el entorno existe. Si no existe, reportar esa limitación y no simular PASS. No hacer commit, push, migraciones remotas ni deploy sin autorización explícita.
-
-\n

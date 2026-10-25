@@ -97,5 +97,3 @@ La desactivación de canchas queda serializada con lock `business → court`. Un
 9. `git diff --check`
 
 Ejecutar `supabase/tests/platform_readiness.sql` solo si existe Postgres local válido (`LOCAL_DB_URL` + `psql`). Si no existe, reportar explícitamente que SQL E2E no fue ejecutado.
-
-\n

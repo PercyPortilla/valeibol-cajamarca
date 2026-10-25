@@ -122,5 +122,3 @@ test("UX B24 distingue staff read-only, busy y feedback accesible", () => {
   assert.match(styles, /\.admin-publication-control__actions \.button \{ min-height: 44px; \}/i);
   assert.match(styles, /@media \(max-width: 620px\)[\s\S]*?\.admin-publication-control__actions \.button \{ width: 100%; \}/i);
 });
-
-\n

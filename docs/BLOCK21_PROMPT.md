@@ -66,5 +66,3 @@ La invariante ADMIN-global/OWNER-tenant se protege en las tres superficies de es
 9. `git diff --check`
 
 Ejecutar `supabase/tests/platform_ownership.sql` si existe Postgres local; si no, reportar la limitación sin simular PASS.
-
-\n

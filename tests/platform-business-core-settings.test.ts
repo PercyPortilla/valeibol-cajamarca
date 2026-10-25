@@ -68,5 +68,3 @@ test("UX B25 exige tenant no publicado y explica límites", () => {
   assert.match(styles, /\.global-admin-business-core-form input \{[^}]*min-height: 44px/i);
   assert.match(styles, /@media \(max-width: 680px\)[\s\S]*?\.global-admin-business-core-form \{ display: grid; grid-template-columns: 1fr;/i);
 });
-
-\n

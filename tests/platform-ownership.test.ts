@@ -99,5 +99,3 @@ test("confirmación B21 conserva targets táctiles y responsive", () => {
   assert.match(styles, /\.admin-owner-transfer__actions \.button \{ min-height: 44px; \}/);
   assert.match(styles, /@media \(max-width: 640px\)[\s\S]*?\.admin-owner-transfer \{ align-items: stretch; flex-direction: column; \}/);
 });
-
-\n

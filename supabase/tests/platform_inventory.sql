@@ -68,5 +68,3 @@ end $$;
 
 rollback;
 \echo 'PASS platform_inventory.sql · onboarding/inventory/guards B20'
-
-\n

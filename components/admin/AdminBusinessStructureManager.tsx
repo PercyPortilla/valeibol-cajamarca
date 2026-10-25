@@ -330,5 +330,3 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
     </div>
   );
 }
-
-\n

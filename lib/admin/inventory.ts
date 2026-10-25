@@ -164,5 +164,3 @@ export function parseInventorySports(value: Json): AdminInventorySport[] {
     return sportId && slug && name ? [{ sportId, slug, name }] : [];
   });
 }
-
-\n

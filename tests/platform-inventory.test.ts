@@ -160,5 +160,3 @@ test("B20 conserva targets táctiles de 44px y formulario responsive", () => {
   assert.match(styles, /\.admin-weekly-hours__row \.field__control \{[^}]*min-height:\s*44px/i);
   assert.match(styles, /@media \(max-width: 620px\)[\s\S]*?\.admin-weekly-hours__row \{ grid-template-columns: 1fr;/i);
 });
-
-\n

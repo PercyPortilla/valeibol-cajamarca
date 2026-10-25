@@ -64,5 +64,3 @@ El navegador puede enviar `business_id` en esta superficie porque el actor es un
 9. `git diff --check`
 
 Ejecutar `supabase/tests/platform_business_core_settings.sql` únicamente si existe Postgres local real. Si no existe, documentar la limitación sin simular SQL E2E.
-
-\n

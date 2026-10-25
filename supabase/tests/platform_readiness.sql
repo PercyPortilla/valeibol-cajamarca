@@ -47,5 +47,3 @@ begin
   end if;
 end;
 $$;
-
-\n

@@ -60,5 +60,3 @@ end $$;
 
 rollback;
 \echo 'PASS platform_ownership.sql · primary owner transfer B21'
-
-\n
