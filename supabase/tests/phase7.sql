@@ -70,14 +70,14 @@ begin
   set local role authenticated;
   select * into old_res from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', old_date,
-    time '08:00', time '09:00', 224, 'Histórico phase7', '+51997000001', 'admin'
+    time '08:00', time '09:00', 224::smallint, 'Histórico phase7', '+51997000001', 'admin'
   );
   select * into new_rule from public.admin_schedule_pricing_rule(
     '20000000-0000-4000-8000-000000000001', 'without_lights', 42, new_date
   );
   select * into new_res from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', new_date,
-    time '09:00', time '10:00', 235, 'Nueva tarifa phase7', '+51997000002', 'admin'
+    time '09:00', time '10:00', 235::smallint, 'Nueva tarifa phase7', '+51997000002', 'admin'
   );
   reset role;
 

@@ -75,7 +75,7 @@ begin
   select request_id into rid from public.create_public_reservation_request(
     'valeibol-cajamarca',
     '20000000-0000-4000-8000-000000000001',
-    test_date, time '18:00', time '19:00', 243,
+    test_date, time '18:00', time '19:00', 243::smallint,
     'Cliente test phase6', '+51999000001', false,
     '61000000-0000-4000-8000-000000000001'
   );
@@ -119,7 +119,7 @@ declare
 begin
   select request_id into rid from public.create_public_reservation_request(
     'valeibol-cajamarca', '20000000-0000-4000-8000-000000000001',
-    test_date, time '19:00', time '20:00', 243,
+    test_date, time '19:00', time '20:00', 243::smallint,
     'Cancel test', '+51999000002', false,
     '61000000-0000-4000-8000-000000000002'
   );
@@ -153,12 +153,12 @@ begin
   set local role authenticated;
   select * into r35 from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '08:00', time '09:00', 224,
+    time '08:00', time '09:00', 224::smallint,
     'Manual 35', '+51999000003', 'phone'
   );
   select * into r60 from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '19:00', time '21:00', 243,
+    time '19:00', time '21:00', 243::smallint,
     'Manual 120', '+51999000004', 'whatsapp'
   );
   reset role;
@@ -193,14 +193,14 @@ begin
   set local role authenticated;
   select * into r from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '12:00', time '13:00', 243,
+    time '12:00', time '13:00', 243::smallint,
     'Staff original', '+51999000005', 'admin'
   );
   begin
     perform * from public.admin_edit_reservation(
       r.reservation_id,
       '20000000-0000-4000-8000-000000000001', d,
-      time '13:00', time '14:00', 224,
+      time '13:00', time '14:00', 224::smallint,
       'Staff edit', '+51999000005'
     );
     raise exception 'FAIL: staff logró editar reserva';
@@ -220,13 +220,13 @@ begin
   set local role authenticated;
   select * into r from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '10:00', time '11:00', 224,
+    time '10:00', time '11:00', 224::smallint,
     'Edit owner', '+51999000006', 'admin'
   );
   select * into edited from public.admin_edit_reservation(
     r.reservation_id,
     '20000000-0000-4000-8000-000000000001', d,
-    time '18:00', time '20:00', 243,
+    time '18:00', time '20:00', 243::smallint,
     'Edit owner actualizado', '+51999000006'
   );
   reset role;
@@ -282,7 +282,7 @@ begin
   set local role authenticated;
   perform * from public.admin_create_manual_reservation(
     '20000000-0000-4000-8000-000000000001', d,
-    time '12:00', time '14:00', 224, 'Base conflicto', '+51999000007', 'admin'
+    time '12:00', time '14:00', 224::smallint, 'Base conflicto', '+51999000007', 'admin'
   );
 
   begin
@@ -297,7 +297,7 @@ begin
   begin
     perform * from public.admin_create_manual_reservation(
       '20000000-0000-4000-8000-000000000001', d,
-      time '12:00', time '14:00', 243, 'Total conflicto', '+51999000008', 'admin'
+      time '12:00', time '14:00', 243::smallint, 'Total conflicto', '+51999000008', 'admin'
     );
     raise exception 'FAIL: reserva total solapada fue permitida';
   exception when exclusion_violation then null;
