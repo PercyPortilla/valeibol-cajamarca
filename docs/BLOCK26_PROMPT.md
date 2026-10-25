@@ -7,7 +7,7 @@ Cerrar la brecha de verificación que quedó después de B20–B25: las migracio
 ## Alcance implementado
 
 - Supabase CLI fijada en `devDependencies` para que el proyecto use una versión reproducible.
-- Runner SQL `scripts/run-supabase-sql-tests.mjs` que ejecuta cada archivo con `supabase db query --local --file`.
+- Runner SQL `scripts/run-supabase-sql-tests.mjs` que ejecuta cada archivo con `psql` dentro del contenedor PostgreSQL local creado por Supabase. Esto permite archivos multi-sentencia sin requerir `psql` global en el host.
 - Runner integral `scripts/run-supabase-local-e2e.mjs` que:
   1. exige Docker o runtime compatible;
   2. levanta exclusivamente Postgres local con `supabase db start`;
@@ -15,7 +15,7 @@ Cerrar la brecha de verificación que quedó después de B20–B25: las migracio
   4. ejecuta la suite SQL completa;
   5. detiene y elimina los volúmenes locales al finalizar.
 - CI añade un job `supabase-sql-e2e` sobre `ubuntu-latest`, donde Docker está disponible, y ejecuta el mismo comando reproducible.
-- `npm run supabase:test` ya no depende de `psql` ni de `LOCAL_DB_URL`.
+- `npm run supabase:test` no depende de `psql` instalado en el host ni de `LOCAL_DB_URL`; requiere que el contenedor local de Supabase esté levantado.
 
 ## Seguridad / límites
 

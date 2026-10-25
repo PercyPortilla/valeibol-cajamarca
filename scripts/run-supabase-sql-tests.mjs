@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -27,26 +28,45 @@ export const sqlTests = [
   "supabase/tests/platform_dynamic_sports.sql",
 ];
 
-const supabaseBin = process.platform === "win32" ? "supabase.cmd" : "supabase";
+function getProjectId() {
+  const config = readFileSync("supabase/config.toml", "utf8");
+  const match = config.match(/^project_id\s*=\s*"([^"]+)"/m);
+  if (!match?.[1]) throw new Error("Supabase project_id is missing from supabase/config.toml");
+  return match[1];
+}
 
-function run(args) {
-  const result = spawnSync(supabaseBin, args, {
+const dbContainer = `supabase_db_${getProjectId()}`;
+
+function runSqlFile(file) {
+  const result = spawnSync("docker", [
+    "exec",
+    "-i",
+    dbContainer,
+    "psql",
+    "-X",
+    "-U",
+    "postgres",
+    "-d",
+    "postgres",
+    "-v",
+    "ON_ERROR_STOP=1",
+  ], {
     cwd: process.cwd(),
-    encoding: "utf8",
-    stdio: "inherit",
-    shell: process.platform === "win32",
+    input: readFileSync(file),
+    stdio: ["pipe", "inherit", "inherit"],
+    shell: false,
   });
 
   if (result.error) throw result.error;
   if (result.status !== 0) {
-    throw new Error(`Supabase CLI failed (${result.status ?? "unknown"}): ${args.join(" ")}`);
+    throw new Error(`PostgreSQL SQL test failed (${result.status ?? "unknown"}): ${file}`);
   }
 }
 
 export function runSqlTests() {
   for (const file of sqlTests) {
     console.log(`\n[sql-e2e] ${file}`);
-    run(["db", "query", "--local", "--file", file]);
+    runSqlFile(file);
   }
 
   console.log(`\nSupabase SQL E2E: PASS · ${sqlTests.length}/${sqlTests.length} archivos ejecutados`);

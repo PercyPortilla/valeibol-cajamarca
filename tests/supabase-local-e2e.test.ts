@@ -14,10 +14,12 @@ test("B26 pins the Supabase CLI and exposes a reproducible local E2E command", (
 });
 
 test("B26 SQL runner never falls back to a linked or remote database", () => {
-  assert.match(sqlRunner, /"db", "query", "--local", "--file"/);
+  assert.match(sqlRunner, /`supabase_db_\$\{getProjectId\(\)\}`/);
+  assert.match(sqlRunner, /"docker", \[/);
+  assert.match(sqlRunner, /"exec",[\s\S]*"-i",[\s\S]*"psql"/);
+  assert.match(sqlRunner, /"ON_ERROR_STOP=1"/);
   assert.doesNotMatch(sqlRunner, /--linked|--project-ref|--db-url/);
   assert.match(sqlRunner, /pathToFileURL\(resolve\(process\.argv\[1\]\)\)/);
-  assert.match(sqlRunner, /shell: process\.platform === "win32"/);
   assert.match(runner, /"db", "reset", "--local"/);
   assert.doesNotMatch(runner, /--linked|--project-ref|--db-url/);
 });
