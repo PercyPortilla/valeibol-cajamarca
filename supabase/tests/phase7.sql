@@ -6,6 +6,12 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- B24: pricing público ahora exige tenant publicado. El fixture se limita a la
+-- transacción del test y no modifica el estado provisional del seed.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 insert into auth.users (
   id, aud, role, email, encrypted_password, email_confirmed_at,
   created_at, updated_at, raw_app_meta_data, raw_user_meta_data

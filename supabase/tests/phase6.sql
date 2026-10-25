@@ -6,6 +6,12 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- B24: habilita únicamente durante este test las superficies públicas usadas
+-- para crear pending y comprobar disponibilidad; ROLLBACK restaura el seed.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 -- Usuarios administrativos de prueba. No son datos reales y se revierten.
 insert into auth.users (
   id, aud, role, email, encrypted_password, email_confirmed_at,

@@ -5,6 +5,12 @@
 
 begin;
 
+-- B24: el seed local queda provisional a propósito. Este test valida el flujo
+-- público histórico, así que publica el tenant solo dentro de esta transacción.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 -- 1) Superficie pública endurecida: navegador sin escritura autoritativa; tablas privadas no.
 do $$
 declare

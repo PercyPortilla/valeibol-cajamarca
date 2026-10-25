@@ -3,6 +3,12 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- B24: las reservas públicas requieren tenant publicado. Mantener este cambio
+-- dentro de BEGIN/ROLLBACK conserva el seed provisional de desarrollo.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 do $$
 declare
   args text;
