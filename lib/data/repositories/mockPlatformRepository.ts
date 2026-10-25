@@ -1,9 +1,19 @@
 import { businessConfig } from "../../../config/business.ts";
-import { getSportBySlug } from "../../../config/sports.ts";
+import { getSportBySlug, sports } from "../../../config/sports.ts";
 import { demoBusiness, demoCourt, demoVenue } from "../demoPlatform.ts";
 import type { PlatformCatalogItem, PlatformCatalogQuery, PlatformRepository } from "./platformRepository.ts";
 
 export class MockPlatformRepository implements PlatformRepository {
+  async listSports() {
+    return sports.filter((sport) => sport.active).map((sport, index) => ({
+      id: sport.id,
+      slug: sport.slug,
+      name: sport.name,
+      icon: sport.icon,
+      sortOrder: (index + 1) * 10,
+    }));
+  }
+
   async listCatalog(query: PlatformCatalogQuery = {}): Promise<PlatformCatalogItem[]> {
     const sport = getSportBySlug("voley");
     if (!sport) return [];
@@ -14,6 +24,11 @@ export class MockPlatformRepository implements PlatformRepository {
       businessName: demoBusiness.name,
       businessCity: businessConfig.city,
       businessCountry: businessConfig.country,
+      businessTimezone: businessConfig.timezone,
+      coverImageUrl: "/images/valeibol-court-wide.webp",
+      coverAltText: "Vista amplia de las instalaciones de Valeibol",
+      ratingAverage: null,
+      reviewCount: 0,
       venueId: demoVenue.id,
       venueSlug: demoVenue.slug,
       venueName: demoVenue.name,

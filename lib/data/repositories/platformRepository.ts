@@ -4,12 +4,25 @@ export type PlatformCatalogQuery = {
   businessSlug?: string | null;
 };
 
+export type PublicSport = {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  sortOrder: number;
+};
+
 export type PlatformCatalogItem = {
   businessId: string;
   businessSlug: string;
   businessName: string;
   businessCity: string | null;
   businessCountry: string | null;
+  businessTimezone: string;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
+  ratingAverage: number | null;
+  reviewCount: number;
   venueId: string;
   venueSlug: string;
   venueName: string;
@@ -34,6 +47,10 @@ export type PlatformBusinessCard = {
   name: string;
   city: string | null;
   country: string | null;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
+  ratingAverage: number | null;
+  reviewCount: number;
   sports: string[];
   venues: number;
   courts: number;
@@ -70,11 +87,29 @@ export type PlatformBusinessDetail = {
   name: string;
   city: string | null;
   country: string | null;
+  coverImageUrl: string | null;
+  coverAltText: string | null;
+  ratingAverage: number | null;
+  reviewCount: number;
   venues: PlatformVenueDetail[];
+};
+
+export type PlatformLocationPoint = {
+  venueId: string;
+  venueName: string;
+  businessId: string;
+  businessSlug: string;
+  businessName: string;
+  city: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  sports: string[];
 };
 
 export interface PlatformRepository {
   listCatalog(query?: PlatformCatalogQuery): Promise<PlatformCatalogItem[]>;
+  listSports(): Promise<PublicSport[]>;
 }
 
 export function groupCatalogByBusiness(items: PlatformCatalogItem[]): PlatformBusinessCard[] {
@@ -87,6 +122,10 @@ export function groupCatalogByBusiness(items: PlatformCatalogItem[]): PlatformBu
       name: item.businessName,
       city: item.businessCity ?? item.venueCity,
       country: item.businessCountry,
+      coverImageUrl: item.coverImageUrl,
+      coverAltText: item.coverAltText,
+      ratingAverage: item.ratingAverage,
+      reviewCount: item.reviewCount,
       sports: [],
       venues: 0,
       courts: 0,
@@ -111,6 +150,33 @@ export function groupCatalogByBusiness(items: PlatformCatalogItem[]): PlatformBu
     sports: [...sportNames].sort(),
     venues: venueIds.size,
     courts: courtIds.size,
+  }));
+}
+
+export function buildPlatformLocationPoints(items: PlatformCatalogItem[]): PlatformLocationPoint[] {
+  const points = new Map<string, PlatformLocationPoint & { sportNames: Set<string> }>();
+
+  for (const item of items) {
+    const current = points.get(item.venueId) ?? {
+      venueId: item.venueId,
+      venueName: item.venueName,
+      businessId: item.businessId,
+      businessSlug: item.businessSlug,
+      businessName: item.businessName,
+      city: item.venueCity ?? item.businessCity,
+      address: item.venueAddress,
+      latitude: item.latitude,
+      longitude: item.longitude,
+      sports: [],
+      sportNames: new Set<string>(),
+    };
+    current.sportNames.add(item.sportName);
+    points.set(item.venueId, current);
+  }
+
+  return [...points.values()].map(({ sportNames, ...point }) => ({
+    ...point,
+    sports: [...sportNames].sort(),
   }));
 }
 
@@ -154,6 +220,10 @@ export function buildBusinessDetail(items: PlatformCatalogItem[], slug: string):
     name: first.businessName,
     city: first.businessCity,
     country: first.businessCountry,
+    coverImageUrl: first.coverImageUrl,
+    coverAltText: first.coverAltText,
+    ratingAverage: first.ratingAverage,
+    reviewCount: first.reviewCount,
     venues: [...venues.values()],
   };
 }

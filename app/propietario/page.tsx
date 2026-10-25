@@ -3,6 +3,12 @@ import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { requireAdminContext } from "@/lib/auth/server";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Panel del propietario",
+  robots: { index: false, follow: false },
+};
 
 const ownerSections = [
   ["Agenda y disponibilidad", "Controla horarios, bloqueos y operación diaria.", "/admin/disponibilidad"],
@@ -11,6 +17,7 @@ const ownerSections = [
   ["Precios", "Administra tarifas y vigencias por cancha.", "/admin/precios"],
   ["Actividad y reportes", "Revisa ocupación, valor operativo y exportaciones.", "/admin/reportes"],
   ["Configuración", "Contenido público, cuenta y accesos administrativos.", "/admin/configuracion"],
+  ["Negocio, sedes y canchas", "Gestiona la estructura real, ubicación, deportes, horarios iniciales y estado de tus canchas.", "/admin/configuracion/estructura"],
 ] as const;
 
 export default async function OwnerPortalPage() {

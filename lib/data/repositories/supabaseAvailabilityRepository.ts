@@ -40,18 +40,35 @@ export class SupabaseAvailabilityRepository implements AvailabilityRepository {
     const from = weekDateKeys[0];
     const to = weekDateKeys[weekDateKeys.length - 1];
 
-    const { data, error } = await client.rpc("get_public_availability", {
-      p_business_slug: query.businessSlug,
-      p_from: from,
-      p_to: to,
-    });
+    const [availabilityResult, bookingContextResult] = await Promise.all([
+      client.rpc("get_public_availability", {
+        p_business_slug: query.businessSlug,
+        p_from: from,
+        p_to: to,
+      }),
+      client.rpc("get_public_booking_context", {
+        p_business_slug: query.businessSlug,
+      }),
+    ]);
 
-    if (error) {
+    if (availabilityResult.error || bookingContextResult.error) {
       throw new Error("availability_unavailable");
     }
 
     type PublicAvailabilityRow = Database["public"]["Functions"]["get_public_availability"]["Returns"][number];
-    const rows = (data ?? []) as PublicAvailabilityRow[];
+    type PublicBookingContextRow = Database["public"]["Functions"]["get_public_booking_context"]["Returns"][number];
+    const rows = (availabilityResult.data ?? []) as PublicAvailabilityRow[];
+    const bookingContext = ((bookingContextResult.data ?? []) as PublicBookingContextRow[])[0];
+    const bookingIncrementMinutes = bookingContext?.booking_increment_minutes;
+    if (
+      !bookingContext ||
+      !Number.isInteger(bookingIncrementMinutes) ||
+      bookingIncrementMinutes < 15 ||
+      bookingIncrementMinutes > 240 ||
+      1440 % bookingIncrementMinutes !== 0
+    ) {
+      throw new Error("availability_unavailable");
+    }
     const grouped = new Map<
       string,
       {
@@ -89,6 +106,7 @@ export class SupabaseAvailabilityRepository implements AvailabilityRepository {
         court.days.sort((a, b) => a.date.localeCompare(b.date)),
         query.todayDateKey,
         court.timezone,
+        bookingIncrementMinutes,
       ),
     }));
 

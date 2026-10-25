@@ -13,6 +13,7 @@ export function AdminPricingForm({ rules, role }: { rules: AdminPricingRule[]; r
   }, [rules]);
   const firstCourt = courts[0]?.id ?? "";
   const today = rules[0]?.businessToday ?? "";
+  const currency = rules[0]?.currency ?? "PEN";
   const [courtId, setCourtId] = useState(firstCourt);
   const [lighting, setLighting] = useState<"without_lights" | "with_lights">("without_lights");
   const [hourlyRate, setHourlyRate] = useState("");
@@ -60,7 +61,7 @@ export function AdminPricingForm({ rules, role }: { rules: AdminPricingRule[]; r
           </select>
         </label>
         <label className="field">
-          <span className="field__label">Nueva tarifa por hora (PEN)</span>
+          <span className="field__label">Nueva tarifa por hora ({currency})</span>
           <input className="field__control" type="number" min="0.01" max="10000" step="0.01" inputMode="decimal" value={hourlyRate} onChange={(event) => setHourlyRate(event.target.value)} required />
         </label>
         <label className="field">

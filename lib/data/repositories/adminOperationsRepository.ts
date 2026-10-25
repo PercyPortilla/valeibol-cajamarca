@@ -60,6 +60,7 @@ export type CreateScheduleBlockInput = {
 export interface AdminOperationsRepository {
   getSchedule(from: string, to: string, timezone: string): Promise<AdminScheduleSnapshot>;
   confirmReservation(reservationId: string): Promise<AdminMutationReservationResult>;
+  completeReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   cancelReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   restoreArchivedReservation(reservationId: string): Promise<AdminMutationReservationResult>;

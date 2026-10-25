@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/Card";
 import { AdminAccessManagement } from "@/components/admin/AdminAccessManagement";
 import { AdminAccountSecurity } from "@/components/admin/AdminAccountSecurity";
 import { AdminSiteContentEditor } from "@/components/admin/AdminSiteContentEditor";
-import { businessConfig } from "@/config/business";
 import { requireAdminContext } from "@/lib/auth/server";
 import { isLocalDevAdminUserId } from "@/lib/auth/localDev";
 import { createSiteContentRepository } from "@/lib/data/siteContentService";
@@ -37,13 +36,13 @@ export default async function AdminConfigurationPage() {
       <div className="admin-config-grid">
         <Card className="admin-config-card">
           <span className="metric-label">Negocio</span>
-          <h2>{businessConfig.name}</h2>
+          <h2>{context.businessName}</h2>
           <dl className="phase7-rule-meta">
-            <div><dt>Dirección</dt><dd>{businessConfig.address}</dd></div>
-            <div><dt>Teléfono</dt><dd>{businessConfig.phone}</dd></div>
-            <div><dt>Zona horaria</dt><dd>{businessConfig.timezone}</dd></div>
-            <div><dt>Moneda</dt><dd>{businessConfig.currency}</dd></div>
+            <div><dt>Negocio</dt><dd>{context.businessName}</dd></div>
+            <div><dt>Zona horaria</dt><dd>{context.timezone}</dd></div>
+            <div><dt>Identificador</dt><dd>{context.businessId}</dd></div>
           </dl>
+          <div className="admin-config-actions"><Link className="button button--secondary" href="/admin/configuracion/estructura">Negocio, sedes y canchas</Link></div>
         </Card>
 
         <Card className="admin-config-card">
@@ -63,7 +62,7 @@ export default async function AdminConfigurationPage() {
 
       {context.role === "owner" ? (
         <div className="admin-config-content-block">
-          <AdminAccessManagement currentUserId={context.userId} localMode={localMode} />
+          <AdminAccessManagement currentUserId={context.userId} businessName={context.businessName} localMode={localMode} />
         </div>
       ) : null}
 

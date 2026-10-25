@@ -23,7 +23,7 @@ export default async function AdminPricingPage() {
       <>
         <header className="admin-topbar">
           <div><span className="eyebrow">TARIFAS VERSIONADAS</span><h1>Precios</h1><p className="admin-subtitle">Las reservas guardan su tarifa histórica. Cambiar una vigencia futura no reescribe reservas existentes.</p></div>
-          <Badge tone="info">America/Lima</Badge>
+          <Badge tone="info">{context.timezone}</Badge>
         </header>
 
         {rules.length === 0 ? <EmptyState title="No existen tarifas configuradas" detail="Configura pricing_rules antes de aceptar reservas reales." /> : (

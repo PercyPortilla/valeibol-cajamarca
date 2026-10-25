@@ -31,9 +31,10 @@ export const sports = [
   },
 ] as const satisfies readonly Sport[];
 
-export type SportSlug = (typeof sports)[number]["slug"];
+export type KnownSportSlug = (typeof sports)[number]["slug"];
+export type SportSlug = string;
 
-export const sportBookingRules: Record<SportSlug, { requiresNetHeight: boolean }> = {
+export const sportBookingRules: Record<KnownSportSlug, { requiresNetHeight: boolean }> = {
   voley: { requiresNetHeight: true },
   futbol: { requiresNetHeight: false },
   futsal: { requiresNetHeight: false },
@@ -50,6 +51,6 @@ export function getSportById(id: string) {
 
 export function sportRequiresNetHeight(slug: string) {
   return slug in sportBookingRules
-    ? sportBookingRules[slug as SportSlug].requiresNetHeight
+    ? sportBookingRules[slug as KnownSportSlug].requiresNetHeight
     : false;
 }

@@ -7,10 +7,20 @@ import { Badge } from "@/components/ui/Badge";
 import { formatMoney } from "@/lib/booking";
 import { createServerSupabaseClient, hasPublicSupabaseServerConfig } from "@/lib/data/supabase/server";
 import type { Database } from "@/lib/data/supabase/database.types";
+import type { Metadata } from "next";
+import { VerifiedReviewForm } from "@/components/account/VerifiedReviewForm";
+import { BusinessCard } from "@/components/platform/BusinessCard";
+import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import { groupCatalogByBusiness, type PlatformBusinessCard } from "@/lib/data/repositories/platformRepository";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Mi cuenta",
+  robots: { index: false, follow: false },
+};
 
 type CustomerReservation = Database["public"]["Functions"]["get_my_reservations"]["Returns"][number];
+type ReviewableReservation = Database["public"]["Functions"]["get_my_reviewable_reservations"]["Returns"][number];
 
 function formatReservationDate(value: string) {
   return new Intl.DateTimeFormat("es-PE", { weekday: "short", day: "2-digit", month: "short", year: "numeric", timeZone: "America/Lima" }).format(new Date(value));
@@ -35,6 +45,9 @@ function reservationMode(reservation: CustomerReservation) {
 export default async function CustomerAccountPage() {
   let userEmail: string | null = null;
   let reservations: Database["public"]["Functions"]["get_my_reservations"]["Returns"] = [];
+  let reviewableReservations: ReviewableReservation[] = [];
+  let favoriteBusinessIds: string[] = [];
+  let favoriteBusinesses: PlatformBusinessCard[] = [];
   let historyLoadFailed = false;
 
   if (hasPublicSupabaseServerConfig()) {
@@ -43,13 +56,24 @@ export default async function CustomerAccountPage() {
       const { data } = await supabase.auth.getUser();
       userEmail = data.user?.email ?? null;
       if (data.user) {
-        const { data: history, error } = await supabase.rpc("get_my_reservations");
-        if (error) historyLoadFailed = true;
-        else reservations = history ?? [];
+        const [historyResult, favoritesResult, reviewsResult] = await Promise.all([
+          supabase.rpc("get_my_reservations"),
+          supabase.rpc("get_my_favorite_business_ids"),
+          supabase.rpc("get_my_reviewable_reservations"),
+        ]);
+        if (historyResult.error) historyLoadFailed = true;
+        else reservations = historyResult.data ?? [];
+        if (!favoritesResult.error) favoriteBusinessIds = (favoritesResult.data ?? []).map((item) => item.business_id);
+        if (!reviewsResult.error) reviewableReservations = reviewsResult.data ?? [];
       }
     } catch {
       userEmail = null;
     }
+  }
+
+  if (userEmail && favoriteBusinessIds.length) {
+    const favoriteSet = new Set(favoriteBusinessIds);
+    favoriteBusinesses = groupCatalogByBusiness(await getPublicPlatformCatalog()).filter((business) => favoriteSet.has(business.businessId));
   }
 
   return (
@@ -69,6 +93,29 @@ export default async function CustomerAccountPage() {
                 <div><small>Sesión iniciada</small><strong>{userEmail}</strong></div>
                 <div className="account-user-actions"><Link className="button button--secondary" href="/buscar">Buscar cancha</Link><CustomerLogoutButton /></div>
               </div>
+              <section className="account-favorites" aria-labelledby="account-favorites-title">
+                <div className="account-section-heading"><div><span className="eyebrow">FAVORITOS</span><h2 id="account-favorites-title">Complejos guardados</h2><p>{favoriteBusinesses.length ? `${favoriteBusinesses.length} ${favoriteBusinesses.length === 1 ? "complejo guardado" : "complejos guardados"}.` : "Guarda complejos desde el marketplace para encontrarlos aquí."}</p></div></div>
+                {favoriteBusinesses.length ? <div className="platform-results-grid">{favoriteBusinesses.map((business) => <BusinessCard key={business.businessId} business={business} />)}</div> : <div className="account-empty"><h3>Aún no tienes favoritos</h3><p>Usa el corazón de una ficha o complejo para guardarlo en tu cuenta.</p><Link className="button button--secondary" href="/buscar">Explorar complejos</Link></div>}
+              </section>
+              <section className="account-reviews" aria-labelledby="account-reviews-title">
+                <div className="account-section-heading"><div><span className="eyebrow">TU EXPERIENCIA</span><h2 id="account-reviews-title">Reseñas verificadas</h2><p>Solo puedes reseñar reservas completadas y vinculadas a esta cuenta.</p></div></div>
+                {reviewableReservations.length ? <div className="account-review-list">
+                  {reviewableReservations.map((reservation) => (
+                    <article className="account-review-card" key={reservation.reservation_id}>
+                      <header><div><strong>{reservation.business_name}</strong><p>{reservation.court_name} · {reservation.sport_name}</p></div><time dateTime={reservation.start_at}>{formatReservationDate(reservation.start_at)}</time></header>
+                      <VerifiedReviewForm
+                        reservationId={reservation.reservation_id}
+                        existing={reservation.review_id && reservation.rating && reservation.review_status ? {
+                          reviewId: reservation.review_id,
+                          rating: reservation.rating,
+                          comment: reservation.comment,
+                          status: reservation.review_status,
+                        } : null}
+                      />
+                    </article>
+                  ))}
+                </div> : <div className="account-empty"><h3>No hay reservas completadas para reseñar</h3><p>Cuando una reserva confirmada termine y el negocio la marque como completada, aparecerá aquí.</p></div>}
+              </section>
               <section className="account-reservations" aria-labelledby="account-reservations-title">
                 <div className="account-section-heading">
                   <div><span className="eyebrow">HISTORIAL</span><h2 id="account-reservations-title">Tus reservas</h2><p>{historyLoadFailed ? "No pudimos actualizar el historial." : reservations.length === 1 ? "1 reserva vinculada a tu cuenta." : `${reservations.length} reservas vinculadas a tu cuenta.`}</p></div>

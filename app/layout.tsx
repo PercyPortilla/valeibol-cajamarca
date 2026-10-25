@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { resolveSiteUrl } from "@/lib/platform/siteUrl";
 import "./globals.css";
 
+const siteUrl = resolveSiteUrl();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl ?? "http://localhost:3000"),
   title: {
     default: "Canchas | Reservas deportivas",
     template: "%s | Canchas",
@@ -21,7 +25,7 @@ export const metadata: Metadata = {
     description: "Encuentra complejos deportivos y consulta disponibilidad desde una sola plataforma.",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Canchas | Reservas deportivas",
     description: "Encuentra complejos deportivos y consulta disponibilidad desde una sola plataforma.",
   },

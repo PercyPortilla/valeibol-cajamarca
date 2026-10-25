@@ -9,7 +9,7 @@ import { formatMoney } from "@/lib/admin/reservations";
 
 export default async function AdminReportsPage() {
   const context = await requireAdminContext();
-  const today = businessTodayDateKey();
+  const today = businessTodayDateKey(new Date(), context.timezone);
   const from = `${today.slice(0, 7)}-01`;
   const metrics = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).getOperationalMetrics(from, today);
 

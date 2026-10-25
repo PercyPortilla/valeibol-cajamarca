@@ -29,5 +29,10 @@ test("las invitaciones usan activación separada y obligan a crear contraseña",
   assert.match(accessEdge, /auth\.admin\.deleteUser\(invitedUser\.id\)/);
 });
 
+test("la Edge distingue protección del propietario principal como conflicto", () => {
+  assert.match(accessEdge, /primary_owner_transfer_required/);
+  assert.match(accessEdge, /primary_owner_transfer_required", status: 409/);
+});
+
 
 

@@ -1,20 +1,15 @@
 import type { MetadataRoute } from "next";
-import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import { getPublicPlatformCatalog, getPublicSports } from "@/lib/data/platformService";
 import { groupCatalogByBusiness } from "@/lib/data/repositories/platformRepository";
-
-function resolveSiteUrl() {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (explicit) return explicit.replace(/\/$/, "");
-
-  const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
-  if (vercelProductionUrl) return `https://${vercelProductionUrl.replace(/\/$/, "")}`;
-
-  return null;
-}
+import { resolveSiteUrl } from "@/lib/platform/siteUrl";
+import { getSportLandingPath } from "@/lib/platform/sportLanding";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = resolveSiteUrl();
   if (!siteUrl) return [];
+
+  const [catalog, sports] = await Promise.all([getPublicPlatformCatalog(), getPublicSports()]);
+  const sportSlugs = new Set(catalog.map((item) => item.sportSlug));
 
   const baseEntries: MetadataRoute.Sitemap = [
     {
@@ -23,12 +18,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     { url: `${siteUrl}/buscar`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteUrl}/voley`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${siteUrl}/futbol`, changeFrequency: "daily", priority: 0.8 },
+    ...sports.flatMap((sport) => sportSlugs.has(sport.slug)
+      ? [{ url: `${siteUrl}${getSportLandingPath(sport.slug)}`, changeFrequency: "daily" as const, priority: 0.8 }]
+      : []),
     { url: `${siteUrl}/complejo/valeibol-cajamarca`, changeFrequency: "daily", priority: 0.9 },
   ];
 
-  const businesses = groupCatalogByBusiness(await getPublicPlatformCatalog());
+  const businesses = groupCatalogByBusiness(catalog);
   const complexEntries: MetadataRoute.Sitemap = businesses.map((business) => ({
     url: `${siteUrl}/complejo/${encodeURIComponent(business.slug)}`,
     changeFrequency: "daily",

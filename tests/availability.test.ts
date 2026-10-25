@@ -161,3 +161,26 @@ test("el calendario derivado conserva únicamente campos públicos", () => {
   assert.equal(days[0]?.isToday, true);
   assert.deepEqual(Object.keys(days[0]?.slots[0] ?? {}).sort(), ["date", "end", "id", "start", "status"]);
 });
+
+test("el calendario Supabase puede usar granularidad dinámica de 30 minutos", () => {
+  const days = buildCalendarDaysFromOperatingDays(
+    [{
+      date: "2026-10-14",
+      isOpen: true,
+      opensAt: "08:00",
+      closesAt: "10:00",
+      scheduleStatus: "confirmed",
+      busyIntervals: [],
+    }],
+    "2026-10-14",
+    "America/Lima",
+    30,
+  );
+
+  assert.deepEqual(days[0]?.slots.map((slot) => [slot.start, slot.end]), [
+    ["08:00", "08:30"],
+    ["08:30", "09:00"],
+    ["09:00", "09:30"],
+    ["09:30", "10:00"],
+  ]);
+});

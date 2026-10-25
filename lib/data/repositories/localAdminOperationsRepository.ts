@@ -118,6 +118,16 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
     return { reservationId, status: reservation.status };
   }
 
+  async completeReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
+    if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status === "completed") return { reservationId, status: reservation.status };
+    if (reservation.status !== "confirmed") throw new AdminOperationsRepositoryError("validation", "Solo una reserva confirmada puede completarse.");
+    if (new Date(reservation.endAt).getTime() > Date.now()) throw new AdminOperationsRepositoryError("validation", "La reserva aún no ha terminado.");
+    reservation.status = "completed";
+    return { reservationId, status: reservation.status };
+  }
+
   async cancelReservation(reservationId: string): Promise<AdminMutationReservationResult> {
     const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
     if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");

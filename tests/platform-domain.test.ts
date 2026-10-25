@@ -9,7 +9,7 @@ import {
   demoVenue,
 } from "../lib/data/demoPlatform.ts";
 import { USER_ROLES } from "../lib/domain/models.ts";
-import { complexRoute, platformRoutes } from "../lib/platform/routes.ts";
+import { complexRoute, platformRoutes, sportRoute } from "../lib/platform/routes.ts";
 
 test("los roles globales base quedan definidos sin alterar los roles admin heredados", () => {
   assert.deepEqual(USER_ROLES, ["CUSTOMER", "OWNER", "ADMIN"]);
@@ -37,14 +37,17 @@ test("los slugs demo son seguros para rutas", () => {
   assert.match(demoCourt.slug, slugPattern);
 });
 
-test("el catálogo de rutas deja preparada la expansión sin publicar páginas incompletas", () => {
+test("el catálogo de rutas cubre los cuatro deportes activos", () => {
   assert.equal(platformRoutes.search, "/buscar");
   assert.equal(platformRoutes.volleyball, "/voley");
   assert.equal(platformRoutes.football, "/futbol");
+  assert.equal(platformRoutes.futsal, "/futsal");
+  assert.equal(platformRoutes.basketball, "/basquet");
   assert.equal(platformRoutes.complexPattern, "/complejo/[slug]");
   assert.equal(platformRoutes.reservation, "/reservar");
   assert.equal(platformRoutes.account, "/mi-cuenta");
   assert.equal(platformRoutes.owner, "/propietario");
   assert.equal(platformRoutes.admin, "/admin");
   assert.equal(complexRoute("arena norte"), "/complejo/arena%20norte");
+  assert.equal(sportRoute("futsal"), "/futsal");
 });

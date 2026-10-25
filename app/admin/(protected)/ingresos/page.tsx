@@ -15,7 +15,7 @@ function monthStart(today: string) { return `${today.slice(0, 7)}-01`; }
 export default async function AdminIncomePage({ searchParams }: { searchParams: Promise<{ from?: string; to?: string }> }) {
   const context = await requireAdminContext();
   const params = await searchParams;
-  const today = businessTodayDateKey();
+  const today = businessTodayDateKey(new Date(), context.timezone);
   const from = validDate(params.from) ?? monthStart(today);
   const to = validDate(params.to) ?? today;
 

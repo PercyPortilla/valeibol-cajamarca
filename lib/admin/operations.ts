@@ -3,6 +3,7 @@ import type { AdminRole } from "../auth.ts";
 export type AdminOperation =
   | "read_schedule"
   | "confirm_reservation"
+  | "complete_reservation"
   | "cancel_reservation"
   | "archive_reservation"
   | "restore_archived_reservation"
@@ -32,6 +33,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   owner: new Set([
     "read_schedule",
     "confirm_reservation",
+    "complete_reservation",
     "cancel_reservation",
     "archive_reservation",
     "restore_archived_reservation",
@@ -43,6 +45,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   admin: new Set([
     "read_schedule",
     "confirm_reservation",
+    "complete_reservation",
     "cancel_reservation",
     "archive_reservation",
     "restore_archived_reservation",
@@ -54,6 +57,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   staff: new Set([
     "read_schedule",
     "confirm_reservation",
+    "complete_reservation",
     "cancel_reservation",
     "create_manual_reservation",
     "create_block",
@@ -87,7 +91,7 @@ export function adminSourceLabel(source: "admin" | "phone" | "whatsapp" | "other
   return labels[source];
 }
 
-export type ReservationTransitionAction = "confirm" | "cancel";
+export type ReservationTransitionAction = "confirm" | "complete" | "cancel";
 export type ReservationTransitionResult =
   | { allowed: true; nextStatus: "pending" | "confirmed" | "cancelled" | "completed"; idempotent: boolean }
   | { allowed: false; reason: "invalid_status_transition" };
@@ -99,6 +103,12 @@ export function reservationTransition(
   if (action === "confirm") {
     if (current === "confirmed") return { allowed: true, nextStatus: "confirmed", idempotent: true };
     if (current === "pending") return { allowed: true, nextStatus: "confirmed", idempotent: false };
+    return { allowed: false, reason: "invalid_status_transition" };
+  }
+
+  if (action === "complete") {
+    if (current === "completed") return { allowed: true, nextStatus: "completed", idempotent: true };
+    if (current === "confirmed") return { allowed: true, nextStatus: "completed", idempotent: false };
     return { allowed: false, reason: "invalid_status_transition" };
   }
 

@@ -133,7 +133,13 @@ export default async function AdminReservationsPage({ searchParams }: { searchPa
                 <div><dt>Valor de reserva</dt><dd>{formatMoney(reservation.totalAmount, reservation.currency)}</dd></div>
                 <div><dt>Origen</dt><dd>{reservation.source === "public_web" ? "Web pública" : reservation.source}</dd></div>
               </dl>
-              <AdminReservationActions reservationId={reservation.id} status={reservation.status} role={context.role} archivedAt={reservation.archivedAt} />
+              <AdminReservationActions
+                reservationId={reservation.id}
+                status={reservation.status}
+                role={context.role}
+                archivedAt={reservation.archivedAt}
+                endAt={reservation.endAt}
+              />
             </article>
             );
           })}

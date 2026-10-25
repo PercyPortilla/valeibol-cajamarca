@@ -77,9 +77,9 @@ export function dateKeyFromDate(date: Date) {
   ].join("-");
 }
 
-export function businessTodayDateKey(now = new Date()) {
+export function businessTodayDateKey(now = new Date(), timezone: string = businessConfig.timezone) {
   const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: businessConfig.timezone,
+    timeZone: timezone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -257,7 +257,7 @@ function statusForInterval(
 export function buildSlotsFromOperatingDay(
   day: PublicOperatingDay,
   timeZone: string,
-  slotMinutes = businessConfig.availability.slotMinutes,
+  slotMinutes: number = businessConfig.availability.slotMinutes,
 ): AvailabilitySlot[] {
   if (!day.isOpen || !day.opensAt || !day.closesAt) return [];
 
@@ -287,9 +287,10 @@ export function buildCalendarDaysFromOperatingDays(
   operatingDays: PublicOperatingDay[],
   todayDateKey: string,
   timeZone: string,
+  slotMinutes: number = businessConfig.availability.slotMinutes,
 ): CalendarDay[] {
   return operatingDays.map((day) =>
-    calendarDayShell(day.date, todayDateKey, buildSlotsFromOperatingDay(day, timeZone)),
+    calendarDayShell(day.date, todayDateKey, buildSlotsFromOperatingDay(day, timeZone, slotMinutes)),
   );
 }
 

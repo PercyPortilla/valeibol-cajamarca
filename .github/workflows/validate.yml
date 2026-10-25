@@ -36,3 +36,14 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  supabase-sql-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install reproducible dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Rebuild local Supabase and run SQL contracts
+        run: npm run supabase:e2e:local

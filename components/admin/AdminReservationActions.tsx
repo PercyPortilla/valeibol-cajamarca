@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { AdminRole } from "../../lib/auth.ts";
 import type { AdminReservationStatus } from "../../lib/admin/reservations.ts";
@@ -8,6 +8,7 @@ import { canPerformAdminOperation } from "../../lib/admin/operations.ts";
 import {
   archiveCancelledReservationAction,
   cancelReservationAction,
+  completeReservationAction,
   confirmReservationAction,
   restoreArchivedReservationAction,
   type AdminActionResult,
@@ -18,15 +19,29 @@ export function AdminReservationActions({
   status,
   role,
   archivedAt,
+  endAt,
 }: {
   reservationId: string;
   status: AdminReservationStatus;
   role: AdminRole;
   archivedAt: string | null;
+  endAt: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<AdminActionResult | null>(null);
+  const [completionAvailable, setCompletionAvailable] = useState(false);
+
+  useEffect(() => {
+    if (status !== "confirmed") {
+      setCompletionAvailable(false);
+      return;
+    }
+    const refresh = () => setCompletionAvailable(new Date(endAt).getTime() <= Date.now());
+    refresh();
+    const timer = window.setInterval(refresh, 60_000);
+    return () => window.clearInterval(timer);
+  }, [endAt, status]);
 
   function run(task: () => Promise<AdminActionResult>) {
     setResult(null);
@@ -41,17 +56,23 @@ export function AdminReservationActions({
   }
 
   const canConfirm = status === "pending" && canPerformAdminOperation(role, "confirm_reservation");
+  const canComplete = status === "confirmed" && completionAvailable && canPerformAdminOperation(role, "complete_reservation");
   const canCancel = (status === "pending" || status === "confirmed") && canPerformAdminOperation(role, "cancel_reservation");
   const canArchive = status === "cancelled" && !archivedAt && canPerformAdminOperation(role, "archive_reservation");
   const canRestore = status === "cancelled" && Boolean(archivedAt) && canPerformAdminOperation(role, "restore_archived_reservation");
 
-  if (!canConfirm && !canCancel && !canArchive && !canRestore) return null;
+  if (!canConfirm && !canComplete && !canCancel && !canArchive && !canRestore) return null;
 
   return (
     <div className="admin-reservation-actions">
       {canConfirm ? (
         <button className="button button--secondary" type="button" disabled={pending} onClick={() => run(() => confirmReservationAction(reservationId))}>
           {pending ? "Procesando…" : "Confirmar"}
+        </button>
+      ) : null}
+      {canComplete ? (
+        <button className="button button--secondary" type="button" disabled={pending} onClick={() => run(() => completeReservationAction(reservationId))}>
+          {pending ? "Procesando…" : "Marcar completada"}
         </button>
       ) : null}
       {canCancel ? (

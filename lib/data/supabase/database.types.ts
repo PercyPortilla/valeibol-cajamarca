@@ -6,6 +6,7 @@ export type AppRole = "owner" | "admin" | "staff";
 export type PlatformRole = "customer" | "owner" | "admin";
 export type PaymentMethod = "yape" | "plin" | "cash" | "bank_transfer";
 export type PaymentStatus = "reported" | "verified" | "rejected" | "refunded";
+export type ReviewModerationStatus = "pending" | "published" | "rejected" | "hidden";
 export type ReservationSource = "public_web" | "admin" | "phone" | "whatsapp" | "other";
 export type BlockReason = "maintenance" | "academy" | "tournament" | "event" | "closure" | "other";
 export type BlockStatus = "active" | "cancelled";
@@ -15,6 +16,37 @@ export type Database = {
     Tables: Record<string, never>;
     Views: Record<string, never>;
     Functions: {
+      get_public_sports: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          sport_id: string;
+          slug: string;
+          name: string;
+          icon: string | null;
+          sort_order: number;
+        }>;
+      };
+      get_platform_admin_sports: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          sport_id: string;
+          slug: string;
+          name: string;
+          icon: string | null;
+          is_active: boolean;
+          sort_order: number;
+          active_court_count: number | string;
+          court_count: number | string;
+        }>;
+      };
+      platform_admin_upsert_sport: {
+        Args: { p_sport_id: string | null; p_slug: string; p_name: string; p_icon: string | null; p_sort_order: number };
+        Returns: string;
+      };
+      platform_admin_set_sport_active: {
+        Args: { p_sport_id: string; p_active: boolean };
+        Returns: boolean;
+      };
       get_public_platform_catalog: {
         Args: { p_sport_slug?: string | null; p_city?: string | null };
         Returns: Array<{
@@ -23,6 +55,11 @@ export type Database = {
           business_name: string;
           business_city: string | null;
           business_country: string | null;
+          business_timezone: string;
+          cover_image_url: string | null;
+          cover_alt_text: string | null;
+          rating_average: number | string | null;
+          review_count: number | string;
           venue_id: string;
           venue_slug: string;
           venue_name: string;
@@ -284,6 +321,63 @@ export type Database = {
           created_at: string;
         }>;
       };
+      get_my_favorite_business_ids: {
+        Args: Record<string, never>;
+        Returns: Array<{ business_id: string }>;
+      };
+      set_business_favorite: {
+        Args: { p_business_id: string; p_favorite: boolean };
+        Returns: boolean;
+      };
+      get_my_reviewable_reservations: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          reservation_id: string;
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          court_name: string;
+          sport_name: string;
+          start_at: string;
+          review_id: string | null;
+          rating: number | null;
+          comment: string | null;
+          review_status: ReviewModerationStatus | null;
+        }>;
+      };
+      submit_verified_business_review: {
+        Args: { p_reservation_id: string; p_rating: number; p_comment?: string | null };
+        Returns: string;
+      };
+      get_public_business_reviews: {
+        Args: { p_business_slug: string; p_limit?: number };
+        Returns: Array<{
+          review_id: string;
+          rating: number;
+          created_at: string;
+          court_name: string;
+          sport_name: string;
+        }>;
+      };
+      get_platform_admin_reviews_page: {
+        Args: { p_status?: ReviewModerationStatus; p_limit?: number; p_offset?: number };
+        Returns: Array<{
+          review_id: string;
+          business_name: string;
+          business_slug: string;
+          rating: number;
+          comment: string | null;
+          review_status: ReviewModerationStatus;
+          created_at: string;
+          updated_at: string;
+          court_name: string;
+          sport_name: string;
+        }>;
+      };
+      platform_admin_moderate_review: {
+        Args: { p_review_id: string; p_status: ReviewModerationStatus };
+        Returns: ReviewModerationStatus;
+      };
       get_public_payment_methods: {
         Args: { p_business_slug: string };
         Returns: Array<{
@@ -395,14 +489,124 @@ export type Database = {
           city: string | null;
           country: string | null;
           is_active: boolean;
+          configuration_status: "provisional" | "confirmed";
+          currency: string;
+          timezone: string;
           venue_count: number | string;
           court_count: number | string;
           reservation_count: number | string;
         }>;
       };
+      platform_admin_update_business_core: {
+        Args: { p_business_id: string; p_slug: string; p_currency: string; p_timezone: string };
+        Returns: boolean;
+      };
       platform_admin_set_business_active: {
         Args: { p_business_id: string; p_active: boolean };
         Returns: boolean;
+      };
+      platform_admin_create_business: {
+        Args: {
+          p_slug: string;
+          p_name: string;
+          p_owner_email: string;
+          p_city?: string | null;
+          p_country?: string | null;
+          p_address?: string | null;
+          p_phone?: string | null;
+          p_currency?: string;
+          p_timezone?: string;
+        };
+        Returns: Array<{
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          owner_user_id: string;
+        }>;
+      };
+      get_admin_business_structure: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          city: string | null;
+          country: string | null;
+          address: string | null;
+          phone: string | null;
+          currency: string;
+          timezone: string;
+          configuration_status: "provisional" | "confirmed";
+          sports: Json;
+          venues: Json;
+        }>;
+      };
+      get_admin_booking_settings: {
+        Args: Record<string, never>;
+        Returns: Array<{ booking_increment_minutes: number }>;
+      };
+      get_admin_publication_readiness: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          configuration_status: "provisional" | "confirmed";
+          has_active_venue: boolean;
+          has_active_court: boolean;
+          active_courts_ready: boolean;
+          active_court_count: number | string;
+        }>;
+      };
+      admin_set_business_configuration_status: {
+        Args: { p_status: "provisional" | "confirmed" };
+        Returns: "provisional" | "confirmed";
+      };
+      admin_update_booking_increment: {
+        Args: { p_booking_increment_minutes: number };
+        Returns: number;
+      };
+      admin_update_business_profile: {
+        Args: { p_name: string; p_city: string | null; p_country: string | null; p_address: string | null; p_phone: string | null };
+        Returns: boolean;
+      };
+      admin_create_venue: {
+        Args: { p_slug: string; p_name: string; p_city?: string | null; p_address?: string | null; p_latitude?: number | null; p_longitude?: number | null };
+        Returns: string;
+      };
+      admin_update_venue: {
+        Args: { p_venue_id: string; p_name: string; p_city: string | null; p_address: string | null; p_latitude: number | null; p_longitude: number | null; p_active: boolean };
+        Returns: boolean;
+      };
+      admin_create_court: {
+        Args: {
+          p_venue_id: string;
+          p_sport_id: string;
+          p_slug: string;
+          p_name: string;
+          p_surface: string | null;
+          p_hours: Json;
+          p_rate_without_lights: number;
+          p_rate_with_lights: number;
+        };
+        Returns: string;
+      };
+      admin_update_court_identity: {
+        Args: { p_court_id: string; p_name: string; p_surface: string | null };
+        Returns: boolean;
+      };
+      admin_set_court_active: {
+        Args: { p_court_id: string; p_active: boolean };
+        Returns: boolean;
+      };
+      admin_schedule_court_operating_hours: {
+        Args: { p_court_id: string; p_hours: Json; p_effective_from: string };
+        Returns: boolean;
+      };
+      admin_access_transfer_primary_owner: {
+        Args: { p_actor_user_id: string; p_target_user_id: string };
+        Returns: Array<{
+          business_id: string;
+          previous_owner_user_id: string;
+          owner_user_id: string;
+        }>;
       };
       get_current_admin_context: {
         Args: Record<string, never>;
@@ -454,6 +658,14 @@ export type Database = {
         }>;
       };
       admin_confirm_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          updated_at: string;
+        }>;
+      };
+      admin_complete_reservation: {
         Args: { p_reservation_id: string };
         Returns: Array<{
           reservation_id: string;

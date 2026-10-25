@@ -25,6 +25,7 @@ type LoadState = "idle" | "loading" | "ready" | "error";
 
 type AvailabilityCalendarProps = {
   businessSlug: string;
+  businessTimezone: string;
   initialCourtId: string | null;
   courtSports: Record<string, string>;
 };
@@ -106,6 +107,7 @@ function dayPanelId(date: string) {
 
 export function AvailabilityCalendar({
   businessSlug,
+  businessTimezone,
   initialCourtId,
   courtSports,
 }: AvailabilityCalendarProps) {
@@ -122,12 +124,12 @@ export function AvailabilityCalendar({
   const [reservationSelection, setReservationSelection] = useState<ReservationSelection | null>(null);
 
   useEffect(() => {
-    const current = businessTodayDateKey();
+    const current = businessTodayDateKey(new Date(), businessTimezone);
     setToday(current);
     setWeekReference(current);
     setSelectedDate(current);
     setDemoState(readDemoState());
-  }, []);
+  }, [businessTimezone]);
 
   useEffect(() => {
     setActiveCourtId(initialCourtId);

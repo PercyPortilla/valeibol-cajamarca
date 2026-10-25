@@ -86,6 +86,14 @@ export async function confirmReservationAction(reservationId: string): Promise<A
   });
 }
 
+export async function completeReservationAction(reservationId: string): Promise<AdminActionResult> {
+  if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
+  return runAuthorized("complete_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).completeReservation(reservationId);
+    return "Reserva marcada como completada. Si está vinculada a una cuenta, el cliente ya puede dejar una reseña verificada.";
+  });
+}
+
 export async function cancelReservationAction(reservationId: string): Promise<AdminActionResult> {
   if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
   return runAuthorized("cancel_reservation", async (context) => {

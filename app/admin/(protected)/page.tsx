@@ -10,7 +10,7 @@ import { createPhase7Repository } from "../../../lib/data/phase7Service.ts";
 
 export default async function AdminDashboardPage() {
   const context = await requireAdminContext();
-  const today = businessTodayDateKey();
+  const today = businessTodayDateKey(new Date(), context.timezone);
   const monthFrom = `${today.slice(0, 7)}-01`;
   let metrics = null;
   try {

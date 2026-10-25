@@ -170,6 +170,15 @@ export class SupabaseAdminOperationsRepository implements AdminOperationsReposit
     return { reservationId: row.reservation_id, status: row.reservation_status };
   }
 
+  async completeReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("admin_complete_reservation", { p_reservation_id: reservationId });
+    if (error) throw mapSupabaseError(error);
+    const row = data?.[0];
+    if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la reserva completada.");
+    return { reservationId: row.reservation_id, status: row.reservation_status };
+  }
+
   async cancelReservation(reservationId: string): Promise<AdminMutationReservationResult> {
     const client = await createServerSupabaseClient();
     const { data, error } = await client.rpc("admin_cancel_reservation", { p_reservation_id: reservationId });

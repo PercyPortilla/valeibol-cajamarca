@@ -6,6 +6,7 @@ const platformHeader = readFileSync("components/platform/PlatformHeader.tsx", "u
 const legacyHeader = readFileSync("components/site/Header.tsx", "utf8");
 const legacyLanding = readFileSync("components/site/ValeibolLanding.tsx", "utf8");
 const platformHome = readFileSync("app/page.tsx", "utf8");
+const platformSearch = readFileSync("app/buscar/page.tsx", "utf8");
 const complexPage = readFileSync("app/complejo/[slug]/page.tsx", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
 const layout = readFileSync("app/layout.tsx", "utf8");
@@ -13,6 +14,7 @@ const adminShell = readFileSync("components/admin/AdminShell.tsx", "utf8");
 const adminResponsiveCss = readFileSync("app/styles/globals-2.css", "utf8");
 const previewValidator = readFileSync("scripts/validate-preview-ui.mjs", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
+const block14Prompt = readFileSync("docs/BLOCK14_PROMPT.md", "utf8");
 
 test("plataforma y Valeibol tienen enlace de salto accesible", () => {
   assert.match(platformHeader, /href="#platform-main"/);
@@ -36,7 +38,8 @@ test("Bloque 10 mantiene raíz global y Valeibol como tenant completo", () => {
   assert.match(platformHome, /PlatformSearchForm/);
   assert.match(platformHome, /COMPLEJOS/);
   assert.match(complexPage, /slug === businessConfig\.slug/);
-  assert.match(complexPage, /return <ValeibolLanding \/>/);
+  assert.match(complexPage, /<ValeibolLanding \/>/);
+  assert.match(complexPage, /StructuredData data=\{buildBusinessJsonLd\(business\)\}/);
   assert.match(legacyLanding, /AvailabilityCalendar/);
 });
 
@@ -74,4 +77,20 @@ test("admin móvil conserva marca, skip link y targets operativos de 44px", () =
   assert.match(css, /\.admin-shell \.admin-slot__quick-actions button,[\s\S]*?\.admin-shell \.admin-mini-action \{[\s\S]*?min-height:\s*44px/i);
   assert.match(css, /\.admin-reservation-filter \{[\s\S]*?min-height:\s*44px/i);
   assert.match(css, /\.admin-shell \.admin-nav-item,[\s\S]*?\.admin-shell \.admin-logout,[\s\S]*?\.admin-shell \.admin-exit,[\s\S]*?\.platform-nav a,[\s\S]*?min-height:\s*44px/i);
+});
+
+test("Bloque 14 eleva el marketplace sin inventar una capa de datos paralela", () => {
+  assert.match(platformHome, /allBusinesses = groupCatalogByBusiness\(catalog\)/);
+  assert.match(platformHome, /platform-live-label/);
+  assert.match(platformHome, /platform-market-stats/);
+  assert.match(platformSearch, /platform-active-filters/);
+  assert.match(platformSearch, /getPublicSportBySlug/);
+  assert.match(complexPage, /sportNames/);
+  assert.match(complexPage, /lowestPrice/);
+  assert.match(css, /Marketplace visual\/comercial · Bloque 14/);
+  assert.match(css, /\.platform-hero-chips a \{[\s\S]*?min-height:\s*44px/i);
+  assert.match(css, /\.platform-active-filters a \{\s*min-height:\s*44px/i);
+  assert.doesNotMatch(css, /\.platform-home-hero__aside span \{/);
+  assert.match(block14Prompt, /No crear tablas, migraciones ni RPC nuevas/);
+  assert.match(block14Prompt, /No hacer deploy, push o release/);
 });

@@ -1,20 +1,11 @@
-import { PlatformFooter } from "@/components/platform/PlatformFooter";
-import { PlatformHeader } from "@/components/platform/PlatformHeader";
-import { PlatformResults } from "@/components/platform/PlatformResults";
-import { PlatformSearchForm } from "@/components/platform/PlatformSearchForm";
-import { getPublicPlatformCatalog } from "@/lib/data/platformService";
-import { groupCatalogByBusiness } from "@/lib/data/repositories/platformRepository";
+import { SportLandingPage } from "@/components/platform/SportLandingPage";
+import { buildSportLandingMetadata, getSportLandingBusinesses } from "@/lib/platform/sportLanding";
 
-export default async function VolleyballPage() {
-  const businesses = groupCatalogByBusiness(await getPublicPlatformCatalog({ sportSlug: "voley" }));
-  return (
-    <div className="platform-page">
-      <PlatformHeader />
-      <main id="platform-main" tabIndex={-1}>
-        <section className="platform-hero platform-hero--sport"><div className="shell"><span className="eyebrow">VÓLEY</span><h1>Canchas de vóley</h1><p>Explora complejos que ofrecen vóley y compara sedes, canchas y precios disponibles.</p><PlatformSearchForm sport="voley" /></div></section>
-        <section className="platform-section"><div className="shell"><PlatformResults businesses={businesses} /></div></section>
-      </main>
-      <PlatformFooter />
-    </div>
-  );
+export async function generateMetadata() {
+  const businesses = await getSportLandingBusinesses("voley");
+  return buildSportLandingMetadata("voley", businesses.length > 0);
+}
+
+export default function VolleyballPage() {
+  return <SportLandingPage sportSlug="voley" />;
 }

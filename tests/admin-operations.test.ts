@@ -35,6 +35,7 @@ test("owner y admin pueden editar; staff opera agenda pero no reescribe reservas
     assert.equal(canPerformAdminOperation(role, "create_block"), true);
   }
   assert.equal(canPerformAdminOperation("staff", "confirm_reservation"), true);
+  assert.equal(canPerformAdminOperation("staff", "complete_reservation"), true);
   assert.equal(canPerformAdminOperation("staff", "cancel_reservation"), true);
   assert.equal(canPerformAdminOperation("staff", "create_manual_reservation"), true);
   assert.equal(canPerformAdminOperation("staff", "create_block"), true);
@@ -54,6 +55,20 @@ test("pending -> confirmed y confirmed -> confirmed es idempotente", () => {
     allowed: true,
     nextStatus: "confirmed",
     idempotent: true,
+  });
+  assert.deepEqual(reservationTransition("confirmed", "complete"), {
+    allowed: true,
+    nextStatus: "completed",
+    idempotent: false,
+  });
+  assert.deepEqual(reservationTransition("completed", "complete"), {
+    allowed: true,
+    nextStatus: "completed",
+    idempotent: true,
+  });
+  assert.deepEqual(reservationTransition("pending", "complete"), {
+    allowed: false,
+    reason: "invalid_status_transition",
   });
 });
 

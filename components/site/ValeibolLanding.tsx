@@ -13,14 +13,21 @@ import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { formatMoney } from "@/lib/booking";
 import { themeCssVariables } from "@/lib/siteContent";
 import type { CSSProperties } from "react";
+import { FavoriteButton } from "@/components/platform/FavoriteButton";
+import { PublicReviewsSection } from "@/components/platform/PublicReviewsSection";
+import { getPublicBusinessReviews } from "@/lib/data/reputationService";
 
 export async function ValeibolLanding() {
-  const [pricing, siteContent, catalog] = await Promise.all([
+  const [pricing, siteContent, catalog, reviewResult] = await Promise.all([
     getPublicCurrentPricing(),
     getPublicSiteContent(),
     getPublicPlatformCatalog({ businessSlug: businessConfig.slug }),
+    getPublicBusinessReviews(businessConfig.slug),
   ]);
   const initialCourtId = catalog[0]?.courtId ?? demoCourt.id;
+  const businessId = catalog[0]?.businessId ?? null;
+  const ratingAverage = catalog[0]?.ratingAverage ?? null;
+  const reviewCount = catalog[0]?.reviewCount ?? 0;
   const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
   if (catalog.length === 0) courtSports[demoCourt.id] = "voley";
   const services = siteContent.services.filter((service) => service.isVisible);
@@ -79,6 +86,7 @@ export async function ValeibolLanding() {
                   <Icon name="whatsapp" size={18} />
                   WhatsApp
                 </a>
+                {businessId ? <FavoriteButton businessId={businessId} businessName={businessConfig.name} variant="button" /> : null}
               </div>
             </div>
           </div>
@@ -115,6 +123,7 @@ export async function ValeibolLanding() {
             </div>
             <AvailabilityCalendar
               businessSlug={businessConfig.slug}
+              businessTimezone={businessConfig.timezone}
               initialCourtId={initialCourtId}
               courtSports={courtSports}
             />
@@ -209,6 +218,10 @@ export async function ValeibolLanding() {
               ) : null)}
             </div>
           </div>
+        </section>
+
+        <section className="section section--commercial valeibol-reviews-section" id="resenas">
+          <div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={ratingAverage} reviewCount={reviewCount} loadFailed={reviewResult.loadFailed} /></div>
         </section>
 
         <section className="section section--commercial location-section" id="ubicacion">

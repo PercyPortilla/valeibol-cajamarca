@@ -16,7 +16,11 @@ type UpdateRequest = {
   displayName?: string | null;
   isActive?: boolean;
 };
-type RequestBody = ListRequest | InviteRequest | UpdateRequest;
+type TransferOwnerRequest = {
+  action: "transfer_owner";
+  userId: string;
+};
+type RequestBody = ListRequest | InviteRequest | UpdateRequest | TransferOwnerRequest;
 
 const PROD_ORIGIN = "https://valeibol-cajamarca-live.vercel.app";
 const DEFAULT_INVITE_REDIRECT = `${PROD_ORIGIN}/admin/activar`;
@@ -116,6 +120,12 @@ function parseBody(value: unknown): RequestBody | null {
     };
   }
 
+  if (record.action === "transfer_owner") {
+    if (!hasOnlyKeys(record, new Set(["action", "userId"]))) return null;
+    if (typeof record.userId !== "string" || !UUID_RE.test(record.userId)) return null;
+    return { action: "transfer_owner", userId: record.userId };
+  }
+
   return null;
 }
 
@@ -132,6 +142,13 @@ function mapError(message: string) {
   if (normalized.includes("user_not_in_business")) return { code: "user_not_found", status: 404 };
   if (normalized.includes("user_assigned_elsewhere")) return { code: "user_assigned_elsewhere", status: 409 };
   if (normalized.includes("cannot_change_own_access")) return { code: "cannot_change_own_access", status: 409 };
+  if (normalized.includes("primary_owner_transfer_required")) return { code: "primary_owner_transfer_required", status: 409 };
+  if (normalized.includes("primary_owner_required")) return { code: "primary_owner_required", status: 403 };
+  if (normalized.includes("cannot_transfer_owner_to_self")) return { code: "cannot_transfer_owner_to_self", status: 409 };
+  if (normalized.includes("ownership_target_not_found")) return { code: "ownership_target_not_found", status: 404 };
+  if (normalized.includes("ownership_target_inactive")) return { code: "ownership_target_inactive", status: 409 };
+  if (normalized.includes("ownership_target_unconfirmed")) return { code: "ownership_target_unconfirmed", status: 409 };
+  if (normalized.includes("platform_admin_cannot_be_tenant_owner")) return { code: "platform_admin_cannot_be_tenant_owner", status: 409 };
   if (normalized.includes("active_owner_required")) return { code: "active_owner_required", status: 409 };
   if (normalized.includes("invalid_display_name") || normalized.includes("invalid_admin_access_input")) {
     return { code: "invalid_payload", status: 400 };
@@ -158,13 +175,20 @@ type ProfileRow = {
   updated_at: string;
 };
 
+type UserAccountRow = {
+  user_id: string;
+  role: "customer" | "owner" | "admin";
+  is_active: boolean;
+};
+
 function sanitizeUser(profile: ProfileRow, user: {
   id: string;
   email?: string | null;
   email_confirmed_at?: string | null;
   last_sign_in_at?: string | null;
   created_at?: string;
-}) {
+}, primaryOwnerUserId: string | null, account?: UserAccountRow | null) {
+  const isPrimaryOwner = profile.user_id === primaryOwnerUserId;
   return {
     userId: profile.user_id,
     email: user.email ?? "",
@@ -174,6 +198,12 @@ function sanitizeUser(profile: ProfileRow, user: {
     emailConfirmed: Boolean(user.email_confirmed_at),
     lastSignInAt: user.last_sign_in_at ?? null,
     createdAt: user.created_at ?? profile.created_at,
+    isPrimaryOwner,
+    canReceivePrimaryOwnership: !isPrimaryOwner
+      && profile.is_active
+      && Boolean(user.email_confirmed_at)
+      && Boolean(account?.is_active)
+      && account?.role !== "admin",
   };
 }
 
@@ -211,7 +241,7 @@ Deno.serve(async (request) => {
 
   const { data: business, error: businessError } = await admin
     .from("businesses")
-    .select("id")
+    .select("id,owner_user_id")
     .eq("id", callerProfile.business_id)
     .eq("is_active", true)
     .maybeSingle();
@@ -235,14 +265,25 @@ Deno.serve(async (request) => {
       .order("created_at", { ascending: true });
     if (profilesError) return json(request, { ok: false, code: "service_unavailable" }, 503);
 
+    const profileIds = (profiles ?? []).map((profile) => profile.user_id);
+    const { data: accountRows, error: accountsError } = profileIds.length
+      ? await admin.from("user_accounts").select("user_id,role,is_active").in("user_id", profileIds)
+      : { data: [], error: null };
+    if (accountsError) return json(request, { ok: false, code: "service_unavailable" }, 503);
+    const accountByUserId = new Map((accountRows ?? []).map((account) => [account.user_id, account as UserAccountRow]));
+
     const users = await Promise.all((profiles ?? []).map(async (profile) => {
       const { data, error } = await admin.auth.admin.getUserById(profile.user_id);
       if (error || !data.user) throw error ?? new Error("auth_user_missing");
-      return sanitizeUser(profile as ProfileRow, data.user);
+      return sanitizeUser(profile as ProfileRow, data.user, business.owner_user_id, accountByUserId.get(profile.user_id));
     })).catch(() => null);
 
     if (!users) return json(request, { ok: false, code: "service_unavailable" }, 503);
-    return json(request, { ok: true, users });
+    return json(request, {
+      ok: true,
+      users,
+      canTransferPrimaryOwnership: callerUserId === business.owner_user_id,
+    });
   }
 
   if (body.action === "invite") {
@@ -271,7 +312,21 @@ Deno.serve(async (request) => {
       return json(request, { ok: false, code: mapped.code }, mapped.status);
     }
 
-    return json(request, { ok: true, user: sanitizeUser(profile, invitedUser) }, 201);
+    return json(request, { ok: true, user: sanitizeUser(profile, invitedUser, business.owner_user_id, { user_id: invitedUser.id, role: "customer", is_active: true }) }, 201);
+  }
+
+  if (body.action === "transfer_owner") {
+    const { data: transferRows, error: transferError } = await admin.rpc("admin_access_transfer_primary_owner", {
+      p_actor_user_id: callerUserId,
+      p_target_user_id: body.userId,
+    });
+    if (transferError) {
+      const mapped = mapError(transferError.message);
+      return json(request, { ok: false, code: mapped.code }, mapped.status);
+    }
+    const transfer = Array.isArray(transferRows) ? transferRows[0] as { owner_user_id?: string } | undefined : undefined;
+    if (!transfer?.owner_user_id) return json(request, { ok: false, code: "service_unavailable" }, 503);
+    return json(request, { ok: true, primaryOwnerUserId: transfer.owner_user_id });
   }
 
   const { data: profileRows, error: updateError } = await admin.rpc("admin_access_update_profile", {
@@ -294,7 +349,14 @@ Deno.serve(async (request) => {
   const { data: targetData, error: targetError } = await admin.auth.admin.getUserById(body.userId);
   if (targetError || !targetData.user) return json(request, { ok: false, code: "service_unavailable" }, 503);
 
-  return json(request, { ok: true, user: sanitizeUser(profile, targetData.user) });
+  const { data: targetAccount, error: targetAccountError } = await admin
+    .from("user_accounts")
+    .select("user_id,role,is_active")
+    .eq("user_id", body.userId)
+    .maybeSingle();
+  if (targetAccountError) return json(request, { ok: false, code: "service_unavailable" }, 503);
+
+  return json(request, { ok: true, user: sanitizeUser(profile, targetData.user, business.owner_user_id, targetAccount as UserAccountRow | null) });
 });
 
 

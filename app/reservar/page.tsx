@@ -4,6 +4,12 @@ import { AvailabilityCalendar } from "@/components/availability/AvailabilityCale
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reservar cancha",
+  robots: { index: false, follow: true },
+};
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -58,6 +64,7 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
           <div className="shell">
             <AvailabilityCalendar
               businessSlug={selectedCourt.businessSlug}
+              businessTimezone={selectedCourt.businessTimezone}
               initialCourtId={selectedCourt.courtId}
               courtSports={courtSports}
             />

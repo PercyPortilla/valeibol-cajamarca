@@ -25,7 +25,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
   const context = await requireAdminContext();
   const params = await searchParams;
   const requested = validDateKey(firstValue(params.week));
-  const today = businessTodayDateKey();
+  const today = businessTodayDateKey(new Date(), context.timezone);
   const range = getAdminWeekRange(requested ?? today);
 
   let snapshot;
