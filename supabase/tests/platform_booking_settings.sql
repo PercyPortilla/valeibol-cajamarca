@@ -9,6 +9,8 @@ declare
 begin
   select pg_get_functiondef('public.admin_update_booking_increment(smallint)'::regprocedure) into definition;
   select pg_get_functiondef('public.admin_schedule_court_operating_hours(uuid,jsonb,date)'::regprocedure) into hours_definition;
+  definition := lower(definition);
+  hours_definition := lower(hours_definition);
   if definition not like '%phase6_admin_actor()%'
      or definition like '%p_business_id%'
      or definition not like '%role not in (''owner'', ''admin'')%' then
@@ -41,6 +43,7 @@ declare
   definition text;
 begin
   select pg_get_functiondef('public.get_admin_booking_settings()'::regprocedure) into definition;
+  definition := lower(definition);
   if definition not like '%phase6_admin_actor()%' or definition not like '%booking_increment_minutes%' then
     raise exception 'FAIL: lectura B23 no deriva setting desde tenant autenticado';
   end if;

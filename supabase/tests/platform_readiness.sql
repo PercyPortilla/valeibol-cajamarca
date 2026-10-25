@@ -4,8 +4,9 @@ declare
 begin
   select pg_get_functiondef('public.admin_set_business_configuration_status(public.configuration_status)'::regprocedure)
   into definition;
+  definition := lower(definition);
   if definition not like '%phase6_admin_actor()%'
-     or definition not like '%FOR UPDATE%'
+     or definition not like '%for update%'
      or definition not like '%business_publication_readiness%'
      or definition like '%p_business_id%' then
     raise exception 'FAIL: publication RPC must derive tenant and serialize on business';
@@ -20,8 +21,9 @@ begin
 
   select pg_get_functiondef('public.admin_set_court_active(uuid,boolean)'::regprocedure)
   into definition;
-  if definition not like '%FROM public.businesses b%FOR UPDATE%'
-     or definition not like '%FROM public.courts c%FOR UPDATE%'
+  definition := lower(definition);
+  if definition not like '%from public.businesses b%for update%'
+     or definition not like '%from public.courts c%for update%'
      or definition not like '%published_business_requires_ready_court%'
      or definition not like '%business_publication_readiness%' then
     raise exception 'FAIL: court activation must serialize on business and preserve published readiness';
@@ -29,6 +31,7 @@ begin
 
   select pg_get_functiondef('private.guard_new_reservation_business_published()'::regprocedure)
   into definition;
+  definition := lower(definition);
   if definition not like '%new.source = ''public_web''%'
      or definition not like '%configuration_status = ''confirmed''%'
      or definition not like '%business_not_published%' then

@@ -7,6 +7,7 @@ declare
   definition text;
 begin
   select pg_get_functiondef('public.admin_schedule_court_operating_hours(uuid,jsonb,date)'::regprocedure) into definition;
+  definition := lower(definition);
   if definition not like '%phase6_admin_actor()%'
      or definition like '%p_business_id%'
      or definition not like '%role not in (''owner'', ''admin'')%' then
@@ -35,7 +36,8 @@ declare
   definition text;
 begin
   select pg_get_functiondef('public.get_admin_business_structure()'::regprocedure) into definition;
-  if definition not like '%operatingHours%' or definition not like '%public.operating_hours%' then
+  definition := lower(definition);
+  if definition not like '%operatinghours%' or definition not like '%public.operating_hours%' then
     raise exception 'FAIL: estructura admin no expone horario vigente/futuro';
   end if;
 end $$;
