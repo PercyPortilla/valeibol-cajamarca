@@ -7,9 +7,10 @@ declare
   definition text;
 begin
   select pg_get_functiondef('public.admin_access_transfer_primary_owner(uuid,uuid)'::regprocedure) into definition;
-  if definition not like '%where b.owner_user_id = p_actor_user_id%'
+  definition := lower(definition);
+  if definition not like '%b.owner_user_id = p_actor_user_id%'
      or definition not like '%p.business_id = v_business.id%'
-     or definition not like '%email_confirmed_at is not null%' then
+     or definition not like '%u.email_confirmed_at is not null%' then
     raise exception 'FAIL: transferencia no valida principal/tenant/confirmación';
   end if;
   if definition not like '%platform_admin_cannot_be_tenant_owner%'
