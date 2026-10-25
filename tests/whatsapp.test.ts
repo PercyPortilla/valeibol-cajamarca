@@ -124,6 +124,15 @@ test("migración de robustez descarta mensajes obsoletos y leases agotados", () 
   assert.match(migration, /revoke all on function public\.phase8_claim_whatsapp_messages\(integer\) from public, anon, authenticated/i);
 });
 
+test("claim WhatsApp califica attempts para evitar ambigüedad PL/pgSQL", () => {
+  const migration = readFileSync("supabase/migrations/20261025041214_fix_phase8_claim_attempts_ambiguity.sql", "utf8");
+  assert.match(migration, /update public\.whatsapp_outbox o[\s\S]*o\.attempts >= 5/i);
+  assert.match(migration, /attempts = o\.attempts \+ 1/i);
+  assert.doesNotMatch(migration, /\n\s*and attempts >= 5/i);
+  assert.match(migration, /revoke all on function public\.phase8_claim_whatsapp_messages\(integer\) from public, anon, authenticated/i);
+  assert.match(migration, /grant execute on function public\.phase8_claim_whatsapp_messages\(integer\) to service_role/i);
+});
+
 test("el secreto del procesador exige Bearer exacto y comparación segura", () => {
   assert.equal(isProcessorAuthorizationValid(null, "secret"), false);
   assert.equal(isProcessorAuthorizationValid("Bearer wrong", "secret"), false);

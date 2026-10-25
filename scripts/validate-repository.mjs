@@ -147,6 +147,7 @@ const required = [
   "scripts/run-supabase-sql-tests.mjs",
   "scripts/run-supabase-local-e2e.mjs",
   "supabase/migrations/20261025034143_block27_dynamic_sports.sql",
+  "supabase/migrations/20261025041214_fix_phase8_claim_attempts_ambiguity.sql",
   "supabase/tests/platform_dynamic_sports.sql",
   "tests/platform-dynamic-sports.test.ts",
   "docs/BLOCK27_PROMPT.md",
