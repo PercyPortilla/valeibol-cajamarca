@@ -133,6 +133,16 @@ test("claim WhatsApp califica attempts para evitar ambigüedad PL/pgSQL", () => 
   assert.match(migration, /grant execute on function public\.phase8_claim_whatsapp_messages\(integer\) to service_role/i);
 });
 
+test("leases WhatsApp agotados conservan failed como estado terminal", () => {
+  const migration = readFileSync("supabase/migrations/20261025041550_fix_phase8_terminal_lease_precedence.sql", "utf8");
+  assert.match(migration, /o\.attempts >= 5/i);
+  assert.match(migration, /processor_lease_expired_after_max_attempts/i);
+  const retryableGuards = migration.match(/o\.attempts < 5/g) ?? [];
+  assert.ok(retryableGuards.length >= 3, "claim e invalidaciones deben respetar el límite de reintentos");
+  assert.match(migration, /reservation_state_changed_before_delivery/);
+  assert.match(migration, /reservation_missing_before_delivery/);
+});
+
 test("el secreto del procesador exige Bearer exacto y comparación segura", () => {
   assert.equal(isProcessorAuthorizationValid(null, "secret"), false);
   assert.equal(isProcessorAuthorizationValid("Bearer wrong", "secret"), false);
