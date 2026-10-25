@@ -3,6 +3,12 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- B24: el catálogo público oculta tenants provisionales. Este test valida el
+-- catálogo multi-tenant, por lo que publica Valeibol solo hasta el ROLLBACK.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 do $$
 declare
   labels text[];

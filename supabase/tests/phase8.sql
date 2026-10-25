@@ -2,6 +2,12 @@
 \set ON_ERROR_STOP on
 begin;
 
+-- B24: la reserva de este fixture representa intake público y el trigger exige
+-- tenant publicado. El ROLLBACK conserva el seed provisional fuera del test.
+update public.businesses
+set configuration_status = 'confirmed'
+where slug = 'valeibol-cajamarca';
+
 -- La normalización conserva E.164 válido y admite formato peruano local.
 do $$
 begin
