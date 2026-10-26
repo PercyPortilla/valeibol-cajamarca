@@ -10,6 +10,8 @@ import type { Metadata } from "next";
 import { StructuredData } from "@/components/platform/StructuredData";
 import { buildBreadcrumbJsonLd } from "@/lib/platform/seo";
 import { platformConfig } from "@/config/platform";
+import { normalizeSearchDate, normalizeSearchTime } from "@/lib/platform/searchFilters";
+import { isNightSlot } from "@/lib/platform/homeHeroTheme";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -20,8 +22,10 @@ function first(value: string | string[] | undefined) {
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const params = await searchParams;
   const sport = first(params.deporte).trim();
+  const date = normalizeSearchDate(first(params.fecha));
+  const time = normalizeSearchTime(first(params.hora));
   const city = platformConfig.city;
-  const hasFilters = Boolean(sport);
+  const hasFilters = Boolean(sport || date || time);
   const sportName = sport ? (await getPublicSportBySlug(sport))?.name ?? sport : "";
   const title = sportName ? `${sportName} en ${city} | Buscar canchas` : `Buscar canchas en ${city}`;
 
@@ -38,12 +42,15 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const sport = first(params.deporte).trim();
+  const date = normalizeSearchDate(first(params.fecha));
+  const time = normalizeSearchTime(first(params.hora));
   const city = platformConfig.city;
   const sportName = sport ? (await getPublicSportBySlug(sport))?.name ?? sport : "";
   const catalog = await getPublicPlatformCatalog({ sportSlug: sport || null, city: city || null });
   const businesses = groupCatalogByBusiness(catalog);
   const locations = buildPlatformLocationPoints(catalog);
-  const hasFilters = Boolean(sport || city);
+  const hasFilters = Boolean(sport || date || time);
+  const lightingRequired = Boolean(time && isNightSlot(time));
 
   return (
     <div className="platform-page">
@@ -56,7 +63,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
             <span className="platform-live-label"><i aria-hidden="true" /> CAJAMARCA</span>
             <h1>Encuentra el lugar correcto para tu próximo partido en Cajamarca.</h1>
             <p>Filtra por deporte, compara complejos de Cajamarca y entra directo a sus canchas disponibles.</p>
-            <PlatformSearchForm sport={sport} city={city} />
+            <PlatformSearchForm sport={sport} city={city} date={date} time={time} />
           </div>
         </section>
         <section className="platform-section">
@@ -66,11 +73,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
               <div className="platform-active-filters" aria-label="Filtros activos">
                 {sport ? <span>Deporte: <strong>{sportName}</strong></span> : null}
                 <span>Ciudad: <strong>{city}</strong></span>
+                {date ? <span>Fecha: <strong>{date}</strong></span> : null}
+                {time ? <span>Hora: <strong>{time}</strong></span> : null}
                 {sport ? <Link href="/buscar">Limpiar deporte</Link> : null}
               </div>
             </div>
             <PlatformLocationExplorer points={locations} />
-            <PlatformResults businesses={businesses} />
+            <PlatformResults businesses={businesses} premium lightingRequired={lightingRequired} />
           </div>
         </section>
       </main>

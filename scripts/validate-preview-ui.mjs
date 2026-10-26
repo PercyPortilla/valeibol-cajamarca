@@ -56,6 +56,7 @@ try {
       const requiredPlatformSelectors = [
         ".platform-home-hero",
         ".platform-home-search",
+        ".platform-sport-diorama",
         ".platform-home-sports",
         ".platform-home-featured",
         ".platform-home-owner",
@@ -72,6 +73,8 @@ try {
         ".platform-nav a",
         ".platform-page .text-link",
         ".platform-footer a",
+        ".platform-home-search input:not([type='hidden'])",
+        ".platform-home-search select",
         ".site-nav a",
         ".owner-portal a",
         ".global-admin-links a",

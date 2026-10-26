@@ -28,22 +28,22 @@ export function HomeHero({ sports, stats }: Props) {
       <div className="shell platform-home-hero__grid">
         <div className="platform-home-hero__copy">
           <span className="platform-live-label"><i aria-hidden="true" /> CAXAS SPORTCENTER</span>
-          <h1>Encuentra dónde jugar <span>en Cajamarca.</span></h1>
-          <p>Explora canchas, coliseos y espacios deportivos, compara horarios y encuentra el lugar ideal para tu próximo partido.</p>
-          <strong className="platform-home-hero__tagline">Todo el deporte de Cajamarca, en un solo lugar.</strong>
+          <h1>Encuentra dónde jugar <span>en Cajamarca</span></h1>
+          <p>Explora canchas, coliseos y espacios deportivos. Compara horarios, disponibilidad y elige el lugar ideal para tu próximo partido.</p>
+          <strong className="platform-home-hero__tagline">Todo el deporte de Cajamarca, en una sola plataforma.</strong>
 
           <form className="platform-home-search" action="/buscar" method="get">
             <label>
-              <span><Icon name="ball" size={14} /> Deporte</span>
+              <span><Icon name={theme.icon} size={14} /> Deporte</span>
               <select name="deporte" value={sportSlug} onChange={(event) => setSportSlug(event.target.value)}>
                 <option value="">Multi-deporte</option>
                 {sports.map((sport) => <option key={sport.id} value={sport.slug}>{sport.name}</option>)}
               </select>
             </label>
 
-            <div className="platform-home-search__coverage" aria-label="Cobertura actual">
-              <span><Icon name="location" size={15} /> Cobertura actual</span>
-              <strong>{platformConfig.regionLabel}</strong>
+            <div className="platform-home-search__coverage" aria-label={`Cobertura actual: ${platformConfig.regionLabel}`}>
+              <strong><Icon name="location" size={15} /> {platformConfig.regionLabel}</strong>
+              <small>Cobertura actual</small>
               <input type="hidden" name="ciudad" value={platformConfig.city} />
             </div>
 
@@ -62,12 +62,12 @@ export function HomeHero({ sports, stats }: Props) {
 
           <div className={`platform-night-indicator${night ? " is-active" : ""}`} aria-live="polite">
             <Icon name="lighting" size={16} />
-            {night ? "Horario con iluminación" : "Iluminación no requerida para este horario"}
+            {night ? "Con iluminación" : "Iluminación no requerida para este horario"}
           </div>
         </div>
 
         <aside className="platform-home-hero__aside" aria-label="Vista y resumen del marketplace">
-          <SportComplexVisual activeSport={theme.visual} isNight={night} />
+          <SportComplexVisual theme={theme} isNight={night} />
           <div className="platform-market-stats" aria-label="Inventario disponible">
             <div><strong>{stats.businesses}</strong><span>complejos</span></div>
             <div><strong>{stats.venues}</strong><span>sedes</span></div>

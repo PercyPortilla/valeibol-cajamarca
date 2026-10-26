@@ -1,31 +1,41 @@
+import type { IconKey } from "@/lib/icons";
+
 export type HomeSportVisual = "multi" | "football" | "volleyball" | "basketball" | "futsal" | "tennis";
 
 export type HomeSportTheme = {
   visual: HomeSportVisual;
+  label: string;
+  sceneLabel: string;
+  icon: IconKey;
   accent: string;
   accentSoft: string;
 };
 
 const defaultTheme: HomeSportTheme = {
   visual: "multi",
+  label: "Multi-deporte",
+  sceneLabel: "Complejo deportivo multicancha",
+  icon: "court",
   accent: "#E6E9EC",
   accentSoft: "rgba(230,233,236,.16)",
 };
 
-export const sportTheme: Record<string, HomeSportTheme> = {
-  futbol: { visual: "football", accent: "#79C267", accentSoft: "rgba(121,194,103,.18)" },
-  football: { visual: "football", accent: "#79C267", accentSoft: "rgba(121,194,103,.18)" },
-  voley: { visual: "volleyball", accent: "#62B8E8", accentSoft: "rgba(98,184,232,.18)" },
-  volleyball: { visual: "volleyball", accent: "#62B8E8", accentSoft: "rgba(98,184,232,.18)" },
-  basquet: { visual: "basketball", accent: "#E6944C", accentSoft: "rgba(230,148,76,.18)" },
-  basketball: { visual: "basketball", accent: "#E6944C", accentSoft: "rgba(230,148,76,.18)" },
-  futsal: { visual: "futsal", accent: "#45C4D6", accentSoft: "rgba(69,196,214,.18)" },
-  tenis: { visual: "tennis", accent: "#A8C95F", accentSoft: "rgba(168,201,95,.18)" },
-  tennis: { visual: "tennis", accent: "#A8C95F", accentSoft: "rgba(168,201,95,.18)" },
+export const sportThemeConfig: Record<string, HomeSportTheme> = {
+  futbol: { visual: "football", label: "Fútbol", sceneLabel: "Cancha de fútbol", icon: "ball", accent: "#79C267", accentSoft: "rgba(121,194,103,.18)" },
+  football: { visual: "football", label: "Fútbol", sceneLabel: "Cancha de fútbol", icon: "ball", accent: "#79C267", accentSoft: "rgba(121,194,103,.18)" },
+  voley: { visual: "volleyball", label: "Vóley", sceneLabel: "Cancha de vóley", icon: "net", accent: "#62B8E8", accentSoft: "rgba(98,184,232,.18)" },
+  volleyball: { visual: "volleyball", label: "Vóley", sceneLabel: "Cancha de vóley", icon: "net", accent: "#62B8E8", accentSoft: "rgba(98,184,232,.18)" },
+  basquet: { visual: "basketball", label: "Básquet", sceneLabel: "Cancha de básquet", icon: "court", accent: "#E6944C", accentSoft: "rgba(230,148,76,.18)" },
+  basketball: { visual: "basketball", label: "Básquet", sceneLabel: "Cancha de básquet", icon: "court", accent: "#E6944C", accentSoft: "rgba(230,148,76,.18)" },
+  futsal: { visual: "futsal", label: "Futsal", sceneLabel: "Cancha de futsal", icon: "ball", accent: "#45C4D6", accentSoft: "rgba(69,196,214,.18)" },
+  tenis: { visual: "tennis", label: "Tenis", sceneLabel: "Cancha de tenis", icon: "court", accent: "#A8C95F", accentSoft: "rgba(168,201,95,.18)" },
+  tennis: { visual: "tennis", label: "Tenis", sceneLabel: "Cancha de tenis", icon: "court", accent: "#A8C95F", accentSoft: "rgba(168,201,95,.18)" },
 };
 
+export const sportTheme = sportThemeConfig;
+
 export function getHomeSportTheme(slug: string | null | undefined) {
-  return slug ? sportTheme[slug] ?? defaultTheme : defaultTheme;
+  return slug ? sportThemeConfig[slug] ?? defaultTheme : defaultTheme;
 }
 
 export function isNightSlot(selectedTime: string | null | undefined) {

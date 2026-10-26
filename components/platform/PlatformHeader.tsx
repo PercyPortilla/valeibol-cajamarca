@@ -11,7 +11,14 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
           {premium ? (
             <>
               <span className="platform-brand__premium-logo">
-                <Image src="/images/caxas-sportcenter-logo.webp" alt="Caxas SportCenter" width={240} height={160} priority />
+                <Image
+                  src="/images/caxas-sportcenter-logo.webp"
+                  alt="Caxas SportCenter"
+                  width={240}
+                  height={160}
+                  sizes="(max-width: 680px) 96px, 120px"
+                  priority
+                />
               </span>
               <span className="platform-brand__premium-copy"><small>Plataforma deportiva · Cajamarca</small></span>
             </>

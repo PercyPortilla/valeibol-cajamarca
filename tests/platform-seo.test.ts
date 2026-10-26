@@ -49,7 +49,7 @@ test("complejo publica SportsActivityLocation por sede sin inventar ratings ni h
 });
 
 test("facetas de búsqueda son noindex y la base conserva canonical propio", () => {
-  assert.match(searchPage, /const hasFilters = Boolean\(sport \|\| city\)/);
+  assert.match(searchPage, /const hasFilters = Boolean\(sport \|\| date \|\| time\)/);
   assert.match(searchPage, /robots: hasFilters \? \{ index: false, follow: true \} : \{ index: true, follow: true \}/);
   assert.match(searchPage, /hasFilters \? \{\} : \{ alternates: \{ canonical: "\/buscar" \} \}/);
   assert.match(searchPage, /buildBreadcrumbJsonLd/);

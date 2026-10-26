@@ -21,7 +21,7 @@ test("B63 adopta Caxas SportCenter y limita el rediseño premium a la home", () 
 
 test("B63 hero usa Cajamarca fija y no ofrece selector editable de ciudad", () => {
   assert.match(hero, /Encuentra dónde jugar/);
-  assert.match(hero, /Todo el deporte de Cajamarca, en un solo lugar/);
+  assert.match(hero, /Todo el deporte de Cajamarca, en una sola plataforma/);
   assert.match(hero, /Cobertura actual/);
   assert.match(hero, /platformConfig\.regionLabel/);
   assert.match(hero, /type="hidden" name="ciudad" value=\{platformConfig\.city\}/);
@@ -47,19 +47,19 @@ test("B63 deriva noche exclusivamente de la hora seleccionada", () => {
   assert.equal(isNightSlot(""), false);
   assert.equal(isNightSlot("25:00"), false);
   assert.match(hero, /const night = isNightSlot\(selectedTime\)/);
-  assert.match(hero, /Horario con iluminación/);
+  assert.match(hero, /Con iluminación/);
   assert.doesNotMatch(hero, /new Date\(|Date\.now\(/);
 });
 
-test("B63 visual multicancha destaca deporte y enciende reflectores sin WebGL", () => {
-  assert.match(visual, /data-active-sport=\{activeSport\}/);
-  assert.match(visual, /data-court="football"/);
-  assert.match(visual, /data-court="volleyball"/);
-  assert.match(visual, /data-court="basketball"/);
-  assert.match(visual, /data-court="futsal"/);
-  assert.match(visual, /platform-sport-complex__roof/);
-  assert.match(visual, /platform-sport-complex__lights/);
-  assert.match(css, /\.platform-sport-complex\.is-night \.platform-sport-complex__lights span/);
+test("B63/B69 visual deportivo usa diorama contextual y reflectores sin WebGL", () => {
+  assert.match(visual, /data-active-sport=\{theme\.visual\}/);
+  assert.match(visual, /data-scene=\{theme\.visual\}/);
+  assert.match(visual, /platform-sport-diorama__building/);
+  assert.match(visual, /platform-sport-diorama__goal/);
+  assert.match(visual, /platform-sport-diorama__net/);
+  assert.match(visual, /platform-sport-diorama__hoop/);
+  assert.match(visual, /platform-sport-diorama__multi-grid/);
+  assert.match(visual, /platform-sport-diorama__lights/);
   assert.doesNotMatch(visual, /three|webgl|canvas/i);
 });
 

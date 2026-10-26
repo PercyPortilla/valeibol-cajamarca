@@ -28,11 +28,11 @@ test("B64 conserva subtexto, responsive y contraste del header premium", () => {
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-brand__premium-logo/);
 });
 
-test("B64 QA garantiza que el deporte activo vence la regla de atenuación", () => {
-  assert.match(css, /data-active-sport="football"\] \.platform-sport-complex__court\[data-court="football"\]/);
-  assert.match(css, /data-active-sport="volleyball"\] \.platform-sport-complex__court\[data-court="volleyball"\]/);
-  assert.match(css, /data-active-sport="basketball"\] \.platform-sport-complex__court\[data-court="basketball"\]/);
-  assert.match(css, /data-active-sport="futsal"\] \.platform-sport-complex__court\[data-court="futsal"\]/);
+test("B64/B69 QA mantiene escenas deportivas diferenciadas", () => {
+  assert.match(css, /data-scene="football"\].*--scene-surface:\s*#2d733d/);
+  assert.match(css, /data-scene="volleyball"\].*--scene-surface:\s*#2d78a8/);
+  assert.match(css, /data-scene="basketball"\].*--scene-surface:\s*#bc6538/);
+  assert.match(css, /data-scene="futsal"\].*--scene-surface:\s*#176f7b/);
 });
 
 test("B64 registra pruebas y prompt", () => {

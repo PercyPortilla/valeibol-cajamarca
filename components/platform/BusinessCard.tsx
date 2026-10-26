@@ -7,9 +7,15 @@ import type { PlatformBusinessCard } from "@/lib/data/repositories/platformRepos
 import { Icon } from "@/components/ui/Icon";
 import { FavoriteButton } from "@/components/platform/FavoriteButton";
 
-export function BusinessCard({ business }: { business: PlatformBusinessCard }) {
+type Props = {
+  business: PlatformBusinessCard;
+  premium?: boolean;
+  lightingRequired?: boolean;
+};
+
+export function BusinessCard({ business, premium = false, lightingRequired = false }: Props) {
   return (
-    <article className="platform-business-card">
+    <article className={`platform-business-card${premium ? " platform-business-card--premium" : ""}`}>
       <FavoriteButton businessId={business.businessId} businessName={business.name} />
       <div
         className={business.coverImageUrl ? "platform-business-card__visual platform-business-card__visual--image" : "platform-business-card__visual"}
@@ -42,6 +48,7 @@ export function BusinessCard({ business }: { business: PlatformBusinessCard }) {
           <div className="platform-business-card__sports">
             {(business.sports.length ? business.sports : ["Deportes"]).slice(0, 3).map((sport) => <Badge key={sport} tone="info">{sport}</Badge>)}
             {business.sports.length > 3 ? <Badge tone="neutral">+{business.sports.length - 3}</Badge> : null}
+            {lightingRequired ? <span className="platform-lighting-badge"><Icon name="lighting" size={13} /> Con iluminación</span> : null}
           </div>
           <span><Icon name="location" size={14} /> {business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""}</span>
         </div>

@@ -2,7 +2,7 @@ import { Icon } from "@/components/ui/Icon";
 import { getPublicSports } from "@/lib/data/platformService";
 import { platformConfig } from "@/config/platform";
 
-export async function PlatformSearchForm({ sport = "" }: { sport?: string; city?: string }) {
+export async function PlatformSearchForm({ sport = "", date = "", time = "" }: { sport?: string; city?: string; date?: string; time?: string }) {
   const sports = await getPublicSports();
   return (
     <form className="platform-search-form" action="/buscar" method="get">
@@ -17,7 +17,15 @@ export async function PlatformSearchForm({ sport = "" }: { sport?: string; city?
         <span><Icon name="location" size={14} /> Ciudad</span>
         <input name="ciudad" value={platformConfig.city} readOnly aria-readonly="true" />
       </label>
-      <button className="button button--primary" type="submit">Buscar canchas <span aria-hidden="true">→</span></button>
+      <label>
+        <span><Icon name="calendar" size={14} /> Fecha</span>
+        <input name="fecha" type="date" defaultValue={date} />
+      </label>
+      <label>
+        <span><Icon name="clock" size={14} /> Hora</span>
+        <input name="hora" type="time" defaultValue={time} />
+      </label>
+      <button className="button button--primary" type="submit">Explorar espacios <span aria-hidden="true">→</span></button>
     </form>
   );
 }

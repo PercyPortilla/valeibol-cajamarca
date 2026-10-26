@@ -76,7 +76,7 @@ export default async function PlatformHomePage() {
             <div className="platform-section__heading">
               <div><span className="eyebrow">COMPLEJOS EN CAJAMARCA</span><h2>Complejos disponibles</h2><p>Por ahora la plataforma está enfocada únicamente en Cajamarca.</p></div>
             </div>
-            <PlatformResults businesses={businesses} />
+            <PlatformResults businesses={businesses} premium />
           </div>
         </section>
 
