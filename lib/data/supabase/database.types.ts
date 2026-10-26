@@ -78,6 +78,7 @@ export type Database = {
           business_city: string | null;
           business_country: string | null;
           business_timezone: string;
+          logo_url: string | null;
           cover_image_url: string | null;
           cover_alt_text: string | null;
           rating_average: number | string | null;
@@ -284,6 +285,7 @@ export type Database = {
         Args: { p_business_slug: string };
         Returns: Array<{
           business_id: string;
+          logo_url: string | null;
           services: Json;
           gallery: Json;
           theme: Json;
@@ -294,6 +296,7 @@ export type Database = {
         Args: Record<string, never>;
         Returns: Array<{
           business_id: string;
+          logo_url: string | null;
           services: Json;
           gallery: Json;
           theme: Json;
@@ -301,9 +304,10 @@ export type Database = {
         }>;
       };
       admin_update_site_content: {
-        Args: { p_services: Json; p_gallery: Json; p_theme: Json };
+        Args: { p_logo_url?: string | null; p_services?: Json; p_gallery?: Json; p_theme?: Json };
         Returns: Array<{
           business_id: string;
+          logo_url: string | null;
           services: Json;
           gallery: Json;
           theme: Json;

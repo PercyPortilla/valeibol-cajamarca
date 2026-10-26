@@ -1,5 +1,5 @@
 export const platformConfig = {
-  name: "Caxas Sport Center",
+  name: "SportCenter Caxas",
   city: "Cajamarca",
   country: "Perú",
   regionLabel: "Cajamarca, Perú",

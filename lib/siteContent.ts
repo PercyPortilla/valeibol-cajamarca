@@ -30,6 +30,7 @@ export type SiteTheme = {
 };
 
 export type SiteContent = {
+  logoUrl: string;
   services: SiteService[];
   gallery: SiteGalleryItem[];
   theme: SiteTheme;
@@ -97,6 +98,10 @@ function cleanImageUrl(value: unknown) {
   } catch {
     return "";
   }
+}
+
+export function normalizeSiteLogoUrl(value: unknown) {
+  return cleanImageUrl(value);
 }
 
 function cleanHex(value: unknown, fallback: string) {
@@ -283,6 +288,7 @@ export function themeCssVariables(theme: SiteTheme) {
 
 export function defaultSiteContent(): SiteContent {
   return {
+    logoUrl: "/images/valeibol-logo.webp",
     services: DEFAULT_SITE_SERVICES.map((item) => ({ ...item })),
     gallery: DEFAULT_SITE_GALLERY.map((item) => ({ ...item })),
     theme: { ...DEFAULT_SITE_THEME },

@@ -19,6 +19,7 @@ export type PlatformCatalogItem = {
   businessCity: string | null;
   businessCountry: string | null;
   businessTimezone: string;
+  logoUrl: string | null;
   coverImageUrl: string | null;
   coverAltText: string | null;
   ratingAverage: number | null;
@@ -47,6 +48,7 @@ export type PlatformBusinessCard = {
   name: string;
   city: string | null;
   country: string | null;
+  logoUrl: string | null;
   coverImageUrl: string | null;
   coverAltText: string | null;
   ratingAverage: number | null;
@@ -87,6 +89,7 @@ export type PlatformBusinessDetail = {
   name: string;
   city: string | null;
   country: string | null;
+  logoUrl: string | null;
   coverImageUrl: string | null;
   coverAltText: string | null;
   ratingAverage: number | null;
@@ -122,6 +125,7 @@ export function groupCatalogByBusiness(items: PlatformCatalogItem[]): PlatformBu
       name: item.businessName,
       city: item.businessCity ?? item.venueCity,
       country: item.businessCountry,
+      logoUrl: item.logoUrl,
       coverImageUrl: item.coverImageUrl,
       coverAltText: item.coverAltText,
       ratingAverage: item.ratingAverage,
@@ -220,6 +224,7 @@ export function buildBusinessDetail(items: PlatformCatalogItem[], slug: string):
     name: first.businessName,
     city: first.businessCity,
     country: first.businessCountry,
+    logoUrl: first.logoUrl,
     coverImageUrl: first.coverImageUrl,
     coverAltText: first.coverAltText,
     ratingAverage: first.ratingAverage,

@@ -13,7 +13,7 @@ import { createAdminOperationsRepository } from "../../../lib/data/adminOperatio
 import { createSiteContentRepository } from "../../../lib/data/siteContentService.ts";
 import { createServerSupabaseClient } from "../../../lib/data/supabase/server.ts";
 import { SiteContentRepositoryError } from "../../../lib/data/repositories/siteContentRepository.ts";
-import { isAccessibleSiteTheme, isValidSiteThemeInput, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
+import { isAccessibleSiteTheme, isValidSiteThemeInput, normalizeSiteGallery, normalizeSiteLogoUrl, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
 import {
   AdminOperationsRepositoryError,
   type CreateManualReservationInput,
@@ -458,6 +458,7 @@ export async function schedulePricingRuleAction(raw: SchedulePricingInput): Prom
 }
 
 export async function updateSiteContentAction(raw: {
+  logoUrl: string;
   services: SiteService[];
   gallery: SiteGalleryItem[];
   theme: SiteTheme;
@@ -474,6 +475,10 @@ export async function updateSiteContentAction(raw: {
       return fail("validation", "La galería admite hasta 16 elementos.");
     }
 
+    const logoUrl = normalizeSiteLogoUrl(raw.logoUrl);
+    if (raw.logoUrl.trim() && !logoUrl) {
+      return fail("validation", "Revisa la URL del logo antes de guardar.");
+    }
     const services = normalizeSiteServices(raw.services);
     const gallery = normalizeSiteGallery(raw.gallery);
     if (!isValidSiteThemeInput(raw.theme)) {
@@ -487,13 +492,13 @@ export async function updateSiteContentAction(raw: {
       return fail("validation", "La paleta necesita más contraste. Usa colores principales suficientemente oscuros y mantén buen contraste entre fondo y texto.");
     }
 
-    await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery, theme });
+    await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ logoUrl, services, gallery, theme });
     revalidatePath("/");
     revalidatePath("/buscar");
     revalidatePath("/complejo/[slug]", "page");
     revalidatePath("/admin", "layout");
     revalidatePath("/admin/configuracion");
-    return { ok: true, message: "Contenido público actualizado. Servicios, galería y paleta ya usan esta configuración." };
+    return { ok: true, message: "Contenido público actualizado. Logo, servicios, galería y paleta ya usan esta configuración." };
   } catch (error) {
     if (error instanceof AdminAuthError) {
       if (error.code === "unauthenticated") return fail("unauthenticated", "La sesión expiró. Vuelve a iniciar sesión.");

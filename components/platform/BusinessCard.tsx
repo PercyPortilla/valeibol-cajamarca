@@ -24,7 +24,17 @@ export function BusinessCard({ business }: { business: PlatformBusinessCard }) {
             sizes="(max-width: 680px) calc(100vw - 24px), (max-width: 1000px) 50vw, 380px"
           />
         ) : null}
-        <span>{business.name.slice(0, 1).toUpperCase()}</span>
+        <span className={business.logoUrl ? "platform-business-card__logo-mark platform-business-card__logo-mark--image" : "platform-business-card__logo-mark"}>
+          {business.logoUrl ? (
+            <Image
+              className="platform-business-card__logo"
+              src={business.logoUrl}
+              alt={`Logo de ${business.name}`}
+              fill
+              sizes="48px"
+            />
+          ) : business.name.slice(0, 1).toUpperCase()}
+        </span>
         <div className="platform-business-card__court-lines"><i /><b /></div>
       </div>
       <div className="platform-business-card__body">

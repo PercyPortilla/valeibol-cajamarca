@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { PlatformResults } from "@/components/platform/PlatformResults";
@@ -30,7 +29,6 @@ export default async function PlatformHomePage() {
   const businesses = allBusinesses.slice(0, 6);
   const venueCount = new Set(catalog.map((item) => item.venueId)).size;
   const courtCount = new Set(catalog.map((item) => item.courtId)).size;
-  const featuredBusiness = businesses[0];
   const sportCourtCounts = new Map<string, Set<string>>();
   for (const item of catalog) {
     const courtIds = sportCourtCounts.get(item.sportSlug) ?? new Set<string>();
@@ -60,27 +58,14 @@ export default async function PlatformHomePage() {
             </div>
             <aside className="platform-home-hero__aside" aria-label="Resumen del marketplace">
               <div className="platform-showcase-card platform-showcase-card--main">
-                <div
-                  className={featuredBusiness?.coverImageUrl ? "platform-showcase-card__visual platform-showcase-card__visual--image" : "platform-showcase-card__visual"}
-                  aria-hidden={featuredBusiness?.coverImageUrl ? undefined : true}
-                >
-                  {featuredBusiness?.coverImageUrl ? (
-                    <Image
-                      className="platform-showcase-card__cover"
-                      src={featuredBusiness.coverImageUrl}
-                      alt={featuredBusiness.coverAltText ?? `Instalaciones de ${featuredBusiness.name}`}
-                      fill
-                      sizes="(max-width: 1000px) 560px, 420px"
-                      preload
-                    />
-                  ) : null}
-                  <span>PLAY</span>
+                <div className="platform-showcase-card__visual" aria-hidden="true">
+                  <span>SPORTCENTER</span>
                   <div className="platform-showcase-court"><i /><b /></div>
                 </div>
                 <div className="platform-showcase-card__content">
-                  <span className="eyebrow">DESCUBRE Y RESERVA</span>
-                  <strong>{featuredBusiness?.name ?? "Complejos deportivos"}</strong>
-                  <small>{featuredBusiness ? [featuredBusiness.city, ...featuredBusiness.sports].filter(Boolean).join(" · ") : "Explora complejos deportivos verificados"}</small>
+                  <span className="eyebrow">PLATAFORMA GENERAL</span>
+                  <strong>Complejos deportivos de Cajamarca</strong>
+                  <small>Explora negocios, deportes y canchas desde una sola plataforma.</small>
                 </div>
               </div>
               <div className="platform-market-stats">
@@ -100,7 +85,7 @@ export default async function PlatformHomePage() {
           </div>
         </section>
 
-        <section className="platform-section platform-home-sports">
+        <section className="platform-section platform-home-sports" id="deportes">
           <div className="shell">
             <div className="platform-section__heading">
               <div><span className="eyebrow">DEPORTES</span><h2>¿Qué quieres jugar?</h2></div>
@@ -121,7 +106,7 @@ export default async function PlatformHomePage() {
           </div>
         </section>
 
-        <section className="platform-section platform-home-featured">
+        <section className="platform-section platform-home-featured" id="complejos">
           <div className="shell">
             <div className="platform-section__heading">
               <div><span className="eyebrow">COMPLEJOS EN CAJAMARCA</span><h2>Complejos disponibles</h2><p>Por ahora la plataforma está enfocada únicamente en Cajamarca.</p></div>
@@ -132,7 +117,7 @@ export default async function PlatformHomePage() {
 
         <section className="platform-home-owner">
           <div className="shell platform-home-owner__inner">
-            <div><span className="eyebrow">PARA PROPIETARIOS DE CAJAMARCA</span><h2>Administra reservas, precios y operación desde un solo panel.</h2><p>Cada negocio gestiona únicamente su propia operación dentro de Caxas Sport Center.</p></div>
+            <div><span className="eyebrow">PARA PROPIETARIOS DE CAJAMARCA</span><h2>Administra reservas, precios y operación desde un solo panel.</h2><p>Cada negocio gestiona únicamente su propia operación dentro de SportCenter Caxas.</p></div>
             <Link className="button button--primary" href="/propietario">Ir al panel propietario</Link>
           </div>
         </section>

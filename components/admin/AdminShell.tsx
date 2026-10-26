@@ -14,7 +14,7 @@ export function AdminShell({ context, children, theme, unreadNotifications = 0 }
     <main className="admin-shell" style={themeCssVariables(theme) as CSSProperties}>
       <a className="platform-skip-link" href="#admin-main">Saltar al contenido principal</a>
       <aside className="admin-sidebar">
-        <Link href="/admin" className="brand brand--admin" aria-label="Caxas Sport Center · Administración">
+        <Link href="/admin" className="brand brand--admin" aria-label="SportCenter Caxas · Administración">
           <PlatformAdminBrand context="admin" />
         </Link>
         <AdminNavigation unreadNotifications={unreadNotifications} />

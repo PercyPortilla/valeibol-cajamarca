@@ -25,6 +25,7 @@ export class MockPlatformRepository implements PlatformRepository {
       businessCity: businessConfig.city,
       businessCountry: businessConfig.country,
       businessTimezone: businessConfig.timezone,
+      logoUrl: "/images/valeibol-logo.webp",
       coverImageUrl: "/images/valeibol-court-wide.webp",
       coverAltText: "Vista amplia de las instalaciones de Valeibol",
       ratingAverage: null,

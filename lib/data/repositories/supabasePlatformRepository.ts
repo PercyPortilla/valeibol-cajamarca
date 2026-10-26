@@ -60,6 +60,7 @@ export class SupabasePlatformRepository implements PlatformRepository {
       businessCity: row.business_city,
       businessCountry: row.business_country,
       businessTimezone: row.business_timezone,
+      logoUrl: toPublicImageUrl(row.logo_url),
       coverImageUrl: toPublicImageUrl(row.cover_image_url),
       coverAltText: row.cover_image_url ? toCoverAltText(row.cover_alt_text, row.business_name) : null,
       ratingAverage: toNullableNumber(row.rating_average),

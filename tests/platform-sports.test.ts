@@ -35,7 +35,9 @@ test("home enlaza categorías a landings y muestra inventario derivado del catá
   assert.match(home, /sportCourtCounts/);
   assert.match(home, /const quickSports = activeSports\.filter/);
   assert.match(home, /Sin oferta activa todavía/);
-  assert.match(home, /Explora complejos deportivos verificados/);
+  assert.match(home, /Explora negocios, deportes y canchas desde una sola plataforma/);
+  assert.match(home, /id="complejos"/);
+  assert.doesNotMatch(home, /featuredBusiness/);
   assert.doesNotMatch(home, /\|\| "Vóley · Fútbol"/);
   assert.doesNotMatch(home, /sport\.slug === "voley" \? "\/voley"/);
 });

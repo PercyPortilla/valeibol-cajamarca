@@ -1,6 +1,7 @@
 import type { SiteContent, SiteGalleryItem, SiteService, SiteTheme } from "../../siteContent.ts";
 
 export type UpdateSiteContentInput = {
+  logoUrl: string;
   services: SiteService[];
   gallery: SiteGalleryItem[];
   theme: SiteTheme;

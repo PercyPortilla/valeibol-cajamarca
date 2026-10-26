@@ -8,6 +8,7 @@ import {
   isAccessibleSiteTheme,
   isValidSiteThemeInput,
   normalizeSiteGallery,
+  normalizeSiteLogoUrl,
   normalizeSiteServices,
   normalizeSiteTheme,
   themeCssVariables,
@@ -49,6 +50,8 @@ test("normalización limita contenido y conserva orden/visibilidad", () => {
   assert.equal(normalizeSiteGallery([{ id: "x", title: "X", imageUrl: "javascript:alert(1)", altText: "X", sortOrder: 1, isVisible: true }])[0]?.imageUrl, "");
   assert.equal(normalizeSiteGallery([{ id: "local", title: "Local", imageUrl: "/uploads/local-gallery/foto.webp", altText: "Local", sortOrder: 1, isVisible: true }])[0]?.imageUrl, "/uploads/local-gallery/foto.webp");
   assert.equal(normalizeSiteGallery([{ id: "brand", title: "Cancha", imageUrl: "/images/valeibol-court-wide.webp", altText: "Cancha", sortOrder: 1, isVisible: true }])[0]?.imageUrl, "/images/valeibol-court-wide.webp");
+  assert.equal(normalizeSiteLogoUrl("/images/valeibol-logo.webp"), "/images/valeibol-logo.webp");
+  assert.equal(normalizeSiteLogoUrl("javascript:alert(1)"), "");
 });
 
 test("paletas base cumplen contraste y colores inválidos vuelven a la base", () => {
@@ -94,11 +97,13 @@ test("repositorio local permite editar servicios y galería sin tocar Supabase",
   assert.equal(before.services.length, DEFAULT_SITE_SERVICES.length);
 
   const updated = await repo.updateAdminContent({
+    logoUrl: "/images/valeibol-logo.webp",
     services: before.services.map((item) => item.id === "music-choice" ? { ...item, description: "Música elegida por el cliente." } : item),
     gallery: [{ id: "foto-1", title: "Cancha", imageUrl: "https://example.com/cancha.webp", altText: "Cancha de Valeibol", sortOrder: 10, isVisible: true }],
     theme: { ...before.theme, presetId: "custom", yellow: "#F1C232" },
   });
   assert.equal(updated.source, "local");
+  assert.equal(updated.logoUrl, "/images/valeibol-logo.webp");
   assert.equal(updated.services.find((item) => item.id === "music-choice")?.description, "Música elegida por el cliente.");
   assert.equal(updated.gallery[0]?.imageUrl, "https://example.com/cancha.webp");
   assert.equal(updated.theme.yellow, "#F1C232");

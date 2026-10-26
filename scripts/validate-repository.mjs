@@ -260,6 +260,12 @@ const required = [
   "supabase/tests/platform_customer_reservation_pagination.sql",
   "tests/platform-customer-reservation-pagination.test.ts",
   "docs/BLOCK60_PROMPT.md",
+  "supabase/migrations/20261025223000_block61_global_brand_business_logos.sql",
+  "supabase/tests/platform_global_brand_business_logos.sql",
+  "tests/platform-global-brand-logos.test.ts",
+  "docs/BLOCK61_PROMPT.md",
+  "tests/platform-tenant-logo-propagation.test.ts",
+  "docs/BLOCK62_PROMPT.md",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

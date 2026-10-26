@@ -26,6 +26,7 @@ export async function ValeibolLanding() {
   ]);
   const initialCourtId = catalog[0]?.courtId ?? demoCourt.id;
   const businessId = catalog[0]?.businessId ?? null;
+  const businessLogoUrl = catalog[0]?.logoUrl ?? null;
   const ratingAverage = catalog[0]?.ratingAverage ?? null;
   const reviewCount = catalog[0]?.reviewCount ?? 0;
   const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
@@ -59,7 +60,7 @@ export async function ValeibolLanding() {
 
   return (
     <div className="site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
-      <Header />
+      <Header logoUrl={businessLogoUrl} />
       <main className="commercial-main" id="valeibol-main" tabIndex={-1}>
         <section className="hero hero--commercial" id="inicio">
           <div className="hero-commercial__media">
@@ -270,7 +271,7 @@ export async function ValeibolLanding() {
           </div>
         </section>
       </main>
-      <Footer />
+      <Footer logoUrl={businessLogoUrl} />
     </div>
   );
 }

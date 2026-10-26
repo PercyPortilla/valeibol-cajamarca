@@ -43,6 +43,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     : business.coverImageUrl
       ? absoluteSiteUrl(business.coverImageUrl)
       : null;
+  const logo = business.logoUrl?.startsWith("http")
+    ? business.logoUrl
+    : business.logoUrl
+      ? absoluteSiteUrl(business.logoUrl)
+      : null;
+  const socialImage = image ?? logo;
   const title = slug === businessConfig.slug
     ? `${business.name} | Cancha de vóley${location}`
     : `${business.name} | Complejo deportivo${location}`;
@@ -55,13 +61,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       title,
       description,
       url: canonical,
-      ...(image ? { images: [{ url: image, alt: business.coverAltText ?? `Instalaciones de ${business.name}` }] } : {}),
+      ...(socialImage ? { images: [{ url: socialImage, alt: image ? business.coverAltText ?? `Instalaciones de ${business.name}` : `Logo de ${business.name}` }] } : {}),
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
       title,
       description,
-      ...(image ? { images: [image] } : {}),
+      ...(socialImage ? { images: [socialImage] } : {}),
     },
   };
 }
@@ -119,7 +125,11 @@ export default async function ComplexPage({ params }: { params: Params }) {
             <div>
               <nav className="platform-breadcrumbs" aria-label="Migas de pan"><ol><li><Link href="/">Inicio</Link></li><li aria-hidden="true">/</li><li><Link href="/buscar">Buscar canchas</Link></li><li aria-hidden="true">/</li><li aria-current="page">{business.name}</li></ol></nav>
               <span className="platform-live-label"><i aria-hidden="true" /> COMPLEJO EN LA PLATAFORMA</span>
-              <div className="platform-complex-title-row"><h1>{business.name}</h1><FavoriteButton businessId={business.id} businessName={business.name} variant="button" /></div>
+              <div className="platform-complex-title-row">
+                {business.logoUrl ? <span className="platform-complex-logo"><Image src={business.logoUrl} alt={`Logo de ${business.name}`} width={72} height={72} /></span> : null}
+                <h1>{business.name}</h1>
+                <FavoriteButton businessId={business.id} businessName={business.name} variant="button" />
+              </div>
               <p>{business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""} · {sportNames.join(" · ") || "Deportes"}</p>
               <div className="platform-complex-hero__chips">
                 {sportNames.slice(0, 4).map((sport) => <span key={sport}>{sport}</span>)}

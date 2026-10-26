@@ -8,14 +8,13 @@ export function PlatformHeader() {
       <div className="shell platform-header__inner">
         <Link className="platform-brand" href="/" aria-label={`Ir al inicio de ${platformConfig.name}`}>
           <span className="platform-brand__mark" aria-hidden="true"><i>C</i></span>
-          <span><strong>{platformConfig.name}</strong><small>Canchas en Cajamarca</small></span>
+          <span><strong>{platformConfig.name}</strong><small>Plataforma deportiva · Cajamarca</small></span>
         </Link>
         <nav className="platform-nav" aria-label="Navegación de la plataforma deportiva">
           <Link href="/buscar">Buscar</Link>
-          <Link href="/voley">Vóley</Link>
-          <Link href="/futbol">Fútbol</Link>
+          <Link href="/#deportes">Deportes</Link>
+          <Link href="/#complejos">Complejos</Link>
           <Link href="/mi-cuenta">Mi cuenta</Link>
-          <Link className="platform-nav__featured" href="/buscar">Cajamarca</Link>
         </nav>
       </div>
     </header>

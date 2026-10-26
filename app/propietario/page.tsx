@@ -47,7 +47,7 @@ export default async function OwnerPortalPage() {
             </Card>
           ))}
         </section>
-        <p className="owner-portal__note">Cada propietario administra únicamente su propio negocio. La administración principal de Caxas Sport Center puede supervisar cualquier negocio seleccionándolo explícitamente desde el panel global.</p>
+        <p className="owner-portal__note">Cada propietario administra únicamente su propio negocio. La administración principal de SportCenter Caxas puede supervisar cualquier negocio seleccionándolo explícitamente desde el panel global.</p>
       </div>
     </main>
   );

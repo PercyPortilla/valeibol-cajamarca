@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from "../supabase/server.ts";
 import type { Database } from "../supabase/database.types.ts";
-import { normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "../../siteContent.ts";
+import { normalizeSiteGallery, normalizeSiteLogoUrl, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "../../siteContent.ts";
 import { SiteContentRepositoryError, type SiteContentRepository, type UpdateSiteContentInput } from "./siteContentRepository.ts";
 
 function mapError(message: string, code?: string) {
@@ -19,6 +19,7 @@ function mapError(message: string, code?: string) {
 
 function contentFromRow(row: Database["public"]["Functions"]["get_admin_site_content"]["Returns"][number]): SiteContent {
   return {
+    logoUrl: normalizeSiteLogoUrl(row.logo_url),
     services: normalizeSiteServices(row.services),
     gallery: normalizeSiteGallery(row.gallery),
     theme: normalizeSiteTheme(row.theme),
@@ -40,10 +41,12 @@ export class SupabaseSiteContentRepository implements SiteContentRepository {
 
   async updateAdminContent(input: UpdateSiteContentInput): Promise<SiteContent> {
     const client = await createServerSupabaseClient();
+    const logoUrl = normalizeSiteLogoUrl(input.logoUrl);
     const services = normalizeSiteServices(input.services);
     const gallery = normalizeSiteGallery(input.gallery);
     const theme = normalizeSiteTheme(input.theme);
     const { data, error } = await client.rpc("admin_update_site_content", {
+      p_logo_url: logoUrl || null,
       p_services: services,
       p_gallery: gallery,
       p_theme: theme,
@@ -53,6 +56,7 @@ export class SupabaseSiteContentRepository implements SiteContentRepository {
     const row = ((data ?? []) as Row[])[0];
     if (!row) throw new SiteContentRepositoryError("unknown", "Supabase no devolvió el contenido actualizado.");
     return {
+      logoUrl: normalizeSiteLogoUrl(row.logo_url),
       services: normalizeSiteServices(row.services),
       gallery: normalizeSiteGallery(row.gallery),
       theme: normalizeSiteTheme(row.theme),

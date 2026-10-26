@@ -1,5 +1,5 @@
 import { businessConfig } from "@/config/business";
-import { DEFAULT_SITE_THEME, defaultSiteContent, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "@/lib/siteContent";
+import { DEFAULT_SITE_THEME, defaultSiteContent, normalizeSiteGallery, normalizeSiteLogoUrl, normalizeSiteServices, normalizeSiteTheme, type SiteContent } from "@/lib/siteContent";
 import { createServerSupabaseClient, hasPublicSupabaseServerConfig } from "@/lib/data/supabase/server";
 import type { Database } from "@/lib/data/supabase/database.types";
 import { cookies, headers } from "next/headers";
@@ -8,6 +8,7 @@ import { LocalSiteContentRepository } from "@/lib/data/repositories/localSiteCon
 
 function emptyTenantSiteContent(): SiteContent {
   return {
+    logoUrl: "",
     services: [],
     gallery: [],
     theme: { ...DEFAULT_SITE_THEME },
@@ -46,6 +47,7 @@ export async function getPublicSiteContent(businessSlug: string = businessConfig
       return fallback;
     }
     return {
+      logoUrl: normalizeSiteLogoUrl(row.logo_url),
       services: normalizeSiteServices(row.services),
       gallery: normalizeSiteGallery(row.gallery),
       theme: normalizeSiteTheme(row.theme),

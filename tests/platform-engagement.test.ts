@@ -106,6 +106,7 @@ test("JSON-LD agrega AggregateRating únicamente cuando existe reputación publi
     name: "Demo",
     city: "Cajamarca",
     country: "Perú",
+    logoUrl: null,
     coverImageUrl: null,
     coverAltText: null,
     ratingAverage: 4.7,

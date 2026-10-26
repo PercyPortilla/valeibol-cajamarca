@@ -57,6 +57,11 @@ export function buildMarketplaceJsonLd(businesses: PlatformBusinessCard[]): Json
 export function buildBusinessJsonLd(business: PlatformBusinessDetail): JsonLd {
   const pageUrl = absoluteSiteUrl(`/complejo/${encodeURIComponent(business.slug)}`);
   const organizationId = pageUrl ? `${pageUrl}#organization` : undefined;
+  const logo = business.logoUrl
+    ? business.logoUrl.startsWith("http")
+      ? business.logoUrl
+      : absoluteSiteUrl(business.logoUrl) ?? undefined
+    : undefined;
   const image = business.coverImageUrl
     ? business.coverImageUrl.startsWith("http")
       ? business.coverImageUrl
@@ -71,6 +76,7 @@ export function buildBusinessJsonLd(business: PlatformBusinessDetail): JsonLd {
         ...(organizationId ? { "@id": organizationId } : {}),
         name: business.name,
         ...(pageUrl ? { url: pageUrl } : {}),
+        ...(logo ? { logo } : {}),
         ...(image ? { image } : {}),
         ...(business.city || business.country
           ? { areaServed: [business.city, business.country].filter(Boolean).join(", ") }

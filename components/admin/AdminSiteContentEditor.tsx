@@ -33,11 +33,13 @@ function move<T extends { sortOrder: number }>(items: T[], index: number, direct
 
 export function AdminSiteContentEditor({ content, role, localMode }: { content: SiteContent; role: AdminRole; localMode: boolean }) {
   const router = useRouter();
+  const [logoUrl, setLogoUrl] = useState(content.logoUrl);
   const [services, setServices] = useState(content.services);
   const [gallery, setGallery] = useState(content.gallery);
   const [theme, setTheme] = useState(content.theme);
   const [result, setResult] = useState<AdminActionResult | null>(null);
   const [pending, startTransition] = useTransition();
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const canManage = role === "owner" || role === "admin";
   const normalizedTheme = normalizeSiteTheme(theme);
@@ -100,7 +102,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
   function save() {
     setResult(null);
     startTransition(async () => {
-      const next = await updateSiteContentAction({ services: resequence(services), gallery: resequence(gallery), theme });
+      const next = await updateSiteContentAction({ logoUrl, services: resequence(services), gallery: resequence(gallery), theme });
       setResult(next);
       if (next.ok) {
         setServices((current) => resequence(current));
@@ -108,6 +110,28 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
         router.refresh();
       }
     });
+  }
+
+  async function uploadLogo(file: File | null) {
+    if (!file) return;
+    setResult(null);
+    setUploadingLogo(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const response = await fetch("/api/admin/site-media", { method: "POST", body });
+      const payload = await response.json() as { ok?: boolean; url?: string; message?: string };
+      if (!response.ok || !payload.url) {
+        setResult({ ok: false, code: "network", message: payload.message ?? "No pudimos subir el logo." });
+        return;
+      }
+      setLogoUrl(payload.url);
+      setResult({ ok: true, message: "Logo subido. Guarda el contenido para publicarlo en SportCenter Caxas." });
+    } catch {
+      setResult({ ok: false, code: "network", message: "No pudimos subir el logo." });
+    } finally {
+      setUploadingLogo(false);
+    }
   }
 
   async function uploadPhoto(index: number, file: File | null) {
@@ -138,6 +162,38 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
 
   return (
     <div className="admin-content-editor">
+      <section className="admin-content-editor__section" aria-labelledby="brand-logo-editor-title">
+        <div className="admin-content-editor__head">
+          <div>
+            <span className="metric-label">LOGO DEL NEGOCIO</span>
+            <h2 id="brand-logo-editor-title">Identidad en SportCenter Caxas</h2>
+            <p>Este logo aparecerá en la tarjeta de tu complejo dentro de la plataforma general.</p>
+          </div>
+        </div>
+        <div className="admin-business-logo-editor">
+          <div
+            className={logoUrl ? "admin-business-logo-editor__preview admin-business-logo-editor__preview--image" : "admin-business-logo-editor__preview"}
+            style={logoUrl ? { backgroundImage: `url(${logoUrl})` } : undefined}
+            role="img"
+            aria-label="Vista previa del logo del negocio"
+          >
+            {!logoUrl ? <span>Sin logo</span> : null}
+          </div>
+          <div className="admin-business-logo-editor__fields">
+            <label className="field">
+              <span className="field__label">URL pública del logo</span>
+              <input className="field__control" type="url" inputMode="url" placeholder="https://..." value={logoUrl} maxLength={1200} onChange={(event) => setLogoUrl(event.target.value)} />
+            </label>
+            <label className="field admin-gallery-editor__upload">
+              <span className="field__label">Subir logo</span>
+              <input className="field__control" type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={uploadingLogo || uploadingIndex !== null} onChange={(event) => void uploadLogo(event.target.files?.[0] ?? null)} />
+              <small>{uploadingLogo ? "Subiendo…" : localMode ? "En localhost el archivo se guarda solo en esta copia de desarrollo." : "JPG, PNG, WebP o AVIF · máximo 8 MB"}</small>
+            </label>
+            {logoUrl ? <button className="button button--ghost" type="button" onClick={() => setLogoUrl("")}>Quitar logo</button> : null}
+          </div>
+        </div>
+      </section>
+
       <section className="admin-content-editor__section" aria-labelledby="services-editor-title">
         <div className="admin-content-editor__head">
           <div>

@@ -3,7 +3,7 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
 
-export function Footer() {
+export function Footer({ logoUrl }: { logoUrl?: string | null } = {}) {
   const phoneDigits = businessConfig.phone.replace(/\D/g, "");
   const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
 
@@ -11,7 +11,7 @@ export function Footer() {
     <footer className="site-footer site-footer--commercial">
       <div className="shell commercial-footer">
         <div className="commercial-footer__brand">
-          <BrandLogo context="footer" />
+          <BrandLogo context="footer" logoUrl={logoUrl} name={businessConfig.name} />
           <p>{businessConfig.address}</p>
         </div>
 

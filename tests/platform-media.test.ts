@@ -36,14 +36,13 @@ test("repositorio valida URLs antes de llevarlas a CSS y UI", () => {
   assert.match(repository, /coverImageUrl: toPublicImageUrl\(row\.cover_image_url\)/);
 });
 
-test("cards y hero usan cover real con fallback visual existente", () => {
+test("cards usan cover real y el hero global no promociona un negocio", () => {
   assert.match(businessCard, /platform-business-card__visual--image/);
   assert.match(businessCard, /business\.coverAltText/);
   assert.match(businessCard, /import Image from "next\/image"/);
   assert.match(businessCard, /sizes="\(max-width: 680px\)/);
   assert.match(businessCard, /platform-business-card__court-lines/);
-  assert.match(platformHome, /platform-showcase-card__visual--image/);
-  assert.match(platformHome, /featuredBusiness\.coverAltText/);
-  assert.match(platformHome, /preload/);
+  assert.doesNotMatch(platformHome, /featuredBusiness/);
+  assert.match(platformHome, /PLATAFORMA GENERAL/);
   assert.match(nextConfig, /\/storage\/v1\/object\/public\/business-gallery\/\*\*/);
 });

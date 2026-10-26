@@ -1,6 +1,7 @@
 import {
   defaultSiteContent,
   normalizeSiteGallery,
+  normalizeSiteLogoUrl,
   normalizeSiteServices,
   normalizeSiteTheme,
   type SiteContent,
@@ -23,6 +24,7 @@ export class LocalSiteContentRepository implements SiteContentRepository {
 
   async updateAdminContent(input: UpdateSiteContentInput) {
     const next: SiteContent = {
+      logoUrl: normalizeSiteLogoUrl(input.logoUrl),
       services: normalizeSiteServices(input.services),
       gallery: normalizeSiteGallery(input.gallery),
       theme: normalizeSiteTheme(input.theme),

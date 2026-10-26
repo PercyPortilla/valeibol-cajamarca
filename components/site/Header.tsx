@@ -3,13 +3,13 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Icon } from "@/components/ui/Icon";
 import { businessConfig } from "@/config/business";
 
-export function Header() {
+export function Header({ logoUrl }: { logoUrl?: string | null } = {}) {
   return (
     <header className="site-header site-header--commercial">
       <a className="platform-skip-link" href="#valeibol-main">Saltar al contenido principal</a>
       <div className="shell site-header__inner">
         <Link className="brand brand--commercial" href="#inicio" aria-label={`${businessConfig.name}, inicio`}>
-          <BrandLogo />
+          <BrandLogo logoUrl={logoUrl} name={businessConfig.name} />
         </Link>
 
         <nav className="site-nav site-nav--commercial" aria-label="Principal">

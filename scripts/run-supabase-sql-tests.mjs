@@ -57,6 +57,7 @@ export const sqlTests = [
   "supabase/tests/platform_customer_notification_pagination.sql",
   "supabase/tests/platform_admin_pending_change_request_pagination.sql",
   "supabase/tests/platform_customer_reservation_pagination.sql",
+  "supabase/tests/platform_global_brand_business_logos.sql",
 ];
 
 function getProjectId() {
