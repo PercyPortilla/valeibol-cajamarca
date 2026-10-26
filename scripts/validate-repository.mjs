@@ -266,6 +266,11 @@ const required = [
   "docs/BLOCK61_PROMPT.md",
   "tests/platform-tenant-logo-propagation.test.ts",
   "docs/BLOCK62_PROMPT.md",
+  "tests/platform-premium-home.test.ts",
+  "docs/BLOCK63_PROMPT.md",
+  "public/images/caxas-sportcenter-logo.webp",
+  "tests/platform-brand-visual-qa.test.ts",
+  "docs/BLOCK64_PROMPT.md",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

@@ -55,7 +55,7 @@ try {
       const bodyText = document.body.innerText;
       const requiredPlatformSelectors = [
         ".platform-home-hero",
-        ".platform-search-form",
+        ".platform-home-search",
         ".platform-home-sports",
         ".platform-home-featured",
         ".platform-home-owner",

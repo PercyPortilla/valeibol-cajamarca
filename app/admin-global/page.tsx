@@ -11,7 +11,7 @@ import { PlatformAdminSportManagement, type PlatformAdminSport } from "@/compone
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Administración principal · SportCenter Caxas",
+  title: "Administración principal · Caxas SportCenter",
   robots: { index: false, follow: false },
 };
 

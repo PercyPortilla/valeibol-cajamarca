@@ -7,6 +7,7 @@ const home = readFileSync("app/page.tsx", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
 const sportLanding = readFileSync("lib/platform/sportLanding.ts", "utf8");
 const businessCard = readFileSync("components/platform/BusinessCard.tsx", "utf8");
+const homeHero = readFileSync("components/platform/HomeHero.tsx", "utf8");
 
 test("B19 da landing dedicada a los cuatro deportes activos del modelo", () => {
   const activeSlugs = sports.filter((sport) => sport.active).map((sport) => sport.slug);
@@ -33,9 +34,10 @@ test("landings sin inventario real son noindex y no reciben canonical", () => {
 test("home enlaza categorías a landings y muestra inventario derivado del catálogo", () => {
   assert.match(home, /getSportLandingPath\(sport\.slug\)/);
   assert.match(home, /sportCourtCounts/);
-  assert.match(home, /const quickSports = activeSports\.filter/);
+  assert.match(home, /sports=\{activeSports\}/);
+  assert.match(homeHero, /sports\.map/);
   assert.match(home, /Sin oferta activa todavía/);
-  assert.match(home, /Explora negocios, deportes y canchas desde una sola plataforma/);
+  assert.match(homeHero, /Encuentra dónde jugar/);
   assert.match(home, /id="complejos"/);
   assert.doesNotMatch(home, /featuredBusiness/);
   assert.doesNotMatch(home, /\|\| "Vóley · Fútbol"/);

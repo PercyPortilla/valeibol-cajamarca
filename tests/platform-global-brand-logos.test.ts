@@ -14,15 +14,15 @@ const migration = readFileSync("supabase/migrations/20261025223000_block61_globa
 const runner = readFileSync("scripts/run-supabase-sql-tests.mjs", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("B61 convierte SportCenter Caxas en marca madre sin negocio destacado en header", () => {
-  assert.match(config, /name:\s*"SportCenter Caxas"/);
+test("B61 mantiene la marca madre configurable sin negocio destacado en header", () => {
+  assert.match(config, /name:\s*"Caxas SportCenter"/);
   assert.match(header, /href="\/#deportes">Deportes/);
   assert.match(header, /href="\/#complejos">Complejos/);
   assert.doesNotMatch(header, /href="\/voley"|href="\/futbol"|Valeibol Cajamarca/);
   assert.match(home, /id="deportes"/);
   assert.match(home, /id="complejos"/);
   assert.doesNotMatch(home, /featuredBusiness/);
-  assert.match(home, /PLATAFORMA GENERAL/);
+  assert.match(home, /<HomeHero/);
 });
 
 test("B61 muestra logo real del complejo y conserva fallback por inicial", () => {

@@ -6,6 +6,7 @@ const platformHeader = readFileSync("components/platform/PlatformHeader.tsx", "u
 const legacyHeader = readFileSync("components/site/Header.tsx", "utf8");
 const legacyLanding = readFileSync("components/site/ValeibolLanding.tsx", "utf8");
 const platformHome = readFileSync("app/page.tsx", "utf8");
+const homeHero = readFileSync("components/platform/HomeHero.tsx", "utf8");
 const platformSearch = readFileSync("app/buscar/page.tsx", "utf8");
 const complexPage = readFileSync("app/complejo/[slug]/page.tsx", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
@@ -35,7 +36,7 @@ test("navegación global tiene nombre accesible explícito", () => {
 });
 
 test("Bloque 10 mantiene raíz global y Valeibol como tenant completo", () => {
-  assert.match(platformHome, /PlatformSearchForm/);
+  assert.match(platformHome, /HomeHero/);
   assert.match(platformHome, /COMPLEJOS/);
   assert.match(complexPage, /slug === businessConfig\.slug/);
   assert.match(complexPage, /<ValeibolLanding \/>/);
@@ -82,8 +83,8 @@ test("admin móvil conserva marca, skip link y targets operativos de 44px", () =
 
 test("Bloque 14 eleva el marketplace sin inventar una capa de datos paralela", () => {
   assert.match(platformHome, /allBusinesses = groupCatalogByBusiness\(catalog\)/);
-  assert.match(platformHome, /platform-live-label/);
-  assert.match(platformHome, /platform-market-stats/);
+  assert.match(homeHero, /platform-live-label/);
+  assert.match(homeHero, /platform-market-stats/);
   assert.match(platformSearch, /platform-active-filters/);
   assert.match(platformSearch, /getPublicSportBySlug/);
   assert.match(complexPage, /sportNames/);

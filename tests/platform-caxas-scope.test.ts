@@ -13,8 +13,8 @@ const adminShell = readFileSync("components/admin/AdminShell.tsx", "utf8");
 const ownerPortal = readFileSync("app/propietario/page.tsx", "utf8");
 const migration = readFileSync("supabase/migrations/20261025075524_pre_b33_platform_admin_tenant_scope.sql", "utf8");
 
-test("marca principal es SportCenter Caxas sin renombrar el tenant Valeibol", () => {
-  assert.match(config, /name:\s*"SportCenter Caxas"/);
+test("marca principal es Caxas SportCenter sin renombrar el tenant Valeibol", () => {
+  assert.match(config, /name:\s*"Caxas SportCenter"/);
   assert.match(header, /platformConfig\.name/);
   assert.match(footer, /platformConfig\.name/);
   assert.match(layout, /platformConfig\.name/);

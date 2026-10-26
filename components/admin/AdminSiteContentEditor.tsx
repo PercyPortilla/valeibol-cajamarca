@@ -126,7 +126,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
         return;
       }
       setLogoUrl(payload.url);
-      setResult({ ok: true, message: "Logo subido. Guarda el contenido para publicarlo en SportCenter Caxas." });
+      setResult({ ok: true, message: "Logo subido. Guarda el contenido para publicarlo en Caxas SportCenter." });
     } catch {
       setResult({ ok: false, code: "network", message: "No pudimos subir el logo." });
     } finally {
@@ -166,7 +166,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
         <div className="admin-content-editor__head">
           <div>
             <span className="metric-label">LOGO DEL NEGOCIO</span>
-            <h2 id="brand-logo-editor-title">Identidad en SportCenter Caxas</h2>
+            <h2 id="brand-logo-editor-title">Identidad en Caxas SportCenter</h2>
             <p>Este logo aparecerá en la tarjeta de tu complejo dentro de la plataforma general.</p>
           </div>
         </div>

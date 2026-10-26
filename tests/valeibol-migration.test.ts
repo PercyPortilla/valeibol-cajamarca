@@ -7,7 +7,7 @@ const complex = readFileSync("app/complejo/[slug]/page.tsx", "utf8");
 const legacy = readFileSync("components/site/ValeibolLanding.tsx", "utf8");
 
 test("la raíz ahora es marketplace global y no la landing exclusiva de Valeibol", () => {
-  assert.match(root, /PlatformSearchForm/);
+  assert.match(root, /HomeHero/);
   assert.match(root, /getPublicPlatformCatalog/);
   assert.match(root, /PARA PROPIETARIOS/);
   assert.doesNotMatch(root, /CourtVisual/);
