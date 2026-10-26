@@ -46,23 +46,16 @@ function statusLabel(status: ExportReservation["status"]) {
   return "Cancelada";
 }
 
-async function loadProductionExport(from: string, to: string) {
-  const client = await createServerSupabaseClient();
-  const [reservationsResult, metricsResult, pricingResult] = await Promise.all([
-    client.rpc("get_admin_export_reservations", { p_from: from, p_to: to }),
-    client.rpc("get_admin_operational_metrics", { p_from: from, p_to: to }),
-    client.rpc("get_admin_pricing_rules"),
-  ]);
+function compareExportReservations(a: ExportReservation, b: ExportReservation) {
+  return a.startAt.localeCompare(b.startAt)
+    || a.createdAt.localeCompare(b.createdAt)
+    || a.id.localeCompare(b.id);
+}
 
-  if (reservationsResult.error) throw reservationsResult.error;
-  if (metricsResult.error) throw metricsResult.error;
-  if (pricingResult.error) throw pricingResult.error;
+type ProductionExportRow = Database["public"]["Functions"]["get_admin_export_reservations_page"]["Returns"][number];
 
-  type ReservationRow = Database["public"]["Functions"]["get_admin_export_reservations"]["Returns"][number];
-  type MetricsRow = Database["public"]["Functions"]["get_admin_operational_metrics"]["Returns"][number];
-  type PricingRow = Database["public"]["Functions"]["get_admin_pricing_rules"]["Returns"][number];
-
-  const reservations: ExportReservation[] = ((reservationsResult.data ?? []) as ReservationRow[]).map((row) => ({
+function mapProductionExportRow(row: ProductionExportRow): ExportReservation {
+  return {
     id: row.reservation_id,
     customerId: row.customer_id,
     customerName: row.customer_name,
@@ -81,7 +74,58 @@ async function loadProductionExport(from: string, to: string) {
     source: row.source,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-  }));
+  };
+}
+
+async function loadAllProductionReservations(from: string, to: string) {
+  const client = await createServerSupabaseClient();
+  const batchSize = 500;
+  const rows: ProductionExportRow[] = [];
+  let cursorCreatedAt: string | null = null;
+  let cursorId: string | null = null;
+  let snapshotCreatedAt: string | null = null;
+  let snapshotId: string | null = null;
+
+  for (;;) {
+    const result = await client.rpc("get_admin_export_reservations_page", {
+      p_from: from,
+      p_to: to,
+      p_limit: batchSize,
+      p_cursor_created_at: cursorCreatedAt,
+      p_cursor_id: cursorId,
+      p_snapshot_created_at: snapshotCreatedAt,
+      p_snapshot_id: snapshotId,
+    });
+    if (result.error) throw result.error;
+    const batch = (result.data ?? []) as ProductionExportRow[];
+    if (!snapshotCreatedAt && batch[0]) {
+      snapshotCreatedAt = batch[0].export_snapshot_created_at;
+      snapshotId = batch[0].export_snapshot_id;
+    }
+    rows.push(...batch);
+    if (batch.length < batchSize) break;
+    const last = batch.at(-1);
+    if (!last) break;
+    cursorCreatedAt = last.created_at;
+    cursorId = last.reservation_id;
+  }
+
+  return rows.map(mapProductionExportRow).sort(compareExportReservations);
+}
+
+async function loadProductionExport(from: string, to: string) {
+  const client = await createServerSupabaseClient();
+  const [reservations, metricsResult, pricingResult] = await Promise.all([
+    loadAllProductionReservations(from, to),
+    client.rpc("get_admin_operational_metrics", { p_from: from, p_to: to }),
+    client.rpc("get_admin_pricing_rules"),
+  ]);
+
+  if (metricsResult.error) throw metricsResult.error;
+  if (pricingResult.error) throw pricingResult.error;
+
+  type MetricsRow = Database["public"]["Functions"]["get_admin_operational_metrics"]["Returns"][number];
+  type PricingRow = Database["public"]["Functions"]["get_admin_pricing_rules"]["Returns"][number];
 
   return {
     reservations,
@@ -95,7 +139,15 @@ async function loadLocalExport(from: string, to: string, timezone: string) {
   const phase7Repo = createPhase7Repository({ local: true });
   // El archivado es solo una limpieza visual del historial administrativo.
   // Los exportes conservan también esas reservas para no perder trazabilidad.
-  const all = await reservationsRepo.list(200, true);
+  const all = [];
+  for (const view of ["active", "completed", "cancelled", "archived"] as const) {
+    let cursor = null;
+    do {
+      const page = await reservationsRepo.listPage({ view, limit: 100, cursor });
+      all.push(...page.items);
+      cursor = page.nextCursor;
+    } while (cursor);
+  }
   const reservations: ExportReservation[] = all
     .filter((item) => {
       const localDate = new Intl.DateTimeFormat("en-CA", {
@@ -125,7 +177,8 @@ async function loadLocalExport(from: string, to: string, timezone: string) {
       source: item.source,
       createdAt: item.createdAt,
       updatedAt: item.createdAt,
-    }));
+    }))
+    .sort(compareExportReservations);
   const [metrics, pricing] = await Promise.all([
     phase7Repo.getOperationalMetrics(from, to),
     phase7Repo.listPricingRules(),

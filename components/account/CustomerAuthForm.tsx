@@ -22,6 +22,42 @@ export function CustomerAuthForm() {
     setSuccess(false);
   }
 
+  async function sendPasswordRecovery() {
+    if (!configured || busy || mode !== "login") return;
+
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      setSuccess(false);
+      setMessage("Ingresa tu correo para recuperar la contraseña.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage(null);
+    setSuccess(false);
+    try {
+      const callback = new URL("/auth/callback", window.location.origin);
+      callback.searchParams.set("next", "/mi-cuenta/recuperar");
+
+      const supabase = createPublicBrowserSupabaseClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo: callback.toString(),
+      });
+
+      if (error) {
+        setMessage("No pudimos iniciar la recuperación. Verifica el correo o inténtalo nuevamente.");
+        return;
+      }
+
+      setSuccess(true);
+      setMessage("Si el correo corresponde a una cuenta habilitada, recibirás instrucciones para crear una nueva contraseña.");
+    } catch {
+      setMessage("No pudimos iniciar la recuperación de contraseña. Inténtalo nuevamente.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!configured || busy) return;
@@ -83,6 +119,11 @@ export function CustomerAuthForm() {
         <Input label="Contraseña" name="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} required disabled={!configured || busy} value={password} onChange={(event) => setPassword(event.target.value)} hint={mode === "register" ? "Mínimo 8 caracteres." : undefined} placeholder="••••••••" />
         {message ? <div className={success ? "auth-notice auth-notice--success" : "auth-error"} role={success ? "status" : "alert"}>{message}</div> : null}
         <Button fullWidth type="submit" disabled={!configured || busy}>{busy ? "Procesando…" : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}</Button>
+        {mode === "login" ? (
+          <Button fullWidth type="button" variant="secondary" disabled={!configured || busy} onClick={() => void sendPasswordRecovery()}>
+            Olvidé mi contraseña
+          </Button>
+        ) : null}
       </form>
     </div>
   );

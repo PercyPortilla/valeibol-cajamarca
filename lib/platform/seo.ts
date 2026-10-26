@@ -1,5 +1,6 @@
 import type { PlatformBusinessCard, PlatformBusinessDetail } from "../data/repositories/platformRepository.ts";
 import { absoluteSiteUrl } from "./siteUrl.ts";
+import { platformConfig } from "../../config/platform.ts";
 
 export type JsonLd = Record<string, unknown>;
 
@@ -31,8 +32,8 @@ export function buildMarketplaceJsonLd(businesses: PlatformBusinessCard[]): Json
       {
         "@type": "WebSite",
         ...(homeUrl ? { "@id": `${homeUrl}#website`, url: homeUrl } : {}),
-        name: "Canchas",
-        description: "Marketplace deportivo para descubrir complejos, sedes y canchas por ciudad y deporte.",
+        name: platformConfig.name,
+        description: `Plataforma deportiva para descubrir complejos, sedes y canchas en ${platformConfig.city}.`,
         inLanguage: "es-PE",
       },
       {

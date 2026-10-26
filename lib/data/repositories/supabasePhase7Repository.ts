@@ -8,7 +8,14 @@ import type {
   SchedulePricingInput,
   SchedulePricingResult,
 } from "../../admin/phase7.ts";
-import { Phase7RepositoryError, type Phase7Repository } from "./phase7Repository.ts";
+import {
+  Phase7RepositoryError,
+  type AdminCustomerCursor,
+  type AdminCustomerHistoryCursor,
+  type AdminCustomerHistoryPage,
+  type AdminCustomerPage,
+  type Phase7Repository,
+} from "./phase7Repository.ts";
 
 function toNumber(value: number | string | null | undefined) {
   return Number(value ?? 0);
@@ -32,6 +39,47 @@ function mapError(message: string, code?: string) {
     return new Phase7RepositoryError("network", "No pudimos conectar con Supabase. Inténtalo nuevamente.");
   }
   return new Phase7RepositoryError("unknown", "No pudimos completar la operación.");
+}
+
+type CustomerPageRow = Database["public"]["Functions"]["get_admin_customers_page"]["Returns"][number];
+type CustomerHistoryPageRow = Database["public"]["Functions"]["get_admin_customer_history_page"]["Returns"][number];
+
+function mapCustomerPageRow(row: CustomerPageRow): AdminCustomerSummary {
+  return {
+    id: row.customer_id,
+    fullName: row.full_name,
+    phoneE164: row.phone_e164,
+    marketingOptIn: row.marketing_opt_in,
+    createdAt: row.customer_created_at,
+    lastActivityAt: row.last_activity_at,
+    lastReservationAt: row.last_reservation_at,
+    reservationCount: toNumber(row.reservation_count),
+    activeReservationCount: toNumber(row.active_reservation_count),
+    completedReservationCount: toNumber(row.completed_reservation_count),
+    cancelledReservationCount: toNumber(row.cancelled_reservation_count),
+    confirmedValue: toNumber(row.confirmed_value),
+    completedValue: toNumber(row.completed_value),
+    currency: row.currency,
+  };
+}
+
+function mapCustomerHistoryPageRow(row: CustomerHistoryPageRow): AdminCustomerHistoryItem {
+  return {
+    id: row.reservation_id,
+    courtId: row.court_id,
+    courtName: row.court_name,
+    startAt: row.start_at,
+    endAt: row.end_at,
+    status: row.status,
+    lighting: row.lighting,
+    netHeightCm: row.net_height_cm,
+    hourlyRate: toNumber(row.hourly_rate),
+    totalAmount: toNumber(row.total_amount),
+    source: row.source,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    currency: row.currency,
+  };
 }
 
 export class SupabasePhase7Repository implements Phase7Repository {
@@ -84,6 +132,66 @@ export class SupabasePhase7Repository implements Phase7Repository {
       updatedAt: row.updated_at,
       currency: row.currency,
     }));
+  }
+
+  async listCustomersPage(options?: {
+    limit?: number;
+    cursor?: AdminCustomerCursor | null;
+  }): Promise<AdminCustomerPage> {
+    const client = await createServerSupabaseClient();
+    const limit = Math.max(1, Math.min(options?.limit ?? 30, 100));
+    const cursor = options?.cursor ?? null;
+    const { data, error } = await client.rpc("get_admin_customers_page", {
+      p_limit: limit + 1,
+      p_cursor_created_at: cursor?.createdAt ?? null,
+      p_cursor_id: cursor?.id ?? null,
+    });
+    if (error) throw mapError(error.message, error.code);
+
+    const mapped = ((data ?? []) as CustomerPageRow[]).map(mapCustomerPageRow);
+    const items = mapped.slice(0, limit);
+    const last = items.at(-1);
+    return {
+      items,
+      nextCursor: mapped.length > limit && last
+        ? { createdAt: last.createdAt, id: last.id }
+        : null,
+    };
+  }
+
+  async getCustomer(customerId: string): Promise<AdminCustomerSummary> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("get_admin_customer_summary", { p_customer_id: customerId });
+    if (error) throw mapError(error.message, error.code);
+    const row = ((data ?? []) as CustomerPageRow[])[0];
+    if (!row) throw new Phase7RepositoryError("not_found", "No encontramos el cliente dentro de tu negocio.");
+    return mapCustomerPageRow(row);
+  }
+
+  async getCustomerHistoryPage(customerId: string, options?: {
+    limit?: number;
+    cursor?: AdminCustomerHistoryCursor | null;
+  }): Promise<AdminCustomerHistoryPage> {
+    const client = await createServerSupabaseClient();
+    const limit = Math.max(1, Math.min(options?.limit ?? 25, 100));
+    const cursor = options?.cursor ?? null;
+    const { data, error } = await client.rpc("get_admin_customer_history_page", {
+      p_customer_id: customerId,
+      p_limit: limit + 1,
+      p_cursor_created_at: cursor?.createdAt ?? null,
+      p_cursor_id: cursor?.id ?? null,
+    });
+    if (error) throw mapError(error.message, error.code);
+
+    const mapped = ((data ?? []) as CustomerHistoryPageRow[]).map(mapCustomerHistoryPageRow);
+    const items = mapped.slice(0, limit);
+    const last = items.at(-1);
+    return {
+      items,
+      nextCursor: mapped.length > limit && last
+        ? { createdAt: last.createdAt, id: last.id }
+        : null,
+    };
   }
 
   async listPricingRules(): Promise<AdminPricingRule[]> {

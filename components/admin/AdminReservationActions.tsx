@@ -10,6 +10,8 @@ import {
   cancelReservationAction,
   completeReservationAction,
   confirmReservationAction,
+  expirePendingReservationAction,
+  rejectPendingReservationAction,
   restoreArchivedReservationAction,
   type AdminActionResult,
 } from "../../app/admin/(protected)/actions.ts";
@@ -19,13 +21,17 @@ export function AdminReservationActions({
   status,
   role,
   archivedAt,
+  startAt,
   endAt,
+  nowIso,
 }: {
   reservationId: string;
   status: AdminReservationStatus;
   role: AdminRole;
   archivedAt: string | null;
+  startAt: string;
   endAt: string;
+  nowIso: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -55,13 +61,16 @@ export function AdminReservationActions({
     });
   }
 
-  const canConfirm = status === "pending" && canPerformAdminOperation(role, "confirm_reservation");
+  const pendingExpired = status === "pending" && new Date(startAt).getTime() <= new Date(nowIso).getTime();
+  const canConfirm = status === "pending" && !pendingExpired && canPerformAdminOperation(role, "confirm_reservation");
+  const canReject = status === "pending" && !pendingExpired && canPerformAdminOperation(role, "reject_reservation");
+  const canExpire = status === "pending" && pendingExpired && canPerformAdminOperation(role, "expire_pending_reservation");
   const canComplete = status === "confirmed" && completionAvailable && canPerformAdminOperation(role, "complete_reservation");
-  const canCancel = (status === "pending" || status === "confirmed") && canPerformAdminOperation(role, "cancel_reservation");
+  const canCancel = status === "confirmed" && canPerformAdminOperation(role, "cancel_reservation");
   const canArchive = status === "cancelled" && !archivedAt && canPerformAdminOperation(role, "archive_reservation");
   const canRestore = status === "cancelled" && Boolean(archivedAt) && canPerformAdminOperation(role, "restore_archived_reservation");
 
-  if (!canConfirm && !canComplete && !canCancel && !canArchive && !canRestore) return null;
+  if (!canConfirm && !canReject && !canExpire && !canComplete && !canCancel && !canArchive && !canRestore) return null;
 
   return (
     <div className="admin-reservation-actions">
@@ -75,13 +84,43 @@ export function AdminReservationActions({
           {pending ? "Procesando…" : "Marcar completada"}
         </button>
       ) : null}
+      {canReject ? (
+        <button
+          className="button button--ghost button--danger-soft"
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            if (window.confirm("¿Rechazar esta solicitud de reserva? El cliente verá que no fue aceptada y el horario se liberará.")) {
+              run(() => rejectPendingReservationAction(reservationId));
+            }
+          }}
+        >
+          Rechazar
+        </button>
+      ) : null}
+      {canExpire ? (
+        <button
+          className="button button--ghost button--danger-soft"
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            if (window.confirm("¿Expirar esta solicitud vencida? Se cerrará sin registrarla como rechazo del negocio.")) {
+              run(() => expirePendingReservationAction(reservationId));
+            }
+          }}
+        >
+          Expirar
+        </button>
+      ) : null}
       {canCancel ? (
         <button
           className="button button--ghost button--danger-soft"
           type="button"
           disabled={pending}
           onClick={() => {
-            if (window.confirm("¿Cancelar esta reserva? El horario se liberará.")) run(() => cancelReservationAction(reservationId));
+            if (window.confirm("¿Cancelar esta reserva confirmada? El cliente verá la cancelación y el horario se liberará.")) {
+              run(() => cancelReservationAction(reservationId));
+            }
           }}
         >
           Cancelar

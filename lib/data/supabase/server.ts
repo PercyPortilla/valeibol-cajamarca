@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "./database.types";
+import { PLATFORM_ADMIN_BUSINESS_COOKIE, PLATFORM_ADMIN_BUSINESS_HEADER, validPlatformBusinessId } from "@/lib/auth/platformScope";
 
 export function hasPublicSupabaseServerConfig() {
   return Boolean(
@@ -18,8 +19,12 @@ export async function createServerSupabaseClient() {
   }
 
   const cookieStore = await cookies();
+  const selectedBusinessId = validPlatformBusinessId(cookieStore.get(PLATFORM_ADMIN_BUSINESS_COOKIE)?.value);
 
   return createServerClient<Database>(url, anonKey, {
+    global: selectedBusinessId
+      ? { headers: { [PLATFORM_ADMIN_BUSINESS_HEADER]: selectedBusinessId } }
+      : undefined,
     cookies: {
       getAll() {
         return cookieStore.getAll();

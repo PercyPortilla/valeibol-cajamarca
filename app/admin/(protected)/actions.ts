@@ -11,6 +11,7 @@ import { Phase7RepositoryError } from "../../../lib/data/repositories/phase7Repo
 import { isNetHeightCm, normalizeCustomerName, normalizePeruWhatsApp } from "../../../lib/booking.ts";
 import { createAdminOperationsRepository } from "../../../lib/data/adminOperationsService.ts";
 import { createSiteContentRepository } from "../../../lib/data/siteContentService.ts";
+import { createServerSupabaseClient } from "../../../lib/data/supabase/server.ts";
 import { SiteContentRepositoryError } from "../../../lib/data/repositories/siteContentRepository.ts";
 import { isAccessibleSiteTheme, isValidSiteThemeInput, normalizeSiteGallery, normalizeSiteServices, normalizeSiteTheme, type SiteGalleryItem, type SiteService, type SiteTheme } from "../../../lib/siteContent.ts";
 import {
@@ -86,6 +87,22 @@ export async function confirmReservationAction(reservationId: string): Promise<A
   });
 }
 
+export async function rejectPendingReservationAction(reservationId: string): Promise<AdminActionResult> {
+  if (!isUuid(reservationId)) return fail("validation", "Identificador de solicitud inválido.");
+  return runAuthorized("reject_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).rejectPendingReservation(reservationId);
+    return "Solicitud rechazada. El cliente verá que el negocio no aceptó la reserva y el horario quedó liberado.";
+  });
+}
+
+export async function expirePendingReservationAction(reservationId: string): Promise<AdminActionResult> {
+  if (!isUuid(reservationId)) return fail("validation", "Identificador de solicitud inválido.");
+  return runAuthorized("expire_pending_reservation", async (context) => {
+    await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).expirePendingReservation(reservationId);
+    return "Solicitud expirada. El horario venció sin confirmación y el cliente verá el cierre correcto.";
+  });
+}
+
 export async function completeReservationAction(reservationId: string): Promise<AdminActionResult> {
   if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
   return runAuthorized("complete_reservation", async (context) => {
@@ -98,7 +115,202 @@ export async function cancelReservationAction(reservationId: string): Promise<Ad
   if (!isUuid(reservationId)) return fail("validation", "Identificador de reserva inválido.");
   return runAuthorized("cancel_reservation", async (context) => {
     await createAdminOperationsRepository({ local: isLocalDevAdminUserId(context.userId) }).cancelReservation(reservationId);
-    return "Reserva cancelada. El intervalo quedó liberado según las reglas de agenda.";
+    return "Reserva cancelada. El cliente verá que una reserva ya confirmada fue cancelada.";
+  });
+}
+
+export async function resolveReservationChangeRequestAction(
+  requestId: string,
+  approve: boolean,
+  resolutionNote: string | null = null,
+): Promise<AdminActionResult> {
+  if (!isUuid(requestId)) return fail("validation", "Identificador de solicitud inválido.");
+  const normalizedNote = typeof resolutionNote === "string"
+    ? resolutionNote.trim().replace(/\s+/g, " ")
+    : "";
+  if (normalizedNote.length > 500) {
+    return fail("validation", "La respuesta al cliente no puede superar 500 caracteres.");
+  }
+  return runAuthorized("resolve_change_request", async () => {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.rpc("admin_resolve_reservation_change_request", {
+      p_request_id: requestId,
+      p_approve: approve,
+      p_resolution_note: normalizedNote || null,
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      if (normalized.includes("change_request_already_resolved") || normalized.includes("reservation_change_no_longer_applicable")) {
+        throw new AdminOperationsRepositoryError("conflict", "La solicitud cambió de estado. Actualiza la página antes de continuar.");
+      }
+      if (normalized.includes("business_reschedule_requires_customer_response")) {
+        throw new AdminOperationsRepositoryError("conflict", "Esta propuesta fue iniciada por el negocio y debe responderla el cliente desde Mi cuenta.");
+      }
+      if (normalized.includes("customer_change_request_expired_requires_expiration")) {
+        throw new AdminOperationsRepositoryError("conflict", "La solicitud ya venció. Actualiza la página y usa Expirar solicitud.");
+      }
+      if (normalized.includes("slot_unavailable")) {
+        throw new AdminOperationsRepositoryError("conflict", "El horario solicitado ya no está disponible. Rechaza la solicitud o pide al cliente elegir otro horario.");
+      }
+      if (normalized.includes("reschedule_quote_changed")) {
+        throw new AdminOperationsRepositoryError("conflict", "La tarifa cambió desde la solicitud. El cliente debe enviar una nueva reprogramación con el valor vigente.");
+      }
+      if (normalized.includes("reservation_payment_requires_business_reschedule")) {
+        throw new AdminOperationsRepositoryError("conflict", "La reserva tiene un registro de pago incompatible con el nuevo valor y requiere coordinación manual.");
+      }
+      if (normalized.includes("resolution_note_too_long")) {
+        throw new AdminOperationsRepositoryError("validation", "La respuesta al cliente no puede superar 500 caracteres.");
+      }
+      throw new AdminOperationsRepositoryError("unknown", "No pudimos resolver la solicitud de cambio.");
+    }
+    return approve ? "Solicitud aprobada. La reserva fue actualizada de forma autoritativa." : "Solicitud de cambio rechazada.";
+  });
+}
+
+export async function proposeReservationRescheduleAction(raw: {
+  reservationId: string;
+  courtId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  note: string;
+}): Promise<AdminActionResult> {
+  if (!isUuid(raw.reservationId) || !isUuid(raw.courtId)) {
+    return fail("validation", "Reserva o cancha inválida.");
+  }
+  if (!isDateKey(raw.date) || !isClockTime(raw.startTime) || !isClockTime(raw.endTime)) {
+    return fail("validation", "Fecha u horario inválido.");
+  }
+  const note = raw.note.trim();
+  if (note.length > 500) return fail("validation", "La nota no puede superar 500 caracteres.");
+
+  return runAuthorized("propose_reschedule", async () => {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.rpc("admin_propose_reservation_reschedule", {
+      p_reservation_id: raw.reservationId,
+      p_court_id: raw.courtId,
+      p_date: raw.date,
+      p_start_time: raw.startTime,
+      p_end_time: raw.endTime,
+      p_note: note || null,
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      if (normalized.includes("reservation_change_request_already_pending")) {
+        throw new AdminOperationsRepositoryError("conflict", "Esta reserva ya tiene una solicitud o propuesta de cambio pendiente.");
+      }
+      if (normalized.includes("reservation_customer_account_required")) {
+        throw new AdminOperationsRepositoryError("conflict", "El cliente debe tener una cuenta vinculada para aceptar una propuesta desde Mi cuenta.");
+      }
+      if (normalized.includes("slot_unavailable")) {
+        throw new AdminOperationsRepositoryError("conflict", "Ese horario ya no está disponible. Elige otro.");
+      }
+      if (normalized.includes("reschedule_no_change")) {
+        throw new AdminOperationsRepositoryError("conflict", "La propuesta debe cambiar la cancha o el horario actual.");
+      }
+      if (normalized.includes("reservation_payment_requires_business_reschedule")) {
+        throw new AdminOperationsRepositoryError("conflict", "La reserva tiene un registro de pago que no coincide con el nuevo valor; no se modificó la reserva.");
+      }
+      if (
+        normalized.includes("reservation_change_window_closed")
+        || normalized.includes("reservation_not_reschedulable")
+      ) {
+        throw new AdminOperationsRepositoryError("conflict", "La reserva ya no admite una propuesta de reprogramación.");
+      }
+      if (
+        normalized.includes("invalid_interval")
+        || normalized.includes("invalid_booking_increment")
+        || normalized.includes("outside_operating_hours")
+        || normalized.includes("court_closed")
+        || normalized.includes("lighting_cutoff_crossed")
+      ) {
+        throw new AdminOperationsRepositoryError("conflict", "El horario no cumple la configuración operativa de la cancha.");
+      }
+      throw new AdminOperationsRepositoryError("unknown", "No pudimos crear la propuesta de reprogramación.");
+    }
+    return "Propuesta enviada. La reserva original se mantiene hasta que el cliente acepte.";
+  });
+}
+
+export async function withdrawBusinessRescheduleProposalAction(requestId: string): Promise<AdminActionResult> {
+  if (!isUuid(requestId)) return fail("validation", "Identificador de propuesta inválido.");
+  return runAuthorized("withdraw_reschedule_proposal", async () => {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.rpc("admin_withdraw_business_reschedule_proposal", {
+      p_request_id: requestId,
+      p_note: null,
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      if (normalized.includes("business_reschedule_proposal_expired_requires_expiration")) {
+        throw new AdminOperationsRepositoryError("conflict", "La propuesta venció antes de retirarla. Actualiza la página y usa Expirar propuesta.");
+      }
+      if (normalized.includes("business_reschedule_proposal_already_resolved")) {
+        throw new AdminOperationsRepositoryError("conflict", "La propuesta ya fue respondida o cerrada. Actualiza la página.");
+      }
+      if (normalized.includes("business_reschedule_proposal_not_found")) {
+        throw new AdminOperationsRepositoryError("not_found", "La propuesta ya no está disponible en este negocio.");
+      }
+      if (normalized.includes("business_reschedule_withdrawal_forbidden")) {
+        throw new AdminOperationsRepositoryError("conflict", "Tu rol o tenant activo ya no permite retirar esta propuesta.");
+      }
+      throw new AdminOperationsRepositoryError("unknown", "No pudimos retirar la propuesta de reprogramación.");
+    }
+    return "Propuesta retirada. La reserva original permanece sin cambios.";
+  });
+}
+
+export async function expireBusinessRescheduleProposalAction(requestId: string): Promise<AdminActionResult> {
+  if (!isUuid(requestId)) return fail("validation", "Identificador de propuesta inválido.");
+  return runAuthorized("expire_reschedule_proposal", async () => {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.rpc("admin_expire_business_reschedule_proposal", {
+      p_request_id: requestId,
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      if (normalized.includes("business_reschedule_proposal_not_expired")) {
+        throw new AdminOperationsRepositoryError("conflict", "La propuesta todavía puede ser respondida. Retírala si deseas cerrarla antes de tiempo.");
+      }
+      if (normalized.includes("business_reschedule_proposal_already_resolved")) {
+        throw new AdminOperationsRepositoryError("conflict", "La propuesta ya fue respondida o cerrada. Actualiza la página.");
+      }
+      if (normalized.includes("business_reschedule_proposal_not_found")) {
+        throw new AdminOperationsRepositoryError("not_found", "La propuesta ya no está disponible en este negocio.");
+      }
+      if (normalized.includes("business_reschedule_expiration_forbidden")) {
+        throw new AdminOperationsRepositoryError("conflict", "Tu rol o tenant activo ya no permite expirar esta propuesta.");
+      }
+      throw new AdminOperationsRepositoryError("unknown", "No pudimos expirar la propuesta de reprogramación.");
+    }
+    return "Propuesta expirada. La reserva original permanece sin cambios.";
+  });
+}
+
+export async function expireCustomerChangeRequestAction(requestId: string): Promise<AdminActionResult> {
+  if (!isUuid(requestId)) return fail("validation", "Identificador de solicitud inválido.");
+  return runAuthorized("expire_customer_change_request", async () => {
+    const supabase = await createServerSupabaseClient();
+    const { error } = await supabase.rpc("admin_expire_customer_change_request", {
+      p_request_id: requestId,
+    });
+    if (error) {
+      const normalized = error.message.toLowerCase();
+      if (normalized.includes("customer_change_request_not_expired")) {
+        throw new AdminOperationsRepositoryError("conflict", "La solicitud todavía puede resolverse. Apruébala o recházala normalmente.");
+      }
+      if (normalized.includes("customer_change_request_already_resolved")) {
+        throw new AdminOperationsRepositoryError("conflict", "La solicitud ya fue resuelta o cerrada. Actualiza la página.");
+      }
+      if (normalized.includes("customer_change_request_not_found")) {
+        throw new AdminOperationsRepositoryError("not_found", "La solicitud ya no está disponible en este negocio.");
+      }
+      if (normalized.includes("customer_change_request_expiration_forbidden")) {
+        throw new AdminOperationsRepositoryError("conflict", "Tu rol o tenant activo ya no permite expirar esta solicitud.");
+      }
+      throw new AdminOperationsRepositoryError("unknown", "No pudimos expirar la solicitud de cambio.");
+    }
+    return "Solicitud expirada. La reserva no fue modificada.";
   });
 }
 
@@ -277,6 +489,8 @@ export async function updateSiteContentAction(raw: {
 
     await createSiteContentRepository({ local: isLocalDevAdminUserId(context.userId) }).updateAdminContent({ services, gallery, theme });
     revalidatePath("/");
+    revalidatePath("/buscar");
+    revalidatePath("/complejo/[slug]", "page");
     revalidatePath("/admin", "layout");
     revalidatePath("/admin/configuracion");
     return { ok: true, message: "Contenido público actualizado. Servicios, galería y paleta ya usan esta configuración." };

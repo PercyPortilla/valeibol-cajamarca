@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeAdminRedirectPath } from "@/lib/auth";
 import { LOCAL_DEV_ADMIN_COOKIE, isLocalDevAdminAllowed } from "@/lib/auth/localDev";
+import { PLATFORM_ADMIN_BUSINESS_COOKIE } from "@/lib/auth/platformScope";
 
 function isPublicAdminPath(pathname: string) {
   return pathname === "/admin/login"
@@ -16,6 +17,8 @@ function isCustomerAccountPath(pathname: string) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const platformAdminHome = pathname === "/admin-global" || pathname.startsWith("/admin-global/");
+  if (platformAdminHome) request.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
   const adminPath = pathname.startsWith("/admin");
   const customerAccountPath = isCustomerAccountPath(pathname);
   if ((!adminPath && !customerAccountPath) || (adminPath && isPublicAdminPath(pathname))) {
@@ -68,10 +71,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (platformAdminHome) response.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
+
   return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/mi-cuenta/:path*"],
+  matcher: ["/admin/:path*", "/admin-global/:path*", "/mi-cuenta/:path*"],
 };
 

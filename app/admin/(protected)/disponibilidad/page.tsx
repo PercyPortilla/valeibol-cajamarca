@@ -27,6 +27,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
   const requested = validDateKey(firstValue(params.week));
   const today = businessTodayDateKey(new Date(), context.timezone);
   const range = getAdminWeekRange(requested ?? today);
+  const renderedAt = new Date().toISOString();
 
   let snapshot;
   try {
@@ -74,7 +75,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
       {snapshot.courts.length === 0 ? (
         <EmptyState title="No hay canchas activas" detail="Configura al menos una cancha y sus horarios antes de operar la agenda." />
       ) : (
-        <AdminScheduleBoard snapshot={snapshot} timezone={context.timezone} role={context.role} pricingRules={pricingRules} />
+        <AdminScheduleBoard snapshot={snapshot} timezone={context.timezone} role={context.role} pricingRules={pricingRules} nowIso={renderedAt} />
       )}
     </>
   );

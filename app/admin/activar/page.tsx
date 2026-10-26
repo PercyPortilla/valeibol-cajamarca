@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AdminInviteActivation } from "@/components/admin/AdminInviteActivation";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PlatformAdminBrand } from "@/components/brand/PlatformAdminBrand";
 
 export default function AdminInviteActivationPage() {
   return (
@@ -8,7 +8,7 @@ export default function AdminInviteActivationPage() {
       <section className="auth-card" aria-labelledby="admin-activate-title">
         <Link className="auth-back" href="/">← Volver a la web pública</Link>
         <div className="brand brand--auth">
-          <BrandLogo context="auth" />
+          <PlatformAdminBrand context="auth" />
           <span className="brand-context-label">Administración · activación de acceso</span>
         </div>
         <div className="auth-card__title">

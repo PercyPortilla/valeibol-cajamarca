@@ -35,3 +35,8 @@ verify_jwt = false
 [functions.admin-access-management]
 verify_jwt = true
 
+[functions.platform-business-onboarding]
+verify_jwt = true
+
+[functions.platform-owner-recovery]
+verify_jwt = true

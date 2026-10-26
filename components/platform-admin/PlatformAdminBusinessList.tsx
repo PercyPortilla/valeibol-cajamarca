@@ -28,10 +28,52 @@ type Props = {
   pageSize: number;
 };
 
+type OwnerRecoveryResponse = {
+  ok?: boolean;
+  businessId?: string;
+  ownerInvited?: boolean;
+  code?: string;
+};
+
+function ownerRecoveryError(message: string) {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("owner_already_assigned")) return "Esa cuenta ya pertenece a otro negocio y no puede convertirse en propietaria de este tenant.";
+  if (normalized.includes("owner_account_unconfirmed")) return "La cuenta ya existe, pero todavía debe confirmar su correo antes de asumir la propiedad.";
+  if (normalized.includes("owner_account_inactive")) return "La cuenta seleccionada está desactivada a nivel de plataforma.";
+  if (normalized.includes("platform_admin_cannot_be_tenant_owner")) return "La cuenta ADMIN global no puede convertirse en propietaria de un tenant.";
+  if (normalized.includes("business_not_found")) return "El negocio ya no existe o cambió mientras tenías esta pantalla abierta.";
+  if (normalized.includes("rate_limited")) return "Se alcanzó temporalmente el límite de invitaciones. Inténtalo nuevamente más tarde.";
+  if (normalized.includes("invite_failed")) return "No pudimos enviar la invitación al nuevo propietario. No se cambió la propiedad.";
+  if (normalized.includes("platform_admin_access_denied") || normalized.includes("authentication_required")) return "Tu sesión ya no tiene permisos de ADMIN global. Vuelve a iniciar sesión.";
+  if (normalized.includes("invalid_payload") || normalized.includes("invalid_")) return "Revisa el correo del nuevo propietario antes de continuar.";
+  return "No pudimos recuperar la propiedad principal del negocio.";
+}
+
+async function invokeOwnerRecovery(body: { businessId: string; ownerEmail: string }) {
+  const supabase = createPublicBrowserSupabaseClient();
+  const { data, error } = await supabase.functions.invoke<OwnerRecoveryResponse>("platform-owner-recovery", { body });
+  if (error) {
+    let code = error.message;
+    const context = (error as { context?: unknown }).context;
+    if (typeof Response !== "undefined" && context instanceof Response) {
+      try {
+        const payload = await context.clone().json() as { code?: string };
+        code = payload.code || code;
+      } catch {
+        // Conserva el mensaje de FunctionsHttpError si el body no es JSON.
+      }
+    }
+    throw new Error(code);
+  }
+  if (!data?.ok || data.businessId !== body.businessId) throw new Error(data?.code || "owner_recovery_failed");
+  return data;
+}
+
 export function PlatformAdminBusinessList({ businesses, totalBusinesses, currentPage, totalPages, pageSize }: Props) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [recoveryId, setRecoveryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
   const firstVisible = totalBusinesses === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const lastVisible = Math.min(currentPage * pageSize, totalBusinesses);
@@ -109,6 +151,38 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
     }
   }
 
+  async function recoverOwner(event: FormEvent<HTMLFormElement>, business: PlatformAdminBusiness) {
+    event.preventDefault();
+    if (busyId) return;
+    const formElement = event.currentTarget;
+    if (!formElement.checkValidity()) {
+      formElement.reportValidity();
+      return;
+    }
+    const form = new FormData(formElement);
+    const ownerEmail = String(form.get("ownerEmail") ?? "").trim().toLowerCase();
+    if (!window.confirm(`¿Recuperar la propiedad principal de ${business.name} para ${ownerEmail}? Si el propietario anterior todavía tiene acceso al tenant, su perfil quedará desactivado.`)) return;
+
+    setBusyId(business.businessId);
+    setFeedback(null);
+    try {
+      const result = await invokeOwnerRecovery({ businessId: business.businessId, ownerEmail });
+      setFeedback({
+        kind: "success",
+        message: result.ownerInvited
+          ? `Propiedad de ${business.name} recuperada. Enviamos al nuevo propietario una invitación para activar su acceso.`
+          : `Propiedad principal de ${business.name} transferida a la cuenta indicada.`,
+      });
+      formElement.reset();
+      setRecoveryId(null);
+      router.refresh();
+    } catch (error) {
+      setFeedback({ kind: "error", message: ownerRecoveryError(error instanceof Error ? error.message : "owner_recovery_failed") });
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <section className="global-admin-board">
       <div className="global-admin-board__heading">
@@ -129,8 +203,25 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
               <div><dt>Reservas</dt><dd>{business.reservationCount}</dd></div>
             </dl>
             <div className="global-admin-business-row__actions">
+              <Link
+                className="button button--primary"
+                href={`/api/admin-global/select-business?businessId=${encodeURIComponent(business.businessId)}&next=${encodeURIComponent("/admin")}`}
+              >
+                Administrar negocio
+              </Link>
               <button type="button" className="button button--secondary" disabled={Boolean(busyId) || business.configurationStatus !== "provisional"} onClick={() => setEditingId((current) => current === business.businessId ? null : business.businessId)}>
                 {editingId === business.businessId ? "Cerrar edición" : "Editar configuración"}
+              </button>
+              <button
+                type="button"
+                className="button button--secondary"
+                disabled={Boolean(busyId)}
+                onClick={() => {
+                  setEditingId(null);
+                  setRecoveryId((current) => current === business.businessId ? null : business.businessId);
+                }}
+              >
+                {recoveryId === business.businessId ? "Cerrar recuperación" : "Recuperar propietario"}
               </button>
               <button
                 type="button"
@@ -149,6 +240,13 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
                 <label>Zona horaria IANA<input name="timezone" defaultValue={business.timezone} required /></label>
                 <p>La moneda no convierte importes. La zona horaria no puede cambiar si ya existe historial temporal.</p>
                 <button className="button button--primary" type="submit" disabled={busyId === business.businessId}>{busyId === business.businessId ? "Guardando…" : "Guardar configuración"}</button>
+              </form>
+            ) : null}
+            {recoveryId === business.businessId ? (
+              <form className="global-admin-business-core-form" onSubmit={(event) => void recoverOwner(event, business)}>
+                <label>Correo del nuevo propietario<input name="ownerEmail" type="email" required autoComplete="off" /></label>
+                <p>Uso extraordinario: cambia el propietario principal de este tenant. Si el correo no tiene cuenta, se enviará una invitación segura. El perfil tenant del propietario anterior se desactivará cuando el cambio sea efectivo.</p>
+                <button className="button button--primary" type="submit" disabled={busyId === business.businessId}>{busyId === business.businessId ? "Recuperando…" : "Confirmar recuperación"}</button>
               </form>
             ) : null}
           </article>

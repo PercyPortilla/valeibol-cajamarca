@@ -11,7 +11,7 @@ import { PlatformAdminSportManagement, type PlatformAdminSport } from "@/compone
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Administración global",
+  title: "Administración principal · Caxas Sport Center",
   robots: { index: false, follow: false },
 };
 
@@ -38,9 +38,8 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
   const params = await searchParams;
   const reviewStatus = toReviewStatus(params.reviewStatus);
   const reviewPage = toPage(params.reviewPage);
-  const [summaryResult, businessContextResult, reviewsResult, sportsResult] = await Promise.all([
+  const [summaryResult, reviewsResult, sportsResult] = await Promise.all([
     client.rpc("get_platform_admin_summary"),
-    client.rpc("get_current_admin_context"),
     client.rpc("get_platform_admin_reviews_page", {
       p_status: reviewStatus,
       p_limit: REVIEW_PAGE_SIZE + 1,
@@ -56,7 +55,6 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
   type SummaryRow = Database["public"]["Functions"]["get_platform_admin_summary"]["Returns"][number];
   const summary = (summaryResult.data as SummaryRow[] | null)?.[0];
   const totalBusinesses = summary ? toNumber(summary.businesses_total) : 0;
-  const hasBusinessAdminAccess = !businessContextResult.error && (businessContextResult.data?.length ?? 0) > 0;
   const totalPages = Math.max(1, Math.ceil(totalBusinesses / PAGE_SIZE));
   const page = Math.min(toPage(params.page), totalPages);
   const businessesResult = await client.rpc("get_platform_admin_businesses_page", {
@@ -103,9 +101,9 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
       <div className="shell global-admin-shell">
         <header className="global-admin-header">
           <div>
-            <span className="eyebrow">ADMINISTRACIÓN GLOBAL</span>
-            <h1>Control de plataforma</h1>
-            <p>Vista cross-tenant reservada al rol ADMIN global. No es el panel operativo de una cancha.</p>
+            <span className="eyebrow">CAXAS SPORT CENTER · ADMINISTRACIÓN PRINCIPAL</span>
+            <h1>Control de la plataforma</h1>
+            <p>Vista reservada a la única cuenta ADMIN global. Desde aquí puedes supervisar la plataforma y entrar al panel operativo de cualquier negocio.</p>
           </div>
           <div className="global-admin-account">
             <div><small>Sesión global</small><strong>{context.displayName ?? context.email ?? "Administrador"}</strong></div>
@@ -115,7 +113,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
 
         <nav className="global-admin-links" aria-label="Navegación global">
           <Link href="/buscar">Ver plataforma pública</Link>
-          {hasBusinessAdminAccess ? <Link href="/admin">Panel de negocio</Link> : null}
+          <span>Selecciona “Administrar negocio” para entrar al panel operativo de una cancha o complejo.</span>
         </nav>
 
         <section className="global-admin-metrics" aria-label="Métricas globales">
@@ -147,7 +145,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
           pageSize={PAGE_SIZE}
         />
 
-        <p className="global-admin-footnote">El rol ADMIN global no se asigna automáticamente a administradores de negocios. Su alta requiere una acción privilegiada explícita fuera del cliente.</p>
+        <p className="global-admin-footnote">Los dueños y administradores de negocio nunca reciben esta vista principal. Cada uno entra únicamente a su propio panel; la cuenta ADMIN global puede supervisarlos mediante selección explícita.</p>
       </div>
     </main>
   );

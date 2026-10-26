@@ -1,17 +1,23 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PlatformAdminBrand } from "@/components/brand/PlatformAdminBrand";
 import { AdminAuthError, getAdminContext } from "@/lib/auth/server";
+import { getPlatformAdminContext } from "@/lib/auth/platformAdmin";
 
 export default async function AdminLoginPage() {
   let sessionTarget: string | null = null;
   try {
-    await getAdminContext();
-    sessionTarget = "/admin";
-  } catch (error) {
-    if (error instanceof AdminAuthError && error.code === "unauthorized") {
-      sessionTarget = "/admin/acceso-denegado";
+    await getPlatformAdminContext();
+    sessionTarget = "/admin-global";
+  } catch {
+    try {
+      await getAdminContext();
+      sessionTarget = "/admin";
+    } catch (error) {
+      if (error instanceof AdminAuthError && error.code === "unauthorized") {
+        sessionTarget = "/admin/acceso-denegado";
+      }
     }
   }
   if (sessionTarget) redirect(sessionTarget);
@@ -21,7 +27,7 @@ export default async function AdminLoginPage() {
       <section className="auth-card" aria-labelledby="admin-login-title">
         <Link className="auth-back" href="/">← Volver a la web pública</Link>
         <div className="brand brand--auth">
-          <BrandLogo context="auth" />
+          <PlatformAdminBrand context="auth" />
           <span className="brand-context-label">Administración · acceso privado</span>
         </div>
         <div className="auth-card__title">

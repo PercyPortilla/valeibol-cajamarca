@@ -3,8 +3,15 @@ import type { AdminRole } from "../auth.ts";
 export type AdminOperation =
   | "read_schedule"
   | "confirm_reservation"
+  | "reject_reservation"
+  | "expire_pending_reservation"
   | "complete_reservation"
   | "cancel_reservation"
+  | "resolve_change_request"
+  | "propose_reschedule"
+  | "withdraw_reschedule_proposal"
+  | "expire_reschedule_proposal"
+  | "expire_customer_change_request"
   | "archive_reservation"
   | "restore_archived_reservation"
   | "create_manual_reservation"
@@ -33,8 +40,15 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   owner: new Set([
     "read_schedule",
     "confirm_reservation",
+    "reject_reservation",
+    "expire_pending_reservation",
     "complete_reservation",
     "cancel_reservation",
+    "resolve_change_request",
+    "propose_reschedule",
+    "withdraw_reschedule_proposal",
+    "expire_reschedule_proposal",
+    "expire_customer_change_request",
     "archive_reservation",
     "restore_archived_reservation",
     "create_manual_reservation",
@@ -45,8 +59,15 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   admin: new Set([
     "read_schedule",
     "confirm_reservation",
+    "reject_reservation",
+    "expire_pending_reservation",
     "complete_reservation",
     "cancel_reservation",
+    "resolve_change_request",
+    "propose_reschedule",
+    "withdraw_reschedule_proposal",
+    "expire_reschedule_proposal",
+    "expire_customer_change_request",
     "archive_reservation",
     "restore_archived_reservation",
     "create_manual_reservation",
@@ -57,6 +78,8 @@ const ROLE_PERMISSIONS: Record<AdminRole, ReadonlySet<AdminOperation>> = {
   staff: new Set([
     "read_schedule",
     "confirm_reservation",
+    "reject_reservation",
+    "expire_pending_reservation",
     "complete_reservation",
     "cancel_reservation",
     "create_manual_reservation",

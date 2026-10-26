@@ -9,7 +9,12 @@ import type {
   SchedulePricingResult,
 } from "../../admin/phase7.ts";
 import { getLocalDateTimeParts } from "../../admin/schedule.ts";
-import { Phase7RepositoryError, type Phase7Repository } from "./phase7Repository.ts";
+import {
+  Phase7RepositoryError,
+  type AdminCustomerCursor,
+  type AdminCustomerHistoryCursor,
+  type Phase7Repository,
+} from "./phase7Repository.ts";
 import { LOCAL_COURT_ID, LOCAL_COURT_NAME, getLocalAdminState, nextLocalAdminUuid } from "../localAdminStore.ts";
 
 function durationHours(startAt: string, endAt: string) {
@@ -22,18 +27,20 @@ function inRange(iso: string, from: string, to: string) {
 }
 
 export class LocalPhase7Repository implements Phase7Repository {
-  async listCustomers(limit = 100): Promise<AdminCustomerSummary[]> {
+  private customerSummaries(): AdminCustomerSummary[] {
     const reservations = getLocalAdminState().reservations.filter((item) => item.customerId && item.customerName);
     const ids = [...new Set(reservations.map((item) => item.customerId!))];
-    return ids.slice(0, Math.max(1, Math.min(limit, 500))).map((id) => {
-      const items = reservations.filter((item) => item.customerId === id).sort((a, b) => b.startAt.localeCompare(a.startAt));
-      const first = items[0];
+    return ids.map((id) => {
+      const items = reservations
+        .filter((item) => item.customerId === id)
+        .sort((a, b) => b.startAt.localeCompare(a.startAt) || b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+      const first = items[0]!;
       return {
         id,
         fullName: first.customerName ?? "Cliente local",
         phoneE164: first.customerPhoneE164,
         marketingOptIn: false,
-        createdAt: items[items.length - 1]?.createdAt ?? first.createdAt,
+        createdAt: items.reduce((oldest, item) => item.createdAt < oldest ? item.createdAt : oldest, first.createdAt),
         lastActivityAt: first.startAt,
         lastReservationAt: first.startAt,
         reservationCount: items.length,
@@ -44,7 +51,11 @@ export class LocalPhase7Repository implements Phase7Repository {
         completedValue: items.filter((item) => item.status === "completed").reduce((sum, item) => sum + item.totalAmount, 0),
         currency: businessConfig.currency,
       };
-    });
+    }).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id));
+  }
+
+  async listCustomers(limit = 100): Promise<AdminCustomerSummary[]> {
+    return this.customerSummaries().slice(0, Math.max(1, Math.min(limit, 500)));
   }
 
   async getCustomerHistory(customerId: string, limit = 100): Promise<AdminCustomerHistoryItem[]> {
@@ -53,6 +64,63 @@ export class LocalPhase7Repository implements Phase7Repository {
       .sort((a, b) => b.startAt.localeCompare(a.startAt))
       .slice(0, Math.max(1, Math.min(limit, 500)))
       .map((item) => ({ id: item.id, courtId: item.courtId, courtName: item.courtName, startAt: item.startAt, endAt: item.endAt, status: item.status, lighting: item.lighting, netHeightCm: item.netHeightCm, hourlyRate: item.hourlyRate, totalAmount: item.totalAmount, source: item.source, createdAt: item.createdAt, updatedAt: item.createdAt, currency: item.currency }));
+  }
+
+  async listCustomersPage(options?: { limit?: number; cursor?: AdminCustomerCursor | null }) {
+    const limit = Math.max(1, Math.min(options?.limit ?? 30, 100));
+    const cursor = options?.cursor ?? null;
+    const rows = this.customerSummaries().filter((item) => !cursor
+      || item.createdAt < cursor.createdAt
+      || (item.createdAt === cursor.createdAt && item.id < cursor.id));
+    const items = rows.slice(0, limit);
+    const last = items.at(-1);
+    return {
+      items,
+      nextCursor: rows.length > limit && last ? { createdAt: last.createdAt, id: last.id } : null,
+    };
+  }
+
+  async getCustomer(customerId: string) {
+    const customer = this.customerSummaries().find((item) => item.id === customerId);
+    if (!customer) throw new Phase7RepositoryError("not_found", "No encontramos el cliente dentro de tu negocio.");
+    return customer;
+  }
+
+  async getCustomerHistoryPage(customerId: string, options?: { limit?: number; cursor?: AdminCustomerHistoryCursor | null }) {
+    if (!this.customerSummaries().some((item) => item.id === customerId)) {
+      throw new Phase7RepositoryError("not_found", "No encontramos el cliente dentro de tu negocio.");
+    }
+    const limit = Math.max(1, Math.min(options?.limit ?? 25, 100));
+    const cursor = options?.cursor ?? null;
+    const rows = getLocalAdminState().reservations
+      .filter((item) => item.customerId === customerId)
+      .slice()
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+      .filter((item) => !cursor
+        || item.createdAt < cursor.createdAt
+        || (item.createdAt === cursor.createdAt && item.id < cursor.id));
+    const pageRows = rows.slice(0, limit);
+    const items = pageRows.map((item) => ({
+      id: item.id,
+      courtId: item.courtId,
+      courtName: item.courtName,
+      startAt: item.startAt,
+      endAt: item.endAt,
+      status: item.status,
+      lighting: item.lighting,
+      netHeightCm: item.netHeightCm,
+      hourlyRate: item.hourlyRate,
+      totalAmount: item.totalAmount,
+      source: item.source,
+      createdAt: item.createdAt,
+      updatedAt: item.createdAt,
+      currency: item.currency,
+    }));
+    const last = pageRows.at(-1);
+    return {
+      items,
+      nextCursor: rows.length > limit && last ? { createdAt: last.createdAt, id: last.id } : null,
+    };
   }
 
   async listPricingRules(): Promise<AdminPricingRule[]> {

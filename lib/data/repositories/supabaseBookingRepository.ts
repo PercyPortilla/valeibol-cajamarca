@@ -230,6 +230,7 @@ export class SupabaseBookingRepository implements BookingRepository {
       requestId: payload.requestId,
       status: "pending",
       accountLinked: payload.accountLinked,
+      recoveryCode: payload.accountLinked === true ? null : request.requestToken,
       courtId: payload.courtId,
       startAt: payload.startAt,
       endAt: payload.endAt,

@@ -9,6 +9,10 @@ const auth = readFileSync("lib/auth/platformAdmin.ts", "utf8");
 const page = readFileSync("app/admin-global/page.tsx", "utf8");
 const businessList = readFileSync("components/platform-admin/PlatformAdminBusinessList.tsx", "utf8");
 const styles = readFileSync("app/styles/globals-5.css", "utf8");
+const scopeMigration = readFileSync("supabase/migrations/20261025075524_pre_b33_platform_admin_tenant_scope.sql", "utf8");
+const scopeRoute = readFileSync("app/api/admin-global/select-business/route.ts", "utf8");
+const browserClient = readFileSync("lib/data/supabase/browser.ts", "utf8");
+const serverClient = readFileSync("lib/data/supabase/server.ts", "utf8");
 
 test("admin global se deriva solo de user_accounts.role=admin", () => {
   const context = migration.match(/create or replace function public\.get_platform_admin_context[\s\S]*?\$\$;/i)?.[0] ?? "";
@@ -31,6 +35,25 @@ test("admin global no hereda lectura directa de PII tenant", () => {
   assert.doesNotMatch(canManage, /public\.is_platform_admin\(\)/i);
   assert.match(metricsMigration, /create policy user_accounts_self_select[\s\S]*?user_id = \(select auth\.uid\(\)\)/i);
   assert.doesNotMatch(metricsMigration.match(/create policy user_accounts_self_select[\s\S]*?;/i)?.[0] ?? "", /is_platform_admin/i);
+});
+
+test("ajuste pre-B33 permite supervisión tenant solo con scope explícito del único ADMIN global", () => {
+  assert.match(scopeMigration, /user_accounts_single_active_platform_admin/i);
+  assert.match(scopeMigration, /where role = 'admin' and is_active/i);
+  assert.match(scopeMigration, /platform_admin_selected_business_id/i);
+  assert.match(scopeMigration, /current_setting\('request\.headers', true\)/i);
+  assert.match(scopeMigration, /x-platform-business-id/i);
+  assert.match(scopeMigration, /public\.is_platform_admin\(\)/i);
+  assert.match(scopeMigration, /private\.platform_admin_selected_business_id\(\) = target_business_id/i);
+  assert.doesNotMatch(scopeMigration, /public\.is_platform_admin\(\)\s*\)/i);
+});
+
+test("scope global viaja por cookie/header y solo lo crea una ruta protegida", () => {
+  assert.match(scopeRoute, /requirePlatformAdminContext\(\)/);
+  assert.match(scopeRoute, /PLATFORM_ADMIN_BUSINESS_COOKIE/);
+  assert.match(browserClient, /PLATFORM_ADMIN_BUSINESS_HEADER/);
+  assert.match(serverClient, /PLATFORM_ADMIN_BUSINESS_HEADER/);
+  assert.match(browserClient, /readPlatformBusinessIdFromDocument/);
 });
 
 test("todas las RPC globales mutables verifican is_platform_admin", () => {
@@ -76,8 +99,9 @@ test("panel global no deja hueco de sexta métrica tras ocultar pagos", () => {
 });
 
 test("UX global evita enlaces muertos y protege la desactivación", () => {
-  assert.match(page, /get_current_admin_context/);
-  assert.match(page, /hasBusinessAdminAccess \? <Link href="\/admin">Panel de negocio<\/Link> : null/);
+  assert.doesNotMatch(page, /get_current_admin_context/);
+  assert.match(businessList, /Administrar negocio/);
+  assert.match(businessList, /\/api\/admin-global\/select-business/);
   assert.match(businessList, /window\.confirm/);
   assert.match(businessList, /disabled=\{Boolean\(busyId\)\}/);
   assert.match(styles, /\.global-admin-links a \{[^}]*min-height:\s*44px/i);

@@ -53,6 +53,7 @@ export class MockBookingRepository implements BookingRepository {
       requestId: null,
       status: "demo",
       accountLinked: null,
+      recoveryCode: null,
       courtId: request.courtId,
       startAt: null,
       endAt: null,

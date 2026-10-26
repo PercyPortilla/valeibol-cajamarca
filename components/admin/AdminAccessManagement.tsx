@@ -25,6 +25,7 @@ type AccessResponse = {
   ok?: boolean;
   users?: AccessUser[];
   user?: AccessUser;
+  accessMode?: "linked" | "invited";
   canTransferPrimaryOwnership?: boolean;
   primaryOwnerUserId?: string;
   code?: string;
@@ -303,9 +304,24 @@ export function AdminAccessManagement({
       setInviteName("");
       setInviteRole("staff");
       setInviteMessageKind("success");
-      setInviteMessage("Invitación enviada. La persona recibirá un correo para activar su acceso.");
-    } catch {
-      setInviteMessage("No pudimos enviar la invitación. Revisa el correo o inténtalo nuevamente.");
+      setInviteMessage(data.accessMode === "linked"
+        ? "La cuenta ya existía en Caxas y quedó vinculada a este negocio."
+        : "Invitación enviada. La persona recibirá un correo para activar su acceso.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setInviteMessage(
+        code.includes("user_assigned_elsewhere")
+          ? "Esa cuenta ya pertenece a otro negocio y no puede vincularse aquí."
+          : code.includes("platform_admin_cannot_join_tenant")
+            ? "La cuenta ADMIN global no puede añadirse como usuario de un tenant."
+            : code.includes("existing_account_unconfirmed")
+              ? "Esa cuenta ya existe, pero todavía debe confirmar su correo antes de recibir acceso."
+              : code.includes("existing_account_inactive")
+                ? "Esa cuenta está desactivada a nivel de plataforma y no puede recibir acceso."
+                : code.includes("user_already_in_business")
+                  ? "Esa cuenta ya pertenece a este negocio. Actualiza su acceso desde la lista de usuarios."
+                  : "No pudimos agregar a la persona. Revisa el correo o inténtalo nuevamente.",
+      );
     } finally {
       setInviteBusy(false);
     }
@@ -366,9 +382,11 @@ export function AdminAccessManagement({
               onChange={(event) => setInviteRole(event.target.value as AdminRole)}
             />
             <Button type="submit" disabled={inviteBusy}>
-              {inviteBusy ? "Enviando…" : "Invitar usuario"}
+              {inviteBusy ? "Agregando…" : "Agregar usuario"}
             </Button>
           </form>
+
+          <p className="admin-access-invite__hint">Si el correo ya tiene una cuenta en Caxas, se vinculará sin crear otra. Si todavía no existe, enviaremos una invitación segura.</p>
 
           {inviteMessage ? (
             <div

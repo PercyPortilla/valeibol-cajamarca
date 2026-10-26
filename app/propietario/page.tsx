@@ -32,9 +32,9 @@ export default async function OwnerPortalPage() {
           <Badge tone="success">{context.roleLabel}</Badge>
         </div>
         <header className="owner-portal__hero">
-          <span className="eyebrow">PANEL DEL PROPIETARIO</span>
+          <span className="eyebrow">{context.isPlatformAdmin ? "SUPERVISIÓN DEL NEGOCIO" : "PANEL DEL PROPIETARIO"}</span>
           <h1>{context.businessName}</h1>
-          <p>Accede a las herramientas operativas ya validadas del negocio sin duplicar la lógica administrativa.</p>
+          <p>{context.isPlatformAdmin ? "Estás entrando con supervisión global al panel operativo de este negocio." : "Accede a las herramientas operativas ya validadas del negocio sin duplicar la lógica administrativa."}</p>
           <p>Las coordinaciones adicionales con cada cliente se realizan directamente por WhatsApp desde el flujo de reservas.</p>
           <Link className="button button--primary" href="/admin">Abrir resumen operativo</Link>
         </header>
@@ -47,7 +47,7 @@ export default async function OwnerPortalPage() {
             </Card>
           ))}
         </section>
-        <p className="owner-portal__note">El panel administrativo actual sigue siendo la fuente operativa única. La selección entre múltiples negocios de un mismo propietario se incorporará cuando exista contexto administrativo multi-negocio completo.</p>
+        <p className="owner-portal__note">Cada propietario administra únicamente su propio negocio. La administración principal de Caxas Sport Center puede supervisar cualquier negocio seleccionándolo explícitamente desde el panel global.</p>
       </div>
     </main>
   );

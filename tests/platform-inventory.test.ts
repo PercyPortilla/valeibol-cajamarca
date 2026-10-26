@@ -15,6 +15,7 @@ const styles = readFileSync("app/styles/globals-5.css", "utf8");
 const availabilityCalendar = readFileSync("components/availability/AvailabilityCalendar.tsx", "utf8");
 const reservationPage = readFileSync("app/reservar/page.tsx", "utf8");
 const accessEdge = readFileSync("supabase/functions/admin-access-management/index.ts", "utf8");
+const onboardingEdge = readFileSync("supabase/functions/platform-business-onboarding/index.ts", "utf8");
 const globalBusinessList = readFileSync("components/platform-admin/PlatformAdminBusinessList.tsx", "utf8");
 
 test("B20 alta global exige ADMIN real y vincula owner + profile de forma atómica", () => {
@@ -99,7 +100,8 @@ test("anon no ejecuta RPC B20 y authenticated mantiene acceso solo por funciones
 
 test("UX B20 separa alta global de operación tenant y elimina datos estáticos Valeibol", () => {
   assert.match(globalPage, /PlatformAdminBusinessOnboarding/);
-  assert.match(onboarding, /platform_admin_create_business/);
+  assert.match(onboarding, /platform-business-onboarding/);
+  assert.match(onboardingEdge, /platform_admin_create_business/);
   assert.match(onboarding, /Correo del propietario/);
   assert.match(structurePage, /AdminBusinessStructureManager/);
   assert.match(structureManager, /admin_create_venue/);

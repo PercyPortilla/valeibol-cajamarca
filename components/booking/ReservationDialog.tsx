@@ -19,6 +19,7 @@ import {
 } from "@/lib/booking";
 import type { AvailabilitySlot } from "@/lib/availability";
 import { createPublicBookingRepository } from "@/lib/data/bookingService";
+import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
 import {
   BookingRepositoryError,
   type PublicBookingResult,
@@ -55,12 +56,8 @@ function formatLocalDate(dateKey: string) {
 }
 
 function makeRequestToken() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (char) => {
-    const value = Math.floor(Math.random() * 16);
-    const nibble = char === "x" ? value : (value & 0x3) | 0x8;
-    return nibble.toString(16);
-  });
+  if (typeof crypto === "undefined") throw new Error("secure_random_unavailable");
+  return crypto.randomUUID();
 }
 
 export function ReservationDialog({ businessSlug, selection, onClose, onPersisted, onAvailabilityStale }: Props) {
@@ -155,6 +152,24 @@ export function ReservationDialog({ businessSlug, selection, onClose, onPersiste
 
     return () => { cancelled = true; };
   }, [businessSlug, selection, repository]);
+
+  useEffect(() => {
+    if (!selection || selection.source === "mock-provisional") return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data, error } = await createPublicBrowserSupabaseClient().rpc("get_my_customer_profile");
+        if (cancelled || error) return;
+        const profile = data?.[0];
+        if (!profile) return;
+        setName(profile.display_name ?? "");
+        setPhone(profile.phone_e164 ?? "");
+      } catch {
+        // Guest booking and transient profile reads stay non-blocking.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selection]);
 
   if (!selection) {
     return <dialog ref={dialogRef} className="booking-dialog" aria-label="Solicitar reserva" />;
@@ -294,7 +309,7 @@ export function ReservationDialog({ businessSlug, selection, onClose, onPersiste
                   <div><dt>Iluminación</dt><dd>{result.lighting === "with_lights" ? "Con luz" : "Sin luz"}</dd></div>
                   <div><dt>Tarifa por hora</dt><dd>{formatMoney(result.hourlyRate, result.currency)}/h</dd></div>
                   <div><dt>Valor de reserva</dt><dd>{formatMoney(result.totalAmount, result.currency)}</dd></div>
-                  {result.requestId ? <div><dt>Referencia</dt><dd>{result.requestId}</dd></div> : null}
+                  {result.requestId ? <div><dt>ID de solicitud</dt><dd>{result.requestId}</dd></div> : null}
                 </dl>
                 {result.accountLinked === true ? (
                   <div className="booking-source-note">
@@ -306,6 +321,13 @@ export function ReservationDialog({ businessSlug, selection, onClose, onPersiste
                     <strong>La solicitud se creó, pero no quedó vinculada a tu cuenta</strong>
                     <span>No envíes otra solicitud por el mismo horario. Conserva estos datos y coordina con el negocio si necesitas recuperarla en tu historial.</span>
                     <small className="booking-request-reference">Referencia: {result.requestId}</small>
+                  </div>
+                ) : null}
+                {result.recoveryCode ? (
+                  <div className="booking-source-note booking-source-note--account-warning" role="note">
+                    <strong>Código secreto de recuperación</strong>
+                    <span>Guarda este código. Te permitirá vincular esta reserva desde Mi cuenta si reservaste como invitado o si la vinculación automática falló.</span>
+                    <small className="booking-request-reference">{result.recoveryCode}</small>
                   </div>
                 ) : null}
                 <div className="booking-source-note" role="note">

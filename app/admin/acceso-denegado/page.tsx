@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { AdminLogoutButton } from "@/components/admin/AdminLogoutButton";
-import { BrandLogo } from "@/components/brand/BrandLogo";
+import { PlatformAdminBrand } from "@/components/brand/PlatformAdminBrand";
 
 export default function AdminAccessDeniedPage() {
   return (
     <main className="auth-page">
       <section className="auth-card" aria-labelledby="access-denied-title">
         <div className="brand brand--auth">
-          <BrandLogo context="auth" />
+          <PlatformAdminBrand context="auth" />
           <span className="brand-context-label">Administración · acceso restringido</span>
         </div>
         <div className="auth-card__title">

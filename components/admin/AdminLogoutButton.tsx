@@ -6,6 +6,7 @@ import {
   createPublicBrowserSupabaseClient,
   hasPublicSupabaseConfig,
 } from "@/lib/data/supabase/browser";
+import { PLATFORM_ADMIN_BUSINESS_COOKIE } from "@/lib/auth/platformScope";
 
 export function AdminLogoutButton() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export function AdminLogoutButton() {
         await supabase.auth.signOut();
       }
     } finally {
+      document.cookie = `${PLATFORM_ADMIN_BUSINESS_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
       router.replace("/admin/login?reason=logout");
       router.refresh();
     }

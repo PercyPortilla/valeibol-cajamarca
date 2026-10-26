@@ -17,6 +17,12 @@ import { absoluteSiteUrl } from "@/lib/platform/siteUrl";
 import { FavoriteButton } from "@/components/platform/FavoriteButton";
 import { PublicReviewsSection } from "@/components/platform/PublicReviewsSection";
 import { getPublicBusinessReviews } from "@/lib/data/reputationService";
+import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
+import { themeCssVariables } from "@/lib/siteContent";
+import { Icon } from "@/components/ui/Icon";
+import type { CSSProperties } from "react";
+import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
+import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
 
 type Params = Promise<{ slug: string }>;
 
@@ -73,7 +79,17 @@ export default async function ComplexPage({ params }: { params: Params }) {
       </>
     );
   }
-  const reviewResult = await getPublicBusinessReviews(business.slug);
+  const [reviewResult, siteContent, publicContact] = await Promise.all([
+    getPublicBusinessReviews(business.slug),
+    getPublicSiteContent(business.slug),
+    getPublicBusinessContact(business.slug),
+  ]);
+  const services = siteContent.services.filter((service) => service.isVisible);
+  const galleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
+  const whatsappHref = publicContact.phoneE164 ? buildWhatsAppChatHref(
+    publicContact.phoneE164,
+    `Hola, quisiera consultar disponibilidad y reservas en ${business.name}.`,
+  ) : null;
 
   const courtCount = business.venues.reduce((sum, venue) => sum + venue.courts.length, 0);
   const sportNames = [...new Set(business.venues.flatMap((venue) => venue.courts.map((court) => court.sportName)))];
@@ -82,7 +98,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
   const currency = pricedCourts[0]?.currency ?? "PEN";
 
   return (
-    <div className="platform-page">
+    <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
       <StructuredData data={buildBusinessJsonLd(business)} />
       <PlatformHeader />
       <main id="platform-main" tabIndex={-1}>
@@ -109,6 +125,9 @@ export default async function ComplexPage({ params }: { params: Params }) {
                 {sportNames.slice(0, 4).map((sport) => <span key={sport}>{sport}</span>)}
                 <span>{lowestPrice === null ? "Precio por consultar" : `Desde ${formatMoney(lowestPrice, currency)}/h`}</span>
                 {business.reviewCount > 0 && business.ratingAverage !== null ? <span aria-label={`${business.ratingAverage.toFixed(1)} de 5, ${business.reviewCount} reseñas verificadas`}>★ {business.ratingAverage.toFixed(1)} · {business.reviewCount} {business.reviewCount === 1 ? "reseña" : "reseñas"}</span> : null}
+              </div>
+              <div className="platform-complex-contact">
+                {whatsappHref ? <a className="button platform-whatsapp-contact" href={whatsappHref} target="_blank" rel="noreferrer">Contactar por WhatsApp ↗</a> : <small>Este complejo no publicó un WhatsApp de contacto.</small>}
               </div>
             </div>
             <div className="platform-complex-summary">
@@ -149,6 +168,41 @@ export default async function ComplexPage({ params }: { params: Params }) {
             </div>
           </div>
         </section>
+        {services.length > 0 ? (
+          <section className="platform-section platform-section--tenant-content" aria-labelledby="tenant-services-title">
+            <div className="shell">
+              <div className="platform-section__heading">
+                <div><span className="eyebrow">SERVICIOS</span><h2 id="tenant-services-title">Lo que ofrece {business.name}</h2></div>
+              </div>
+              <div className="platform-service-grid">
+                {services.map((service) => (
+                  <article className="platform-service-card" key={service.id}>
+                    <span className="platform-service-card__icon" aria-hidden="true"><Icon name={service.icon} size={24} /></span>
+                    <h3>{service.title}</h3>
+                    <p>{service.description}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+        {galleryItems.length > 0 ? (
+          <section className="platform-section platform-section--tenant-gallery" aria-labelledby="tenant-gallery-title">
+            <div className="shell">
+              <div className="platform-section__heading">
+                <div><span className="eyebrow">GALERÍA</span><h2 id="tenant-gallery-title">Conoce las instalaciones</h2></div>
+              </div>
+              <div className="platform-gallery-grid">
+                {galleryItems.map((item) => (
+                  <figure className="platform-gallery-card" key={item.id}>
+                    <div className="platform-gallery-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} role="img" aria-label={item.altText || item.title} />
+                    <figcaption><strong>{item.title}</strong>{item.altText ? <small>{item.altText}</small> : null}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
       </main>
       <PlatformFooter />

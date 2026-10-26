@@ -7,7 +7,7 @@ import type { CSSProperties } from "react";
 
 export const metadata: Metadata = {
   title: "Privacidad",
-  description: "Cómo Valeibol utiliza los datos necesarios para gestionar solicitudes de reserva.",
+  description: "Cómo Caxas Sport Center utiliza los datos necesarios para gestionar solicitudes de reserva.",
 };
 
 export default async function PrivacyPage() {
@@ -20,7 +20,7 @@ export default async function PrivacyPage() {
             <span className="eyebrow">PRIVACIDAD</span>
             <h1>Uso de datos para reservas</h1>
             <p>
-              Valeibol utiliza únicamente los datos necesarios para atender una solicitud y operar la agenda del establecimiento.
+              Caxas Sport Center utiliza únicamente los datos necesarios para atender una solicitud y operar la agenda del establecimiento correspondiente.
             </p>
           </div>
         </div>

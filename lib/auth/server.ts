@@ -22,6 +22,7 @@ export type AdminContext = {
   roleLabel: string;
   displayName: string | null;
   timezone: string;
+  isPlatformAdmin: boolean;
 };
 
 export class AdminAuthError extends Error {
@@ -51,6 +52,7 @@ async function getLocalDevAdminContext(): Promise<AdminContext | null> {
     roleLabel: adminRoleLabel("owner"),
     displayName: "Administrador local",
     timezone: businessConfig.timezone,
+    isPlatformAdmin: false,
   };
 }
 
@@ -69,7 +71,10 @@ export async function getAdminContext(): Promise<AdminContext> {
     throw new AdminAuthError("unauthenticated", "La sesión no existe o expiró.");
   }
 
-  const { data, error } = await supabase.rpc("get_current_admin_context");
+  const [{ data, error }, platformResult] = await Promise.all([
+    supabase.rpc("get_current_admin_context"),
+    supabase.rpc("get_platform_admin_context"),
+  ]);
   if (error) {
     const normalized = error.message.toLowerCase();
     if (normalized.includes("permission") || normalized.includes("profile")) {
@@ -93,6 +98,7 @@ export async function getAdminContext(): Promise<AdminContext> {
     roleLabel: adminRoleLabel(row.role),
     displayName: row.display_name,
     timezone: row.timezone,
+    isPlatformAdmin: !platformResult.error && (platformResult.data?.length ?? 0) > 0,
   };
 }
 

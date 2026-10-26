@@ -11,14 +11,15 @@ import { StructuredData } from "@/components/platform/StructuredData";
 import { buildMarketplaceJsonLd } from "@/lib/platform/seo";
 import { getSportLandingPath } from "@/lib/platform/sportLanding";
 import type { Metadata } from "next";
+import { platformConfig } from "@/config/platform";
 
 export const metadata: Metadata = {
-  title: "Canchas y complejos deportivos",
-  description: "Encuentra complejos deportivos, compara canchas y consulta disponibilidad por ciudad y deporte.",
+  title: "Canchas y complejos deportivos en Cajamarca",
+  description: `Encuentra complejos deportivos en ${platformConfig.city}, compara canchas y consulta disponibilidad por deporte.`,
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Canchas | Marketplace deportivo",
-    description: "Descubre complejos deportivos, compara sedes y consulta canchas disponibles.",
+    title: `${platformConfig.name} | Canchas en Cajamarca`,
+    description: "Descubre complejos deportivos de Cajamarca, compara sedes y consulta canchas disponibles.",
     url: "/",
   },
 };
@@ -46,12 +47,12 @@ export default async function PlatformHomePage() {
         <section className="platform-home-hero">
           <div className="shell platform-home-hero__grid">
             <div className="platform-home-hero__copy">
-              <span className="platform-live-label"><i aria-hidden="true" /> MARKETPLACE DEPORTIVO</span>
-              <h1>Encuentra <span>tu próxima cancha.</span> Juega sin complicarte.</h1>
-              <p>Descubre complejos, compara opciones y llega directo a la disponibilidad de cada cancha desde una sola plataforma.</p>
+              <span className="platform-live-label"><i aria-hidden="true" /> {platformConfig.name.toUpperCase()}</span>
+              <h1>Encuentra <span>tu próxima cancha en Cajamarca.</span> Juega sin complicarte.</h1>
+              <p>Descubre complejos de Cajamarca, compara opciones y llega directo a la disponibilidad de cada cancha desde una sola plataforma.</p>
               <PlatformSearchForm />
               <div className="platform-hero-chips" aria-label="Accesos rápidos">
-                <Link href="/buscar?ciudad=Cajamarca"><Icon name="location" size={16} /> Cajamarca</Link>
+                <Link href="/buscar"><Icon name="location" size={16} /> Cajamarca</Link>
                 {quickSports.map((sport) => (
                   <Link key={sport.id} href={getSportLandingPath(sport.slug)}><Icon name="ball" size={16} /> {sport.name}</Link>
                 ))}
@@ -93,7 +94,7 @@ export default async function PlatformHomePage() {
 
         <section className="platform-proof-strip" aria-label="Cómo funciona la plataforma">
           <div className="shell platform-proof-strip__inner">
-            <div><span>01</span><p><strong>Busca</strong><small>por deporte y ciudad</small></p></div>
+            <div><span>01</span><p><strong>Busca</strong><small>por deporte en Cajamarca</small></p></div>
             <div><span>02</span><p><strong>Compara</strong><small>sedes, canchas y precios</small></p></div>
             <div><span>03</span><p><strong>Reserva</strong><small>desde el complejo elegido</small></p></div>
           </div>
@@ -123,7 +124,7 @@ export default async function PlatformHomePage() {
         <section className="platform-section platform-home-featured">
           <div className="shell">
             <div className="platform-section__heading">
-              <div><span className="eyebrow">COMPLEJOS</span><h2>Complejos disponibles</h2><p>La oferta crecerá a medida que se incorporen nuevos negocios deportivos.</p></div>
+              <div><span className="eyebrow">COMPLEJOS EN CAJAMARCA</span><h2>Complejos disponibles</h2><p>Por ahora la plataforma está enfocada únicamente en Cajamarca.</p></div>
             </div>
             <PlatformResults businesses={businesses} />
           </div>
@@ -131,7 +132,7 @@ export default async function PlatformHomePage() {
 
         <section className="platform-home-owner">
           <div className="shell platform-home-owner__inner">
-            <div><span className="eyebrow">PARA PROPIETARIOS</span><h2>Administra reservas, precios y operación desde un solo panel.</h2><p>La misma plataforma pública se conecta con las herramientas operativas de cada negocio.</p></div>
+            <div><span className="eyebrow">PARA PROPIETARIOS DE CAJAMARCA</span><h2>Administra reservas, precios y operación desde un solo panel.</h2><p>Cada negocio gestiona únicamente su propia operación dentro de Caxas Sport Center.</p></div>
             <Link className="button button--primary" href="/propietario">Ir al panel propietario</Link>
           </div>
         </section>

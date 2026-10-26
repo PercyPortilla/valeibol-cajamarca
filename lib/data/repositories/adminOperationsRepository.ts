@@ -6,6 +6,7 @@ import type { AdminScheduleDay, AdminScheduleSnapshot } from "../../admin/schedu
 export type AdminMutationReservationResult = {
   reservationId: string;
   status: AdminReservationStatus;
+  closureKind?: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
   courtId?: string;
   startAt?: string;
   endAt?: string;
@@ -60,6 +61,8 @@ export type CreateScheduleBlockInput = {
 export interface AdminOperationsRepository {
   getSchedule(from: string, to: string, timezone: string): Promise<AdminScheduleSnapshot>;
   confirmReservation(reservationId: string): Promise<AdminMutationReservationResult>;
+  rejectPendingReservation(reservationId: string): Promise<AdminMutationReservationResult>;
+  expirePendingReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   completeReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   cancelReservation(reservationId: string): Promise<AdminMutationReservationResult>;
   archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult>;

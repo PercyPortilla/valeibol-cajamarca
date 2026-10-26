@@ -52,6 +52,7 @@ export type PublicBookingResult = {
   requestId: string | null;
   status: "pending" | "demo";
   accountLinked: boolean | null;
+  recoveryCode: string | null;
   courtId: string;
   startAt: string | null;
   endAt: string | null;

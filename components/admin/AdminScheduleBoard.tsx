@@ -32,6 +32,8 @@ import {
   createManualReservationAction,
   createScheduleBlockAction,
   editReservationAction,
+  expirePendingReservationAction,
+  rejectPendingReservationAction,
   unblockScheduleAction,
   type AdminActionResult,
 } from "../../app/admin/(protected)/actions.ts";
@@ -137,11 +139,13 @@ export function AdminScheduleBoard({
   timezone,
   role,
   pricingRules,
+  nowIso,
 }: {
   snapshot: AdminScheduleSnapshot;
   timezone: string;
   role: AdminRole;
   pricingRules: AdminPricingRule[];
+  nowIso: string;
 }) {
   const router = useRouter();
   const todayDate = useMemo(() => localDateKey(timezone), [timezone]);
@@ -160,8 +164,8 @@ export function AdminScheduleBoard({
   const selectedDay = days.find((day) => day.date === selectedDate) ?? days[0];
 
   const daySlots = useMemo(
-    () => new Map(days.map((day) => [day.date, buildAdminBoardSlots(day, timezone)])),
-    [days, timezone],
+    () => new Map(days.map((day) => [day.date, buildAdminBoardSlots(day, timezone, new Date(nowIso))])),
+    [days, timezone, nowIso],
   );
 
   function handleMobileDayKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
@@ -199,8 +203,18 @@ export function AdminScheduleBoard({
     completeAction(() => confirmReservationAction(id));
   }
 
+  function rejectReservation(id: string) {
+    if (!window.confirm("¿Rechazar esta solicitud? El cliente verá que no fue aceptada y el intervalo se liberará.")) return;
+    completeAction(() => rejectPendingReservationAction(id));
+  }
+
+  function expireReservation(id: string) {
+    if (!window.confirm("¿Expirar esta solicitud vencida? Se cerrará sin registrarla como rechazo del negocio.")) return;
+    completeAction(() => expirePendingReservationAction(id));
+  }
+
   function cancelReservation(id: string) {
-    if (!window.confirm("¿Cancelar esta reserva? El intervalo se liberará si no existe otra ocupación.")) return;
+    if (!window.confirm("¿Cancelar esta reserva confirmada? El cliente verá la cancelación y el intervalo se liberará.")) return;
     completeAction(() => cancelReservationAction(id));
   }
 
@@ -248,13 +262,19 @@ export function AdminScheduleBoard({
         <small>{entry.customerPhoneE164 ?? "Sin teléfono"}</small>
         <small>Red: {netHeightLabel(entry.netHeightCm)} · {sourceLabel(entry.source)}</small>
         <div className="admin-slot__actions">
-          {entry.status === "pending" && canPerformAdminOperation(role, "confirm_reservation") ? (
+          {entry.status === "pending" && new Date(entry.startAt).getTime() > new Date(nowIso).getTime() && canPerformAdminOperation(role, "confirm_reservation") ? (
             <button className="admin-mini-action" type="button" disabled={pending} onClick={() => confirmReservation(entry.id)}>Confirmar</button>
           ) : null}
-          {(entry.status === "pending" || entry.status === "confirmed") && canPerformAdminOperation(role, "cancel_reservation") ? (
+          {entry.status === "pending" && new Date(entry.startAt).getTime() > new Date(nowIso).getTime() && canPerformAdminOperation(role, "reject_reservation") ? (
+            <button className="admin-mini-action admin-mini-action--danger" type="button" disabled={pending} onClick={() => rejectReservation(entry.id)}>Rechazar</button>
+          ) : null}
+          {entry.status === "pending" && new Date(entry.startAt).getTime() <= new Date(nowIso).getTime() && canPerformAdminOperation(role, "expire_pending_reservation") ? (
+            <button className="admin-mini-action admin-mini-action--danger" type="button" disabled={pending} onClick={() => expireReservation(entry.id)}>Expirar</button>
+          ) : null}
+          {entry.status === "confirmed" && canPerformAdminOperation(role, "cancel_reservation") ? (
             <button className="admin-mini-action admin-mini-action--danger" type="button" disabled={pending} onClick={() => cancelReservation(entry.id)}>Cancelar</button>
           ) : null}
-          {(entry.status === "pending" || entry.status === "confirmed") && canPerformAdminOperation(role, "edit_reservation") ? (
+          {entry.status === "pending" && entry.source !== "public_web" && new Date(entry.startAt).getTime() > new Date(nowIso).getTime() && canPerformAdminOperation(role, "edit_reservation") ? (
             <button className="admin-mini-action" type="button" disabled={pending} onClick={() => setPanel({ kind: "edit", entry })}>Editar</button>
           ) : null}
         </div>

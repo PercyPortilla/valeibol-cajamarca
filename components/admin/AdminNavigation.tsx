@@ -3,22 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navigation = [
-  ["Resumen", "/admin"],
-  ["Reservas", "/admin/reservas"],
-  ["Disponibilidad", "/admin/disponibilidad"],
-  ["Clientes", "/admin/clientes"],
-  ["Precios", "/admin/precios"],
-  ["Ingresos", "/admin/ingresos"],
-  ["Reportes", "/admin/reportes"],
-  ["Configuración", "/admin/configuracion"],
-] as const;
-
-export function AdminNavigation() {
+export function AdminNavigation({ unreadNotifications = 0 }: { unreadNotifications?: number }) {
   const pathname = usePathname();
+  const items = [
+    ["Resumen", "/admin"],
+    ["Reservas", "/admin/reservas"],
+    ["Notificaciones", "/admin/notificaciones"],
+    ["Disponibilidad", "/admin/disponibilidad"],
+    ["Clientes", "/admin/clientes"],
+    ["Precios", "/admin/precios"],
+    ["Ingresos", "/admin/ingresos"],
+    ["Reportes", "/admin/reportes"],
+    ["Configuración", "/admin/configuracion"],
+  ] as const;
   return (
     <nav aria-label="Navegación administrativa">
-      {navigation.map(([label, href]) => {
+      {items.map(([label, href]) => {
         const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
         return (
           <Link
@@ -27,7 +27,8 @@ export function AdminNavigation() {
             className={active ? "admin-nav-item admin-nav-item--active" : "admin-nav-item"}
             aria-current={active ? "page" : undefined}
           >
-            {label}
+            <span>{label}</span>
+            {href === "/admin/notificaciones" && unreadNotifications > 0 ? <span className="admin-nav-item__count" aria-label={`${unreadNotifications} notificaciones sin leer`}>{unreadNotifications > 99 ? "99+" : unreadNotifications}</span> : null}
           </Link>
         );
       })}

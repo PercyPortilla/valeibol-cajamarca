@@ -118,6 +118,30 @@ function mapSupabaseError(error: { code?: string; message: string }) {
   if (error.code === "23P01" || text.includes("slot_unavailable") || text.includes("exclusion")) {
     return new AdminOperationsRepositoryError("conflict", "Ese intervalo ya no está disponible. Actualiza la pizarra e intenta otro horario.");
   }
+  if (text.includes("reservation_change_request_pending")) {
+    return new AdminOperationsRepositoryError("conflict", "Esta reserva tiene una solicitud de cambio pendiente. Resuélvela antes de cancelar o completar la reserva.");
+  }
+  if (text.includes("reservation_confirmation_window_closed")) {
+    return new AdminOperationsRepositoryError("conflict", "El horario ya comenzó y esta solicitud ya no puede confirmarse.");
+  }
+  if (text.includes("pending_reservation_already_resolved")) {
+    return new AdminOperationsRepositoryError("conflict", "La solicitud pendiente ya fue confirmada, retirada o cerrada. Actualiza la página.");
+  }
+  if (text.includes("pending_reservation_expired_requires_expiration")) {
+    return new AdminOperationsRepositoryError("conflict", "La solicitud ya venció. Actualiza la página y usa Expirar.");
+  }
+  if (text.includes("pending_reservation_not_expired")) {
+    return new AdminOperationsRepositoryError("conflict", "La solicitud todavía está vigente y no puede expirar.");
+  }
+  if (text.includes("public_pending_request_not_editable")) {
+    return new AdminOperationsRepositoryError("conflict", "Las solicitudes creadas por clientes desde la web no pueden editarse. Confirma, rechaza o expira la solicitud.");
+  }
+  if (text.includes("pending_reservation_requires_rejection")) {
+    return new AdminOperationsRepositoryError("conflict", "Una solicitud pendiente debe cerrarse con Rechazar, no con Cancelar.");
+  }
+  if (text.includes("reservation_already_closed")) {
+    return new AdminOperationsRepositoryError("conflict", "La reserva ya fue cerrada por otro flujo. Actualiza la página.");
+  }
   if (error.code === "P0002" || text.includes("not_found")) {
     return new AdminOperationsRepositoryError("not_found", "El recurso solicitado ya no existe o no pertenece a tu negocio.");
   }
@@ -170,6 +194,24 @@ export class SupabaseAdminOperationsRepository implements AdminOperationsReposit
     return { reservationId: row.reservation_id, status: row.reservation_status };
   }
 
+  async rejectPendingReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("admin_reject_pending_reservation", { p_reservation_id: reservationId });
+    if (error) throw mapSupabaseError(error);
+    const row = data?.[0];
+    if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la solicitud rechazada.");
+    return { reservationId: row.reservation_id, status: row.reservation_status, closureKind: row.closure_kind };
+  }
+
+  async expirePendingReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const client = await createServerSupabaseClient();
+    const { data, error } = await client.rpc("admin_expire_pending_reservation", { p_reservation_id: reservationId });
+    if (error) throw mapSupabaseError(error);
+    const row = data?.[0];
+    if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la solicitud expirada.");
+    return { reservationId: row.reservation_id, status: row.reservation_status, closureKind: row.closure_kind };
+  }
+
   async completeReservation(reservationId: string): Promise<AdminMutationReservationResult> {
     const client = await createServerSupabaseClient();
     const { data, error } = await client.rpc("admin_complete_reservation", { p_reservation_id: reservationId });
@@ -185,7 +227,7 @@ export class SupabaseAdminOperationsRepository implements AdminOperationsReposit
     if (error) throw mapSupabaseError(error);
     const row = data?.[0];
     if (!row) throw new AdminOperationsRepositoryError("unknown", "Supabase no devolvió la reserva cancelada.");
-    return { reservationId: row.reservation_id, status: row.reservation_status };
+    return { reservationId: row.reservation_id, status: row.reservation_status, closureKind: row.closure_kind };
   }
 
   async archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult> {

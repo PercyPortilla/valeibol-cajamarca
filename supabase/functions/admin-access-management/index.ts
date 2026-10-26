@@ -139,8 +139,13 @@ function bearerToken(request: Request) {
 function mapError(message: string) {
   const normalized = message.toLowerCase();
   if (normalized.includes("admin_owner_required")) return { code: "owner_required", status: 403 };
+  if (normalized.includes("existing_account_not_found")) return { code: "existing_account_not_found", status: 404 };
+  if (normalized.includes("existing_account_unconfirmed")) return { code: "existing_account_unconfirmed", status: 409 };
+  if (normalized.includes("existing_account_inactive")) return { code: "existing_account_inactive", status: 409 };
+  if (normalized.includes("user_already_in_business")) return { code: "user_already_in_business", status: 409 };
   if (normalized.includes("user_not_in_business")) return { code: "user_not_found", status: 404 };
   if (normalized.includes("user_assigned_elsewhere")) return { code: "user_assigned_elsewhere", status: 409 };
+  if (normalized.includes("platform_admin_cannot_join_tenant")) return { code: "platform_admin_cannot_join_tenant", status: 409 };
   if (normalized.includes("cannot_change_own_access")) return { code: "cannot_change_own_access", status: 409 };
   if (normalized.includes("primary_owner_transfer_required")) return { code: "primary_owner_transfer_required", status: 409 };
   if (normalized.includes("primary_owner_required")) return { code: "primary_owner_required", status: 403 };
@@ -287,10 +292,54 @@ Deno.serve(async (request) => {
   }
 
   if (body.action === "invite") {
+    const linkExistingProfile = async () => await admin.rpc("admin_access_link_existing_profile", {
+      p_actor_user_id: callerUserId,
+      p_existing_email: body.email,
+      p_role: body.role,
+      p_display_name: body.displayName,
+    });
+
+    const responseForLinkedProfile = async (profileRows: unknown) => {
+      const profile = Array.isArray(profileRows) ? profileRows[0] as ProfileRow | undefined : undefined;
+      if (!profile) return json(request, { ok: false, code: "service_unavailable" }, 503);
+
+      const [{ data: targetData, error: targetError }, { data: targetAccount, error: targetAccountError }] = await Promise.all([
+        admin.auth.admin.getUserById(profile.user_id),
+        admin.from("user_accounts").select("user_id,role,is_active").eq("user_id", profile.user_id).maybeSingle(),
+      ]);
+      if (targetError || !targetData.user || targetAccountError) {
+        return json(request, { ok: false, code: "service_unavailable" }, 503);
+      }
+
+      return json(request, {
+        ok: true,
+        accessMode: "linked",
+        user: sanitizeUser(profile, targetData.user, business.owner_user_id, targetAccount as UserAccountRow | null),
+      });
+    };
+
+    let existingLink = await linkExistingProfile();
+    if (!existingLink.error) return await responseForLinkedProfile(existingLink.data);
+
+    const existingLinkError = mapError(existingLink.error.message);
+    if (existingLinkError.code !== "existing_account_not_found") {
+      return json(request, { ok: false, code: existingLinkError.code }, existingLinkError.status);
+    }
+
     const redirectTo = Deno.env.get("ADMIN_INVITE_REDIRECT_URL")?.trim() || DEFAULT_INVITE_REDIRECT;
     const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(body.email, { redirectTo });
     if (inviteError || !inviteData.user) {
       const mapped = authInviteError(inviteError?.message ?? "invite_failed", inviteError?.status);
+      if (mapped.code === "email_in_use") {
+        // Una creación concurrente pudo registrar la cuenta entre la búsqueda y la invitación.
+        // Reintentamos la vinculación autoritativa antes de devolver un conflicto.
+        existingLink = await linkExistingProfile();
+        if (!existingLink.error) return await responseForLinkedProfile(existingLink.data);
+        const retryError = mapError(existingLink.error.message);
+        if (retryError.code !== "existing_account_not_found") {
+          return json(request, { ok: false, code: retryError.code }, retryError.status);
+        }
+      }
       return json(request, { ok: false, code: mapped.code }, mapped.status);
     }
 
@@ -312,7 +361,11 @@ Deno.serve(async (request) => {
       return json(request, { ok: false, code: mapped.code }, mapped.status);
     }
 
-    return json(request, { ok: true, user: sanitizeUser(profile, invitedUser, business.owner_user_id, { user_id: invitedUser.id, role: "customer", is_active: true }) }, 201);
+    return json(request, {
+      ok: true,
+      accessMode: "invited",
+      user: sanitizeUser(profile, invitedUser, business.owner_user_id, { user_id: invitedUser.id, role: "customer", is_active: true }),
+    }, 201);
   }
 
   if (body.action === "transfer_owner") {

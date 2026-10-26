@@ -1,7 +1,8 @@
 import { Icon } from "@/components/ui/Icon";
 import { getPublicSports } from "@/lib/data/platformService";
+import { platformConfig } from "@/config/platform";
 
-export async function PlatformSearchForm({ sport = "", city = "" }: { sport?: string; city?: string }) {
+export async function PlatformSearchForm({ sport = "" }: { sport?: string; city?: string }) {
   const sports = await getPublicSports();
   return (
     <form className="platform-search-form" action="/buscar" method="get">
@@ -14,7 +15,7 @@ export async function PlatformSearchForm({ sport = "", city = "" }: { sport?: st
       </label>
       <label>
         <span><Icon name="location" size={14} /> Ciudad</span>
-        <input name="ciudad" defaultValue={city} placeholder="Ej. Cajamarca" autoComplete="address-level2" />
+        <input name="ciudad" value={platformConfig.city} readOnly aria-readonly="true" />
       </label>
       <button className="button button--primary" type="submit">Buscar canchas <span aria-hidden="true">→</span></button>
     </form>

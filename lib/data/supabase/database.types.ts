@@ -10,6 +10,28 @@ export type ReviewModerationStatus = "pending" | "published" | "rejected" | "hid
 export type ReservationSource = "public_web" | "admin" | "phone" | "whatsapp" | "other";
 export type BlockReason = "maintenance" | "academy" | "tournament" | "event" | "closure" | "other";
 export type BlockStatus = "active" | "cancelled";
+export type AppNotificationEvent =
+  | "reservation_requested"
+  | "reservation_confirmed"
+  | "reservation_rejected"
+  | "reservation_cancelled"
+  | "reservation_withdrawn"
+  | "reservation_expired"
+  | "cancellation_requested"
+  | "cancellation_approved"
+  | "cancellation_rejected"
+  | "cancellation_expired"
+  | "cancellation_withdrawn"
+  | "reschedule_requested"
+  | "reschedule_approved"
+  | "reschedule_rejected"
+  | "reschedule_expired"
+  | "reschedule_withdrawn"
+  | "reschedule_proposed"
+  | "reschedule_proposal_accepted"
+  | "reschedule_proposal_rejected"
+  | "reschedule_proposal_withdrawn"
+  | "reschedule_proposal_expired";
 
 export type Database = {
   public: {
@@ -114,8 +136,74 @@ export type Database = {
           currency: string;
         }>;
       };
+      get_admin_customers_page: {
+        Args: {
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
+        Returns: Array<{
+          customer_id: string;
+          full_name: string;
+          phone_e164: string | null;
+          marketing_opt_in: boolean;
+          customer_created_at: string;
+          last_activity_at: string;
+          last_reservation_at: string | null;
+          reservation_count: number | string;
+          active_reservation_count: number | string;
+          completed_reservation_count: number | string;
+          cancelled_reservation_count: number | string;
+          confirmed_value: number | string;
+          completed_value: number | string;
+          currency: string;
+        }>;
+      };
+      get_admin_customer_summary: {
+        Args: { p_customer_id: string };
+        Returns: Array<{
+          customer_id: string;
+          full_name: string;
+          phone_e164: string | null;
+          marketing_opt_in: boolean;
+          customer_created_at: string;
+          last_activity_at: string;
+          last_reservation_at: string | null;
+          reservation_count: number | string;
+          active_reservation_count: number | string;
+          completed_reservation_count: number | string;
+          cancelled_reservation_count: number | string;
+          confirmed_value: number | string;
+          completed_value: number | string;
+          currency: string;
+        }>;
+      };
       get_admin_customer_history: {
         Args: { p_customer_id: string; p_limit?: number };
+        Returns: Array<{
+          reservation_id: string;
+          court_id: string;
+          court_name: string;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          hourly_rate: number | string;
+          total_amount: number | string;
+          source: ReservationSource;
+          created_at: string;
+          updated_at: string;
+          currency: string;
+        }>;
+      };
+      get_admin_customer_history_page: {
+        Args: {
+          p_customer_id: string;
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
         Returns: Array<{
           reservation_id: string;
           court_id: string;
@@ -300,6 +388,210 @@ export type Database = {
         Args: { p_reservation_id: string; p_user_id: string };
         Returns: boolean;
       };
+      claim_public_reservation: {
+        Args: { p_request_token: string };
+        Returns: string;
+      };
+      get_my_customer_profile: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          display_name: string | null;
+          phone_e164: string | null;
+        }>;
+      };
+      update_my_customer_profile: {
+        Args: { p_display_name: string; p_phone_e164: string | null };
+        Returns: Array<{
+          display_name: string | null;
+          phone_e164: string | null;
+        }>;
+      };
+      request_my_reservation_cancellation: {
+        Args: { p_reservation_id: string; p_reason?: string | null };
+        Returns: Array<{ request_id: string; request_status: string; created_at: string }>;
+      };
+      request_my_reservation_reschedule: {
+        Args: {
+          p_reservation_id: string;
+          p_court_id: string;
+          p_date: string;
+          p_start_time: string;
+          p_end_time: string;
+          p_reason?: string | null;
+        };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          requested_start_at: string;
+          requested_end_at: string;
+          estimated_total_amount: number | string;
+        }>;
+      };
+      get_my_reservation_change_requests: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          request_id: string;
+          reservation_id: string;
+          request_type: string;
+          request_status: string;
+          customer_reason: string | null;
+          resolution_note: string | null;
+          created_at: string;
+          resolved_at: string | null;
+          requested_court_id: string | null;
+          requested_start_at: string | null;
+          requested_end_at: string | null;
+          requested_total_amount: number | string | null;
+          requested_court_name: string | null;
+          initiator_kind: "customer" | "business";
+          proposal_note: string | null;
+          resolution_kind: string | null;
+          can_withdraw_request: boolean;
+        }>;
+      };
+      get_admin_reservation_change_requests: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          request_id: string;
+          reservation_id: string;
+          request_type: string;
+          request_status: string;
+          customer_reason: string | null;
+          resolution_note: string | null;
+          created_at: string;
+          resolved_at: string | null;
+          court_name: string;
+          customer_name: string | null;
+          customer_phone_e164: string | null;
+          start_at: string;
+          end_at: string;
+          current_total_amount: number | string;
+          currency: string;
+          requested_court_id: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          requested_end_at: string | null;
+          requested_total_amount: number | string | null;
+          initiator_kind: "customer" | "business";
+          proposal_note: string | null;
+          resolution_kind: string | null;
+        }>;
+      };
+      get_admin_pending_reservation_change_requests_page: {
+        Args: {
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
+        Returns: Array<{
+          request_id: string;
+          reservation_id: string;
+          request_type: string;
+          request_status: string;
+          customer_reason: string | null;
+          resolution_note: string | null;
+          created_at: string;
+          resolved_at: string | null;
+          court_name: string;
+          customer_name: string | null;
+          customer_phone_e164: string | null;
+          start_at: string;
+          end_at: string;
+          current_total_amount: number | string;
+          currency: string;
+          requested_court_id: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          requested_end_at: string | null;
+          requested_total_amount: number | string | null;
+          initiator_kind: "customer" | "business";
+          proposal_note: string | null;
+          resolution_kind: string | null;
+        }>;
+      };
+      get_admin_pending_change_reservation_ids: {
+        Args: { p_reservation_ids: string[] };
+        Returns: Array<{ reservation_id: string }>;
+      };
+      admin_resolve_reservation_change_request: {
+        Args: { p_request_id: string; p_approve: boolean; p_resolution_note?: string | null };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
+      get_admin_reschedule_courts: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          court_id: string;
+          court_name: string;
+          booking_increment_minutes: number;
+        }>;
+      };
+      admin_propose_reservation_reschedule: {
+        Args: {
+          p_reservation_id: string;
+          p_court_id: string;
+          p_date: string;
+          p_start_time: string;
+          p_end_time: string;
+          p_note?: string | null;
+        };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          requested_start_at: string;
+          requested_end_at: string;
+          estimated_total_amount: number | string;
+        }>;
+      };
+      respond_to_business_reschedule_proposal: {
+        Args: { p_request_id: string; p_accept: boolean };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
+      admin_withdraw_business_reschedule_proposal: {
+        Args: { p_request_id: string; p_note?: string | null };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
+      admin_expire_business_reschedule_proposal: {
+        Args: { p_request_id: string };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
+      admin_expire_customer_change_request: {
+        Args: { p_request_id: string };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
+      withdraw_my_reservation_change_request: {
+        Args: { p_request_id: string };
+        Returns: Array<{
+          request_id: string;
+          request_status: string;
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+        }>;
+      };
       get_my_reservations: {
         Args: Record<string, never>;
         Returns: Array<{
@@ -307,6 +599,8 @@ export type Database = {
           business_id: string;
           business_slug: string;
           business_name: string;
+          business_phone: string | null;
+          business_timezone: string;
           court_id: string;
           court_name: string;
           sport_slug: string;
@@ -319,6 +613,241 @@ export type Database = {
           total_amount: number | string;
           currency: string;
           created_at: string;
+          can_withdraw: boolean;
+          can_request_cancellation: boolean;
+          can_request_reschedule: boolean;
+          closure_kind: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
+          is_expired_pending: boolean;
+        }>;
+      };
+      get_my_reservations_page: {
+        Args: {
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
+        Returns: Array<{
+          reservation_id: string;
+          business_id: string;
+          business_slug: string;
+          business_name: string;
+          business_phone: string | null;
+          business_timezone: string;
+          court_id: string;
+          court_name: string;
+          sport_slug: string;
+          sport_name: string;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          total_amount: number | string;
+          currency: string;
+          created_at: string;
+          can_withdraw: boolean;
+          can_request_cancellation: boolean;
+          can_request_reschedule: boolean;
+          closure_kind: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
+          is_expired_pending: boolean;
+        }>;
+      };
+      get_my_latest_reservation_change_requests: {
+        Args: { p_reservation_ids: string[] };
+        Returns: Array<{
+          request_id: string;
+          reservation_id: string;
+          request_type: string;
+          request_status: string;
+          customer_reason: string | null;
+          resolution_note: string | null;
+          created_at: string;
+          resolved_at: string | null;
+          requested_court_id: string | null;
+          requested_start_at: string | null;
+          requested_end_at: string | null;
+          requested_total_amount: number | string | null;
+          requested_court_name: string | null;
+          initiator_kind: "customer" | "business";
+          proposal_note: string | null;
+          resolution_kind: string | null;
+          can_withdraw_request: boolean;
+        }>;
+      };
+      get_my_notifications: {
+        Args: { p_limit?: number };
+        Returns: Array<{
+          notification_id: string;
+          event_type: AppNotificationEvent;
+          reservation_id: string | null;
+          change_request_id: string | null;
+          business_name: string;
+          business_timezone: string;
+          court_name: string | null;
+          start_at: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          created_at: string;
+          read_at: string | null;
+        }>;
+      };
+      get_my_notifications_page: {
+        Args: {
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
+        Returns: Array<{
+          notification_id: string;
+          event_type: AppNotificationEvent;
+          reservation_id: string | null;
+          change_request_id: string | null;
+          business_name: string;
+          business_timezone: string;
+          court_name: string | null;
+          start_at: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          created_at: string;
+          read_at: string | null;
+        }>;
+      };
+      get_my_notification_unread_count: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      mark_my_notification_read: {
+        Args: { p_notification_id: string };
+        Returns: string;
+      };
+      mark_all_my_notifications_read: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      get_admin_notifications: {
+        Args: { p_limit?: number };
+        Returns: Array<{
+          notification_id: string;
+          event_type: AppNotificationEvent;
+          reservation_id: string | null;
+          change_request_id: string | null;
+          court_name: string | null;
+          start_at: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          created_at: string;
+          read_at: string | null;
+        }>;
+      };
+      get_admin_notifications_page: {
+        Args: {
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
+        Returns: Array<{
+          notification_id: string;
+          event_type: AppNotificationEvent;
+          reservation_id: string | null;
+          change_request_id: string | null;
+          court_name: string | null;
+          start_at: string | null;
+          requested_court_name: string | null;
+          requested_start_at: string | null;
+          created_at: string;
+          read_at: string | null;
+        }>;
+      };
+      get_admin_notification_unread_count: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      mark_admin_notification_read: {
+        Args: { p_notification_id: string };
+        Returns: string;
+      };
+      mark_all_admin_notifications_read: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      get_admin_reservation_audit: {
+        Args: { p_reservation_id: string; p_limit?: number };
+        Returns: Array<{
+          event_id: string;
+          event_type: string;
+          actor_kind: "customer" | "owner" | "admin" | "staff" | "platform_admin" | "system";
+          actor_label: string;
+          old_status: ReservationStatus | null;
+          new_status: ReservationStatus | null;
+          old_court_name: string | null;
+          new_court_name: string | null;
+          old_start_at: string | null;
+          new_start_at: string | null;
+          old_end_at: string | null;
+          new_end_at: string | null;
+          old_lighting: LightingMode | null;
+          new_lighting: LightingMode | null;
+          old_net_height_cm: number | null;
+          new_net_height_cm: number | null;
+          old_hourly_rate: number | string | null;
+          new_hourly_rate: number | string | null;
+          old_total_amount: number | string | null;
+          new_total_amount: number | string | null;
+          request_type: "cancellation" | "reschedule" | null;
+          old_request_status: "pending" | "approved" | "rejected" | null;
+          new_request_status: "pending" | "approved" | "rejected" | null;
+          change_request_id: string | null;
+          resolution_note: string | null;
+          operation_id: string;
+          currency: string;
+          created_at: string;
+        }>;
+      };
+      get_admin_reservation_audit_page: {
+        Args: {
+          p_reservation_id: string;
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_event_sequence?: number | null;
+        };
+        Returns: Array<{
+          event_id: string;
+          event_sequence: number;
+          event_type: string;
+          actor_kind: "customer" | "owner" | "admin" | "staff" | "platform_admin" | "system";
+          actor_label: string;
+          old_status: ReservationStatus | null;
+          new_status: ReservationStatus | null;
+          old_court_name: string | null;
+          new_court_name: string | null;
+          old_start_at: string | null;
+          new_start_at: string | null;
+          old_end_at: string | null;
+          new_end_at: string | null;
+          old_lighting: LightingMode | null;
+          new_lighting: LightingMode | null;
+          old_net_height_cm: number | null;
+          new_net_height_cm: number | null;
+          old_hourly_rate: number | string | null;
+          new_hourly_rate: number | string | null;
+          old_total_amount: number | string | null;
+          new_total_amount: number | string | null;
+          request_type: "cancellation" | "reschedule" | null;
+          old_request_status: "pending" | "approved" | "rejected" | null;
+          new_request_status: "pending" | "approved" | "rejected" | null;
+          change_request_id: string | null;
+          resolution_note: string | null;
+          operation_id: string;
+          currency: string;
+          created_at: string;
+        }>;
+      };
+      withdraw_my_pending_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          updated_at: string;
         }>;
       };
       get_my_favorite_business_ids: {
@@ -524,6 +1053,14 @@ export type Database = {
           owner_user_id: string;
         }>;
       };
+      platform_admin_recover_primary_owner: {
+        Args: { p_business_id: string; p_owner_email: string };
+        Returns: Array<{
+          business_id: string;
+          previous_owner_user_id: string | null;
+          owner_user_id: string;
+        }>;
+      };
       get_admin_business_structure: {
         Args: Record<string, never>;
         Returns: Array<{
@@ -616,6 +1153,23 @@ export type Database = {
           owner_user_id: string;
         }>;
       };
+      admin_access_link_existing_profile: {
+        Args: {
+          p_actor_user_id: string;
+          p_existing_email: string;
+          p_role: AppRole;
+          p_display_name?: string | null;
+        };
+        Returns: Array<{
+          user_id: string;
+          business_id: string;
+          role: AppRole;
+          display_name: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        }>;
+      };
       get_current_admin_context: {
         Args: Record<string, never>;
         Returns: Array<{
@@ -629,6 +1183,35 @@ export type Database = {
       };
       get_admin_reservation_requests: {
         Args: { p_limit?: number; p_include_archived?: boolean };
+        Returns: Array<{
+          reservation_id: string;
+          business_id: string;
+          court_id: string;
+          court_name: string;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone_e164: string | null;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          hourly_rate: number | string;
+          total_amount: number | string;
+          currency: string;
+          source: ReservationSource;
+          created_at: string;
+          archived_at: string | null;
+        }>;
+      };
+      get_admin_reservations_page: {
+        Args: {
+          p_view?: "active" | "completed" | "cancelled" | "archived";
+          p_limit?: number;
+          p_cursor_start_at?: string | null;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+        };
         Returns: Array<{
           reservation_id: string;
           business_id: string;
@@ -673,6 +1256,24 @@ export type Database = {
           updated_at: string;
         }>;
       };
+      admin_reject_pending_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          closure_kind: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
+          updated_at: string;
+        }>;
+      };
+      admin_expire_pending_reservation: {
+        Args: { p_reservation_id: string };
+        Returns: Array<{
+          reservation_id: string;
+          reservation_status: ReservationStatus;
+          closure_kind: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
+          updated_at: string;
+        }>;
+      };
       admin_complete_reservation: {
         Args: { p_reservation_id: string };
         Returns: Array<{
@@ -686,6 +1287,7 @@ export type Database = {
         Returns: Array<{
           reservation_id: string;
           reservation_status: ReservationStatus;
+          closure_kind: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
           updated_at: string;
         }>;
       };
@@ -802,6 +1404,39 @@ export type Database = {
           source: ReservationSource;
           created_at: string;
           updated_at: string;
+        }>;
+      };
+      get_admin_export_reservations_page: {
+        Args: {
+          p_from: string;
+          p_to: string;
+          p_limit?: number;
+          p_cursor_created_at?: string | null;
+          p_cursor_id?: string | null;
+          p_snapshot_created_at?: string | null;
+          p_snapshot_id?: string | null;
+        };
+        Returns: Array<{
+          reservation_id: string;
+          customer_id: string | null;
+          customer_name: string | null;
+          customer_phone_e164: string | null;
+          marketing_opt_in: boolean;
+          court_id: string;
+          court_name: string;
+          start_at: string;
+          end_at: string;
+          status: ReservationStatus;
+          lighting: LightingMode;
+          net_height_cm: number | null;
+          hourly_rate: number | string;
+          total_amount: number | string;
+          currency: string;
+          source: ReservationSource;
+          created_at: string;
+          updated_at: string;
+          export_snapshot_created_at: string | null;
+          export_snapshot_id: string | null;
         }>;
       };
     };

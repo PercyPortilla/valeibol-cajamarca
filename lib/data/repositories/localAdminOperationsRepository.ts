@@ -114,8 +114,46 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
     const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
     if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
     if (reservation.status !== "pending" && reservation.status !== "confirmed") throw new AdminOperationsRepositoryError("validation", "Esa reserva ya no puede confirmarse.");
+    if (reservation.status === "pending" && new Date(reservation.startAt).getTime() <= Date.now()) {
+      throw new AdminOperationsRepositoryError("conflict", "El horario ya comenzó y esta solicitud ya no puede confirmarse.");
+    }
     reservation.status = "confirmed";
+    reservation.closureKind = null;
     return { reservationId, status: reservation.status };
+  }
+
+  async rejectPendingReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
+    if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status === "cancelled" && reservation.closureKind === "business_rejection") {
+      return { reservationId, status: reservation.status, closureKind: reservation.closureKind };
+    }
+    if (reservation.status !== "pending" || reservation.source !== "public_web") {
+      throw new AdminOperationsRepositoryError("conflict", "La solicitud pendiente ya fue resuelta o no puede rechazarse.");
+    }
+    if (new Date(reservation.startAt).getTime() <= Date.now()) {
+      throw new AdminOperationsRepositoryError("conflict", "La solicitud ya venció. Usa Expirar.");
+    }
+    reservation.status = "cancelled";
+    reservation.closureKind = "business_rejection";
+    return { reservationId, status: reservation.status, closureKind: reservation.closureKind };
+  }
+
+  async expirePendingReservation(reservationId: string): Promise<AdminMutationReservationResult> {
+    const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
+    if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status === "cancelled" && reservation.closureKind === "request_expiration") {
+      return { reservationId, status: reservation.status, closureKind: reservation.closureKind };
+    }
+    if (reservation.status !== "pending" || reservation.source !== "public_web") {
+      throw new AdminOperationsRepositoryError("conflict", "La solicitud pendiente ya fue resuelta o no puede expirar.");
+    }
+    if (new Date(reservation.startAt).getTime() > Date.now()) {
+      throw new AdminOperationsRepositoryError("conflict", "La solicitud todavía está vigente y no puede expirar.");
+    }
+    reservation.status = "cancelled";
+    reservation.closureKind = "request_expiration";
+    return { reservationId, status: reservation.status, closureKind: reservation.closureKind };
   }
 
   async completeReservation(reservationId: string): Promise<AdminMutationReservationResult> {
@@ -131,9 +169,18 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
   async cancelReservation(reservationId: string): Promise<AdminMutationReservationResult> {
     const reservation = getLocalAdminState().reservations.find((item) => item.id === reservationId);
     if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
+    if (reservation.status === "pending") throw new AdminOperationsRepositoryError("conflict", "Una solicitud pendiente debe rechazarse, no cancelarse.");
     if (reservation.status === "completed") throw new AdminOperationsRepositoryError("validation", "Una reserva completada no puede cancelarse.");
+    if (reservation.status === "cancelled") {
+      if (reservation.closureKind === "confirmed_cancellation") {
+        return { reservationId, status: reservation.status, closureKind: reservation.closureKind };
+      }
+      throw new AdminOperationsRepositoryError("conflict", "La reserva ya fue cerrada por otro flujo.");
+    }
+    const closureKind = "confirmed_cancellation" as const;
     reservation.status = "cancelled";
-    return { reservationId, status: reservation.status };
+    reservation.closureKind = closureKind;
+    return { reservationId, status: reservation.status, closureKind };
   }
 
   async archiveCancelledReservation(reservationId: string): Promise<AdminMutationReservationResult> {
@@ -194,6 +241,12 @@ export class LocalAdminOperationsRepository implements AdminOperationsRepository
     const reservation = state.reservations.find((item) => item.id === input.reservationId);
     if (!reservation) throw new AdminOperationsRepositoryError("not_found", "La reserva local no existe.");
     if (reservation.status !== "pending" && reservation.status !== "confirmed") throw new AdminOperationsRepositoryError("validation", "La reserva ya no es editable.");
+    if (reservation.status === "pending" && new Date(reservation.startAt).getTime() <= Date.now()) {
+      throw new AdminOperationsRepositoryError("conflict", "La solicitud ya venció. Usa Expirar.");
+    }
+    if (reservation.status === "pending" && reservation.source === "public_web") {
+      throw new AdminOperationsRepositoryError("conflict", "Las solicitudes creadas por clientes desde la web no pueden editarse. Confirma, rechaza o expira la solicitud.");
+    }
     const { startAt, endAt } = validateWindow(input.date, input.startTime, input.endTime);
     if (!isNetHeightCm(input.netHeightCm)) throw new AdminOperationsRepositoryError("validation", "La altura de red debe estar entre 180 y 250 cm.");
     let lighting: "without_lights" | "with_lights";

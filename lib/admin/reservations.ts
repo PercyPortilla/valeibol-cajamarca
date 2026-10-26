@@ -14,6 +14,7 @@ export type AdminReservation = {
   startAt: string;
   endAt: string;
   status: AdminReservationStatus;
+  closureKind?: "customer_withdrawal" | "business_rejection" | "confirmed_cancellation" | "request_expiration" | null;
   lighting: AdminLightingMode;
   netHeightCm: number | null;
   hourlyRate: number;

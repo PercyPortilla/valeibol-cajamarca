@@ -44,14 +44,15 @@ test("Bloque 10 mantiene raíz global y Valeibol como tenant completo", () => {
 });
 
 test("marca global vuelve al inicio y Valeibol se nombra como tenant", () => {
-  assert.match(platformHeader, /className="platform-brand" href="\/" aria-label="Ir al inicio del marketplace deportivo"/);
-  assert.match(platformHeader, />Valeibol Cajamarca<\/Link>/);
+  assert.match(platformHeader, /platformConfig\.name/);
+  assert.match(platformHeader, /Cajamarca/);
   assert.doesNotMatch(platformHeader, /Valeibol actual/);
   assert.match(css, /\.platform-brand \{[^}]*min-height:\s*44px/i);
 });
 
 test("metadata y sitemap representan marketplace multi-tenant", () => {
-  assert.match(layout, /Canchas \| Reservas deportivas/);
+  assert.match(layout, /platformConfig\.name/);
+  assert.match(layout, /Canchas deportivas en Cajamarca/);
   assert.match(complexPage, /getPublicPlatformCatalog\(\{ businessSlug: slug \}\)/);
   assert.match(complexPage, /business\.name/);
   assert.match(sitemap, /getPublicPlatformCatalog\(\)/);
@@ -72,7 +73,7 @@ test("admin móvil conserva marca, skip link y targets operativos de 44px", () =
   assert.match(adminShell, /href="#admin-main">Saltar al contenido principal/);
   assert.match(adminShell, /className="admin-content" id="admin-main" tabIndex=\{-1\}/);
   assert.doesNotMatch(adminResponsiveCss, /\.brand--admin span:last-child \{ display: none; \}/);
-  assert.match(adminResponsiveCss, /\.brand--admin > \.brand-logo \{ display: inline-flex; \}/);
+  assert.match(adminShell, /PlatformAdminBrand/);
   assert.match(adminResponsiveCss, /\.brand--admin \{[^}]*min-height:\s*44px/i);
   assert.match(css, /\.admin-shell \.admin-slot__quick-actions button,[\s\S]*?\.admin-shell \.admin-mini-action \{[\s\S]*?min-height:\s*44px/i);
   assert.match(css, /\.admin-reservation-filter \{[\s\S]*?min-height:\s*44px/i);
