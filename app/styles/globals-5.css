@@ -1539,6 +1539,7 @@
 .platform-sport-card {
   position: relative;
   overflow: hidden;
+  width: 100%;
   min-height: 114px;
   padding: 19px;
   border-color: #dce5ed;
@@ -1546,6 +1547,10 @@
   background: linear-gradient(145deg,#fff,#f7fafc);
   box-shadow: 0 7px 20px rgba(23,63,98,.045);
   text-decoration: none;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 .platform-sport-card::after { content: ""; position: absolute; width: 90px; height: 90px; right: -42px; bottom: -45px; border: 18px solid rgba(18,104,179,.045); border-radius: 50%; }
@@ -2301,6 +2306,9 @@
 .platform-home .platform-sport-card { border-color: var(--caxas-metal-border); background: var(--caxas-metal-surface); box-shadow: var(--caxas-metal-shadow); }
 .platform-home .platform-sport-card::after { border-color: rgba(230,233,236,.035); }
 .platform-home .platform-sport-card:hover { border-color: var(--caxas-metal-border-strong); background: var(--caxas-metal-hover); box-shadow: 0 22px 46px rgba(0,0,0,.32); }
+.platform-home .platform-sport-card:focus-visible { outline: 2px solid #f5f6f7; outline-offset: 3px; }
+.platform-home .platform-sport-card.is-active { border-color: var(--caxas-silver); background: linear-gradient(145deg,#242a30,#15191d); box-shadow: 0 0 0 1px rgba(230,233,236,.14),0 22px 46px rgba(0,0,0,.34); }
+.platform-home .platform-sport-card.is-active b { transform: translateX(2px); }
 .platform-home .platform-sport-card > span { border: 1px solid rgba(230,233,236,.12); background: #242a30; color: #cbd0d5; }
 .platform-home .platform-sport-card--futbol > span { color: #79c267; }
 .platform-home .platform-sport-card--voley > span { color: #62b8e8; }
@@ -2330,6 +2338,169 @@
   color: var(--caxas-silver-light);
   box-shadow: 0 10px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
   backdrop-filter: blur(10px);
+}
+
+/* B79 · complejo panorámico multicancha + cámara por deporte */
+.platform-sport-diorama {
+  --camera-x: 0%;
+  --camera-y: 0%;
+  --camera-scale: 1;
+  --camera-tilt: -4deg;
+  min-height: 500px;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 52% 58%,var(--home-sport-accent-soft),transparent 27rem),
+    linear-gradient(180deg,#0f171e 0%,#080d11 42%,#050708 100%);
+  perspective: 1250px;
+}
+.platform-sport-diorama[data-camera-focus="football"] { --camera-x: 14%; --camera-y: 12%; --camera-scale: 1.34; --camera-tilt: -5deg; }
+.platform-sport-diorama[data-camera-focus="volleyball"] { --camera-x: -20%; --camera-y: 17%; --camera-scale: 1.52; --camera-tilt: -3deg; }
+.platform-sport-diorama[data-camera-focus="basketball"] { --camera-x: 17%; --camera-y: -20%; --camera-scale: 1.56; --camera-tilt: -6deg; }
+.platform-sport-diorama[data-camera-focus="futsal"] { --camera-x: -16%; --camera-y: -19%; --camera-scale: 1.5; --camera-tilt: -4deg; }
+.platform-sport-diorama[data-camera-focus="tennis"] { --camera-x: -20%; --camera-y: 17%; --camera-scale: 1.52; --camera-tilt: -3deg; }
+.platform-sport-diorama__skyline { position: absolute; inset: 0 0 41%; overflow: hidden; pointer-events: none; }
+.platform-sport-diorama__mountain { position: absolute; left: -8%; right: -8%; bottom: -35%; height: 115%; background: linear-gradient(180deg,#151d24,#070a0d 72%); clip-path: polygon(0 80%,8% 58%,17% 66%,26% 37%,35% 59%,46% 28%,56% 55%,68% 22%,78% 48%,88% 31%,100% 67%,100% 100%,0 100%); opacity: .96; }
+.platform-sport-diorama__mountain--b { bottom: -49%; transform: scaleX(1.12); background: linear-gradient(180deg,#10171c,#050709 78%); opacity: .82; filter: blur(.2px); }
+.platform-sport-diorama__city-glow { position: absolute; left: 5%; right: 5%; bottom: -4%; height: 42%; background: radial-gradient(ellipse at center,rgba(239,171,74,.13),transparent 66%); }
+.platform-sport-diorama__city-lights { position: absolute; inset: 48% 5% 4%; opacity: .68; }
+.platform-sport-diorama__city-lights i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #e4b76c; box-shadow: 0 0 8px rgba(255,196,104,.72); }
+.platform-sport-diorama__city-lights i:nth-child(1){left:4%;top:54%}.platform-sport-diorama__city-lights i:nth-child(2){left:12%;top:32%}.platform-sport-diorama__city-lights i:nth-child(3){left:21%;top:63%}.platform-sport-diorama__city-lights i:nth-child(4){left:31%;top:24%}.platform-sport-diorama__city-lights i:nth-child(5){left:39%;top:70%}.platform-sport-diorama__city-lights i:nth-child(6){left:47%;top:43%}.platform-sport-diorama__city-lights i:nth-child(7){left:57%;top:22%}.platform-sport-diorama__city-lights i:nth-child(8){left:65%;top:61%}.platform-sport-diorama__city-lights i:nth-child(9){left:73%;top:34%}.platform-sport-diorama__city-lights i:nth-child(10){left:81%;top:69%}.platform-sport-diorama__city-lights i:nth-child(11){left:89%;top:28%}.platform-sport-diorama__city-lights i:nth-child(12){left:95%;top:52%}
+.platform-sport-diorama__scene { position: absolute; inset: 52px 8px 46px; transform-style: preserve-3d; }
+.platform-sport-diorama__camera { position: absolute; inset: 0; transform: translate3d(var(--camera-x),var(--camera-y),0) scale(var(--camera-scale)); transform-origin: 50% 55%; transition: transform .72s cubic-bezier(.2,.78,.2,1); will-change: transform; }
+.platform-sport-diorama__world { position: absolute; left: 50%; top: 53%; width: 760px; height: 430px; transform: translate(-50%,-50%) rotateX(57deg) rotateZ(var(--camera-tilt)); transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.78,.2,1),filter .45s ease; }
+.platform-sport-diorama__ground { position: absolute; inset: 0; border: 1px solid rgba(230,233,236,.13); border-radius: 34px; background: linear-gradient(145deg,#171d21,#0a0e11 70%); box-shadow: 0 38px 65px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.08); }
+.platform-sport-diorama__road { position: absolute; z-index: 1; border: 1px solid rgba(230,233,236,.06); background: linear-gradient(180deg,#1d2227,#111519); box-shadow: inset 0 0 18px rgba(0,0,0,.35); }
+.platform-sport-diorama__road--a { left: 45%; top: 3%; bottom: 3%; width: 7%; }
+.platform-sport-diorama__road--b { left: 3%; right: 3%; top: 57%; height: 7%; }
+.platform-sport-diorama__court-zone { position: absolute; z-index: 3; transition: opacity .42s ease,filter .42s ease,transform .55s cubic-bezier(.2,.78,.2,1),box-shadow .42s ease; transform: translateZ(2px); }
+.platform-sport-diorama__fence { position: absolute; z-index: 1; inset: -5px; border: 1px solid rgba(190,199,206,.28); border-radius: 11px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.025),0 4px 9px rgba(0,0,0,.18); pointer-events: none; }
+.platform-sport-diorama__court-zone--football { left: 5%; top: 7%; width: 46%; height: 49%; }
+.platform-sport-diorama__court-zone--volleyball { right: 5%; top: 8%; width: 37%; height: 38%; }
+.platform-sport-diorama__court-zone--basketball { left: 6%; bottom: 6%; width: 36%; height: 29%; }
+.platform-sport-diorama__court-zone--futsal { right: 5%; bottom: 6%; width: 43%; height: 36%; }
+.platform-sport-diorama__court { position: absolute; inset: 0; overflow: hidden; border: 2px solid rgba(247,249,250,.9); border-radius: 9px; box-shadow: inset 0 0 26px rgba(0,0,0,.22),0 10px 24px rgba(0,0,0,.34); transition: filter .42s ease,box-shadow .42s ease; }
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__court { opacity: 1; visibility: visible; transform: none; }
+.platform-sport-diorama__court::after { content: ""; position: absolute; inset: 5px; border: 1px solid rgba(255,255,255,.3); border-radius: 5px; pointer-events: none; }
+.platform-sport-diorama__court--football { background: repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 12.5%,transparent 12.5% 25%),linear-gradient(145deg,#32783e,#175128); }
+.platform-sport-diorama__court--volleyball { background: linear-gradient(90deg,rgba(255,255,255,.04) 50%,transparent 50%),linear-gradient(145deg,#2f82b8,#174f77); }
+.platform-sport-diorama__court--basketball { background: linear-gradient(145deg,#c45f38,#85391f); }
+.platform-sport-diorama__court--futsal { background: linear-gradient(145deg,#247e91,#12505d); }
+.platform-sport-diorama__center-line { position: absolute; z-index: 2; left: 50%; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,.75); transform: translateX(-50%); }
+.platform-sport-diorama__center-circle { position: absolute; z-index: 2; left: 50%; top: 50%; width: 24%; aspect-ratio: 1; border: 2px solid rgba(255,255,255,.78); border-radius: 50%; transform: translate(-50%,-50%); }
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__center-circle { opacity: 1; visibility: visible; transform: translate(-50%,-50%); }
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__center-line { width: 2px; background: rgba(255,255,255,.75); }
+.platform-sport-diorama__penalty { position: absolute; z-index: 2; top: 28%; bottom: 28%; width: 17%; border: 2px solid rgba(255,255,255,.76); }
+.platform-sport-diorama__penalty--a { left: -2px; border-left: 0; }.platform-sport-diorama__penalty--b { right: -2px; border-right: 0; }
+.platform-sport-diorama__goal { position: absolute; z-index: 5; top: 36%; width: 9%; height: 28%; border: 2px solid rgba(255,255,255,.92); background: repeating-linear-gradient(90deg,transparent 0 6px,rgba(255,255,255,.25) 6px 7px); box-shadow: 0 4px 8px rgba(0,0,0,.35); }
+.platform-sport-diorama__goal--a { left: 2%; }.platform-sport-diorama__goal--b { right: 2%; }
+.platform-sport-diorama__net { position: absolute; z-index: 5; left: 49.5%; top: 6%; bottom: 6%; width: 1%; border-inline: 1px solid rgba(255,255,255,.9); background: repeating-linear-gradient(0deg,rgba(255,255,255,.62) 0 1px,transparent 1px 6px); box-shadow: 0 4px 8px rgba(0,0,0,.28); }
+.platform-sport-diorama__net i { position: absolute; left: -5px; right: -5px; top: -2px; height: 2px; background: #fff; }
+.platform-sport-diorama__key { position: absolute; z-index: 2; top: 22%; bottom: 22%; width: 19%; border: 2px solid rgba(255,255,255,.8); }
+.platform-sport-diorama__key--a { left: -2px; border-left: 0; }.platform-sport-diorama__key--b { right: -2px; border-right: 0; }
+.platform-sport-diorama__hoop { position: absolute; z-index: 5; top: 43%; width: 18px; height: 18px; border: 2px solid #ffd2a2; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,.32); }
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__goal,
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__net,
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__hoop,
+.platform-home .platform-sport-diorama[data-camera-focus] .platform-sport-diorama__key { opacity: 1; visibility: visible; }
+.platform-sport-diorama__hoop--a { left: 4%; }.platform-sport-diorama__hoop--b { right: 4%; }
+.platform-sport-diorama__court-label { position: absolute; z-index: 6; left: 8px; bottom: 7px; padding: 4px 7px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(4,7,9,.68); color: rgba(255,255,255,.86); font-size: 7px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; opacity: .76; transition: opacity .35s ease,transform .35s ease; }
+.platform-sport-diorama__building { position: absolute; z-index: 4; border: 1px solid rgba(230,233,236,.2); border-radius: 8px; background: linear-gradient(180deg,#444c53,#171c20 36%,#090c0e); box-shadow: 0 12px 18px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.22); transform: translateZ(12px); }
+.platform-sport-diorama__building--north { left: 20%; top: 1%; width: 38%; height: 7%; }.platform-sport-diorama__building--east { right: 1.5%; top: 25%; width: 5%; height: 34%; }
+.platform-sport-diorama__building span { position: absolute; left: 8px; bottom: 4px; color: #aab1b7; font-size: 5px; font-weight: 950; letter-spacing: .16em; }
+.platform-sport-diorama__building i { position: relative; display: inline-block; width: 7px; height: 11px; margin: 4px 1px 0 4px; border: 1px solid rgba(255,255,255,.09); background: rgba(255,220,137,.1); }
+.platform-sport-diorama__stand { position: absolute; z-index: 4; display: flex; gap: 3px; padding: 4px; border-radius: 4px; background: linear-gradient(180deg,#555e65,#1a1f23); box-shadow: 0 8px 12px rgba(0,0,0,.3); transform: translateZ(9px); }
+.platform-sport-diorama__stand--west { left: 1.4%; top: 13%; width: 3%; height: 38%; flex-direction: column; }.platform-sport-diorama__stand--south { left: 49%; right: 8%; bottom: 1.5%; height: 3%; }
+.platform-sport-diorama__stand i { flex: 1; min-width: 3px; min-height: 3px; border-radius: 1px; background: #9aa2a9; opacity: .48; }
+.platform-sport-diorama:not([data-camera-focus="multi"]) .platform-sport-diorama__court-zone { opacity: .36; filter: saturate(.65) brightness(.72); }
+.platform-sport-diorama[data-camera-focus="football"] .platform-sport-diorama__court-zone--football,
+.platform-sport-diorama[data-camera-focus="volleyball"] .platform-sport-diorama__court-zone--volleyball,
+.platform-sport-diorama[data-camera-focus="basketball"] .platform-sport-diorama__court-zone--basketball,
+.platform-sport-diorama[data-camera-focus="futsal"] .platform-sport-diorama__court-zone--futsal { opacity: 1; filter: saturate(1.16) brightness(1.08); transform: translateZ(7px); }
+.platform-sport-diorama[data-camera-focus="football"] .platform-sport-diorama__court-zone--football .platform-sport-diorama__court,
+.platform-sport-diorama[data-camera-focus="volleyball"] .platform-sport-diorama__court-zone--volleyball .platform-sport-diorama__court,
+.platform-sport-diorama[data-camera-focus="basketball"] .platform-sport-diorama__court-zone--basketball .platform-sport-diorama__court,
+.platform-sport-diorama[data-camera-focus="futsal"] .platform-sport-diorama__court-zone--futsal .platform-sport-diorama__court { box-shadow: inset 0 0 28px rgba(0,0,0,.18),0 0 0 2px var(--home-sport-accent),0 0 28px var(--home-sport-accent-soft),0 14px 30px rgba(0,0,0,.4); }
+.platform-sport-diorama[data-camera-focus="football"] .platform-sport-diorama__court-zone--football .platform-sport-diorama__court-label,
+.platform-sport-diorama[data-camera-focus="volleyball"] .platform-sport-diorama__court-zone--volleyball .platform-sport-diorama__court-label,
+.platform-sport-diorama[data-camera-focus="basketball"] .platform-sport-diorama__court-zone--basketball .platform-sport-diorama__court-label,
+.platform-sport-diorama[data-camera-focus="futsal"] .platform-sport-diorama__court-zone--futsal .platform-sport-diorama__court-label { opacity: 1; transform: translateY(-2px); }
+.platform-sport-diorama__lights { z-index: 8; inset: 13% 4% 13%; }
+.platform-sport-diorama__lights > span { height: 66px; }
+.platform-sport-diorama__lights > span:nth-child(1){left:7%;top:18%}.platform-sport-diorama__lights > span:nth-child(2){left:42%;top:9%}.platform-sport-diorama__lights > span:nth-child(3){right:39%;top:16%}.platform-sport-diorama__lights > span:nth-child(4){right:7%;top:23%}.platform-sport-diorama__lights > span:nth-child(5){left:9%;bottom:16%}.platform-sport-diorama__lights > span:nth-child(6){left:42%;bottom:9%}.platform-sport-diorama__lights > span:nth-child(7){right:40%;bottom:12%}.platform-sport-diorama__lights > span:nth-child(8){right:8%;bottom:16%}
+.platform-sport-diorama.is-night .platform-sport-diorama__world { filter: brightness(.9) contrast(1.06); }
+.platform-sport-diorama.is-night .platform-sport-diorama__court { box-shadow: inset 0 0 30px rgba(0,0,0,.18),0 0 22px rgba(255,231,165,.08),0 12px 26px rgba(0,0,0,.38); }
+
+/* B80 · iluminación automática por hora real de Cajamarca */
+.platform-sport-diorama__city-lights { transition: opacity .7s ease,filter .7s ease; }
+.platform-sport-diorama.is-day .platform-sport-diorama__city-lights { opacity: .16; filter: saturate(.55); }
+.platform-sport-diorama.is-night .platform-sport-diorama__city-lights { opacity: .96; filter: saturate(1.15); }
+.platform-sport-diorama.is-night .platform-sport-diorama__building i { animation: caxas-window-warmup .65s ease-out .22s both; }
+.platform-sport-diorama__lights > span:nth-child(1) { --floodlight-delay: 0s; }
+.platform-sport-diorama__lights > span:nth-child(2) { --floodlight-delay: .08s; }
+.platform-sport-diorama__lights > span:nth-child(3) { --floodlight-delay: .16s; }
+.platform-sport-diorama__lights > span:nth-child(4) { --floodlight-delay: .24s; }
+.platform-sport-diorama__lights > span:nth-child(5) { --floodlight-delay: .32s; }
+.platform-sport-diorama__lights > span:nth-child(6) { --floodlight-delay: .40s; }
+.platform-sport-diorama__lights > span:nth-child(7) { --floodlight-delay: .48s; }
+.platform-sport-diorama__lights > span:nth-child(8) { --floodlight-delay: .56s; }
+.platform-sport-diorama.is-night .platform-sport-diorama__lights > span::before {
+  animation: caxas-floodlight-beam-on .72s cubic-bezier(.2,.75,.25,1) var(--floodlight-delay) both;
+}
+.platform-sport-diorama.is-night .platform-sport-diorama__lights > span::after {
+  animation: caxas-floodlight-housing-on .5s ease-out var(--floodlight-delay) both;
+}
+.platform-sport-diorama.is-night .platform-sport-diorama__lights > span i {
+  animation: caxas-floodlight-lamp-on .62s ease-out var(--floodlight-delay) both;
+}
+@keyframes caxas-floodlight-beam-on {
+  0% { opacity: 0; transform: translateY(2px) scale(.82); }
+  42% { opacity: .35; transform: translateY(2px) scale(.94); }
+  72% { opacity: 1; transform: translateY(2px) scale(1.04); }
+  100% { opacity: 1; transform: translateY(2px) scale(1); }
+}
+@keyframes caxas-floodlight-lamp-on {
+  0% { background: #8e959b; box-shadow: none; transform: scale(1); }
+  28% { background: #fff; box-shadow: 0 0 11px #fff,0 0 30px rgba(255,235,172,.96); transform: scale(1.36); }
+  55% { background: #e9d79b; box-shadow: 0 0 5px #fff,0 0 12px rgba(255,235,172,.58); transform: scale(1.08); }
+  100% { background: #fff0b5; box-shadow: 0 0 7px #fff,0 0 18px rgba(255,235,172,.92),0 0 38px rgba(255,219,118,.48); transform: scale(1.2); }
+}
+@keyframes caxas-floodlight-housing-on {
+  0% { border-color: rgba(230,233,236,.28); background: #454c52; box-shadow: none; }
+  100% { border-color: rgba(255,238,184,.62); background: #6d6651; box-shadow: 0 0 12px rgba(255,232,160,.34); }
+}
+@keyframes caxas-window-warmup {
+  0% { background: rgba(255,226,137,.08); box-shadow: none; }
+  60% { background: rgba(255,236,178,.92); box-shadow: 0 0 16px rgba(255,226,137,.65); }
+  100% { background: rgba(255,226,137,.72); box-shadow: 0 0 10px rgba(255,226,137,.5),0 0 22px rgba(255,226,137,.18); }
+}
+
+@media (max-width: 900px) {
+  .platform-sport-diorama { min-height: 440px; }
+  .platform-sport-diorama__world { width: 720px; height: 410px; }
+  .platform-sport-diorama[data-camera-focus="football"] { --camera-scale: 1.27; }
+  .platform-sport-diorama[data-camera-focus="volleyball"],.platform-sport-diorama[data-camera-focus="basketball"],.platform-sport-diorama[data-camera-focus="futsal"] { --camera-scale: 1.4; }
+}
+@media (max-width: 680px) {
+  .platform-sport-diorama { min-height: 360px; border-radius: 22px; }
+  .platform-sport-diorama__scene { inset: 46px -70px 42px; }
+  .platform-sport-diorama__world { width: 610px; height: 350px; }
+  .platform-sport-diorama[data-camera-focus="football"] { --camera-x: 13%; --camera-y: 10%; --camera-scale: 1.18; }
+  .platform-sport-diorama[data-camera-focus="volleyball"] { --camera-x: -18%; --camera-y: 14%; --camera-scale: 1.3; }
+  .platform-sport-diorama[data-camera-focus="basketball"] { --camera-x: 15%; --camera-y: -17%; --camera-scale: 1.32; }
+  .platform-sport-diorama[data-camera-focus="futsal"] { --camera-x: -15%; --camera-y: -16%; --camera-scale: 1.3; }
+  .platform-sport-diorama__caption small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-sport-diorama__camera,
+  .platform-sport-diorama__world,
+  .platform-sport-diorama__court-zone,
+  .platform-sport-diorama__fence,
+  .platform-sport-diorama__court,
+  .platform-sport-diorama__court-label { transition-duration: .01ms !important; }
+  .platform-sport-diorama.is-night .platform-sport-diorama__lights > span::before,
+  .platform-sport-diorama.is-night .platform-sport-diorama__lights > span::after,
+  .platform-sport-diorama.is-night .platform-sport-diorama__lights > span i,
+  .platform-sport-diorama.is-night .platform-sport-diorama__building i { animation: none !important; }
 }
 .platform-home .platform-business-card > .platform-favorite-button--icon:hover:not(:disabled) { border-color: var(--caxas-metal-border-strong); background: #20262c; }
 .platform-home .platform-business-card > .platform-favorite-button--icon.is-favorite { border-color: rgba(230,233,236,.34); background: #2b3137; color: #fff; }
@@ -2581,4 +2752,168 @@
 @media (max-width: 680px) {
   .admin-audit-event__head { flex-direction: column; }
   .admin-audit-compare { grid-template-columns: 1fr; }
+}
+
+/* B79 · cierre de cascada responsive para que estilos legacy no reescriban la cámara */
+@media (max-width: 900px) {
+  .platform-home .platform-sport-diorama { min-height: 440px; }
+}
+@media (max-width: 680px) {
+  .platform-home .platform-sport-diorama { min-height: 360px; border-radius: 22px; }
+  .platform-home .platform-sport-diorama__scene { inset: 46px -70px 42px; }
+  .platform-home .platform-sport-diorama__world { width: 610px; height: 350px; }
+  .platform-home .platform-sport-diorama__building--north { left: 20%; right: auto; top: 1%; width: 38%; height: 7%; }
+  .platform-home .platform-sport-diorama__building--east { left: auto; right: 1.5%; top: 25%; width: 5%; height: 34%; }
+  .platform-home .platform-sport-diorama__stand--west { left: 1.4%; right: auto; top: 13%; bottom: auto; width: 3%; height: 38%; }
+  .platform-home .platform-sport-diorama__stand--south { left: 49%; right: 8%; top: auto; bottom: 1.5%; width: auto; height: 3%; }
+}
+
+/* B81 · landings deportivas premium Caxas SportCenter */
+.platform-sport-landing {
+  --caxas-black: #06080a;
+  --caxas-graphite: #101419;
+  --caxas-silver: #d8dde1;
+  --caxas-silver-light: #f4f6f7;
+  --caxas-metal-border: rgba(216,221,225,.16);
+  min-height: 100vh;
+  overflow-x: clip;
+  background: #080b0e;
+  color: var(--caxas-silver-light);
+}
+.platform-sport-landing__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0 56px;
+  border-bottom: 1px solid rgba(216,221,225,.1);
+  background:
+    radial-gradient(circle at 77% 35%,var(--home-sport-accent-soft),transparent 30rem),
+    radial-gradient(circle at 18% 10%,rgba(255,255,255,.06),transparent 24rem),
+    linear-gradient(145deg,#0c1014,#06080a 76%);
+}
+.platform-sport-landing__hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -8% -42% 36%;
+  height: 55%;
+  border: 1px solid rgba(216,221,225,.05);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+.platform-sport-landing__hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0,.9fr) minmax(430px,1.1fr);
+  gap: 30px 46px;
+  align-items: center;
+}
+.platform-sport-landing__copy { min-width: 0; }
+.platform-sport-landing__eyebrow {
+  min-height: 30px;
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(216,221,225,.17);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: var(--caxas-silver);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.platform-sport-landing__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--home-sport-accent); box-shadow: 0 0 14px var(--home-sport-accent); }
+.platform-sport-landing__copy h1 {
+  max-width: 680px;
+  margin: 16px 0 14px;
+  color: #f6f7f8;
+  font-size: clamp(48px,6.1vw,82px);
+  line-height: .94;
+  letter-spacing: -.065em;
+  font-style: italic;
+  font-weight: 950;
+  text-wrap: balance;
+}
+.platform-sport-landing__copy h1::after {
+  content: "";
+  display: block;
+  width: min(210px,52%);
+  height: 3px;
+  margin-top: 18px;
+  background: linear-gradient(90deg,var(--home-sport-accent),transparent);
+  box-shadow: 0 0 18px var(--home-sport-accent-soft);
+}
+.platform-sport-landing__copy p { max-width: 590px; margin: 0; color: #aeb6bd; font-size: 16px; line-height: 1.65; }
+.platform-sport-landing__coverage { width: fit-content; display: flex; align-items: center; gap: 10px; margin-top: 22px; padding: 9px 12px; border: 1px solid rgba(216,221,225,.14); border-radius: 999px; background: rgba(255,255,255,.035); }
+.platform-sport-landing__coverage strong { color: #f0f2f3; font-size: 11px; }
+.platform-sport-landing__coverage span { padding-left: 10px; border-left: 1px solid rgba(216,221,225,.14); color: #7f878e; font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.platform-sport-landing__visual { min-width: 0; }
+.platform-sport-landing__visual .platform-sport-diorama { min-height: 410px; }
+.platform-sport-landing__search { grid-column: 1 / -1; }
+.platform-sport-landing .platform-search-form {
+  margin-top: 0;
+  grid-template-columns: minmax(160px,.8fr) minmax(190px,1fr) minmax(150px,.72fr) minmax(130px,.65fr) minmax(190px,.9fr);
+  padding: 11px;
+  border: 1px solid rgba(216,221,225,.18);
+  border-radius: 18px;
+  background: rgba(11,14,17,.92);
+  box-shadow: 0 22px 52px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.045);
+  backdrop-filter: blur(14px);
+}
+.platform-sport-landing .platform-search-form label span { color: #a8b0b7; }
+.platform-sport-landing .platform-search-form input,
+.platform-sport-landing .platform-search-form select {
+  min-height: 48px;
+  border-color: rgba(216,221,225,.15);
+  background: #11161a;
+  color: #f2f4f5;
+  color-scheme: dark;
+}
+.platform-sport-landing .platform-search-form input:focus-visible,
+.platform-sport-landing .platform-search-form select:focus-visible { outline: 2px solid var(--home-sport-accent); outline-offset: 2px; border-color: transparent; }
+.platform-sport-landing .platform-search-form .button {
+  min-height: 48px;
+  border: 1px solid rgba(255,255,255,.46);
+  background: linear-gradient(180deg,#eef1f3,#aeb6bc);
+  color: #080a0c;
+  font-weight: 950;
+  box-shadow: inset 0 1px 0 #fff,0 10px 26px rgba(0,0,0,.25);
+}
+.platform-sport-landing .platform-search-form .button:hover { background: linear-gradient(180deg,#fff,#c8cdd1); transform: translateY(-1px); }
+.platform-sport-landing__results { min-height: 320px; background: linear-gradient(180deg,#0b0f12,#090c0f); }
+.platform-sport-landing__heading { border-bottom: 1px solid rgba(216,221,225,.09); padding-bottom: 18px; }
+.platform-sport-landing__heading .eyebrow { color: var(--home-sport-accent); }
+.platform-sport-landing__heading h2 { color: #f4f6f7; }
+.platform-sport-landing__count { min-height: 36px; display: inline-flex; align-items: center; padding: 7px 12px; border: 1px solid rgba(216,221,225,.14); border-radius: 999px; background: rgba(255,255,255,.035); color: #aeb6bd; font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; }
+.platform-sport-landing .state-box { border-color: rgba(216,221,225,.13); background: #11161a; color: #cbd1d5; box-shadow: inset 0 1px 0 rgba(255,255,255,.035); }
+.platform-sport-landing .state-box strong { color: #f4f6f7; }
+.platform-sport-landing .platform-footer { border-top-color: rgba(216,221,225,.1); background: #06080a; }
+.platform-sport-landing .platform-footer strong { color: #f4f6f7; }
+.platform-sport-landing .platform-footer span,
+.platform-sport-landing .platform-footer nav { color: #7f888f; }
+.platform-sport-landing .platform-footer nav a:hover { color: #f4f6f7; }
+
+@media (max-width: 1080px) {
+  .platform-sport-landing__hero-grid { grid-template-columns: 1fr; }
+  .platform-sport-landing__visual { grid-row: 2; }
+  .platform-sport-landing__search { grid-row: 3; }
+  .platform-sport-landing .platform-search-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-sport-landing .platform-search-form .button { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .platform-sport-landing__hero { padding: 42px 0 38px; }
+  .platform-sport-landing__hero-grid { min-width: 0; grid-template-columns: minmax(0,1fr); gap: 24px; }
+  .platform-sport-landing__copy { width: 100%; min-width: 0; }
+  .platform-sport-landing__copy h1 { width: 100%; max-width: 100%; white-space: normal; overflow-wrap: normal; word-break: normal; text-wrap: wrap; font-size: clamp(40px,12.2vw,52px); }
+  .platform-sport-landing__copy p { font-size: 14px; }
+  .platform-sport-landing__visual .platform-sport-diorama { min-height: 360px; }
+  .platform-sport-landing .platform-search-form { grid-template-columns: 1fr; }
+  .platform-sport-landing .platform-search-form .button { grid-column: auto; }
+  .platform-sport-landing__heading { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-sport-landing .platform-search-form .button { transition: none; }
+  .platform-sport-landing .platform-search-form .button:hover { transform: none; }
 }

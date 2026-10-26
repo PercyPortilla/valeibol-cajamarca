@@ -298,6 +298,16 @@ const required = [
   "docs/BLOCK76_PROMPT.md",
   "tests/platform-redesign-final-visual.test.ts",
   "docs/BLOCK77_PROMPT.md",
+  "tests/platform-home-sport-selection.test.ts",
+  "docs/BLOCK78_PROMPT.md",
+  "tests/platform-panoramic-sports-complex.test.ts",
+  "docs/BLOCK79_PROMPT.md",
+  "lib/platform/cajamarcaLighting.ts",
+  "tests/platform-real-time-cajamarca-lighting.test.ts",
+  "docs/BLOCK80_PROMPT.md",
+  "components/platform/SportLandingVisual.tsx",
+  "tests/platform-premium-sport-landings.test.ts",
+  "docs/BLOCK81_PROMPT.md",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

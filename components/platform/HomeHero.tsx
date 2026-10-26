@@ -1,30 +1,54 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type { PublicSport } from "@/lib/data/repositories/platformRepository";
 import { getHomeSportTheme, isNightSlot } from "@/lib/platform/homeHeroTheme";
 import { SportComplexVisual } from "@/components/platform/SportComplexVisual";
 import { platformConfig } from "@/config/platform";
+import { isCajamarcaLightingTime } from "@/lib/platform/cajamarcaLighting";
 
 type Props = {
   sports: PublicSport[];
   stats: { businesses: number; venues: number; courts: number };
+  sportSlug: string;
+  onSportChange: (sportSlug: string) => void;
 };
 
-export function HomeHero({ sports, stats }: Props) {
-  const [sportSlug, setSportSlug] = useState("");
+export function HomeHero({ sports, stats, sportSlug, onSportChange }: Props) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("17:00");
+  const [sceneNight, setSceneNight] = useState(false);
   const theme = useMemo(() => getHomeSportTheme(sportSlug), [sportSlug]);
-  const night = isNightSlot(selectedTime);
+  const reservationNeedsLighting = isNightSlot(selectedTime);
   const heroStyle = {
     "--home-sport-accent": theme.accent,
     "--home-sport-accent-soft": theme.accentSoft,
   } as CSSProperties;
 
+  useEffect(() => {
+    const syncCajamarcaLighting = () => setSceneNight(isCajamarcaLightingTime(new Date()));
+    syncCajamarcaLighting();
+    const intervalId = window.setInterval(syncCajamarcaLighting, 15_000);
+    const syncWhenVisible = () => {
+      if (document.visibilityState === "visible") syncCajamarcaLighting();
+    };
+    document.addEventListener("visibilitychange", syncWhenVisible);
+    window.addEventListener("focus", syncCajamarcaLighting);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", syncWhenVisible);
+      window.removeEventListener("focus", syncCajamarcaLighting);
+    };
+  }, []);
+
   return (
-    <section className={`platform-home-hero platform-home-hero--premium${night ? " is-night" : " is-day"}`} style={heroStyle}>
+    <section
+      id="platform-home-hero"
+      className={`platform-home-hero platform-home-hero--premium${sceneNight ? " is-night" : " is-day"}`}
+      data-scene-lighting={sceneNight ? "on" : "off"}
+      style={heroStyle}
+    >
       <div className="shell platform-home-hero__grid">
         <div className="platform-home-hero__copy">
           <span className="platform-live-label"><i aria-hidden="true" /> CAXAS SPORTCENTER</span>
@@ -35,7 +59,7 @@ export function HomeHero({ sports, stats }: Props) {
           <form className="platform-home-search" action="/buscar" method="get">
             <label>
               <span><Icon name={theme.icon} size={14} /> Deporte</span>
-              <select name="deporte" value={sportSlug} onChange={(event) => setSportSlug(event.target.value)}>
+              <select name="deporte" value={sportSlug} onChange={(event) => onSportChange(event.target.value)}>
                 <option value="">Multi-deporte</option>
                 {sports.map((sport) => <option key={sport.id} value={sport.slug}>{sport.name}</option>)}
               </select>
@@ -60,14 +84,14 @@ export function HomeHero({ sports, stats }: Props) {
             <button className="button platform-home-search__submit" type="submit">Explorar espacios <span aria-hidden="true">→</span></button>
           </form>
 
-          <div className={`platform-night-indicator${night ? " is-active" : ""}`} aria-live="polite">
+          <div className={`platform-night-indicator${reservationNeedsLighting ? " is-active" : ""}`} aria-live="polite">
             <Icon name="lighting" size={16} />
-            {night ? "Con iluminación" : "Iluminación no requerida para este horario"}
+            {reservationNeedsLighting ? "Con iluminación" : "Iluminación no requerida para este horario"}
           </div>
         </div>
 
         <aside className="platform-home-hero__aside" aria-label="Vista y resumen del marketplace">
-          <SportComplexVisual theme={theme} isNight={night} />
+          <SportComplexVisual theme={theme} isNight={sceneNight} />
           <div className="platform-market-stats" aria-label="Inventario disponible">
             <div><strong>{stats.businesses}</strong><span>complejos</span></div>
             <div><strong>{stats.venues}</strong><span>sedes</span></div>

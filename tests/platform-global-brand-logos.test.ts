@@ -5,6 +5,7 @@ import test from "node:test";
 const config = readFileSync("config/platform.ts", "utf8");
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
 const home = readFileSync("app/page.tsx", "utf8");
+const homeExperience = readFileSync("components/platform/HomeSportExperience.tsx", "utf8");
 const card = readFileSync("components/platform/BusinessCard.tsx", "utf8");
 const editor = readFileSync("components/admin/AdminSiteContentEditor.tsx", "utf8");
 const repository = readFileSync("lib/data/repositories/supabasePlatformRepository.ts", "utf8");
@@ -19,10 +20,10 @@ test("B61 mantiene la marca madre configurable sin negocio destacado en header",
   assert.match(header, /href="\/#deportes">Deportes/);
   assert.match(header, /href="\/#complejos">Complejos/);
   assert.doesNotMatch(header, /href="\/voley"|href="\/futbol"|Valeibol Cajamarca/);
-  assert.match(home, /id="deportes"/);
+  assert.match(homeExperience, /id="deportes"/);
   assert.match(home, /id="complejos"/);
   assert.doesNotMatch(home, /featuredBusiness/);
-  assert.match(home, /<HomeHero/);
+  assert.match(home, /<HomeSportExperience/);
 });
 
 test("B61 muestra logo real del complejo y conserva fallback por inicial", () => {

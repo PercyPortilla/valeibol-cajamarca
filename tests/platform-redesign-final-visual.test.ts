@@ -5,6 +5,7 @@ import { getHomeSportTheme } from "../lib/platform/homeHeroTheme.ts";
 
 const home = readFileSync("app/page.tsx", "utf8");
 const hero = readFileSync("components/platform/HomeHero.tsx", "utf8");
+const experience = readFileSync("components/platform/HomeSportExperience.tsx", "utf8");
 const visual = readFileSync("components/platform/SportComplexVisual.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
@@ -22,8 +23,9 @@ test("rediseño bloque 13 mantiene identidad final Caxas negro plata en la home"
 
 test("rediseño bloque 13 ningún cambio de deporte monta el diseño viejo", () => {
   assert.doesNotMatch(hero, /PlatformSearchForm|platform-showcase-card|router\.push|window\.location/);
-  assert.match(hero, /setSportSlug\(event\.target\.value\)/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{night\} \/>/);
+  assert.match(hero, /onSportChange\(event\.target\.value\)/);
+  assert.match(experience, /setSportSlug\(nextSportSlug\)/);
+  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
   assert.match(visual, /platform-sport-diorama/);
   assert.doesNotMatch(visual, /platform-sport-complex__court|platform-showcase/);
 });

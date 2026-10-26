@@ -36,7 +36,7 @@ test("navegación global tiene nombre accesible explícito", () => {
 });
 
 test("Bloque 10 mantiene raíz global y Valeibol como tenant completo", () => {
-  assert.match(platformHome, /HomeHero/);
+  assert.match(platformHome, /HomeSportExperience/);
   assert.match(platformHome, /COMPLEJOS/);
   assert.match(complexPage, /slug === businessConfig\.slug/);
   assert.match(complexPage, /<ValeibolLanding \/>/);

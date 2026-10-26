@@ -43,6 +43,6 @@ test("cards usan cover real y el hero global no promociona un negocio", () => {
   assert.match(businessCard, /sizes="\(max-width: 680px\)/);
   assert.match(businessCard, /platform-business-card__court-lines/);
   assert.doesNotMatch(platformHome, /featuredBusiness/);
-  assert.match(platformHome, /<HomeHero/);
+  assert.match(platformHome, /<HomeSportExperience/);
   assert.match(nextConfig, /\/storage\/v1\/object\/public\/business-gallery\/\*\*/);
 });

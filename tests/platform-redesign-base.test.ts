@@ -3,13 +3,15 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const hero = readFileSync("components/platform/HomeHero.tsx", "utf8");
+const experience = readFileSync("components/platform/HomeSportExperience.tsx", "utf8");
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("rediseño bloque 1 mantiene un único Hero al cambiar deporte", () => {
-  assert.match(hero, /value=\{sportSlug\} onChange=\{\(event\) => setSportSlug\(event\.target\.value\)\}/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{night\} \/>/);
+  assert.match(hero, /value=\{sportSlug\} onChange=\{\(event\) => onSportChange\(event\.target\.value\)\}/);
+  assert.match(experience, /const \[sportSlug, setSportSlug\] = useState\(""\)/);
+  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
   assert.doesNotMatch(hero, /router\.push|window\.location|PlatformSearchForm|SportLandingPage/);
 });
 

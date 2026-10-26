@@ -30,7 +30,7 @@ test("rediseño bloque 4 mantiene multi-deporte como fallback plata", () => {
 test("rediseño bloque 4 cambia solo contexto del Hero y no la estructura", () => {
   assert.match(hero, /const theme = useMemo\(\(\) => getHomeSportTheme\(sportSlug\)/);
   assert.match(hero, /<Icon name=\{theme\.icon\}/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{night\} \/>/);
+  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
   assert.doesNotMatch(hero, /sportSlug\s*===/);
   assert.match(visual, /data-active-sport=\{theme\.visual\}/);
   assert.match(visual, /theme\.sceneLabel/);

@@ -4,6 +4,7 @@ import test from "node:test";
 
 const home = readFileSync("app/page.tsx", "utf8");
 const hero = readFileSync("components/platform/HomeHero.tsx", "utf8");
+const experience = readFileSync("components/platform/HomeSportExperience.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
@@ -18,9 +19,9 @@ test("rediseño bloque 10 mantiene estadísticas derivadas del catálogo", () =>
 });
 
 test("rediseño bloque 10 conserva copy final 01 Explora 02 Compara 03 Reserva", () => {
-  assert.match(home, /<span>01<\/span><p><strong>Explora<\/strong><small>Encuentra espacios por deporte y horario\.<\/small>/);
-  assert.match(home, /<span>02<\/span><p><strong>Compara<\/strong><small>Revisa complejos, canchas y disponibilidad\.<\/small>/);
-  assert.match(home, /<span>03<\/span><p><strong>Reserva<\/strong><small>Gestiona tu reserva desde el complejo elegido\.<\/small>/);
+  assert.match(experience, /<span>01<\/span><p><strong>Explora<\/strong><small>Encuentra espacios por deporte y horario\.<\/small>/);
+  assert.match(experience, /<span>02<\/span><p><strong>Compara<\/strong><small>Revisa complejos, canchas y disponibilidad\.<\/small>/);
+  assert.match(experience, /<span>03<\/span><p><strong>Reserva<\/strong><small>Gestiona tu reserva desde el complejo elegido\.<\/small>/);
 });
 
 test("rediseño bloque 10 usa tarjetas estadísticas metálicas minimalistas", () => {

@@ -4,6 +4,7 @@ import test from "node:test";
 import { sports } from "../config/sports.ts";
 
 const home = readFileSync("app/page.tsx", "utf8");
+const homeExperience = readFileSync("components/platform/HomeSportExperience.tsx", "utf8");
 const sitemap = readFileSync("app/sitemap.ts", "utf8");
 const sportLanding = readFileSync("lib/platform/sportLanding.ts", "utf8");
 const businessCard = readFileSync("components/platform/BusinessCard.tsx", "utf8");
@@ -31,12 +32,14 @@ test("landings sin inventario real son noindex y no reciben canonical", () => {
   assert.match(sportLanding, /hasInventory[\s\S]*openGraph:/);
 });
 
-test("home enlaza categorías a landings y muestra inventario derivado del catálogo", () => {
-  assert.match(home, /getSportLandingPath\(sport\.slug\)/);
+test("home usa las categorías como selector del Hero y muestra inventario derivado del catálogo", () => {
+  assert.doesNotMatch(home, /getSportLandingPath\(sport\.slug\)/);
+  assert.match(homeExperience, /onClick=\{\(\) => selectSport\(sport\.slug, true\)\}/);
+  assert.match(homeExperience, /aria-pressed=\{active\}/);
   assert.match(home, /sportCourtCounts/);
   assert.match(home, /sports=\{activeSports\}/);
   assert.match(homeHero, /sports\.map/);
-  assert.match(home, /Sin oferta activa todavía/);
+  assert.match(homeExperience, /Sin oferta activa todavía/);
   assert.match(homeHero, /Encuentra dónde jugar/);
   assert.match(home, /id="complejos"/);
   assert.doesNotMatch(home, /featuredBusiness/);

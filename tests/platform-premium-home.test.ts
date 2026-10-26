@@ -39,26 +39,31 @@ test("B63 mantiene deportes dinámicos y centraliza acentos sin condicionales re
   assert.equal(getHomeSportTheme("deporte-futuro").visual, "multi");
 });
 
-test("B63 deriva noche exclusivamente de la hora seleccionada", () => {
+test("B63 conserva iluminación comercial por hora seleccionada tras separar escena real en B80", () => {
   assert.equal(isNightSlot("17:59"), false);
   assert.equal(isNightSlot("18:00"), true);
   assert.equal(isNightSlot("23:30"), true);
   assert.equal(isNightSlot("07:00"), false);
   assert.equal(isNightSlot(""), false);
   assert.equal(isNightSlot("25:00"), false);
-  assert.match(hero, /const night = isNightSlot\(selectedTime\)/);
+  assert.match(hero, /const reservationNeedsLighting = isNightSlot\(selectedTime\)/);
   assert.match(hero, /Con iluminación/);
-  assert.doesNotMatch(hero, /new Date\(|Date\.now\(/);
+  assert.match(hero, /isCajamarcaLightingTime\(new Date\(\)\)/);
 });
 
-test("B63/B69 visual deportivo usa diorama contextual y reflectores sin WebGL", () => {
+test("B63/B69 visual deportivo conserva escena contextual y reflectores tras B79 sin WebGL", () => {
   assert.match(visual, /data-active-sport=\{theme\.visual\}/);
   assert.match(visual, /data-scene=\{theme\.visual\}/);
+  assert.match(visual, /data-camera-focus=\{theme\.visual\}/);
   assert.match(visual, /platform-sport-diorama__building/);
   assert.match(visual, /platform-sport-diorama__goal/);
   assert.match(visual, /platform-sport-diorama__net/);
   assert.match(visual, /platform-sport-diorama__hoop/);
-  assert.match(visual, /platform-sport-diorama__multi-grid/);
+  assert.match(visual, /platform-sport-diorama__world/);
+  assert.match(visual, /platform-sport-diorama__court-zone--football/);
+  assert.match(visual, /platform-sport-diorama__court-zone--volleyball/);
+  assert.match(visual, /platform-sport-diorama__court-zone--basketball/);
+  assert.match(visual, /platform-sport-diorama__court-zone--futsal/);
   assert.match(visual, /platform-sport-diorama__lights/);
   assert.doesNotMatch(visual, /three|webgl|canvas/i);
 });

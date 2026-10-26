@@ -14,23 +14,23 @@ test("rediseño bloque 5 reemplaza el wireframe por un diorama ligero", () => {
   assert.doesNotMatch(visual, /three|webgl|canvas/i);
 });
 
-test("rediseño bloque 5 aporta equipamiento físico por deporte", () => {
+test("rediseño bloque 5 conserva equipamiento físico dentro del panorama B79", () => {
   assert.match(visual, /platform-sport-diorama__goal/);
   assert.match(visual, /platform-sport-diorama__net/);
   assert.match(visual, /platform-sport-diorama__hoop/);
   assert.match(visual, /platform-sport-diorama__fence/);
   assert.match(visual, /platform-sport-diorama__building/);
-  assert.match(css, /data-scene="football"\].*platform-sport-diorama__goal/);
-  assert.match(css, /data-scene="volleyball"\].*platform-sport-diorama__net/);
-  assert.match(css, /data-scene="basketball"\].*platform-sport-diorama__hoop/);
-  assert.match(css, /data-scene="futsal"\].*platform-sport-diorama__goal/);
+  assert.match(visual, /data-sport="football"[\s\S]*platform-sport-diorama__goal/);
+  assert.match(visual, /data-sport="volleyball"[\s\S]*platform-sport-diorama__net/);
+  assert.match(visual, /data-sport="basketball"[\s\S]*platform-sport-diorama__hoop/);
+  assert.match(visual, /data-sport="futsal"[\s\S]*platform-sport-diorama__goal/);
 });
 
-test("rediseño bloque 5 incluye escena multi-deporte y responsive propio", () => {
-  assert.match(visual, /platform-sport-diorama__multi-grid/);
-  assert.match(css, /data-scene="multi"\].*platform-sport-diorama__multi-grid/);
-  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?platform-sport-diorama \{ min-height: 390px/);
-  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-sport-diorama \{ min-height: 330px/);
+test("rediseño bloque 5 mantiene escena multi-deporte y responsive tras B79", () => {
+  assert.match(visual, /platform-sport-diorama__world/);
+  assert.match(visual, /data-camera-focus=\{theme\.visual\}/);
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?platform-sport-diorama \{ min-height: 440px/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-sport-diorama \{ min-height: 360px/);
 });
 
 test("rediseño bloque 5 registra test y prompt", () => {

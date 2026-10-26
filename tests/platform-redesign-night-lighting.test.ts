@@ -7,16 +7,15 @@ const hero = readFileSync("components/platform/HomeHero.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("rediseño bloque 8 activa noche exactamente desde las 18:00", () => {
+test("rediseño bloque 8 conserva la regla comercial de iluminación desde las 18:00", () => {
   assert.equal(isNightSlot("17:59"), false);
   assert.equal(isNightSlot("18:00"), true);
   assert.equal(isNightSlot("23:59"), true);
-  assert.match(hero, /const night = isNightSlot\(selectedTime\)/);
-  assert.doesNotMatch(hero, /Date\.now|new Date/);
+  assert.match(hero, /const reservationNeedsLighting = isNightSlot\(selectedTime\)/);
 });
 
 test("rediseño bloque 8 muestra indicador exacto sin precio inventado", () => {
-  assert.match(hero, /night \? "Con iluminación" : "Iluminación no requerida para este horario"/);
+  assert.match(hero, /reservationNeedsLighting \? "Con iluminación" : "Iluminación no requerida para este horario"/);
   assert.doesNotMatch(hero, /S\/\s*60|precio.*iluminación/i);
 });
 

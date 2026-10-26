@@ -8,7 +8,7 @@ const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("rediseño bloque 6 mantiene una sola escena y cambia por atributos", () => {
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{night\} \/>/);
+  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
   assert.match(visual, /data-scene=\{theme\.visual\}/);
   assert.doesNotMatch(hero, /key=\{theme\.visual\}/);
 });
@@ -29,7 +29,7 @@ test("rediseño bloque 6 evita display none en equipamiento contextual", () => {
 });
 
 test("rediseño bloque 6 respeta reduced motion", () => {
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?platform-sport-diorama__multi-grid/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?platform-sport-diorama__camera/);
   assert.match(css, /platform-sport-diorama__goal/);
 });
 
