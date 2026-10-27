@@ -187,8 +187,8 @@ export default async function CustomerAccountPage({ searchParams }: {
   }
 
   return (
-    <div className="platform-page">
-      <PlatformHeader />
+    <div className="platform-page platform-public-premium platform-public-premium--account">
+      <PlatformHeader premium />
       <main className="account-page" id="platform-main" tabIndex={-1}>
         <div className="shell account-page__inner">
           <header className="account-page__heading">

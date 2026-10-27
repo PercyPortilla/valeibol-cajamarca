@@ -92,12 +92,34 @@ export function HomeHero({ sports, stats, sportSlug, onSportChange }: Props) {
 
         <aside className="platform-home-hero__aside" aria-label="Vista y resumen del marketplace">
           <SportComplexVisual theme={theme} isNight={sceneNight} />
-          <div className="platform-market-stats" aria-label="Inventario disponible">
-            <div><strong>{stats.businesses}</strong><span>complejos</span></div>
-            <div><strong>{stats.venues}</strong><span>sedes</span></div>
-            <div><strong>{stats.courts}</strong><span>canchas</span></div>
-          </div>
         </aside>
+      </div>
+
+      <div className="shell platform-home-hero__footer">
+        <div className="platform-home-hero__sports" aria-label="Enfocar complejo por deporte">
+          {sports.map((sport) => {
+            const sportTheme = getHomeSportTheme(sport.slug);
+            const active = Object.is(sportSlug, sport.slug);
+            return (
+              <button
+                className={`platform-home-hero__sport${active ? " is-active" : ""}`}
+                key={sport.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => onSportChange(sport.slug)}
+              >
+                <Icon name={sportTheme.icon} size={18} />
+                <span>{sport.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="platform-market-stats" aria-label="Inventario disponible">
+          <div><strong>{stats.businesses}</strong><span>complejos</span></div>
+          <div><strong>{stats.venues}</strong><span>sedes</span></div>
+          <div><strong>{stats.courts}</strong><span>canchas</span></div>
+        </div>
       </div>
     </section>
   );

@@ -308,6 +308,18 @@ const required = [
   "components/platform/SportLandingVisual.tsx",
   "tests/platform-premium-sport-landings.test.ts",
   "docs/BLOCK81_PROMPT.md",
+  "tests/platform-premium-search-page.test.ts",
+  "docs/BLOCK82_PROMPT.md",
+  "tests/platform-definitive-sports-render.test.ts",
+  "docs/BLOCK83_PROMPT.md",
+  "public/images/caxas-complex-day.webp",
+  "public/images/caxas-complex-night.webp",
+  "tests/platform-full-bleed-hero.test.ts",
+  "docs/BLOCK84_PROMPT.md",
+  "tests/platform-premium-wordmark-header.test.ts",
+  "docs/BLOCK85_PROMPT.md",
+  "tests/platform-public-premium-shells.test.ts",
+  "docs/BLOCK86_PROMPT.md",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

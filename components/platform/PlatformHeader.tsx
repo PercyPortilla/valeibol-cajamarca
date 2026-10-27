@@ -10,7 +10,7 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
         <Link className="platform-brand" href="/" aria-label={`Ir al inicio de ${platformConfig.name}`}>
           {premium ? (
             <>
-              <span className="platform-brand__premium-logo">
+              <span className="platform-brand__premium-logo" data-brand-asset="emblem-fallback">
                 <Image
                   src="/images/caxas-sportcenter-logo.webp"
                   alt="Caxas SportCenter"
@@ -20,7 +20,10 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
                   priority
                 />
               </span>
-              <span className="platform-brand__premium-copy"><small>Plataforma deportiva · Cajamarca</small></span>
+              <span className="platform-brand__premium-copy">
+                <strong className="platform-brand__wordmark">CAXAS <span>SPORTCENTER</span></strong>
+                <small>Plataforma deportiva · Cajamarca</small>
+              </span>
             </>
           ) : (
             <>

@@ -24,8 +24,8 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
 
   if (!businessSlug) {
     return (
-      <div className="platform-page">
-        <PlatformHeader />
+      <div className="platform-page platform-public-premium platform-public-premium--reservation">
+        <PlatformHeader premium />
         <main className="platform-section" id="platform-main" tabIndex={-1}>
           <div className="shell platform-reservation-empty">
             <span className="eyebrow">RESERVAS</span>
@@ -50,8 +50,8 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
   const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
 
   return (
-    <div className="platform-page">
-      <PlatformHeader />
+    <div className="platform-page platform-public-premium platform-public-premium--reservation">
+      <PlatformHeader premium />
       <main id="platform-main" tabIndex={-1}>
         <section className="platform-reservation-hero">
           <div className="shell">

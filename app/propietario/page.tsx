@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { PlatformFooter } from "@/components/platform/PlatformFooter";
+import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { requireAdminContext } from "@/lib/auth/server";
 import type { Metadata } from "next";
 
@@ -25,8 +27,10 @@ export default async function OwnerPortalPage() {
   if (context.role === "staff") redirect("/admin");
 
   return (
-    <main className="owner-portal">
-      <div className="shell owner-portal__inner">
+    <div className="platform-page platform-public-premium platform-public-premium--owner">
+      <PlatformHeader premium />
+      <main className="owner-portal" id="platform-main" tabIndex={-1}>
+        <div className="shell owner-portal__inner">
         <div className="owner-portal__top">
           <Link href="/buscar" className="owner-portal__back">← Volver a la plataforma</Link>
           <Badge tone="success">{context.roleLabel}</Badge>
@@ -48,7 +52,9 @@ export default async function OwnerPortalPage() {
           ))}
         </section>
         <p className="owner-portal__note">Cada propietario administra únicamente su propio negocio. La administración principal de Caxas SportCenter puede supervisar cualquier negocio seleccionándolo explícitamente desde el panel global.</p>
-      </div>
-    </main>
+        </div>
+      </main>
+      <PlatformFooter />
+    </div>
   );
 }

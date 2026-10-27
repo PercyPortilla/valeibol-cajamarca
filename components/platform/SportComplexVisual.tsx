@@ -17,13 +17,21 @@ export function SportComplexVisual({ theme, isNight }: Props) {
       aria-label={`Complejo deportivo multicancha de Caxas SportCenter, enfoque en ${theme.sceneLabel}, modo ${isNight ? "noche con reflectores" : "día"}`}
     >
       <div className="platform-sport-diorama__ambient" aria-hidden="true" />
+      <div
+        className="platform-sport-diorama__render-stack"
+        data-render-camera="shared"
+        aria-hidden="true"
+      >
+        <span className="platform-sport-diorama__render platform-sport-diorama__render--day" />
+        <span className="platform-sport-diorama__render platform-sport-diorama__render--night" />
+      </div>
       <div className="platform-sport-diorama__skyline" aria-hidden="true">
         <span className="platform-sport-diorama__mountain platform-sport-diorama__mountain--a" />
         <span className="platform-sport-diorama__mountain platform-sport-diorama__mountain--b" />
         <span className="platform-sport-diorama__city-glow" />
         <span className="platform-sport-diorama__city-lights"><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /></span>
       </div>
-      <div className="platform-sport-diorama__scene" aria-hidden="true">
+      <div className="platform-sport-diorama__scene" data-render-fallback="architectural-css" aria-hidden="true">
         <div className="platform-sport-diorama__camera">
           <div className="platform-sport-diorama__world">
             <span className="platform-sport-diorama__ground" />

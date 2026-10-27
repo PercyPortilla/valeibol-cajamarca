@@ -11,7 +11,9 @@ import { StructuredData } from "@/components/platform/StructuredData";
 import { buildBreadcrumbJsonLd } from "@/lib/platform/seo";
 import { platformConfig } from "@/config/platform";
 import { normalizeSearchDate, normalizeSearchTime } from "@/lib/platform/searchFilters";
-import { isNightSlot } from "@/lib/platform/homeHeroTheme";
+import { getHomeSportTheme, isNightSlot } from "@/lib/platform/homeHeroTheme";
+import { SportLandingVisual } from "@/components/platform/SportLandingVisual";
+import type { CSSProperties } from "react";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -51,24 +53,40 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const locations = buildPlatformLocationPoints(catalog);
   const hasFilters = Boolean(sport || date || time);
   const lightingRequired = Boolean(time && isNightSlot(time));
+  const theme = getHomeSportTheme(sport);
+  const pageStyle = {
+    "--home-sport-accent": theme.accent,
+    "--home-sport-accent-soft": theme.accentSoft,
+  } as CSSProperties;
 
   return (
-    <div className="platform-page">
+    <div className="platform-page platform-search-page" style={pageStyle}>
       {!hasFilters ? <StructuredData data={buildBreadcrumbJsonLd([{ name: "Inicio", pathname: "/" }, { name: "Buscar canchas", pathname: "/buscar" }])} /> : null}
-      <PlatformHeader />
+      <PlatformHeader premium />
       <main id="platform-main" tabIndex={-1}>
-        <section className="platform-hero platform-hero--compact">
-          <div className="shell">
-            <nav className="platform-breadcrumbs" aria-label="Migas de pan"><ol><li><Link href="/">Inicio</Link></li><li aria-hidden="true">/</li><li aria-current="page">Buscar canchas</li></ol></nav>
-            <span className="platform-live-label"><i aria-hidden="true" /> CAJAMARCA</span>
-            <h1>Encuentra el lugar correcto para tu próximo partido en Cajamarca.</h1>
-            <p>Filtra por deporte, compara complejos de Cajamarca y entra directo a sus canchas disponibles.</p>
-            <PlatformSearchForm sport={sport} city={city} date={date} time={time} />
+        <section className="platform-search-page__hero">
+          <div className="shell platform-search-page__hero-grid">
+            <div className="platform-search-page__copy">
+              <nav className="platform-breadcrumbs" aria-label="Migas de pan"><ol><li><Link href="/">Inicio</Link></li><li aria-hidden="true">/</li><li aria-current="page">Buscar canchas</li></ol></nav>
+              <span className="platform-search-page__eyebrow"><i aria-hidden="true" /> CAJAMARCA · COBERTURA ACTUAL</span>
+              <h1>{sportName ? `${sportName} en Cajamarca` : "Encuentra dónde jugar en Cajamarca"}</h1>
+              <p>Filtra por deporte, fecha y hora. Compara complejos reales y entra directo al espacio que mejor encaje con tu próximo partido.</p>
+              <div className="platform-search-page__context">
+                <span>{theme.label}</span>
+                <small>{lightingRequired ? "Horario seleccionado con iluminación" : "Exploración deportiva en Cajamarca"}</small>
+              </div>
+            </div>
+            <div className="platform-search-page__visual">
+              <SportLandingVisual sportSlug={sport} />
+            </div>
+            <div className="platform-search-page__form">
+              <PlatformSearchForm sport={sport} city={city} date={date} time={time} />
+            </div>
           </div>
         </section>
-        <section className="platform-section">
+        <section className="platform-section platform-search-page__results">
           <div className="shell">
-            <div className="platform-search-summary">
+            <div className="platform-search-summary platform-search-page__summary">
               <div><span className="eyebrow">RESULTADOS</span><h2>{businesses.length} {businesses.length === 1 ? "complejo encontrado" : "complejos encontrados"}</h2></div>
               <div className="platform-active-filters" aria-label="Filtros activos">
                 {sport ? <span>Deporte: <strong>{sportName}</strong></span> : null}

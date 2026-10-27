@@ -105,9 +105,10 @@ export default async function ComplexPage({ params }: { params: Params }) {
 
   return (
     <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
-      <StructuredData data={buildBusinessJsonLd(business)} />
-      <PlatformHeader />
-      <main id="platform-main" tabIndex={-1}>
+      <div className="platform-public-premium platform-public-premium--complex">
+        <StructuredData data={buildBusinessJsonLd(business)} />
+        <PlatformHeader premium />
+        <main id="platform-main" tabIndex={-1}>
         <section
           className={business.coverImageUrl ? "platform-complex-hero platform-complex-hero--image" : "platform-complex-hero"}
         >
@@ -214,8 +215,9 @@ export default async function ComplexPage({ params }: { params: Params }) {
           </section>
         ) : null}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
-      </main>
-      <PlatformFooter />
+        </main>
+        <PlatformFooter />
+      </div>
     </div>
   );
 }

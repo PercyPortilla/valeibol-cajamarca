@@ -2358,6 +2358,38 @@
 .platform-sport-diorama[data-camera-focus="basketball"] { --camera-x: 17%; --camera-y: -20%; --camera-scale: 1.56; --camera-tilt: -6deg; }
 .platform-sport-diorama[data-camera-focus="futsal"] { --camera-x: -16%; --camera-y: -19%; --camera-scale: 1.5; --camera-tilt: -4deg; }
 .platform-sport-diorama[data-camera-focus="tennis"] { --camera-x: -20%; --camera-y: 17%; --camera-scale: 1.52; --camera-tilt: -3deg; }
+.platform-sport-diorama[data-camera-focus="multi"] { --camera-x: 0%; --camera-y: 0%; --camera-scale: 1; --camera-tilt: -4deg; }
+.platform-sport-diorama__render-stack {
+  position: absolute;
+  z-index: 9;
+  inset: -9%;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  transform: translate3d(var(--camera-x),var(--camera-y),0) scale(var(--camera-scale));
+  transform-origin: 50% 55%;
+  transition: transform .72s cubic-bezier(.2,.78,.2,1);
+  will-change: transform;
+}
+.platform-sport-diorama__render {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.platform-sport-diorama__render--day {
+  background-color: rgba(218,232,241,.34);
+  background-image: url("/images/caxas-complex-day.webp");
+  background-blend-mode: screen;
+  filter: brightness(1.3) saturate(.72) contrast(.86) sepia(.04);
+}
+.platform-sport-diorama__render--night { background-image: url("/images/caxas-complex-night.webp"); }
+.platform-sport-diorama.is-day .platform-sport-diorama__render--day,
+.platform-sport-diorama.is-night .platform-sport-diorama__render--night { opacity: 1; }
+.platform-sport-diorama__caption { z-index: 10; }
 .platform-sport-diorama__skyline { position: absolute; inset: 0 0 41%; overflow: hidden; pointer-events: none; }
 .platform-sport-diorama__mountain { position: absolute; left: -8%; right: -8%; bottom: -35%; height: 115%; background: linear-gradient(180deg,#151d24,#070a0d 72%); clip-path: polygon(0 80%,8% 58%,17% 66%,26% 37%,35% 59%,46% 28%,56% 55%,68% 22%,78% 48%,88% 31%,100% 67%,100% 100%,0 100%); opacity: .96; }
 .platform-sport-diorama__mountain--b { bottom: -49%; transform: scaleX(1.12); background: linear-gradient(180deg,#10171c,#050709 78%); opacity: .82; filter: blur(.2px); }
@@ -2491,6 +2523,8 @@
   .platform-sport-diorama__caption small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .platform-sport-diorama__render-stack,
+  .platform-sport-diorama__render,
   .platform-sport-diorama__camera,
   .platform-sport-diorama__world,
   .platform-sport-diorama__court-zone,
@@ -2916,4 +2950,812 @@
 @media (prefers-reduced-motion: reduce) {
   .platform-sport-landing .platform-search-form .button { transition: none; }
   .platform-sport-landing .platform-search-form .button:hover { transform: none; }
+}
+
+/* B82 · búsqueda premium continua desde el Hero */
+.platform-search-page {
+  --caxas-search-bg: #070a0d;
+  --caxas-search-surface: #10151a;
+  --caxas-search-surface-2: #151b20;
+  --caxas-search-line: rgba(222,227,231,.14);
+  --caxas-search-text: #f2f4f5;
+  --caxas-search-muted: #99a2aa;
+  overflow-x: clip;
+  background: var(--caxas-search-bg);
+  color: var(--caxas-search-text);
+}
+.platform-search-page__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 54px 0 42px;
+  border-bottom: 1px solid var(--caxas-search-line);
+  background:
+    radial-gradient(circle at 76% 32%,var(--home-sport-accent-soft),transparent 28rem),
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.055),transparent 24rem),
+    linear-gradient(145deg,#0b1014,#06080a 76%);
+}
+.platform-search-page__hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0,.88fr) minmax(430px,1.12fr);
+  gap: 26px 44px;
+  align-items: center;
+}
+.platform-search-page__copy { min-width: 0; }
+.platform-search-page__eyebrow {
+  width: fit-content;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--caxas-search-line);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  color: #d5dade;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+.platform-search-page__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--home-sport-accent); box-shadow: 0 0 14px var(--home-sport-accent); }
+.platform-search-page__copy h1 {
+  max-width: 720px;
+  margin: 15px 0 13px;
+  color: #f6f7f8;
+  font-size: clamp(46px,5.8vw,76px);
+  line-height: .95;
+  letter-spacing: -.06em;
+  font-style: italic;
+  font-weight: 950;
+  text-wrap: balance;
+}
+.platform-search-page__copy h1::after {
+  content: "";
+  display: block;
+  width: min(220px,52%);
+  height: 3px;
+  margin-top: 17px;
+  background: linear-gradient(90deg,var(--home-sport-accent),transparent);
+  box-shadow: 0 0 20px var(--home-sport-accent-soft);
+}
+.platform-search-page__copy > p { max-width: 610px; margin: 0; color: #a7b0b8; font-size: 15px; line-height: 1.65; }
+.platform-search-page__context { width: fit-content; display: flex; align-items: center; gap: 10px; margin-top: 20px; padding: 8px 11px; border: 1px solid var(--caxas-search-line); border-radius: 999px; background: rgba(255,255,255,.03); }
+.platform-search-page__context span { color: #f3f5f6; font-size: 10px; font-weight: 900; }
+.platform-search-page__context small { padding-left: 10px; border-left: 1px solid var(--caxas-search-line); color: #7f8991; font-size: 9px; }
+.platform-search-page__visual { min-width: 0; }
+.platform-search-page__visual .platform-sport-diorama { min-height: 390px; }
+.platform-search-page__form { grid-column: 1 / -1; }
+.platform-search-page .platform-search-form {
+  margin-top: 0;
+  grid-template-columns: minmax(160px,.8fr) minmax(190px,1fr) minmax(150px,.72fr) minmax(130px,.65fr) minmax(190px,.9fr);
+  padding: 11px;
+  border: 1px solid rgba(222,227,231,.18);
+  border-radius: 18px;
+  background: rgba(11,14,17,.94);
+  box-shadow: 0 22px 52px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.045);
+  backdrop-filter: blur(14px);
+}
+.platform-search-page .platform-search-form label span { color: #a7afb6; }
+.platform-search-page .platform-search-form input,
+.platform-search-page .platform-search-form select { min-height: 48px; border-color: rgba(222,227,231,.15); background: #11161a; color: #f3f5f6; color-scheme: dark; }
+.platform-search-page .platform-search-form input:focus-visible,
+.platform-search-page .platform-search-form select:focus-visible { outline: 2px solid var(--home-sport-accent); outline-offset: 2px; border-color: transparent; }
+.platform-search-page .platform-search-form .button { min-height: 48px; border: 1px solid rgba(255,255,255,.45); background: linear-gradient(180deg,#eef1f3,#aeb6bc); color: #080a0c; font-weight: 950; box-shadow: inset 0 1px 0 #fff,0 10px 26px rgba(0,0,0,.25); }
+.platform-search-page .platform-search-form .button:hover { background: linear-gradient(180deg,#fff,#c8cdd1); box-shadow: 0 12px 28px rgba(0,0,0,.28); }
+.platform-search-page__results { min-height: 420px; background: linear-gradient(180deg,#0b0f12,#070a0d); }
+.platform-search-page__summary { padding-bottom: 18px; border-bottom: 1px solid var(--caxas-search-line); }
+.platform-search-page__summary .eyebrow { color: var(--home-sport-accent); }
+.platform-search-page__summary h2 { color: #f4f6f7; }
+.platform-search-page .platform-active-filters span,
+.platform-search-page .platform-active-filters a { border-color: rgba(222,227,231,.14); background: #11161a; color: #9ea7ae; }
+.platform-search-page .platform-active-filters strong { color: #f1f3f4; }
+.platform-search-page .platform-active-filters a { color: #f2f4f5; }
+.platform-search-page .platform-active-filters a:hover { border-color: rgba(255,255,255,.3); background: #1a2025; }
+.platform-search-page .platform-location-explorer { border-color: var(--caxas-search-line); background: #10151a; box-shadow: 0 20px 46px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.03); }
+.platform-search-page .platform-location-explorer__heading h2 { color: #f4f6f7; }
+.platform-search-page .platform-location-explorer__heading .eyebrow { color: var(--home-sport-accent); }
+.platform-search-page .platform-location-explorer__heading p { color: #8f99a1; }
+.platform-search-page .platform-location-explorer__heading .button { border-color: rgba(222,227,231,.16); background: #171d22; color: #f0f2f3; }
+.platform-search-page .platform-location-option { border-color: rgba(222,227,231,.11); background: #0d1216; color: #dce0e3; }
+.platform-search-page .platform-location-option:hover { border-color: rgba(222,227,231,.24); background: #151b20; }
+.platform-search-page .platform-location-option.is-active { border-color: var(--home-sport-accent); background: #171e23; box-shadow: inset 3px 0 0 var(--home-sport-accent); }
+.platform-search-page .platform-location-option__number { background: #20272d; color: #f2f4f5; }
+.platform-search-page .platform-location-option__copy strong { color: #f4f6f7; }
+.platform-search-page .platform-location-option__copy small,
+.platform-search-page .platform-location-option__copy em,
+.platform-search-page .platform-location-option__copy > span { color: #89939a; }
+.platform-search-page .platform-map-frame { border-color: rgba(222,227,231,.12); background: #090c0f; }
+.platform-search-page .platform-map-frame__card { border-color: rgba(222,227,231,.14); background: rgba(9,12,15,.94); }
+.platform-search-page .platform-map-frame__card span,
+.platform-search-page .platform-map-frame__card small { color: #8f999f; }
+.platform-search-page .platform-map-frame__card strong { color: #f4f6f7; }
+.platform-search-page .state-box { border-color: rgba(222,227,231,.13); background: #11161a; color: #cbd1d5; }
+.platform-search-page .state-box strong { color: #f4f6f7; }
+.platform-search-page .platform-footer { border-top-color: var(--caxas-search-line); background: #06080a; }
+.platform-search-page .platform-footer strong { color: #f4f6f7; }
+.platform-search-page .platform-footer span,
+.platform-search-page .platform-footer nav { color: #7f888f; }
+.platform-search-page .platform-footer nav a:hover { color: #f4f6f7; }
+
+@media (max-width: 1080px) {
+  .platform-search-page__hero-grid { grid-template-columns: 1fr; }
+  .platform-search-page__visual { grid-row: 2; }
+  .platform-search-page__form { grid-row: 3; }
+  .platform-search-page .platform-search-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-search-page .platform-search-form .button { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .platform-search-page__hero { padding: 38px 0 34px; }
+  .platform-search-page__hero-grid { min-width: 0; grid-template-columns: minmax(0,1fr); gap: 22px; }
+  .platform-search-page__copy { min-width: 0; }
+  .platform-search-page__copy h1 { width: 100%; max-width: 100%; white-space: normal; text-wrap: wrap; font-size: clamp(40px,12vw,52px); }
+  .platform-search-page__copy > p { font-size: 14px; }
+  .platform-search-page__context { max-width: 100%; align-items: flex-start; flex-direction: column; border-radius: 14px; }
+  .platform-search-page__context small { padding: 0; border-left: 0; }
+  .platform-search-page__visual .platform-sport-diorama { min-height: 350px; }
+  .platform-search-page .platform-search-form { grid-template-columns: 1fr; }
+  .platform-search-page .platform-search-form .button { grid-column: auto; }
+  .platform-search-page__summary { align-items: flex-start; flex-direction: column; }
+  .platform-search-page .platform-active-filters { justify-content: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-search-page .platform-search-form .button { transition: none; }
+  .platform-search-page .platform-search-form .button:hover { transform: none; }
+}
+
+/* B84 · Hero full-bleed premium */
+.platform-home .platform-home-hero--premium {
+  min-height: 820px;
+  padding: 70px 0 190px;
+  background:
+    radial-gradient(ellipse at 77% 42%,var(--home-sport-accent-soft),transparent 34rem),
+    radial-gradient(circle at 12% 88%,rgba(255,255,255,.04),transparent 24rem),
+    linear-gradient(115deg,#050709 0%,#090d10 46%,#11171c 100%);
+}
+.platform-home .platform-home-hero--premium::before {
+  z-index: 0;
+  mask-image: linear-gradient(to right,black,rgba(0,0,0,.5),transparent 82%);
+}
+.platform-home .platform-home-hero--premium::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg,rgba(4,6,8,.99) 0%,rgba(5,8,10,.93) 27%,rgba(5,8,10,.56) 46%,rgba(5,8,10,.08) 72%,transparent 100%),
+    linear-gradient(180deg,transparent 58%,rgba(5,7,9,.25) 72%,#07090b 100%);
+}
+.platform-home .platform-home-hero__grid {
+  z-index: 2;
+  min-height: 560px;
+  grid-template-columns: minmax(0,.94fr) minmax(0,1.06fr);
+  align-items: center;
+  gap: 0;
+}
+.platform-home .platform-home-hero__copy {
+  position: relative;
+  z-index: 3;
+  width: min(690px,56vw);
+  padding-bottom: 18px;
+}
+.platform-home .platform-home-hero__copy h1 { max-width: 690px; font-size: clamp(54px,6.3vw,88px); }
+.platform-home .platform-home-hero__copy > p { max-width: 620px; }
+.platform-home .platform-home-hero__aside {
+  position: absolute;
+  z-index: 0;
+  top: -70px;
+  right: calc((100vw - 100%) / -2);
+  bottom: -132px;
+  left: 39%;
+  display: block;
+  width: auto;
+  min-width: 0;
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  mask-image: radial-gradient(ellipse 76% 72% at 63% 47%,black 24%,rgba(0,0,0,.96) 53%,rgba(0,0,0,.62) 72%,transparent 100%);
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama__scene { inset: 52px 0 54px; }
+.platform-home .platform-home-hero__aside .platform-sport-diorama__caption { right: clamp(24px,5vw,76px); bottom: 42px; }
+.platform-home-hero__footer {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 34px;
+  width: min(calc(100% - 40px),1240px);
+  display: grid;
+  grid-template-columns: minmax(0,1.2fr) minmax(360px,.8fr);
+  align-items: stretch;
+  gap: 24px;
+  transform: translateX(-50%);
+}
+.platform-home-hero__sports {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 9px;
+  align-items: stretch;
+}
+.platform-home-hero__sport {
+  min-width: 0;
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(220,225,229,.2);
+  border-radius: 14px;
+  background: rgba(8,11,14,.7);
+  color: #dce1e5;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05),0 12px 30px rgba(0,0,0,.22);
+  backdrop-filter: blur(14px);
+  transition: border-color .22s ease,background .22s ease,color .22s ease,transform .22s ease,box-shadow .22s ease;
+}
+.platform-home-hero__sport:hover { border-color: rgba(230,233,236,.38); background: rgba(22,27,31,.88); color: #fff; transform: translateY(-2px); }
+.platform-home-hero__sport.is-active { border-color: var(--home-sport-accent); background: color-mix(in srgb,var(--home-sport-accent) 14%,rgba(8,11,14,.9)); color: #fff; box-shadow: inset 0 0 0 1px var(--home-sport-accent-soft),0 0 24px var(--home-sport-accent-soft); }
+.platform-home-hero__sport:focus-visible { outline: 3px solid #f4b740; outline-offset: 3px; }
+.platform-home .platform-home-hero__footer .platform-market-stats { align-self: stretch; }
+.platform-home .platform-home-hero__footer .platform-market-stats div { min-height: 72px; background: rgba(10,13,16,.72); backdrop-filter: blur(14px); }
+
+@media (max-width: 1120px) and (min-width: 901px) {
+  .platform-home .platform-home-hero__copy { width: min(620px,58vw); }
+  .platform-home .platform-home-hero__copy h1 { font-size: clamp(50px,6vw,72px); }
+  .platform-home-hero__footer { grid-template-columns: minmax(0,1fr) minmax(330px,.72fr); gap: 16px; }
+  .platform-home-hero__sport { padding-inline: 8px; }
+}
+
+@media (max-width: 900px) {
+  .platform-home .platform-home-hero--premium { min-height: 0; padding: 58px 0 52px; }
+  .platform-home .platform-home-hero--premium::after {
+    background: linear-gradient(180deg,rgba(4,6,8,.18) 0%,rgba(5,8,10,.5) 48%,#07090b 100%);
+  }
+  .platform-home .platform-home-hero__grid { min-height: 0; grid-template-columns: minmax(0,1fr); gap: 22px; }
+  .platform-home .platform-home-hero__copy { width: 100%; padding: 0; }
+  .platform-home .platform-home-hero__aside {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: calc(100% + 40px);
+    min-height: 500px;
+    margin-inline: -20px;
+  }
+  .platform-home .platform-home-hero__aside .platform-sport-diorama {
+    position: absolute;
+    border-radius: 0;
+    mask-image: linear-gradient(180deg,transparent 0%,black 10%,black 82%,transparent 100%);
+  }
+  .platform-home-hero__footer {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin-top: -34px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transform: none;
+  }
+  .platform-home-hero__sports { order: 1; }
+  .platform-home .platform-home-hero__footer .platform-market-stats { order: 2; }
+}
+
+@media (max-width: 680px) {
+  .platform-home .platform-home-hero--premium { padding: 48px 0 42px; }
+  .platform-home .platform-home-hero__copy h1 { font-size: clamp(42px,13vw,56px); }
+  .platform-home .platform-home-hero__aside { min-height: 390px; }
+  .platform-home .platform-home-hero__aside .platform-sport-diorama__scene { inset: 38px -72px 46px; }
+  .platform-home-hero__footer { width: 100%; margin-top: -20px; }
+  .platform-home-hero__sports { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-home-hero__sport { min-height: 48px; }
+  .platform-home .platform-home-hero__footer .platform-market-stats { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .platform-home .platform-home-hero__footer .platform-market-stats div { min-width: 0; padding-inline: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-home-hero__sport { transition: none; }
+  .platform-home-hero__sport:hover { transform: none; }
+}
+
+/* B85 · Header / wordmark premium */
+.platform-header--premium {
+  isolation: isolate;
+  border-bottom: 1px solid rgba(214,219,224,.18);
+  background:
+    linear-gradient(180deg,rgba(18,22,26,.96),rgba(6,8,10,.94)),
+    #080a0c;
+  box-shadow: 0 1px 0 rgba(255,255,255,.035) inset,0 18px 44px rgba(0,0,0,.3);
+  backdrop-filter: blur(16px) saturate(115%);
+}
+.platform-header--premium::after {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg,transparent,rgba(230,233,236,.3) 22%,rgba(230,233,236,.08) 70%,transparent);
+  content: "";
+  pointer-events: none;
+}
+.platform-header--premium .platform-header__inner { min-height: 92px; gap: 30px; }
+.platform-header--premium .platform-brand {
+  min-width: 0;
+  min-height: 68px;
+  gap: 15px;
+  color: #f5f6f7;
+  text-decoration: none;
+}
+.platform-header--premium .platform-brand__premium-logo {
+  width: 144px;
+  aspect-ratio: 3 / 2;
+  flex: 0 0 144px;
+  overflow: visible;
+  border: 1px solid rgba(214,219,224,.13);
+  border-radius: 12px;
+  background: linear-gradient(145deg,rgba(255,255,255,.04),rgba(0,0,0,.18));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.22);
+}
+.platform-header--premium .platform-brand__premium-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+}
+.platform-header--premium .platform-brand__premium-copy {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+}
+.platform-header--premium .platform-brand__wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 0;
+  background: linear-gradient(180deg,#fff 0%,#dfe3e6 44%,#929aa1 100%);
+  color: transparent;
+  font-size: 23px;
+  font-weight: 950;
+  line-height: .95;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.08));
+}
+.platform-header--premium .platform-brand__wordmark span {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .24em;
+}
+.platform-header--premium .platform-brand__premium-copy small {
+  max-width: none;
+  color: #979fa6;
+  font-size: 9px;
+  font-weight: 720;
+  line-height: 1.3;
+  letter-spacing: .115em;
+  text-transform: uppercase;
+}
+.platform-header--premium .platform-nav { flex: 0 0 auto; gap: 4px; }
+.platform-header--premium .platform-nav a {
+  min-height: 44px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0 15px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #c9ced2;
+  white-space: nowrap;
+  transition: border-color .2s ease,background .2s ease,color .2s ease,transform .2s ease;
+}
+.platform-header--premium .platform-brand:focus-visible,
+.platform-header--premium .platform-nav a:focus-visible {
+  outline: 3px solid #f4b740;
+  outline-offset: 3px;
+}
+
+@media (max-width: 1040px) and (min-width: 681px) {
+  .platform-header--premium .platform-header__inner { min-height: 84px; gap: 16px; }
+  .platform-header--premium .platform-brand { gap: 11px; }
+  .platform-header--premium .platform-brand__premium-logo { width: 120px; flex-basis: 120px; }
+  .platform-header--premium .platform-brand__wordmark { gap: 7px; font-size: 19px; }
+  .platform-header--premium .platform-brand__wordmark span { font-size: 8px; letter-spacing: .18em; }
+  .platform-header--premium .platform-brand__premium-copy small { font-size: 7px; letter-spacing: .075em; }
+  .platform-header--premium .platform-nav a { padding-inline: 10px; }
+}
+
+@media (max-width: 680px) {
+  .platform-header--premium .platform-header__inner {
+    min-height: 0;
+    align-items: stretch;
+    padding-block: 10px 8px;
+    gap: 7px;
+  }
+  .platform-header--premium .platform-brand { width: 100%; min-height: 66px; gap: 10px; }
+  .platform-header--premium .platform-brand__premium-logo { width: 102px; flex-basis: 102px; }
+  .platform-header--premium .platform-brand__wordmark { gap: 6px; font-size: clamp(17px,5.2vw,20px); }
+  .platform-header--premium .platform-brand__wordmark span { font-size: 7px; letter-spacing: .15em; }
+  .platform-header--premium .platform-brand__premium-copy small { font-size: 7px; letter-spacing: .07em; }
+  .platform-header--premium .platform-nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 3px;
+    overflow: visible;
+    padding: 0;
+  }
+  .platform-header--premium .platform-nav a { min-width: 0; min-height: 44px; padding: 0 3px; font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-header--premium .platform-nav a { transition: none; }
+  .platform-header--premium .platform-nav a:hover { transform: none; }
+}
+
+/* B86 · Superficies públicas premium */
+.platform-public-premium {
+  --public-premium-canvas: #080a0c;
+  --public-premium-surface: #11161b;
+  --public-premium-surface-soft: #171d23;
+  --public-premium-line: rgba(218,223,228,.16);
+  --public-premium-line-strong: rgba(218,223,228,.28);
+  --public-premium-text: #f3f5f6;
+  --public-premium-muted: #9ca4ab;
+  min-height: 100vh;
+  overflow-x: clip;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(255,255,255,.055),transparent 28rem),
+    linear-gradient(180deg,#0d1115 0%,var(--public-premium-canvas) 52%,#0b0e11 100%);
+  color: var(--public-premium-text);
+}
+.platform-public-premium :is(a,button,input,select,textarea):focus-visible {
+  outline: 3px solid #f4b740;
+  outline-offset: 3px;
+}
+.platform-public-premium .platform-skip-link { min-height: 44px; }
+.platform-public-premium .button { min-height: 44px; }
+.platform-public-premium .button--primary,
+.platform-public-premium .platform-court-card .button,
+.platform-public-premium .platform-reservation-empty .button {
+  border: 1px solid rgba(255,255,255,.64);
+  background: linear-gradient(180deg,#f5f6f7,#bcc3c9);
+  color: #080a0c;
+  box-shadow: inset 0 1px 0 #fff,0 12px 26px rgba(0,0,0,.28);
+}
+.platform-public-premium .button--primary:hover,
+.platform-public-premium .platform-court-card .button:hover,
+.platform-public-premium .platform-reservation-empty .button:hover {
+  background: linear-gradient(180deg,#fff,#d1d6da);
+  color: #050607;
+}
+.platform-public-premium :is(.button--secondary,.button--ghost,.button--commercial-outline) {
+  border-color: var(--public-premium-line-strong);
+  background: rgba(255,255,255,.045);
+  color: #e2e5e8;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.platform-public-premium :is(.button--secondary,.button--ghost,.button--commercial-outline):hover {
+  border-color: rgba(255,255,255,.42);
+  background: rgba(255,255,255,.09);
+  color: #fff;
+}
+.platform-public-premium .eyebrow { color: #bbc2c8; }
+.platform-public-premium .platform-footer {
+  border-top-color: var(--public-premium-line);
+  background: #07090b;
+}
+.platform-public-premium .platform-footer strong { color: var(--public-premium-text); }
+.platform-public-premium .platform-footer :is(span,a) { color: var(--public-premium-muted); }
+.platform-public-premium .platform-footer a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.platform-public-premium .platform-footer a:hover { color: #fff; }
+
+/* Ficha de complejo */
+.platform-public-premium--complex .platform-complex-hero {
+  background: linear-gradient(145deg,#151a1f,#080a0c 68%,#20272d);
+}
+.platform-public-premium--complex .platform-complex-hero--image::before {
+  background: linear-gradient(90deg,rgba(5,7,9,.97),rgba(9,12,15,.86) 58%,rgba(13,17,20,.62));
+}
+.platform-public-premium--complex .platform-complex-hero::after { border-color: rgba(218,223,228,.07); }
+.platform-public-premium--complex .platform-breadcrumbs a,
+.platform-public-premium--complex .platform-breadcrumbs li { color: #c3c9ce; }
+.platform-public-premium--complex .platform-complex-hero p,
+.platform-public-premium--complex .platform-complex-contact small { color: #b0b7bd; }
+.platform-public-premium--complex .platform-complex-summary div,
+.platform-public-premium--complex .platform-complex-hero__chips span {
+  border-color: var(--public-premium-line);
+  background: rgba(13,17,20,.68);
+  color: #e2e5e8;
+}
+.platform-public-premium--complex .platform-section { background: var(--public-premium-canvas); }
+.platform-public-premium--complex .platform-section:nth-of-type(even) { background: #0d1115; }
+.platform-public-premium--complex .platform-section__heading h2,
+.platform-public-premium--complex :is(.platform-venue-card,.platform-court-card,.platform-service-card,.platform-review-card) :is(h2,h3,strong) { color: var(--public-premium-text); }
+.platform-public-premium--complex :is(.platform-venue-card,.platform-court-card,.platform-service-card,.platform-review-card) {
+  border-color: var(--public-premium-line);
+  background: linear-gradient(145deg,#171c21,#0d1115);
+  color: var(--public-premium-text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 18px 42px rgba(0,0,0,.22);
+}
+.platform-public-premium--complex :is(.platform-venue-card,.platform-court-card,.platform-service-card,.platform-review-card) p,
+.platform-public-premium--complex .platform-court-card__head > span:last-child,
+.platform-public-premium--complex .platform-review-card footer { color: var(--public-premium-muted); }
+.platform-public-premium--complex .platform-venue-card__actions a {
+  border-color: var(--public-premium-line-strong);
+  background: rgba(255,255,255,.04);
+  color: #e1e5e8;
+}
+.platform-public-premium--complex .platform-venue-card__actions a:hover { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.08); }
+.platform-public-premium--complex .platform-reviews__heading h2,
+.platform-public-premium--complex .platform-reputation strong { color: var(--public-premium-text); }
+.platform-public-premium--complex .platform-reviews__empty { border-color: var(--public-premium-line); background: var(--public-premium-surface); color: var(--public-premium-muted); }
+
+/* Reserva y calendario */
+.platform-public-premium--reservation .platform-reservation-hero {
+  border-bottom: 1px solid var(--public-premium-line);
+  background: linear-gradient(145deg,#151a1f,#080a0c 70%,#1d242a);
+}
+.platform-public-premium--reservation .platform-reservation-hero p { color: #adb5bc; }
+.platform-public-premium--reservation .platform-reservation-section { background: transparent; color: var(--public-premium-text); }
+.platform-public-premium--reservation .platform-reservation-empty h1 { color: var(--public-premium-text); }
+.platform-public-premium--reservation .platform-reservation-empty p { color: var(--public-premium-muted); }
+.platform-public-premium :is(.availability-app,.customer-auth-card,.account-user-bar,.account-empty,.account-reservation-card,.account-review-card,.account-notification-card) {
+  border-color: var(--public-premium-line);
+  background: linear-gradient(145deg,#151a1f,#0d1115);
+  color: var(--public-premium-text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 18px 42px rgba(0,0,0,.2);
+}
+.platform-public-premium .availability-toolbar { border-bottom-color: var(--public-premium-line); }
+.platform-public-premium :is(.week-nav-button,.today-button,.court-picker__button,.mobile-day) {
+  min-height: 44px;
+  border-color: var(--public-premium-line-strong);
+  background: #10151a;
+  color: #d7dce0;
+}
+.platform-public-premium :is(.today-button,.court-picker__button--active,.mobile-day--selected) {
+  border-color: #d8dde1;
+  background: linear-gradient(180deg,#e9ecee,#adb5bc);
+  color: #080a0c;
+}
+.platform-public-premium .week-range,
+.platform-public-premium .mobile-slot-list__title h3 { color: var(--public-premium-text); }
+.platform-public-premium :is(.mock-notice,.availability-legend,.court-picker,.availability-footnote) { color: var(--public-premium-muted); }
+.platform-public-premium .mock-notice { border-color: var(--public-premium-line); background: rgba(255,255,255,.035); }
+.platform-public-premium .day-column {
+  border-color: var(--public-premium-line);
+  background: #0d1115;
+}
+.platform-public-premium .day-column__header { border-bottom-color: var(--public-premium-line); background: #151a1f; }
+.platform-public-premium .day-column__header :is(span,strong) { color: var(--public-premium-text); }
+.platform-public-premium .day-column__header small,
+.platform-public-premium .day-column__empty { color: var(--public-premium-muted); }
+.platform-public-premium .time-slot {
+  border-color: var(--public-premium-line);
+  background: #13181d;
+  color: #dde1e4;
+}
+.platform-public-premium .time-slot--occupied,
+.platform-public-premium .time-slot--unavailable { background: #0c0f12; color: #7f888f; }
+.platform-public-premium .slot-cta {
+  min-height: 44px;
+  border-color: rgba(255,255,255,.52);
+  background: #dce1e4;
+  color: #080a0c;
+}
+.platform-public-premium .booking-dialog { color: var(--public-premium-text); }
+.platform-public-premium .booking-dialog__panel,
+.platform-public-premium .booking-dialog__header,
+.platform-public-premium :is(.booking-summary>div,.lighting-option,.booking-source-note) {
+  border-color: var(--public-premium-line);
+  background: #11161b;
+  color: var(--public-premium-text);
+}
+.platform-public-premium .booking-dialog__header h2,
+.platform-public-premium .booking-summary dd,
+.platform-public-premium .lighting-option strong { color: var(--public-premium-text); }
+.platform-public-premium :is(.booking-summary dt,.lighting-option small,.booking-policy,.field__hint) { color: var(--public-premium-muted); }
+
+/* Mi cuenta y recuperación */
+.platform-public-premium--account .account-page {
+  background:
+    radial-gradient(circle at 88% 5%,rgba(255,255,255,.055),transparent 24rem),
+    #080a0c;
+}
+.platform-public-premium--account .account-page__heading h1,
+.platform-public-premium--account .account-section-heading h2,
+.platform-public-premium--account :is(.customer-auth-card,.account-user-bar,.account-empty,.account-reservation-card,.account-review-card,.account-notification-card) :is(h2,h3,strong,dd) { color: var(--public-premium-text); }
+.platform-public-premium--account .account-page__heading p,
+.platform-public-premium--account .account-section-heading p,
+.platform-public-premium--account :is(.account-user-bar,.account-empty,.account-reservation-card,.account-review-card,.account-notification-card) :is(p,small,dt,time) { color: var(--public-premium-muted); }
+.platform-public-premium--account .customer-auth-tabs { background: #090c0f; }
+.platform-public-premium--account .customer-auth-tabs button { color: #aab2b9; }
+.platform-public-premium--account .customer-auth-tabs button[aria-pressed="true"] {
+  background: #dce1e4;
+  color: #080a0c;
+  box-shadow: none;
+}
+.platform-public-premium :is(.field__control,.account-review-comment textarea) {
+  min-height: 44px;
+  border-color: var(--public-premium-line-strong);
+  background: #090d10;
+  color: var(--public-premium-text);
+}
+.platform-public-premium :is(.field__control,.account-review-comment textarea)::placeholder { color: #747e86; }
+.platform-public-premium .field__label,
+.platform-public-premium .account-review-comment > span { color: #c2c8cd; }
+.platform-public-premium--account .account-empty--error,
+.platform-public-premium--account .auth-error { border-color: rgba(221,128,137,.38); background: rgba(111,27,38,.16); color: #f0b5bb; }
+.platform-public-premium--account .auth-notice--success { border-color: rgba(111,190,145,.35); background: rgba(27,97,61,.16); color: #a9ddbd; }
+.platform-public-premium--account .account-reservation-actions > a { color: #d9dee2; }
+.platform-public-premium--account .platform-business-card { border-color: var(--public-premium-line); background: #11161b; }
+.platform-public-premium--account .platform-business-card :is(h2,strong) { color: var(--public-premium-text); }
+.platform-public-premium--account .platform-business-card :is(p,small,span) { color: var(--public-premium-muted); }
+
+/* Portal propietario: solo carcasa pública */
+.platform-public-premium--owner .owner-portal { background: transparent; color: var(--public-premium-text); }
+.platform-public-premium--owner .owner-portal__back { color: #d2d7db; }
+.platform-public-premium--owner .owner-portal__hero {
+  border: 1px solid var(--public-premium-line);
+  background: linear-gradient(145deg,#1b2127,#090b0e 72%,#242b31);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045),0 24px 54px rgba(0,0,0,.3);
+}
+.platform-public-premium--owner .owner-portal__hero p { color: #adb5bc; }
+.platform-public-premium--owner .owner-portal__card {
+  border-color: var(--public-premium-line);
+  background: linear-gradient(145deg,#161b20,#0d1115);
+  color: var(--public-premium-text);
+}
+.platform-public-premium--owner .owner-portal__card h2 { color: var(--public-premium-text); }
+.platform-public-premium--owner .owner-portal__card p,
+.platform-public-premium--owner .owner-portal__note { color: var(--public-premium-muted); }
+.platform-public-premium--owner .owner-portal__card a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; color: #e0e4e7; }
+
+/* Landing tenant preservada, unificada visualmente */
+.platform-public-premium--tenant .site-header--commercial {
+  border-bottom-color: var(--public-premium-line);
+  background: rgba(8,10,12,.94);
+  color: var(--public-premium-text);
+  box-shadow: 0 16px 40px rgba(0,0,0,.28);
+}
+.platform-public-premium--tenant .site-nav--commercial { color: #bdc4c9; }
+.platform-public-premium--tenant .site-nav--commercial > a { color: #bdc4c9; }
+.platform-public-premium--tenant .site-nav--commercial > a:hover { color: #fff; }
+.platform-public-premium--tenant .commercial-main { background: var(--public-premium-canvas); color: var(--public-premium-text); }
+.platform-public-premium--tenant .hero-commercial__shade { background: linear-gradient(90deg,rgba(4,6,8,.97),rgba(7,10,12,.74) 58%,rgba(7,10,12,.34)); }
+.platform-public-premium--tenant :is(.trust-strip,.availability-app,.service-card,.price-card--commercial,.location-facts>a,.map-card__label,.platform-review-card) {
+  border-color: var(--public-premium-line);
+  background: linear-gradient(145deg,#161b20,#0d1115);
+  color: var(--public-premium-text);
+}
+.platform-public-premium--tenant .commercial-main :is(.section--commercial,.availability-section,.section--services,.price-section,.gallery-section,.location-section,.valeibol-reviews-section) {
+  border-color: var(--public-premium-line);
+  background: #0b0e11;
+}
+.platform-public-premium--tenant .commercial-main :is(.section--services,.gallery-section,.valeibol-reviews-section) { background: #101419; }
+.platform-public-premium--tenant .commercial-main :is(.section-heading--commercial h2,.service-card h3,.price-card--commercial>strong,.location-copy h2,.location-facts strong) { color: var(--public-premium-text); }
+.platform-public-premium--tenant .commercial-main :is(.section-heading--commercial p,.service-card p,.price-card--commercial>span,.location-copy>p,.location-facts small) { color: var(--public-premium-muted); }
+.platform-public-premium--tenant .site-footer--commercial { border-top-color: var(--public-premium-line); background: #07090b; }
+.platform-public-premium--tenant .site-footer--commercial :is(p,a,small,span) { color: #a5adb4; }
+
+/* El tema configurable del tenant usa selectores más específicos que el shell
+   compartido. Este cierre conserva su contenido y lógica, pero evita que esas
+   superficies legacy vuelvan a blanco/azul dentro de la experiencia B86. */
+.site-theme.platform-public-premium--tenant .trust-strip,
+.site-theme.platform-public-premium--tenant .commercial-main .availability-app,
+.site-theme.platform-public-premium--tenant .commercial-main .availability-toolbar,
+.site-theme.platform-public-premium--tenant .commercial-main .platform-reviews {
+  border-color: var(--public-premium-line);
+  background: linear-gradient(145deg,#161b20,#0d1115);
+  color: var(--public-premium-text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 18px 42px rgba(0,0,0,.22);
+}
+.site-theme.platform-public-premium--tenant .trust-item,
+.site-theme.platform-public-premium--tenant .trust-item strong,
+.site-theme.platform-public-premium--tenant .commercial-main :is(.week-range,.mobile-slot-list__title h3),
+.site-theme.platform-public-premium--tenant .commercial-main .platform-reviews__heading h2 {
+  color: var(--public-premium-text);
+}
+.site-theme.platform-public-premium--tenant .trust-item + .trust-item { border-color: var(--public-premium-line); }
+.site-theme.platform-public-premium--tenant .trust-item small,
+.site-theme.platform-public-premium--tenant .commercial-main :is(.availability-legend,.time-slot__status,.availability-footnote,.platform-reviews__empty,.platform-reviews__empty-label) {
+  color: var(--public-premium-muted);
+}
+.site-theme.platform-public-premium--tenant .trust-item__icon {
+  background: linear-gradient(180deg,#dfe4e7,#8f989f);
+  color: #080a0c;
+}
+.site-theme.platform-public-premium--tenant .commercial-main :is(.week-nav-button,.today-button,.mobile-day,.court-picker__button) {
+  border-color: var(--public-premium-line-strong);
+  background: #10151a;
+  color: #d7dce0;
+}
+.site-theme.platform-public-premium--tenant .commercial-main :is(.today-button,.mobile-day--selected,.court-picker__button--active) {
+  border-color: #d8dde1;
+  background: linear-gradient(180deg,#e9ecee,#adb5bc);
+  color: #080a0c;
+}
+.site-theme.platform-public-premium--tenant .commercial-main :is(.day-column,.time-slot) {
+  border-color: var(--public-premium-line);
+  background: #11161b;
+  color: #dde1e4;
+}
+.site-theme.platform-public-premium--tenant .commercial-main .day-column__header {
+  border-bottom-color: var(--public-premium-line);
+  background: #171d23;
+}
+.site-theme.platform-public-premium--tenant .commercial-main .day-column__header :is(span,strong) { color: var(--public-premium-text); }
+.site-theme.platform-public-premium--tenant .commercial-main :is(.time-slot--occupied,.time-slot--unavailable) { background: #0c0f12; color: #7f888f; }
+.site-theme.platform-public-premium--tenant :is(.site-nav__reserve,.commercial-main .button--primary,.commercial-main .slot-cta) {
+  border-color: rgba(255,255,255,.64) !important;
+  background: linear-gradient(180deg,#f5f6f7,#bcc3c9) !important;
+  color: #080a0c !important;
+}
+.site-theme.platform-public-premium--tenant :is(.site-nav__reserve,.commercial-main .button--primary,.commercial-main .slot-cta):hover {
+  background: linear-gradient(180deg,#fff,#d1d6da) !important;
+  color: #050607 !important;
+}
+.site-theme.platform-public-premium--tenant :is(.button--whatsapp,.footer-whatsapp) {
+  border-color: var(--public-premium-line-strong);
+  background: rgba(255,255,255,.055);
+  color: #e3e7ea;
+}
+.site-theme.platform-public-premium--tenant :is(.button--whatsapp,.footer-whatsapp):hover { background: rgba(255,255,255,.1); color: #fff; }
+.site-theme.platform-public-premium--tenant .commercial-footer__contact a,
+.site-theme.platform-public-premium--tenant .commercial-footer__bottom a {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .platform-public-premium--owner .owner-portal__grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-public-premium--complex .platform-court-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .site-theme.platform-public-premium--tenant .site-nav--commercial > a {
+    border-color: var(--public-premium-line);
+    background: #10151a;
+    color: #d7dce0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+  }
+  .site-theme.platform-public-premium--tenant .site-nav--commercial .site-nav__reserve {
+    border-color: rgba(255,255,255,.64) !important;
+    background: linear-gradient(180deg,#f5f6f7,#bcc3c9) !important;
+    color: #080a0c !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .platform-public-premium .platform-complex-summary { width: 100%; }
+  .platform-public-premium :is(.platform-venue-card,.customer-auth-card,.account-empty,.account-reservation-card,.owner-portal__hero,.owner-portal__card) { padding: 17px; }
+  .platform-public-premium--complex .platform-court-grid,
+  .platform-public-premium--owner .owner-portal__grid { grid-template-columns: minmax(0,1fr); }
+  .platform-public-premium--complex .platform-venue-card__actions { width: 100%; flex-wrap: wrap; }
+  .platform-public-premium--complex .platform-venue-card__actions a { flex: 1 1 150px; justify-content: center; }
+  .platform-public-premium--account .account-page { padding-top: 38px; }
+  .platform-public-premium--account .account-reservation-card { grid-template-columns: minmax(0,1fr); }
+  .platform-public-premium--tenant .site-nav--commercial { border-color: var(--public-premium-line); background: #0c1014; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-public-premium *,
+  .platform-public-premium *::before,
+  .platform-public-premium *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .platform-public-premium :is(.platform-court-card,.platform-business-card,.owner-portal__card):hover { transform: none; }
 }
