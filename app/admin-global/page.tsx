@@ -103,7 +103,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
           <div>
             <span className="eyebrow">CAXAS SPORT CENTER · ADMINISTRACIÓN PRINCIPAL</span>
             <h1>Control de la plataforma</h1>
-            <p>Vista reservada a la única cuenta ADMIN global. Desde aquí puedes supervisar la plataforma y entrar al panel operativo de cualquier negocio.</p>
+            <p>Vista reservada al equipo ADMIN global de Caxas Sport Center. Desde aquí puedes supervisar la plataforma y entrar al panel operativo de cualquier negocio mediante selección explícita.</p>
           </div>
           <div className="global-admin-account">
             <div><small>Sesión global</small><strong>{context.displayName ?? context.email ?? "Administrador"}</strong></div>
@@ -145,7 +145,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
           pageSize={PAGE_SIZE}
         />
 
-        <p className="global-admin-footnote">Los dueños y administradores de negocio nunca reciben esta vista principal. Cada uno entra únicamente a su propio panel; la cuenta ADMIN global puede supervisarlos mediante selección explícita.</p>
+        <p className="global-admin-footnote">Los dueños y administradores de negocio nunca reciben esta vista principal por su rol tenant. Solo las cuentas ADMIN globales autorizadas de Caxas Sport Center pueden verla y supervisar negocios mediante selección explícita.</p>
       </div>
     </main>
   );

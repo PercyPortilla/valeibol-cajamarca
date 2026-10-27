@@ -13,6 +13,7 @@ const scopeMigration = readFileSync("supabase/migrations/20261025075524_pre_b33_
 const scopeRoute = readFileSync("app/api/admin-global/select-business/route.ts", "utf8");
 const browserClient = readFileSync("lib/data/supabase/browser.ts", "utf8");
 const serverClient = readFileSync("lib/data/supabase/server.ts", "utf8");
+const teamAccessMigration = readFileSync("supabase/migrations/20261027002805_platform_admin_team_access.sql", "utf8");
 
 test("admin global se deriva solo de user_accounts.role=admin", () => {
   const context = migration.match(/create or replace function public\.get_platform_admin_context[\s\S]*?\$\$;/i)?.[0] ?? "";
@@ -37,9 +38,10 @@ test("admin global no hereda lectura directa de PII tenant", () => {
   assert.doesNotMatch(metricsMigration.match(/create policy user_accounts_self_select[\s\S]*?;/i)?.[0] ?? "", /is_platform_admin/i);
 });
 
-test("ajuste pre-B33 permite supervisión tenant solo con scope explícito del único ADMIN global", () => {
+test("scope explícito sigue separando la administración tenant del equipo ADMIN global", () => {
   assert.match(scopeMigration, /user_accounts_single_active_platform_admin/i);
   assert.match(scopeMigration, /where role = 'admin' and is_active/i);
+  assert.match(teamAccessMigration, /drop index if exists public\.user_accounts_single_active_platform_admin/i);
   assert.match(scopeMigration, /platform_admin_selected_business_id/i);
   assert.match(scopeMigration, /current_setting\('request\.headers', true\)/i);
   assert.match(scopeMigration, /x-platform-business-id/i);

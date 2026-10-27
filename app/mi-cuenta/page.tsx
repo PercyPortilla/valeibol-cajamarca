@@ -120,6 +120,7 @@ export default async function CustomerAccountPage({ searchParams }: {
   let notifications: Database["public"]["Functions"]["get_my_notifications_page"]["Returns"] = [];
   let nextNotificationCursor: NotificationCursor | null = null;
   let notificationUnreadCount = 0;
+  let isPlatformAdmin = false;
 
   if (hasPublicSupabaseServerConfig()) {
     try {
@@ -127,7 +128,7 @@ export default async function CustomerAccountPage({ searchParams }: {
       const { data } = await supabase.auth.getUser();
       userEmail = data.user?.email ?? null;
       if (data.user) {
-        const [historyResult, favoritesResult, reviewsResult, profileResult, notificationsResult, unreadResult] = await Promise.all([
+        const [historyResult, favoritesResult, reviewsResult, profileResult, notificationsResult, unreadResult, platformAdminResult] = await Promise.all([
           supabase.rpc("get_my_reservations_page", {
             p_limit: RESERVATION_PAGE_SIZE + 1,
             p_cursor_created_at: reservationPageCursor?.createdAt ?? null,
@@ -142,7 +143,9 @@ export default async function CustomerAccountPage({ searchParams }: {
             p_cursor_id: notificationPageCursor?.id ?? null,
           }),
           supabase.rpc("get_my_notification_unread_count"),
+          supabase.rpc("get_platform_admin_context"),
         ]);
+        isPlatformAdmin = !platformAdminResult.error && (platformAdminResult.data?.length ?? 0) > 0;
         if (historyResult.error) historyLoadFailed = true;
         else {
           const reservationsWithExtra = historyResult.data ?? [];
@@ -201,7 +204,11 @@ export default async function CustomerAccountPage({ searchParams }: {
             <>
               <div className="account-user-bar">
                 <div><small>Sesión iniciada</small><strong>{userEmail}</strong></div>
-                <div className="account-user-actions"><Link className="button button--secondary" href="/buscar">Buscar cancha</Link><CustomerLogoutButton /></div>
+                <div className="account-user-actions">
+                  {isPlatformAdmin ? <Link className="button button--primary" href="/admin-global">Administrar plataforma</Link> : null}
+                  <Link className="button button--secondary" href="/buscar">Buscar cancha</Link>
+                  <CustomerLogoutButton />
+                </div>
               </div>
               <CustomerNotificationCenter
                 notifications={notifications}

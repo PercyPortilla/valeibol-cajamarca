@@ -2363,6 +2363,7 @@
   position: absolute;
   z-index: 9;
   inset: -9%;
+  display: none;
   overflow: hidden;
   border-radius: inherit;
   pointer-events: none;
@@ -2371,6 +2372,8 @@
   transition: transform .72s cubic-bezier(.2,.78,.2,1);
   will-change: transform;
 }
+.platform-header--premium .platform-brand { gap: 0; }
+.platform-header--premium .platform-brand__premium-copy { min-width: 0; }
 .platform-sport-diorama__render {
   position: absolute;
   inset: 0;

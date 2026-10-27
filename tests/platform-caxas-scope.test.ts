@@ -12,6 +12,7 @@ const layout = readFileSync("app/layout.tsx", "utf8");
 const adminShell = readFileSync("components/admin/AdminShell.tsx", "utf8");
 const ownerPortal = readFileSync("app/propietario/page.tsx", "utf8");
 const migration = readFileSync("supabase/migrations/20261025075524_pre_b33_platform_admin_tenant_scope.sql", "utf8");
+const teamAccessMigration = readFileSync("supabase/migrations/20261027002805_platform_admin_team_access.sql", "utf8");
 
 test("marca principal es Caxas SportCenter sin renombrar el tenant Valeibol", () => {
   assert.match(config, /name:\s*"Caxas SportCenter"/);
@@ -50,7 +51,8 @@ test("dueño conserva su tenant y ADMIN global entra solo al negocio seleccionad
   assert.match(ownerPortal, /Cada propietario administra únicamente su propio negocio/);
 });
 
-test("solo puede existir un ADMIN global activo", () => {
+test("la restricción histórica de un solo ADMIN se retira para el equipo de plataforma", () => {
   assert.match(migration, /create unique index if not exists user_accounts_single_active_platform_admin/i);
   assert.match(migration, /on public\.user_accounts \(\(1\)\)[\s\S]*?where role = 'admin' and is_active/i);
+  assert.match(teamAccessMigration, /drop index if exists public\.user_accounts_single_active_platform_admin/i);
 });

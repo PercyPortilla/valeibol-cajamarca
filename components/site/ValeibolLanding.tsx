@@ -59,7 +59,7 @@ export async function ValeibolLanding() {
   const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
 
   return (
-    <div className="site-theme platform-public-premium platform-public-premium--tenant" style={themeCssVariables(siteContent.theme) as CSSProperties}>
+    <div className="site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
       <Header logoUrl={businessLogoUrl} />
       <main className="commercial-main" id="valeibol-main" tabIndex={-1}>
         <section className="hero hero--commercial" id="inicio">

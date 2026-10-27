@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { platformConfig } from "@/config/platform";
 
 export function PlatformHeader({ premium = false }: { premium?: boolean }) {
@@ -9,22 +8,10 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
       <div className="shell platform-header__inner">
         <Link className="platform-brand" href="/" aria-label={`Ir al inicio de ${platformConfig.name}`}>
           {premium ? (
-            <>
-              <span className="platform-brand__premium-logo" data-brand-asset="emblem-fallback">
-                <Image
-                  src="/images/caxas-sportcenter-logo.webp"
-                  alt="Caxas SportCenter"
-                  width={240}
-                  height={160}
-                  sizes="(max-width: 680px) 96px, 120px"
-                  priority
-                />
-              </span>
-              <span className="platform-brand__premium-copy">
-                <strong className="platform-brand__wordmark">CAXAS <span>SPORTCENTER</span></strong>
-                <small>Plataforma deportiva · Cajamarca</small>
-              </span>
-            </>
+            <span className="platform-brand__premium-copy" data-brand-asset="wordmark-only">
+              <strong className="platform-brand__wordmark">CAXAS <span>SPORTCENTER</span></strong>
+              <small>Plataforma deportiva · Cajamarca</small>
+            </span>
           ) : (
             <>
               <span className="platform-brand__mark" aria-hidden="true"><i>C</i></span>

@@ -6,17 +6,16 @@ const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("B85 conserva el asset oficial y prepara un lockup horizontal sustituible", () => {
-  assert.match(header, /src="\/images\/caxas-sportcenter-logo\.webp"/);
-  assert.match(header, /data-brand-asset="emblem-fallback"/);
+test("B85 usa únicamente el wordmark tipográfico solicitado", () => {
+  assert.match(header, /data-brand-asset="wordmark-only"/);
   assert.match(header, /platform-brand__wordmark">CAXAS <span>SPORTCENTER<\/span>/);
   assert.match(header, /Plataforma deportiva · Cajamarca/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp|next\/image|emblem-fallback/);
 });
 
-test("B85 evita recorte y deformación del logo", () => {
+test("B85 mantiene el wordmark metálico sin depender de imagen raster", () => {
   assert.match(css, /B85 · Header \/ wordmark premium/);
-  assert.match(css, /platform-brand__premium-logo \{[\s\S]*?aspect-ratio:\s*3 \/ 2;[\s\S]*?overflow:\s*visible/);
-  assert.match(css, /platform-brand__premium-logo img \{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?object-fit:\s*contain/);
+  assert.match(css, /platform-brand__wordmark \{[\s\S]*?linear-gradient\(180deg,#fff[\s\S]*?background-clip:\s*text/);
 });
 
 test("B85 mantiene navegación completa con targets accesibles", () => {
@@ -33,7 +32,7 @@ test("B85 conserva identidad negra y plata sin volver al header blanco", () => {
 });
 
 test("B85 adapta branding y navegación móvil sin overflow", () => {
-  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-brand__premium-logo \{ width:\s*102px; flex-basis:\s*102px/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-brand__wordmark \{[^}]*font-size:/);
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-nav \{[\s\S]*?grid-template-columns:\s*repeat\(4,minmax\(0,1fr\)\)[\s\S]*?overflow:\s*visible/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?platform-header--premium \.platform-nav a \{ transition:\s*none/);
 });

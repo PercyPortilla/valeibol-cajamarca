@@ -12,10 +12,9 @@ test("rediseño bloque 11 conserva dos columnas grandes y una columna en tablet/
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-home-search \{ grid-template-columns: 1fr/);
 });
 
-test("rediseño bloque 11 mantiene panorama y logo proporcionados en móvil", () => {
+test("rediseño bloque 11 mantiene panorama y wordmark proporcionados en móvil", () => {
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-sport-diorama \{ min-height: 360px; border-radius: 22px; \}/);
-  assert.match(css, /platform-brand__premium-logo \{[\s\S]*?aspect-ratio:\s*3 \/ 2/);
-  assert.match(css, /platform-brand__premium-logo img \{[^}]*object-fit:\s*contain/);
+  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-brand__wordmark/);
 });
 
 test("rediseño bloque 11 valida targets y secciones premium en QA reutilizable", () => {

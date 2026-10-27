@@ -56,14 +56,26 @@ end $$;
 
 do $$
 begin
-  if not exists (
+  if exists (
     select 1
     from pg_indexes
     where schemaname = 'public'
       and tablename = 'user_accounts'
       and indexname = 'user_accounts_single_active_platform_admin'
   ) then
-    raise exception 'FAIL: no existe guardia de ADMIN global único';
+    raise exception 'FAIL: la plataforma todavía limita el equipo a un único ADMIN global';
+  end if;
+  if exists (
+    select 1
+    from pg_trigger
+    where not tgisinternal
+      and tgname in (
+        'user_accounts_block_tenant_owner_admin',
+        'profiles_block_platform_admin_owner',
+        'businesses_block_platform_admin_primary_owner'
+      )
+  ) then
+    raise exception 'FAIL: siguen activos guards legacy que impiden separar rol global y rol tenant';
   end if;
 end $$;
 

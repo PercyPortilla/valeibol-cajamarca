@@ -11,13 +11,14 @@ const owner = readFileSync("app/propietario/page.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("B86 aplica la carcasa premium a las cinco rutas prioritarias", () => {
+test("B86 aplica la carcasa premium a superficies de la madre sin invadir el tenant", () => {
   assert.match(complex, /platform-public-premium--complex/);
   assert.match(reservation, /platform-public-premium--reservation/g);
   assert.match(account, /platform-public-premium--account/);
   assert.match(recovery, /platform-public-premium--recovery/);
   assert.match(owner, /platform-public-premium--owner/);
-  assert.match(tenant, /platform-public-premium--tenant/);
+  assert.match(tenant, /className="site-theme"/);
+  assert.doesNotMatch(tenant, /platform-public-premium--tenant/);
 });
 
 test("B86 reutiliza B85 sin rediseñar los shells administrativos", () => {

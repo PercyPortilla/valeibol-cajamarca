@@ -21,10 +21,11 @@ test("rediseño bloque 1 hace autosuficiente la estructura del Hero premium", ()
   assert.match(css, /\.platform-home \.platform-home-hero__aside \{[^}]*min-width:\s*0/);
 });
 
-test("rediseño bloque 1 conserva el logo completo sin recorte del contenedor", () => {
-  assert.match(header, /sizes="\(max-width: 680px\) 96px, 120px"/);
-  assert.match(css, /\.platform-header--premium \.platform-brand__premium-logo \{[\s\S]*?aspect-ratio:\s*3 \/ 2;[\s\S]*?overflow:\s*visible;/);
-  assert.match(css, /platform-brand__premium-logo img \{[^}]*height:\s*auto;[^}]*object-fit:\s*contain/);
+test("rediseño bloque 1 conserva branding tipográfico sin isotipo", () => {
+  assert.match(header, /data-brand-asset="wordmark-only"/);
+  assert.match(header, /platform-brand__wordmark/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp|next\/image/);
+  assert.match(css, /platform-brand__wordmark/);
 });
 
 test("rediseño bloque 1 queda registrado como bloque del proyecto", () => {
