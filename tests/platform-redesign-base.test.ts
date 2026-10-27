@@ -11,7 +11,7 @@ const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 test("rediseño bloque 1 mantiene un único Hero al cambiar deporte", () => {
   assert.match(hero, /value=\{sportSlug\} onChange=\{\(event\) => onSportChange\(event\.target\.value\)\}/);
   assert.match(experience, /const \[sportSlug, setSportSlug\] = useState\(""\)/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
+  assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
   assert.doesNotMatch(hero, /router\.push|window\.location|PlatformSearchForm|SportLandingPage/);
 });
 

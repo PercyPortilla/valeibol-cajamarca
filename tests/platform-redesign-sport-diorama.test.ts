@@ -11,7 +11,7 @@ test("rediseño bloque 5 reemplaza el wireframe por un diorama ligero", () => {
   assert.match(css, /perspective:\s*1000px/);
   assert.match(css, /rotateX\(57deg\) rotateZ\(-8deg\)/);
   assert.doesNotMatch(visual, /platform-sport-complex__court/);
-  assert.doesNotMatch(visual, /three|webgl|canvas/i);
+  assert.doesNotMatch(visual, /webgl|<canvas|three\.js|from "three"/i);
 });
 
 test("rediseño bloque 5 conserva equipamiento físico dentro del panorama B79", () => {
@@ -20,10 +20,10 @@ test("rediseño bloque 5 conserva equipamiento físico dentro del panorama B79",
   assert.match(visual, /platform-sport-diorama__hoop/);
   assert.match(visual, /platform-sport-diorama__fence/);
   assert.match(visual, /platform-sport-diorama__building/);
-  assert.match(visual, /data-sport="football"[\s\S]*platform-sport-diorama__goal/);
-  assert.match(visual, /data-sport="volleyball"[\s\S]*platform-sport-diorama__net/);
-  assert.match(visual, /data-sport="basketball"[\s\S]*platform-sport-diorama__hoop/);
-  assert.match(visual, /data-sport="futsal"[\s\S]*platform-sport-diorama__goal/);
+  assert.match(visual, /court\("football"[\s\S]*platform-sport-diorama__goal/);
+  assert.match(visual, /court\("volleyball"[\s\S]*platform-sport-diorama__net/);
+  assert.match(visual, /court\("basketball"[\s\S]*platform-sport-diorama__hoop/);
+  assert.match(visual, /court\("futsal"[\s\S]*platform-sport-diorama__goal/);
 });
 
 test("rediseño bloque 5 mantiene escena multi-deporte y responsive tras B79", () => {

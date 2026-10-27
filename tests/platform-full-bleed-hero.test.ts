@@ -40,11 +40,12 @@ test("B84 integra deportes y estadísticas reales en el Hero", () => {
 
 test("B84 mantiene B80-B83 y cámara persistente", () => {
   assert.match(hero, /isCajamarcaLightingTime\(new Date\(\)\)/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
+  assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
   assert.doesNotMatch(hero, /key=\{theme\.visual\}|router\.push|window\.location/);
   assert.match(visual, /data-camera-focus=\{theme\.visual\}/);
-  assert.match(visual, /caxas-complex-day|platform-sport-diorama__render--day/);
-  assert.doesNotMatch(visual, /three|webgl|canvas/i);
+  assert.match(visual, /data-render-engine="dom-css-3d"/);
+  assert.doesNotMatch(visual, /caxas-complex-day|platform-sport-diorama__render--day/);
+  assert.doesNotMatch(visual, /webgl|<canvas|three\.js|from "three"/i);
 });
 
 test("B84 respeta orden móvil targets foco y reduced motion", () => {

@@ -268,7 +268,6 @@ const required = [
   "docs/BLOCK62_PROMPT.md",
   "tests/platform-premium-home.test.ts",
   "docs/BLOCK63_PROMPT.md",
-  "public/images/caxas-sportcenter-logo.webp",
   "tests/platform-brand-visual-qa.test.ts",
   "docs/BLOCK64_PROMPT.md",
   "tests/platform-redesign-base.test.ts",
@@ -312,14 +311,13 @@ const required = [
   "docs/BLOCK82_PROMPT.md",
   "tests/platform-definitive-sports-render.test.ts",
   "docs/BLOCK83_PROMPT.md",
-  "public/images/caxas-complex-day.webp",
-  "public/images/caxas-complex-night.webp",
   "tests/platform-full-bleed-hero.test.ts",
   "docs/BLOCK84_PROMPT.md",
   "tests/platform-premium-wordmark-header.test.ts",
   "docs/BLOCK85_PROMPT.md",
   "tests/platform-public-premium-shells.test.ts",
   "docs/BLOCK86_PROMPT.md",
+  "tests/platform-interactive-3d-complex.test.ts",
 ];
 
 const missing = required.filter((path) => !existsSync(resolve(process.cwd(), path)));

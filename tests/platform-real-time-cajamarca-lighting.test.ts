@@ -20,7 +20,7 @@ test("B80 usa America/Lima y enciende exactamente de 18:00 a 05:59", () => {
 test("B80 separa iluminación visual real de la regla comercial del horario seleccionado", () => {
   assert.match(hero, /const reservationNeedsLighting = isNightSlot\(selectedTime\)/);
   assert.match(hero, /const \[sceneNight, setSceneNight\] = useState\(false\)/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
+  assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
   assert.match(hero, /reservationNeedsLighting \? "Con iluminación"/);
   assert.doesNotMatch(hero, /<SportComplexVisual theme=\{theme\} isNight=\{reservationNeedsLighting\}/);
 });
@@ -35,7 +35,7 @@ test("B80 actualiza la hora real mientras la página permanece abierta y al volv
 
 test("B80 reflectores se encienden escalonados y anuncian hora real de Cajamarca", () => {
   assert.match(visual, /Reflectores activos · hora real de Cajamarca/);
-  assert.match(visual, /Reflectores automáticos desde las 18:00/);
+  assert.match(visual, /Día · iluminación natural/);
   assert.match(css, /--floodlight-delay:\s*\.56s/);
   assert.match(css, /@keyframes caxas-floodlight-beam-on/);
   assert.match(css, /@keyframes caxas-floodlight-lamp-on/);

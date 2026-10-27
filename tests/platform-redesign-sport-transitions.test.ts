@@ -8,7 +8,7 @@ const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("rediseño bloque 6 mantiene una sola escena y cambia por atributos", () => {
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
+  assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
   assert.match(visual, /data-scene=\{theme\.visual\}/);
   assert.doesNotMatch(hero, /key=\{theme\.visual\}/);
 });

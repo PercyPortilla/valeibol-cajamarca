@@ -1987,17 +1987,6 @@
   background-clip: text;
 }
 .platform-header--premium .platform-brand small { color: #8f969d; }
-.platform-header--premium .platform-brand__premium-logo {
-  width: 120px;
-  aspect-ratio: 3 / 2;
-  flex: 0 0 120px;
-  display: grid;
-  place-items: center;
-  overflow: visible;
-  border-radius: 10px;
-  background: #050607;
-}
-.platform-header--premium .platform-brand__premium-logo img { display: block; width: 100%; height: auto; max-height: 80px; object-fit: contain; object-position: center; }
 .platform-header--premium .platform-brand__premium-copy { display: grid; align-content: center; }
 .platform-header--premium .platform-brand__premium-copy small { max-width: 118px; line-height: 1.35; }
 .platform-header--premium .platform-nav { color: #c1c6cb; }
@@ -2359,39 +2348,8 @@
 .platform-sport-diorama[data-camera-focus="futsal"] { --camera-x: -16%; --camera-y: -19%; --camera-scale: 1.5; --camera-tilt: -4deg; }
 .platform-sport-diorama[data-camera-focus="tennis"] { --camera-x: -20%; --camera-y: 17%; --camera-scale: 1.52; --camera-tilt: -3deg; }
 .platform-sport-diorama[data-camera-focus="multi"] { --camera-x: 0%; --camera-y: 0%; --camera-scale: 1; --camera-tilt: -4deg; }
-.platform-sport-diorama__render-stack {
-  position: absolute;
-  z-index: 9;
-  inset: -9%;
-  display: none;
-  overflow: hidden;
-  border-radius: inherit;
-  pointer-events: none;
-  transform: translate3d(var(--camera-x),var(--camera-y),0) scale(var(--camera-scale));
-  transform-origin: 50% 55%;
-  transition: transform .72s cubic-bezier(.2,.78,.2,1);
-  will-change: transform;
-}
 .platform-header--premium .platform-brand { gap: 0; }
 .platform-header--premium .platform-brand__premium-copy { min-width: 0; }
-.platform-sport-diorama__render {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  opacity: 0;
-  transition: opacity .45s ease;
-}
-.platform-sport-diorama__render--day {
-  background-color: rgba(218,232,241,.34);
-  background-image: url("/images/caxas-complex-day.webp");
-  background-blend-mode: screen;
-  filter: brightness(1.3) saturate(.72) contrast(.86) sepia(.04);
-}
-.platform-sport-diorama__render--night { background-image: url("/images/caxas-complex-night.webp"); }
-.platform-sport-diorama.is-day .platform-sport-diorama__render--day,
-.platform-sport-diorama.is-night .platform-sport-diorama__render--night { opacity: 1; }
 .platform-sport-diorama__caption { z-index: 10; }
 .platform-sport-diorama__skyline { position: absolute; inset: 0 0 41%; overflow: hidden; pointer-events: none; }
 .platform-sport-diorama__mountain { position: absolute; left: -8%; right: -8%; bottom: -35%; height: 115%; background: linear-gradient(180deg,#151d24,#070a0d 72%); clip-path: polygon(0 80%,8% 58%,17% 66%,26% 37%,35% 59%,46% 28%,56% 55%,68% 22%,78% 48%,88% 31%,100% 67%,100% 100%,0 100%); opacity: .96; }
@@ -2526,8 +2484,6 @@
   .platform-sport-diorama__caption small { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .platform-sport-diorama__render-stack,
-  .platform-sport-diorama__render,
   .platform-sport-diorama__camera,
   .platform-sport-diorama__world,
   .platform-sport-diorama__court-zone,
@@ -2590,7 +2546,6 @@
 @media (max-width: 680px) {
   .platform-header--premium .platform-header__inner { min-height: 70px; }
   .platform-header--premium .platform-brand { gap: 7px; }
-  .platform-header--premium .platform-brand__premium-logo { width: 96px; flex-basis: 96px; }
   .platform-header--premium .platform-brand__premium-copy small { max-width: 92px; font-size: 6.5px; letter-spacing: .055em; }
   .platform-home .platform-home-hero--premium { min-height: 0; padding: 54px 0 46px; }
   .platform-home .platform-home-hero__copy h1 { font-size: clamp(42px,13vw,58px); }
@@ -3302,24 +3257,6 @@
   color: #f5f6f7;
   text-decoration: none;
 }
-.platform-header--premium .platform-brand__premium-logo {
-  width: 144px;
-  aspect-ratio: 3 / 2;
-  flex: 0 0 144px;
-  overflow: visible;
-  border: 1px solid rgba(214,219,224,.13);
-  border-radius: 12px;
-  background: linear-gradient(145deg,rgba(255,255,255,.04),rgba(0,0,0,.18));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.22);
-}
-.platform-header--premium .platform-brand__premium-logo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-height: none;
-  object-fit: contain;
-  object-position: center;
-}
 .platform-header--premium .platform-brand__premium-copy {
   min-width: 0;
   display: grid;
@@ -3377,7 +3314,6 @@
 @media (max-width: 1040px) and (min-width: 681px) {
   .platform-header--premium .platform-header__inner { min-height: 84px; gap: 16px; }
   .platform-header--premium .platform-brand { gap: 11px; }
-  .platform-header--premium .platform-brand__premium-logo { width: 120px; flex-basis: 120px; }
   .platform-header--premium .platform-brand__wordmark { gap: 7px; font-size: 19px; }
   .platform-header--premium .platform-brand__wordmark span { font-size: 8px; letter-spacing: .18em; }
   .platform-header--premium .platform-brand__premium-copy small { font-size: 7px; letter-spacing: .075em; }
@@ -3392,7 +3328,6 @@
     gap: 7px;
   }
   .platform-header--premium .platform-brand { width: 100%; min-height: 66px; gap: 10px; }
-  .platform-header--premium .platform-brand__premium-logo { width: 102px; flex-basis: 102px; }
   .platform-header--premium .platform-brand__wordmark { gap: 6px; font-size: clamp(17px,5.2vw,20px); }
   .platform-header--premium .platform-brand__wordmark span { font-size: 7px; letter-spacing: .15em; }
   .platform-header--premium .platform-brand__premium-copy small { font-size: 7px; letter-spacing: .07em; }
@@ -3630,118 +3565,11 @@
 .platform-public-premium--owner .owner-portal__note { color: var(--public-premium-muted); }
 .platform-public-premium--owner .owner-portal__card a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; color: #e0e4e7; }
 
-/* Landing tenant preservada, unificada visualmente */
-.platform-public-premium--tenant .site-header--commercial {
-  border-bottom-color: var(--public-premium-line);
-  background: rgba(8,10,12,.94);
-  color: var(--public-premium-text);
-  box-shadow: 0 16px 40px rgba(0,0,0,.28);
-}
-.platform-public-premium--tenant .site-nav--commercial { color: #bdc4c9; }
-.platform-public-premium--tenant .site-nav--commercial > a { color: #bdc4c9; }
-.platform-public-premium--tenant .site-nav--commercial > a:hover { color: #fff; }
-.platform-public-premium--tenant .commercial-main { background: var(--public-premium-canvas); color: var(--public-premium-text); }
-.platform-public-premium--tenant .hero-commercial__shade { background: linear-gradient(90deg,rgba(4,6,8,.97),rgba(7,10,12,.74) 58%,rgba(7,10,12,.34)); }
-.platform-public-premium--tenant :is(.trust-strip,.availability-app,.service-card,.price-card--commercial,.location-facts>a,.map-card__label,.platform-review-card) {
-  border-color: var(--public-premium-line);
-  background: linear-gradient(145deg,#161b20,#0d1115);
-  color: var(--public-premium-text);
-}
-.platform-public-premium--tenant .commercial-main :is(.section--commercial,.availability-section,.section--services,.price-section,.gallery-section,.location-section,.valeibol-reviews-section) {
-  border-color: var(--public-premium-line);
-  background: #0b0e11;
-}
-.platform-public-premium--tenant .commercial-main :is(.section--services,.gallery-section,.valeibol-reviews-section) { background: #101419; }
-.platform-public-premium--tenant .commercial-main :is(.section-heading--commercial h2,.service-card h3,.price-card--commercial>strong,.location-copy h2,.location-facts strong) { color: var(--public-premium-text); }
-.platform-public-premium--tenant .commercial-main :is(.section-heading--commercial p,.service-card p,.price-card--commercial>span,.location-copy>p,.location-facts small) { color: var(--public-premium-muted); }
-.platform-public-premium--tenant .site-footer--commercial { border-top-color: var(--public-premium-line); background: #07090b; }
-.platform-public-premium--tenant .site-footer--commercial :is(p,a,small,span) { color: #a5adb4; }
-
-/* El tema configurable del tenant usa selectores más específicos que el shell
-   compartido. Este cierre conserva su contenido y lógica, pero evita que esas
-   superficies legacy vuelvan a blanco/azul dentro de la experiencia B86. */
-.site-theme.platform-public-premium--tenant .trust-strip,
-.site-theme.platform-public-premium--tenant .commercial-main .availability-app,
-.site-theme.platform-public-premium--tenant .commercial-main .availability-toolbar,
-.site-theme.platform-public-premium--tenant .commercial-main .platform-reviews {
-  border-color: var(--public-premium-line);
-  background: linear-gradient(145deg,#161b20,#0d1115);
-  color: var(--public-premium-text);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.035),0 18px 42px rgba(0,0,0,.22);
-}
-.site-theme.platform-public-premium--tenant .trust-item,
-.site-theme.platform-public-premium--tenant .trust-item strong,
-.site-theme.platform-public-premium--tenant .commercial-main :is(.week-range,.mobile-slot-list__title h3),
-.site-theme.platform-public-premium--tenant .commercial-main .platform-reviews__heading h2 {
-  color: var(--public-premium-text);
-}
-.site-theme.platform-public-premium--tenant .trust-item + .trust-item { border-color: var(--public-premium-line); }
-.site-theme.platform-public-premium--tenant .trust-item small,
-.site-theme.platform-public-premium--tenant .commercial-main :is(.availability-legend,.time-slot__status,.availability-footnote,.platform-reviews__empty,.platform-reviews__empty-label) {
-  color: var(--public-premium-muted);
-}
-.site-theme.platform-public-premium--tenant .trust-item__icon {
-  background: linear-gradient(180deg,#dfe4e7,#8f989f);
-  color: #080a0c;
-}
-.site-theme.platform-public-premium--tenant .commercial-main :is(.week-nav-button,.today-button,.mobile-day,.court-picker__button) {
-  border-color: var(--public-premium-line-strong);
-  background: #10151a;
-  color: #d7dce0;
-}
-.site-theme.platform-public-premium--tenant .commercial-main :is(.today-button,.mobile-day--selected,.court-picker__button--active) {
-  border-color: #d8dde1;
-  background: linear-gradient(180deg,#e9ecee,#adb5bc);
-  color: #080a0c;
-}
-.site-theme.platform-public-premium--tenant .commercial-main :is(.day-column,.time-slot) {
-  border-color: var(--public-premium-line);
-  background: #11161b;
-  color: #dde1e4;
-}
-.site-theme.platform-public-premium--tenant .commercial-main .day-column__header {
-  border-bottom-color: var(--public-premium-line);
-  background: #171d23;
-}
-.site-theme.platform-public-premium--tenant .commercial-main .day-column__header :is(span,strong) { color: var(--public-premium-text); }
-.site-theme.platform-public-premium--tenant .commercial-main :is(.time-slot--occupied,.time-slot--unavailable) { background: #0c0f12; color: #7f888f; }
-.site-theme.platform-public-premium--tenant :is(.site-nav__reserve,.commercial-main .button--primary,.commercial-main .slot-cta) {
-  border-color: rgba(255,255,255,.64) !important;
-  background: linear-gradient(180deg,#f5f6f7,#bcc3c9) !important;
-  color: #080a0c !important;
-}
-.site-theme.platform-public-premium--tenant :is(.site-nav__reserve,.commercial-main .button--primary,.commercial-main .slot-cta):hover {
-  background: linear-gradient(180deg,#fff,#d1d6da) !important;
-  color: #050607 !important;
-}
-.site-theme.platform-public-premium--tenant :is(.button--whatsapp,.footer-whatsapp) {
-  border-color: var(--public-premium-line-strong);
-  background: rgba(255,255,255,.055);
-  color: #e3e7ea;
-}
-.site-theme.platform-public-premium--tenant :is(.button--whatsapp,.footer-whatsapp):hover { background: rgba(255,255,255,.1); color: #fff; }
-.site-theme.platform-public-premium--tenant .commercial-footer__contact a,
-.site-theme.platform-public-premium--tenant .commercial-footer__bottom a {
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
+/* B97 · La identidad visual de cada tenant permanece aislada de la página madre. */
 
 @media (max-width: 900px) {
   .platform-public-premium--owner .owner-portal__grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .platform-public-premium--complex .platform-court-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .site-theme.platform-public-premium--tenant .site-nav--commercial > a {
-    border-color: var(--public-premium-line);
-    background: #10151a;
-    color: #d7dce0;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
-  }
-  .site-theme.platform-public-premium--tenant .site-nav--commercial .site-nav__reserve {
-    border-color: rgba(255,255,255,.64) !important;
-    background: linear-gradient(180deg,#f5f6f7,#bcc3c9) !important;
-    color: #080a0c !important;
-  }
 }
 
 @media (max-width: 680px) {
@@ -3753,7 +3581,6 @@
   .platform-public-premium--complex .platform-venue-card__actions a { flex: 1 1 150px; justify-content: center; }
   .platform-public-premium--account .account-page { padding-top: 38px; }
   .platform-public-premium--account .account-reservation-card { grid-template-columns: minmax(0,1fr); }
-  .platform-public-premium--tenant .site-nav--commercial { border-color: var(--public-premium-line); background: #0c1014; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3761,4 +3588,426 @@
   .platform-public-premium *::before,
   .platform-public-premium *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
   .platform-public-premium :is(.platform-court-card,.platform-business-card,.owner-portal__card):hover { transform: none; }
+}
+
+/* B88–B90 · Escena arquitectónica 3D generada en tiempo real, sin renders raster */
+.platform-sport-diorama[data-render-engine="dom-css-3d"] {
+  --manual-pan-x: 0px;
+  --manual-pan-y: 0px;
+  --manual-zoom: 1;
+  --manual-orbit: 0deg;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  contain: layout paint style;
+}
+.platform-sport-diorama[data-render-engine="dom-css-3d"]:active { cursor: grabbing; }
+.platform-sport-diorama[data-render-engine="dom-css-3d"] .platform-sport-diorama__scene {
+  pointer-events: auto;
+  touch-action: none;
+}
+.platform-sport-diorama__camera {
+  transform: translate3d(var(--camera-x),var(--camera-y),0) scale(var(--camera-scale));
+}
+.platform-sport-diorama__orbit {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(var(--manual-pan-x),var(--manual-pan-y),0) scale(var(--manual-zoom));
+  transform-origin: 50% 55%;
+  transform-style: preserve-3d;
+  transition: transform .14s ease-out;
+  will-change: transform;
+}
+.platform-sport-diorama__world {
+  transform:
+    translate(-50%,-50%)
+    rotateX(57deg)
+    rotateZ(calc(var(--camera-tilt) + var(--manual-orbit)));
+  transform-style: preserve-3d;
+}
+.platform-sport-diorama__ground {
+  background:
+    radial-gradient(circle at 12% 16%,rgba(86,122,77,.2),transparent 16%),
+    radial-gradient(circle at 84% 80%,rgba(71,108,68,.18),transparent 15%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 15px),
+    linear-gradient(145deg,#202722,#101714 54%,#0a0f0d);
+  box-shadow:
+    0 42px 72px rgba(0,0,0,.64),
+    inset 0 1px 0 rgba(255,255,255,.09),
+    inset 0 0 70px rgba(0,0,0,.2);
+}
+.platform-sport-diorama__road {
+  background:
+    repeating-linear-gradient(90deg,transparent 0 20px,rgba(226,231,234,.08) 20px 22px,transparent 22px 44px),
+    linear-gradient(180deg,#242a2f,#111519);
+}
+.platform-sport-diorama__walkway {
+  position: absolute;
+  z-index: 2;
+  border: 1px solid rgba(218,224,228,.12);
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 12px),
+    linear-gradient(180deg,#4a4e4f,#292d2d);
+  box-shadow: inset 0 0 12px rgba(0,0,0,.26);
+  transform: translateZ(1px);
+}
+.platform-sport-diorama__walkway--north { left: 4%; right: 4%; top: 3.7%; height: 2.2%; }
+.platform-sport-diorama__walkway--east { right: 2.2%; top: 5%; bottom: 5%; width: 2%; }
+
+.platform-sport-diorama__court-zone {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: initial;
+  cursor: pointer;
+}
+.platform-sport-diorama__court-zone:focus-visible {
+  outline: 3px solid #f4b740;
+  outline-offset: 5px;
+  border-radius: 10px;
+}
+.platform-sport-diorama__court-zone:hover {
+  filter: saturate(1.13) brightness(1.08) !important;
+  transform: translateZ(8px);
+}
+.platform-sport-diorama__court-zone[aria-pressed="true"] {
+  filter: saturate(1.18) brightness(1.08) !important;
+}
+.platform-sport-diorama__court {
+  background-blend-mode: soft-light,normal,normal;
+  box-shadow:
+    inset 0 0 34px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 12px 26px rgba(0,0,0,.38);
+}
+.platform-sport-diorama__court--football {
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.07),transparent 34%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.055) 0 12.5%,transparent 12.5% 25%),
+    linear-gradient(145deg,#397e43,#1d592b);
+}
+.platform-sport-diorama__court--volleyball {
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.09),transparent 37%),
+    linear-gradient(90deg,rgba(235,188,102,.11) 50%,transparent 50%),
+    linear-gradient(145deg,#287aad,#174f77);
+}
+.platform-sport-diorama__court--basketball {
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.09),transparent 40%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 18px,transparent 18px 36px),
+    linear-gradient(145deg,#bf6c3f,#7e3c24);
+}
+.platform-sport-diorama__court--futsal {
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.08),transparent 38%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 14px,transparent 14px 28px),
+    linear-gradient(145deg,#217587,#114e5b);
+}
+.platform-sport-diorama__attack-line {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255,255,255,.65);
+}
+.platform-sport-diorama__attack-line--a { left: 33.33%; }
+.platform-sport-diorama__attack-line--b { right: 33.33%; }
+.platform-sport-diorama__three-point {
+  position: absolute;
+  z-index: 2;
+  top: 13%;
+  bottom: 13%;
+  width: 27%;
+  border: 2px solid rgba(255,255,255,.74);
+}
+.platform-sport-diorama__three-point--a { left: -13%; border-radius: 0 60% 60% 0; border-left: 0; }
+.platform-sport-diorama__three-point--b { right: -13%; border-radius: 60% 0 0 60%; border-right: 0; }
+.platform-sport-diorama__futsal-area {
+  position: absolute;
+  z-index: 2;
+  top: 22%;
+  bottom: 22%;
+  width: 16%;
+  border: 2px solid rgba(255,255,255,.74);
+}
+.platform-sport-diorama__futsal-area--a { left: -7%; border-left: 0; border-radius: 0 60% 60% 0; }
+.platform-sport-diorama__futsal-area--b { right: -7%; border-right: 0; border-radius: 60% 0 0 60%; }
+.platform-sport-diorama__bench {
+  position: absolute;
+  z-index: 5;
+  left: 27%;
+  width: 19%;
+  height: 5px;
+  border: 1px solid rgba(230,233,236,.28);
+  border-radius: 2px;
+  background: linear-gradient(180deg,#959da3,#343b40);
+  box-shadow: 0 3px 5px rgba(0,0,0,.36);
+  transform: translateZ(7px);
+}
+.platform-sport-diorama__bench--a { top: -9px; }
+.platform-sport-diorama__bench--b { bottom: -9px; }
+
+.platform-sport-diorama__building {
+  overflow: visible;
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.13),transparent 38%),
+    linear-gradient(180deg,#505960,#20262b 40%,#0b0e11);
+  box-shadow:
+    0 15px 22px rgba(0,0,0,.44),
+    inset 0 1px 0 rgba(255,255,255,.25);
+}
+.platform-sport-diorama__building::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: -7px;
+  height: 7px;
+  border-radius: 0 0 4px 4px;
+  background: #07090b;
+  transform-origin: top;
+  transform: skewX(-28deg);
+  opacity: .86;
+}
+.platform-sport-diorama__building--locker {
+  left: 53%;
+  top: 50%;
+  width: 17%;
+  height: 5%;
+  transform: translateZ(10px);
+}
+.platform-sport-diorama__social-zone {
+  position: absolute;
+  z-index: 4;
+  left: 53%;
+  top: 57%;
+  width: 16%;
+  height: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(230,233,236,.18);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg,rgba(112,78,52,.48),rgba(36,29,24,.8)),
+    #211a16;
+  color: #c7cbd0;
+  font-size: 5px;
+  font-weight: 900;
+  letter-spacing: .13em;
+  box-shadow: 0 8px 15px rgba(0,0,0,.34);
+  transform: translateZ(6px);
+}
+.platform-sport-diorama__social-zone i {
+  position: absolute;
+  width: 15px;
+  height: 6px;
+  border-radius: 50%;
+  background: #5a4638;
+  box-shadow: 0 3px 5px rgba(0,0,0,.32);
+}
+.platform-sport-diorama__social-zone i:first-of-type { left: 13%; bottom: 13%; }
+.platform-sport-diorama__social-zone i:last-of-type { right: 13%; top: 14%; }
+
+.platform-sport-diorama__parking {
+  position: absolute;
+  z-index: 2;
+  left: 4%;
+  right: 52%;
+  bottom: 1.6%;
+  height: 3.3%;
+  display: grid;
+  grid-template-columns: repeat(8,1fr);
+  gap: 3px;
+  padding: 2px 4px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: #15191c;
+  transform: translateZ(2px);
+}
+.platform-sport-diorama__parking span {
+  position: relative;
+  border-inline: 1px solid rgba(255,255,255,.24);
+}
+.platform-sport-diorama__parking span::after {
+  content: "";
+  position: absolute;
+  inset: 22% 15%;
+  border-radius: 2px;
+  background: linear-gradient(180deg,#a7adb2,#3e454a);
+  box-shadow: 0 2px 3px rgba(0,0,0,.32);
+}
+
+.platform-sport-diorama__trees {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.platform-sport-diorama__trees i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 48% 52% 45% 55%;
+  background:
+    radial-gradient(circle at 35% 30%,#5f8d54,#2d5d34 53%,#173521);
+  box-shadow: 0 4px 7px rgba(0,0,0,.35);
+  transform: translateZ(12px);
+  transform-origin: 50% 100%;
+  animation: caxas-tree-breeze 5.8s ease-in-out infinite alternate;
+}
+.platform-sport-diorama__trees i:nth-child(3n) { animation-delay: -1.7s; animation-duration: 6.6s; }
+.platform-sport-diorama__trees i:nth-child(4n) { animation-delay: -3.1s; animation-duration: 7.2s; }
+.platform-sport-diorama__trees i::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  width: 2px;
+  height: 9px;
+  background: #4a3728;
+  transform: rotateX(-57deg);
+  transform-origin: top;
+}
+.platform-sport-diorama__trees i:nth-child(1){left:2%;top:4%}
+.platform-sport-diorama__trees i:nth-child(2){left:10%;top:3%}
+.platform-sport-diorama__trees i:nth-child(3){left:65%;top:3%}
+.platform-sport-diorama__trees i:nth-child(4){left:77%;top:4%}
+.platform-sport-diorama__trees i:nth-child(5){left:92%;top:8%}
+.platform-sport-diorama__trees i:nth-child(6){left:96%;top:67%}
+.platform-sport-diorama__trees i:nth-child(7){left:89%;bottom:2%}
+.platform-sport-diorama__trees i:nth-child(8){left:72%;bottom:2%}
+.platform-sport-diorama__trees i:nth-child(9){left:46%;bottom:2%}
+.platform-sport-diorama__trees i:nth-child(10){left:31%;bottom:2%}
+.platform-sport-diorama__trees i:nth-child(11){left:2%;bottom:12%}
+.platform-sport-diorama__trees i:nth-child(12){left:2%;top:48%}
+
+.platform-sport-diorama__court-label {
+  display: inline-grid;
+  gap: 1px;
+  min-width: 54px;
+  backdrop-filter: blur(8px);
+}
+.platform-sport-diorama__court-label small {
+  color: rgba(255,255,255,.62);
+  font-size: 5px;
+  font-weight: 750;
+  letter-spacing: .04em;
+  text-transform: none;
+}
+.platform-sport-diorama__court-zone[data-offer-state="empty"] .platform-sport-diorama__court-label {
+  border-color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.68);
+}
+
+.platform-sport-diorama.is-day {
+  background:
+    radial-gradient(circle at 55% 16%,rgba(196,220,230,.18),transparent 17rem),
+    linear-gradient(180deg,#304553 0%,#18272f 42%,#0b1115 100%);
+}
+.platform-sport-diorama.is-day .platform-sport-diorama__mountain {
+  background: linear-gradient(180deg,#4b6570,#243b42 67%,#16252a);
+  opacity: .84;
+}
+.platform-sport-diorama.is-day .platform-sport-diorama__mountain--b {
+  background: linear-gradient(180deg,#405961,#1d3036 72%,#122026);
+  opacity: .72;
+}
+.platform-sport-diorama.is-day .platform-sport-diorama__city-glow {
+  background: radial-gradient(ellipse at center,rgba(201,224,230,.13),transparent 68%);
+}
+.platform-sport-diorama.is-day .platform-sport-diorama__world {
+  filter: brightness(1.04) saturate(.96);
+}
+.platform-sport-diorama.is-night .platform-sport-diorama__world {
+  filter: brightness(.88) contrast(1.08) saturate(1.06);
+}
+
+.platform-sport-diorama__controls {
+  position: absolute;
+  z-index: 12;
+  top: 16px;
+  right: 18px;
+  display: flex;
+  gap: 6px;
+  pointer-events: auto;
+}
+.platform-sport-diorama__controls button {
+  min-width: 38px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 10px;
+  border: 1px solid rgba(230,233,236,.18);
+  border-radius: 11px;
+  background: rgba(7,10,12,.72);
+  color: #e7ebee;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+}
+.platform-sport-diorama__controls button:hover { border-color: rgba(255,255,255,.4); background: rgba(24,29,33,.88); }
+.platform-sport-diorama__controls button:focus-visible { outline: 3px solid #f4b740; outline-offset: 2px; }
+.platform-sport-diorama__controls button:disabled { opacity: .4; cursor: default; }
+.platform-sport-diorama__hint {
+  position: absolute;
+  z-index: 11;
+  right: 18px;
+  bottom: 14px;
+  margin: 0;
+  color: rgba(213,219,223,.48);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  pointer-events: none;
+}
+.platform-sport-diorama__caption {
+  right: auto;
+  width: fit-content;
+  max-width: calc(100% - 300px);
+  pointer-events: none;
+}
+
+.platform-sport-diorama[data-scene-visible="false"] :is(
+  .platform-sport-diorama__trees i,
+  .platform-sport-diorama__city-lights,
+  .platform-sport-diorama__building i,
+  .platform-sport-diorama__lights > span::before,
+  .platform-sport-diorama__lights > span::after,
+  .platform-sport-diorama__lights > span i
+) {
+  animation-play-state: paused !important;
+}
+
+@keyframes caxas-tree-breeze {
+  from { transform: translateZ(12px) rotate(-1.2deg) scale(.99); }
+  to { transform: translateZ(12px) rotate(1.2deg) scale(1.015); }
+}
+
+@media (max-width: 900px) {
+  .platform-sport-diorama__controls { top: 12px; right: 12px; }
+  .platform-sport-diorama__hint { display: none; }
+  .platform-sport-diorama__caption { max-width: calc(100% - 160px); }
+}
+@media (max-width: 680px) {
+  .platform-sport-diorama__controls button:first-child { display: none; }
+  .platform-sport-diorama__controls button { min-width: 36px; min-height: 36px; padding: 6px 8px; }
+  .platform-sport-diorama__caption { left: 12px; bottom: 9px; max-width: calc(100% - 130px); }
+  .platform-sport-diorama__court-label { font-size: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-sport-diorama__orbit,
+  .platform-sport-diorama__world,
+  .platform-sport-diorama__court-zone { transition-duration: .01ms !important; }
+  .platform-sport-diorama__trees i { animation: none !important; }
 }

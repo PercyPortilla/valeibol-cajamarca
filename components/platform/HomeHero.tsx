@@ -11,11 +11,12 @@ import { isCajamarcaLightingTime } from "@/lib/platform/cajamarcaLighting";
 type Props = {
   sports: PublicSport[];
   stats: { businesses: number; venues: number; courts: number };
+  sportCourtCounts: Record<string, number>;
   sportSlug: string;
   onSportChange: (sportSlug: string) => void;
 };
 
-export function HomeHero({ sports, stats, sportSlug, onSportChange }: Props) {
+export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportChange }: Props) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("17:00");
   const [sceneNight, setSceneNight] = useState(false);
@@ -91,7 +92,12 @@ export function HomeHero({ sports, stats, sportSlug, onSportChange }: Props) {
         </div>
 
         <aside className="platform-home-hero__aside" aria-label="Vista y resumen del marketplace">
-          <SportComplexVisual theme={theme} isNight={sceneNight} />
+          <SportComplexVisual
+            theme={theme}
+            isNight={sceneNight}
+            onSportChange={onSportChange}
+            courtCounts={sportCourtCounts}
+          />
         </aside>
       </div>
 

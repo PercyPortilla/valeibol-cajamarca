@@ -9,7 +9,7 @@ const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("B79 mantiene las cuatro losas dentro de una sola escena panorámica", () => {
   for (const sport of ["football", "volleyball", "basketball", "futsal"]) {
-    assert.match(visual, new RegExp(`data-sport="${sport}"`));
+    assert.match(visual, new RegExp(`court\\("${sport}"`));
   }
   assert.match(visual, /platform-sport-diorama__skyline/);
   assert.match(visual, /platform-sport-diorama__camera/);
@@ -30,10 +30,10 @@ test("B79 mueve la cámara sin remount al cambiar deporte", () => {
 });
 
 test("B79 conserva equipamiento lógico por losa y enfatiza solo el deporte activo", () => {
-  assert.match(visual, /court-zone--football[\s\S]*?platform-sport-diorama__goal/);
-  assert.match(visual, /court-zone--volleyball[\s\S]*?platform-sport-diorama__net/);
-  assert.match(visual, /court-zone--basketball[\s\S]*?platform-sport-diorama__hoop/);
-  assert.match(visual, /court-zone--futsal[\s\S]*?platform-sport-diorama__goal/);
+  assert.match(visual, /court\("football"[\s\S]*?platform-sport-diorama__goal/);
+  assert.match(visual, /court\("volleyball"[\s\S]*?platform-sport-diorama__net/);
+  assert.match(visual, /court\("basketball"[\s\S]*?platform-sport-diorama__hoop/);
+  assert.match(visual, /court\("futsal"[\s\S]*?platform-sport-diorama__goal/);
   assert.match(css, /not\(\[data-camera-focus="multi"\]\).*court-zone[^}]*opacity:\s*\.36/);
   assert.match(css, /court-zone--football[\s\S]*?opacity:\s*1/);
 });

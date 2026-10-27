@@ -29,7 +29,13 @@ export function HomeSportExperience({ sports, stats, sportCourtCounts }: Props) 
 
   return (
     <>
-      <HomeHero sports={sports} stats={stats} sportSlug={sportSlug} onSportChange={selectSport} />
+      <HomeHero
+        sports={sports}
+        stats={stats}
+        sportCourtCounts={sportCourtCounts}
+        sportSlug={sportSlug}
+        onSportChange={selectSport}
+      />
 
       <section className="platform-proof-strip" aria-label="Cómo funciona la plataforma">
         <div className="shell platform-proof-strip__inner">

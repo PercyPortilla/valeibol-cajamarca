@@ -60,12 +60,11 @@ test("B63/B69 visual deportivo conserva escena contextual y reflectores tras B79
   assert.match(visual, /platform-sport-diorama__net/);
   assert.match(visual, /platform-sport-diorama__hoop/);
   assert.match(visual, /platform-sport-diorama__world/);
-  assert.match(visual, /platform-sport-diorama__court-zone--football/);
-  assert.match(visual, /platform-sport-diorama__court-zone--volleyball/);
-  assert.match(visual, /platform-sport-diorama__court-zone--basketball/);
-  assert.match(visual, /platform-sport-diorama__court-zone--futsal/);
+  for (const sport of ["football", "volleyball", "basketball", "futsal"]) {
+    assert.match(visual, new RegExp(`court\\("${sport}"`));
+  }
   assert.match(visual, /platform-sport-diorama__lights/);
-  assert.doesNotMatch(visual, /three|webgl|canvas/i);
+  assert.doesNotMatch(visual, /webgl|<canvas|three\.js|from "three"/i);
 });
 
 test("B63 conserva estadísticas reales, responsive y reduced motion", () => {

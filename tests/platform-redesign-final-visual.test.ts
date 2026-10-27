@@ -26,7 +26,7 @@ test("rediseño bloque 13 ningún cambio de deporte monta el diseño viejo", () 
   assert.doesNotMatch(hero, /PlatformSearchForm|platform-showcase-card|router\.push|window\.location/);
   assert.match(hero, /onSportChange\(event\.target\.value\)/);
   assert.match(experience, /setSportSlug\(nextSportSlug\)/);
-  assert.match(hero, /<SportComplexVisual theme=\{theme\} isNight=\{sceneNight\} \/>/);
+  assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
   assert.match(visual, /platform-sport-diorama/);
   assert.doesNotMatch(visual, /platform-sport-complex__court|platform-showcase/);
 });
