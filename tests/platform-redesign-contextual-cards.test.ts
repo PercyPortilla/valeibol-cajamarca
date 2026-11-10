@@ -10,7 +10,7 @@ const css = readFileSync("app/styles/globals-5.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("rediseño bloque 9 usa variante premium sin alterar datos de negocio", () => {
-  assert.match(home, /<PlatformResults businesses=\{businesses\} premium \/>/);
+  assert.match(home, /<PlatformResults businesses=\{businesses\} premium loadFailed=\{catalogResult\.failed\}/);
   assert.match(results, /premium=\{premium\}/);
   assert.match(card, /platform-business-card--premium/);
   assert.match(card, /business\.priceFrom === null/);
@@ -21,9 +21,9 @@ test("rediseño bloque 9 usa variante premium sin alterar datos de negocio", () 
 
 test("rediseño bloque 9 deriva badge de iluminación de la hora validada", () => {
   assert.match(search, /const lightingRequired = Boolean\(time && isNightSlot\(time\)\)/);
-  assert.match(search, /<PlatformResults businesses=\{businesses\} premium lightingRequired=\{lightingRequired\} \/>/);
+  assert.match(search, /<PlatformResults businesses=\{businesses\} premium lightingRequired=\{lightingRequired\} loadFailed=\{catalogResult\.failed\}/);
   assert.match(card, /lightingRequired \? <span className="platform-lighting-badge">/);
-  assert.match(card, /Con iluminación/);
+  assert.match(card, /Consulta iluminación/);
 });
 
 test("rediseño bloque 9 no inventa precio ni disponibilidad contextual", () => {

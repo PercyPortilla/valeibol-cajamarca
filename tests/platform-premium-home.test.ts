@@ -47,7 +47,7 @@ test("B63 conserva iluminación comercial por hora seleccionada tras separar esc
   assert.equal(isNightSlot(""), false);
   assert.equal(isNightSlot("25:00"), false);
   assert.match(hero, /const reservationNeedsLighting = isNightSlot\(selectedTime\)/);
-  assert.match(hero, /Con iluminación/);
+  assert.match(hero, /Horario nocturno: consulta la iluminación de la cancha/);
   assert.match(hero, /isCajamarcaLightingTime\(new Date\(\)\)/);
 });
 

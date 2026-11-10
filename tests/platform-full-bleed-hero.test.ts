@@ -17,13 +17,13 @@ test("B84 convierte el complejo en fondo full-bleed sin caja lateral", () => {
 
 test("B84 conserva copy buscador cobertura y CTA", () => {
   assert.match(hero, /Encuentra dónde jugar[\s\S]*en Cajamarca/);
-  assert.match(hero, /Explora canchas, coliseos y espacios deportivos\. Compara horarios, disponibilidad y elige el lugar ideal para tu próximo partido\./);
+  assert.match(hero, /Explora los espacios deportivos de la ciudad, conoce sus precios y coordina tu próximo partido directamente por WhatsApp\./);
   assert.match(hero, /Todo el deporte de Cajamarca, en una sola plataforma\./);
   assert.match(hero, /Cobertura actual/);
   assert.match(hero, /name="deporte"/);
   assert.match(hero, /name="fecha"/);
   assert.match(hero, /name="hora"/);
-  assert.match(hero, /Explorar espacios/);
+  assert.match(hero, /Explorar canchas/);
 });
 
 test("B84 integra deportes y estadísticas reales en el Hero", () => {
@@ -49,7 +49,7 @@ test("B84 mantiene B80-B83 y cámara persistente", () => {
 });
 
 test("B84 respeta orden móvil targets foco y reduced motion", () => {
-  assert.match(hero, /platform-home-hero__copy[\s\S]*?platform-home-search[\s\S]*?platform-home-hero__aside[\s\S]*?platform-home-hero__sports[\s\S]*?platform-market-stats/);
+  assert.match(hero, /platform-home-hero__copy[\s\S]*?platform-home-hero__aside[\s\S]*?platform-home-hero__finder[\s\S]*?platform-home-search[\s\S]*?platform-home-hero__sports[\s\S]*?platform-market-stats/);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*?platform-home-hero__aside[\s\S]*?position:\s*relative/);
   assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-home-hero__sports \{ grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /platform-home-hero__sport \{[\s\S]*?min-height:\s*52px/);

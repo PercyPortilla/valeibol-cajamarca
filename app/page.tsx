@@ -2,7 +2,7 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { PlatformResults } from "@/components/platform/PlatformResults";
 import { HomeSportExperience } from "@/components/platform/HomeSportExperience";
-import { getPublicPlatformCatalog, getPublicSports } from "@/lib/data/platformService";
+import { getPublicPlatformCatalogResult, getPublicSports } from "@/lib/data/platformService";
 import { groupCatalogByBusiness } from "@/lib/data/repositories/platformRepository";
 import { StructuredData } from "@/components/platform/StructuredData";
 import { buildMarketplaceJsonLd } from "@/lib/platform/seo";
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
 };
 
 export default async function PlatformHomePage() {
-  const [catalog, activeSports] = await Promise.all([getPublicPlatformCatalog(), getPublicSports()]);
+  const [catalogResult, activeSports] = await Promise.all([getPublicPlatformCatalogResult(), getPublicSports()]);
+  const { catalog } = catalogResult;
   const allBusinesses = groupCatalogByBusiness(catalog);
   const businesses = allBusinesses.slice(0, 6);
   const venueCount = new Set(catalog.map((item) => item.venueId)).size;
@@ -49,9 +50,12 @@ export default async function PlatformHomePage() {
         <section className="platform-section platform-home-featured" id="complejos">
           <div className="shell">
             <div className="platform-section__heading">
-              <div><span className="eyebrow">COMPLEJOS EN CAJAMARCA</span><h2>Complejos disponibles</h2><p>Por ahora la plataforma está enfocada únicamente en Cajamarca.</p></div>
+              <div><span className="eyebrow">CANCHAS CON IDENTIDAD LOCAL</span><h2>Complejos disponibles</h2><p>Explora los espacios de Cajamarca, conoce sus instalaciones y contacta al negocio que elijas.</p></div>
             </div>
-            <PlatformResults businesses={businesses} premium />
+            <PlatformResults businesses={businesses} premium loadFailed={catalogResult.failed} retryHref="/" />
+            {allBusinesses.length > businesses.length ? (
+              <a className="platform-home-featured__all" href="/buscar">Explorar los {allBusinesses.length} complejos <span aria-hidden="true">↗</span></a>
+            ) : null}
           </div>
         </section>
 

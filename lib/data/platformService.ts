@@ -4,18 +4,25 @@ import { SupabasePlatformRepository } from "./repositories/supabasePlatformRepos
 import type { PlatformCatalogQuery } from "./repositories/platformRepository";
 import { platformConfig } from "@/config/platform";
 
-export async function getPublicPlatformCatalog(query: PlatformCatalogQuery = {}) {
+export async function getPublicPlatformCatalogResult(query: PlatformCatalogQuery = {}) {
   const repository = hasPublicSupabaseServerConfig()
     ? new SupabasePlatformRepository()
     : new MockPlatformRepository();
 
   try {
-    return await repository.listCatalog({ ...query, city: platformConfig.city });
+    return { catalog: await repository.listCatalog({ ...query, city: platformConfig.city }), failed: false };
   } catch (error) {
     console.error("[platform-catalog] No se pudo cargar el catálogo.", error instanceof Error ? error.message : "unknown");
-    if (process.env.NODE_ENV === "production") return [];
-    return new MockPlatformRepository().listCatalog({ ...query, city: platformConfig.city });
+    if (process.env.NODE_ENV === "production") {
+      return { catalog: [], failed: true };
+    }
+    return { catalog: await new MockPlatformRepository().listCatalog({ ...query, city: platformConfig.city }), failed: false };
   }
+}
+
+export async function getPublicPlatformCatalog(query: PlatformCatalogQuery = {}) {
+  const result = await getPublicPlatformCatalogResult(query);
+  return result.catalog;
 }
 import { cache } from "react";
 

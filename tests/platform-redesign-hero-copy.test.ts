@@ -8,9 +8,9 @@ const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
 test("rediseño bloque 3 usa el copy final solicitado", () => {
   assert.match(hero, /Encuentra dónde jugar <span>en Cajamarca<\/span>/);
-  assert.match(hero, /Explora canchas, coliseos y espacios deportivos\. Compara horarios, disponibilidad y elige el lugar ideal para tu próximo partido\./);
+  assert.match(hero, /Explora los espacios deportivos de la ciudad, conoce sus precios y coordina tu próximo partido directamente por WhatsApp\./);
   assert.match(hero, /Todo el deporte de Cajamarca, en una sola plataforma\./);
-  assert.match(hero, /Explorar espacios/);
+  assert.match(hero, /Explorar canchas/);
 });
 
 test("rediseño bloque 3 muestra Cajamarca como cobertura fija y no como selector", () => {

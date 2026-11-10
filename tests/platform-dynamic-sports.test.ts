@@ -33,7 +33,7 @@ test("B27 expone al público solo deportes activos y sincroniza tipos", () => {
 
 test("marketplace usa catálogo dinámico para home, búsqueda y sitemap", () => {
   assert.match(service, /getPublicSports/);
-  assert.match(home, /Promise\.all\(\[getPublicPlatformCatalog\(\), getPublicSports\(\)\]\)/);
+  assert.match(home, /Promise\.all\(\[getPublicPlatformCatalogResult\(\), getPublicSports\(\)\]\)/);
   assert.match(search, /await getPublicSports\(\)/);
   assert.match(sitemap, /getPublicSports\(\)/);
   assert.doesNotMatch(home, /sports\.filter\(\(sport\) => sport\.active\)/);

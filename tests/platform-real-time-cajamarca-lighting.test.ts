@@ -21,7 +21,7 @@ test("B80 separa iluminación visual real de la regla comercial del horario sele
   assert.match(hero, /const reservationNeedsLighting = isNightSlot\(selectedTime\)/);
   assert.match(hero, /const \[sceneNight, setSceneNight\] = useState\(false\)/);
   assert.match(hero, /<SportComplexVisual[\s\S]*?theme=\{theme\}[\s\S]*?isNight=\{sceneNight\}/);
-  assert.match(hero, /reservationNeedsLighting \? "Con iluminación"/);
+  assert.match(hero, /reservationNeedsLighting \? "Horario nocturno: consulta la iluminación de la cancha\."/);
   assert.doesNotMatch(hero, /<SportComplexVisual theme=\{theme\} isNight=\{reservationNeedsLighting\}/);
 });
 

@@ -18,6 +18,7 @@ type Props = {
 
 export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportChange }: Props) {
   const [selectedDate, setSelectedDate] = useState("");
+  const [minDate, setMinDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("17:00");
   const [sceneNight, setSceneNight] = useState(false);
   const theme = useMemo(() => getHomeSportTheme(sportSlug), [sportSlug]);
@@ -30,6 +31,7 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
   useEffect(() => {
     const syncCajamarcaLighting = () => setSceneNight(isCajamarcaLightingTime(new Date()));
     syncCajamarcaLighting();
+    setMinDate(new Intl.DateTimeFormat("en-CA", { timeZone: "America/Lima", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()));
     const intervalId = window.setInterval(syncCajamarcaLighting, 15_000);
     const syncWhenVisible = () => {
       if (document.visibilityState === "visible") syncCajamarcaLighting();
@@ -52,11 +54,26 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
     >
       <div className="shell platform-home-hero__grid">
         <div className="platform-home-hero__copy">
-          <span className="platform-live-label"><i aria-hidden="true" /> CAXAS SPORTCENTER</span>
+          <span className="platform-live-label"><i aria-hidden="true" /> CAXAS SPORTCENTER <span className="platform-live-label__city">/ CAJAMARCA, PERÚ</span></span>
           <h1>Encuentra dónde jugar <span>en Cajamarca</span></h1>
-          <p>Explora canchas, coliseos y espacios deportivos. Compara horarios, disponibilidad y elige el lugar ideal para tu próximo partido.</p>
+          <p>Explora los espacios deportivos de la ciudad, conoce sus precios y coordina tu próximo partido directamente por WhatsApp.</p>
           <strong className="platform-home-hero__tagline">Todo el deporte de Cajamarca, en una sola plataforma.</strong>
-
+          <a className="platform-home-hero__discover" href="#deportes">Descubre los deportes <span aria-hidden="true">↗</span></a>
+        </div>
+        <aside className="platform-home-hero__aside" aria-label="Vista interactiva de espacios deportivos">
+          <div className="platform-home-hero__scene-meta"><span><i aria-hidden="true" /> COMPLEJO INTERACTIVO</span><small>Explora los escenarios deportivos</small></div>
+          <SportComplexVisual
+            theme={theme}
+            isNight={sceneNight}
+            onSportChange={onSportChange}
+            courtCounts={sportCourtCounts}
+          />
+        </aside>
+        <div className="platform-home-hero__finder">
+          <div className="platform-home-hero__finder-heading">
+            <div><span>ENCUENTRA TU CANCHA</span><strong>Tu próximo partido empieza aquí.</strong></div>
+            <small>Consulta horarios y confirma directamente con el complejo.</small>
+          </div>
           <form className="platform-home-search" action="/buscar" method="get">
             <label>
               <span><Icon name={theme.icon} size={14} /> Deporte</span>
@@ -74,7 +91,7 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
 
             <label>
               <span><Icon name="calendar" size={14} /> Fecha</span>
-              <input name="fecha" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
+              <input name="fecha" type="date" min={minDate || undefined} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
             </label>
 
             <label>
@@ -82,23 +99,14 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
               <input name="hora" type="time" value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} />
             </label>
 
-            <button className="button platform-home-search__submit" type="submit">Explorar espacios <span aria-hidden="true">→</span></button>
+            <button className="button platform-home-search__submit" type="submit">Explorar canchas <span aria-hidden="true">↗</span></button>
           </form>
 
           <div className={`platform-night-indicator${reservationNeedsLighting ? " is-active" : ""}`} aria-live="polite">
             <Icon name="lighting" size={16} />
-            {reservationNeedsLighting ? "Con iluminación" : "Iluminación no requerida para este horario"}
+            {reservationNeedsLighting ? "Horario nocturno: consulta la iluminación de la cancha." : "Los horarios se confirman directamente con cada negocio."}
           </div>
         </div>
-
-        <aside className="platform-home-hero__aside" aria-label="Vista y resumen del marketplace">
-          <SportComplexVisual
-            theme={theme}
-            isNight={sceneNight}
-            onSportChange={onSportChange}
-            courtCounts={sportCourtCounts}
-          />
-        </aside>
       </div>
 
       <div className="shell platform-home-hero__footer">

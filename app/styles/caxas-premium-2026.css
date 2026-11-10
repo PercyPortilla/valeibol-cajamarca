@@ -1,0 +1,861 @@
+/*
+ * SportCenter Caxas · Arena editorial.
+ * Overrides scoped to the homepage; public tenant pages and private panels
+ * keep their own design and business behavior.
+ */
+.platform-home {
+  --premium-ink: #f5f5ee;
+  --premium-muted: #adb8b2;
+  --premium-lime: #d9f675;
+  --premium-lime-soft: rgba(217,246,117,.13);
+  --premium-stroke: rgba(224,233,218,.16);
+  --premium-panel: #161e1d;
+  background: #080c0d;
+  color: var(--premium-ink);
+}
+
+.platform-home .platform-header--premium {
+  background: rgba(9,13,14,.96);
+  border-bottom: 1px solid var(--premium-stroke);
+  box-shadow: none;
+}
+.platform-home .platform-header--premium .platform-header__inner {
+  min-height: 82px;
+  gap: 28px;
+}
+.platform-home .platform-header--premium .platform-brand {
+  min-height: 58px;
+}
+.platform-home .platform-header--premium .platform-brand__wordmark {
+  gap: 10px;
+  font-size: clamp(20px,2vw,27px);
+  letter-spacing: .04em;
+}
+.platform-home .platform-header--premium .platform-brand__wordmark span {
+  font-size: 10px;
+  letter-spacing: .19em;
+}
+.platform-home .platform-header--premium .platform-brand__premium-copy small {
+  color: #b3beb5;
+  font-size: 10px;
+  letter-spacing: .09em;
+}
+.platform-home .platform-header--premium .platform-nav {
+  gap: 7px;
+}
+.platform-home .platform-header--premium .platform-nav a {
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 710;
+  color: #dce2db;
+}
+.platform-home .platform-header--premium .platform-nav a:hover {
+  background: rgba(217,246,117,.08);
+  color: #fff;
+}
+.platform-home .platform-header--premium .platform-nav .platform-nav__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--premium-lime);
+  background: var(--premium-lime);
+  color: #10180f;
+  font-weight: 850;
+}
+.platform-home .platform-header--premium .platform-nav .platform-nav__primary:hover {
+  border-color: #f0ffa8;
+  background: #f0ffa8;
+  color: #10180f;
+}
+.platform-home .platform-nav__primary span {
+  margin-left: 0;
+  font-size: 17px;
+  line-height: 1;
+}
+.platform-home :is(a,button,input,select):focus-visible {
+  outline: 3px solid var(--premium-lime);
+  outline-offset: 3px;
+}
+
+/* Editorial hero: the real interactive sports scene is framed and legible. */
+.platform-home .platform-home-hero--premium,
+.platform-home .platform-home-hero--premium.is-night {
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(44px,5vw,76px) 0 35px;
+  background:
+    radial-gradient(ellipse at 84% 18%, rgba(135,178,136,.12),transparent 35rem),
+    radial-gradient(ellipse at 12% 80%, rgba(114,136,135,.07),transparent 30rem),
+    linear-gradient(135deg,#090e0f,#111a19 58%,#0b1111 100%);
+}
+.platform-home .platform-home-hero--premium::before {
+  opacity: .13;
+  background-size: 64px 64px;
+  mask-image: linear-gradient(90deg,black,transparent 78%);
+}
+.platform-home .platform-home-hero--premium::after {
+  background: linear-gradient(180deg,transparent 65%,rgba(5,9,10,.42) 100%);
+}
+.platform-home .platform-home-hero__grid {
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+  display: grid;
+  grid-template-areas: "copy scene" "finder finder";
+  grid-template-columns: minmax(0,.93fr) minmax(0,1.07fr);
+  align-items: center;
+  column-gap: clamp(22px,4vw,66px);
+  row-gap: clamp(20px,2.8vw,38px);
+}
+.platform-home .platform-home-hero__copy {
+  grid-area: copy;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 590px;
+  min-width: 0;
+  padding: 0;
+}
+.platform-home .platform-live-label {
+  min-height: 34px;
+  gap: 10px;
+  padding: 8px 13px;
+  border: 1px solid rgba(217,246,117,.24);
+  border-radius: 99px;
+  background: rgba(217,246,117,.06);
+  color: var(--premium-lime);
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: .08em;
+}
+.platform-home .platform-live-label i {
+  background: var(--premium-lime);
+  box-shadow: 0 0 12px rgba(217,246,117,.35);
+}
+.platform-home .platform-live-label__city {
+  padding-left: 9px;
+  border-left: 1px solid rgba(217,246,117,.24);
+  color: #b5c1b4;
+  font-weight: 600;
+  letter-spacing: .035em;
+}
+.platform-home .platform-home-hero__copy h1 {
+  max-width: 625px;
+  margin: 25px 0 22px;
+  color: var(--premium-ink);
+  font-family: "Arial Black", "Arial", system-ui, sans-serif;
+  font-size: clamp(46px,5.1vw,76px);
+  font-style: normal;
+  font-weight: 950;
+  letter-spacing: -.075em;
+  line-height: 1.055;
+  text-wrap: balance;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+.platform-home .platform-home-hero__copy h1 span {
+  display: block;
+  background: none;
+  color: var(--premium-lime);
+  font-size: .82em;
+  letter-spacing: -.058em;
+  -webkit-text-fill-color: currentColor;
+}
+.platform-home .platform-home-hero__copy > p {
+  max-width: 490px;
+  margin: 0;
+  color: #c2cfc7;
+  font-size: clamp(15px,1.3vw,18px);
+  line-height: 1.62;
+}
+.platform-home .platform-home-hero__tagline {
+  display: block;
+  max-width: 470px;
+  margin-top: 16px;
+  color: #dce6dc;
+  font-size: 13px;
+  font-weight: 730;
+  line-height: 1.5;
+}
+.platform-home .platform-home-hero__discover {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 22px;
+  border-bottom: 1px solid rgba(217,246,117,.55);
+  color: var(--premium-lime);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.platform-home .platform-home-hero__discover:hover { color: #f1ffa9; }
+.platform-home .platform-home-hero__discover span { font-size: 18px; }
+
+.platform-home .platform-home-hero__aside {
+  grid-area: scene;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  min-width: 0;
+  min-height: clamp(370px,37vw,530px);
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(201,227,179,.2);
+  border-radius: 26px;
+  background: linear-gradient(145deg,#1a2925,#0b1113);
+  box-shadow: 0 34px 80px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.08);
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  mask-image: none;
+  box-shadow: none;
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama__scene {
+  inset: 55px -12px 40px;
+}
+.platform-home .platform-home-hero__scene-meta {
+  position: absolute;
+  z-index: 15;
+  top: 22px;
+  left: 23px;
+  max-width: 55%;
+  display: grid;
+  gap: 6px;
+  pointer-events: none;
+}
+.platform-home .platform-home-hero__scene-meta > span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #f0f7e4;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .075em;
+}
+.platform-home .platform-home-hero__scene-meta > span i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--premium-lime);
+  box-shadow: 0 0 14px rgba(217,246,117,.5);
+}
+.platform-home .platform-home-hero__scene-meta small {
+  color: #a7b9b1;
+  font-size: 12px;
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama__caption {
+  right: 18px;
+  bottom: 18px;
+}
+.platform-home .platform-home-hero__aside .platform-sport-diorama__controls button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Booking search is a practical product control, not a decorative banner. */
+.platform-home .platform-home-hero__finder {
+  grid-area: finder;
+  position: relative;
+  z-index: 4;
+  min-width: 0;
+  padding: clamp(20px,2.4vw,30px);
+  border: 1px solid rgba(217,246,117,.2);
+  border-radius: 24px;
+  background: linear-gradient(135deg,#1b2522,#101716 72%);
+  box-shadow: 0 24px 60px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.platform-home .platform-home-hero__finder-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.platform-home .platform-home-hero__finder-heading > div {
+  display: grid;
+  gap: 5px;
+}
+.platform-home .platform-home-hero__finder-heading > div > span {
+  color: var(--premium-lime);
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: .13em;
+}
+.platform-home .platform-home-hero__finder-heading strong {
+  color: #f5f8ee;
+  font-size: clamp(19px,2.25vw,27px);
+  letter-spacing: -.035em;
+  line-height: 1.16;
+}
+.platform-home .platform-home-hero__finder-heading small {
+  max-width: 270px;
+  color: #a9b9ad;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: right;
+}
+.platform-home .platform-home-search {
+  display: grid;
+  grid-template-columns: minmax(150px,1fr) minmax(150px,1fr) minmax(155px,1fr) minmax(120px,.7fr) minmax(182px,1fr);
+  align-items: end;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.platform-home .platform-home-search label,
+.platform-home .platform-home-search__coverage { gap: 8px; }
+.platform-home .platform-home-search label > span,
+.platform-home .platform-home-search__coverage small {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #c5d1c5;
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.platform-home .platform-home-search__coverage small {
+  order: -1;
+}
+.platform-home .platform-home-search select,
+.platform-home .platform-home-search input,
+.platform-home .platform-home-search__coverage strong {
+  min-height: 54px;
+  padding: 0 13px;
+  border: 1px solid rgba(221,232,219,.24);
+  border-radius: 12px;
+  background: rgba(8,15,13,.72);
+  color: #edf4e9;
+  font-size: 14px;
+  font-weight: 720;
+}
+.platform-home .platform-home-search__coverage strong { gap: 7px; font-size: 13px; }
+.platform-home .platform-home-search__submit {
+  grid-column: auto;
+  min-width: 0;
+  min-height: 54px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #e9ffa6;
+  border-radius: 12px;
+  background: var(--premium-lime);
+  color: #10170e;
+  font-size: 14px;
+  font-weight: 890;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(131,177,63,.13);
+}
+.platform-home .platform-home-search__submit:hover {
+  border-color: #f4ffc5;
+  background: #f0ffa8;
+  color: #10170e;
+  box-shadow: 0 14px 32px rgba(131,177,63,.22);
+}
+.platform-home .platform-home-search__submit span { font-size: 18px; }
+.platform-home .platform-night-indicator {
+  min-height: 0;
+  margin: 15px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #aab8ad;
+  font-size: 12px;
+  font-weight: 590;
+}
+.platform-home .platform-night-indicator.is-active { color: #e1ecb6; }
+
+/* Sport selectors and truthful, real inventory counts. */
+.platform-home .platform-home-hero__footer {
+  position: relative;
+  z-index: 3;
+  left: auto;
+  bottom: auto;
+  width: min(calc(100% - 40px),1240px);
+  margin: 20px auto 0;
+  display: grid;
+  grid-template-columns: minmax(0,1.18fr) minmax(310px,.82fr);
+  align-items: stretch;
+  gap: 15px;
+  transform: none;
+}
+.platform-home .platform-home-hero__sports { gap: 8px; }
+.platform-home .platform-home-hero__sport {
+  min-height: 66px;
+  padding: 10px;
+  border: 1px solid var(--premium-stroke);
+  border-radius: 13px;
+  background: rgba(19,29,26,.9);
+  color: #e0e9df;
+  font-size: 13px;
+  box-shadow: none;
+}
+.platform-home .platform-home-hero__sport:hover {
+  border-color: rgba(217,246,117,.55);
+  background: rgba(42,58,42,.8);
+}
+.platform-home .platform-home-hero__sport.is-active {
+  border-color: var(--premium-lime);
+  background: var(--premium-lime-soft);
+  color: var(--premium-lime);
+  box-shadow: inset 0 0 0 1px rgba(217,246,117,.12);
+}
+.platform-home .platform-home-hero__footer .platform-market-stats { gap: 8px; }
+.platform-home .platform-home-hero__footer .platform-market-stats div {
+  min-height: 66px;
+  padding: 10px 12px;
+  border: 1px solid var(--premium-stroke);
+  border-radius: 13px;
+  background: rgba(18,27,24,.78);
+  box-shadow: none;
+}
+.platform-home .platform-market-stats strong {
+  background: none;
+  color: #f7faed;
+  font-size: 26px;
+  font-weight: 830;
+}
+.platform-home .platform-market-stats span {
+  color: #c1ccc0;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .045em;
+}
+
+.platform-home .platform-proof-strip {
+  border-block: 1px solid var(--premium-stroke);
+  background: #111917;
+}
+.platform-home .platform-proof-strip__inner > div {
+  min-height: 108px;
+  gap: 16px;
+  padding: 18px 26px;
+  border-color: rgba(216,229,211,.13);
+}
+.platform-home .platform-proof-strip__inner > div > span {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(217,246,117,.28);
+  border-radius: 12px;
+  background: rgba(217,246,117,.07);
+  color: var(--premium-lime);
+  font-size: 12px;
+}
+.platform-home .platform-proof-strip strong { color: #f4f7ed; font-size: 16px; }
+.platform-home .platform-proof-strip small { max-width: 260px; color: #b4c3b7; font-size: 12px; line-height: 1.45; }
+
+.platform-home .platform-section { padding-block: 88px 98px; }
+.platform-home .platform-section__heading { gap: 22px; margin-bottom: 34px; }
+.platform-home .platform-section__heading h2 {
+  color: #f6f8ef;
+  font-size: clamp(32px,3.8vw,51px);
+  font-weight: 875;
+  letter-spacing: -.055em;
+  line-height: 1.06;
+}
+.platform-home .platform-section__heading .eyebrow,
+.platform-home .eyebrow {
+  color: var(--premium-lime);
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+.platform-home .platform-section__heading p {
+  max-width: 580px;
+  margin: 12px 0 0;
+  color: #b5c4bb;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.platform-home .text-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--premium-lime);
+  font-size: 13px;
+  font-weight: 790;
+}
+.platform-home .text-link:hover { color: #f0ffa8; }
+
+.platform-home .platform-home-sports { background: #121a18; }
+.platform-home .platform-sport-grid { gap: 14px; }
+.platform-home .platform-sport-card {
+  min-height: 198px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+  gap: 20px 12px;
+  padding: 24px;
+  border: 1px solid rgba(221,232,220,.16);
+  border-radius: 20px;
+  background: linear-gradient(155deg,#212d27 0%,#141c1b 75%);
+  text-align: left;
+  box-shadow: none;
+}
+.platform-home .platform-sport-card:hover {
+  border-color: rgba(217,246,117,.5);
+  background: linear-gradient(155deg,#283a2c,#18221c 78%);
+  transform: translateY(-3px);
+  box-shadow: 0 22px 44px rgba(0,0,0,.25);
+}
+.platform-home .platform-sport-card.is-active {
+  border-color: var(--premium-lime);
+  background: linear-gradient(145deg,#2b3e2b,#19251d 78%);
+  box-shadow: 0 0 0 1px rgba(217,246,117,.08);
+}
+.platform-home .platform-sport-card > span {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(226,241,220,.18);
+  border-radius: 15px;
+  background: rgba(10,17,15,.55);
+}
+.platform-home .platform-sport-card div {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  gap: 6px;
+  align-self: end;
+  min-width: 0;
+}
+.platform-home .platform-sport-card__index {
+  color: #b4c5b8;
+  font-size: 10px;
+  font-weight: 770;
+  letter-spacing: .14em;
+}
+.platform-home .platform-sport-card strong { color: #f5f8ef; font-size: 23px; letter-spacing: -.04em; }
+.platform-home .platform-sport-card small { color: #c0cdc3; font-size: 12px; line-height: 1.42; }
+.platform-home .platform-sport-card b {
+  grid-column: 2;
+  grid-row: 1;
+  position: static;
+  align-self: center;
+  color: var(--premium-lime);
+  font-size: 24px;
+}
+
+/* The featured business uses its actual photo as a full-size editorial cover. */
+.platform-home .platform-home-featured { background: #090f0e; }
+.platform-home .platform-results-grid--premium { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.platform-home .platform-results-grid--spotlight { grid-template-columns: minmax(0,1fr); }
+.platform-home .platform-results-grid--spotlight .platform-business-card {
+  min-height: 380px;
+  display: grid;
+  grid-template-columns: minmax(0,1.02fr) minmax(0,.98fr);
+  padding: 0;
+  border: 1px solid rgba(217,246,117,.2);
+  border-radius: 25px;
+  background: #171f1c;
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+.platform-home .platform-results-grid--premium .platform-business-card:hover {
+  border-color: rgba(217,246,117,.54);
+}
+.platform-home .platform-results-grid--spotlight .platform-business-card__visual {
+  min-height: 380px;
+  height: 100%;
+  background: #1b2b27;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__cover {
+  object-fit: cover;
+  transition: transform .45s ease;
+}
+.platform-home .platform-results-grid--premium .platform-business-card:hover .platform-business-card__cover { transform: scale(1.035); }
+.platform-home .platform-results-grid--premium .platform-business-card__body {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 19px;
+  padding: 32px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__copy h3 {
+  margin: 0 0 7px;
+  color: #f5f8ef;
+  font-size: clamp(27px,2.8vw,39px);
+  font-weight: 870;
+  letter-spacing: -.06em;
+  line-height: 1.07;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__copy p {
+  color: #c2cdc4;
+  font-size: 14px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__meta {
+  padding-block: 17px;
+  border-color: var(--premium-stroke);
+}
+.platform-home .platform-results-grid--premium .platform-business-card__meta span {
+  color: #becdc2;
+  font-size: 13px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__meta span:last-child {
+  color: #eef6e4;
+  font-size: 16px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__reputation,
+.platform-home .platform-results-grid--premium .platform-business-card__bottom > span {
+  color: #b5c3b8;
+  font-size: 12px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card__bottom {
+  align-items: center;
+  gap: 14px;
+}
+.platform-home .platform-results-grid--premium .platform-business-card .button--primary {
+  min-height: 50px;
+  padding-inline: 20px;
+  border: 1px solid var(--premium-lime);
+  border-radius: 12px;
+  background: var(--premium-lime);
+  color: #11170f;
+  font-size: 14px;
+  font-weight: 850;
+}
+.platform-home .platform-results-grid--premium .platform-business-card .button--primary:hover {
+  background: #f0ffa8;
+  color: #11170f;
+}
+.platform-home .platform-home-featured__all {
+  min-height: 48px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+  color: var(--premium-lime);
+  font-weight: 780;
+  text-decoration: none;
+}
+
+.platform-home .platform-footer {
+  padding: 46px 0;
+  border-top: 1px solid rgba(215,235,215,.14);
+  background: #090d0c;
+}
+.platform-home .platform-footer strong { color: #f5f8ef; font-size: 16px; }
+.platform-home .platform-footer span { max-width: 440px; color: #b4bfb7; font-size: 12px; line-height: 1.5; }
+.platform-home .platform-footer nav { gap: 9px 19px; }
+.platform-home .platform-footer nav a { color: #bec9c0; font-size: 12px; }
+.platform-home .platform-footer nav a:hover { color: var(--premium-lime); }
+.platform-home .platform-footer nav a:last-child { opacity: .78; font-size: 11px; }
+
+@media (max-width: 1120px) {
+  .platform-home .platform-header--premium .platform-header__inner { gap: 12px; }
+  .platform-home .platform-header--premium .platform-nav a { padding-inline: 10px; font-size: 12px; }
+  .platform-home .platform-home-hero__copy h1 { font-size: clamp(42px,5vw,63px); }
+  .platform-home .platform-home-search { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .platform-home .platform-home-search__submit { grid-column: 1 / -1; }
+  .platform-home .platform-home-hero__footer { grid-template-columns: 1fr; }
+  .platform-home .platform-home-hero__footer .platform-market-stats { justify-self: stretch; }
+}
+
+@media (max-width: 900px) {
+  .platform-home .platform-home-hero__grid {
+    grid-template-areas: "copy" "scene" "finder";
+    grid-template-columns: minmax(0,1fr);
+    row-gap: 28px;
+  }
+  .platform-home .platform-home-hero__copy { max-width: 670px; }
+  .platform-home .platform-home-hero__copy h1 { max-width: 650px; font-size: clamp(46px,7.5vw,70px); }
+  .platform-home .platform-home-hero__aside {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    min-height: 385px;
+    margin: 0;
+  }
+  .platform-home .platform-home-hero__aside .platform-sport-diorama { position: absolute; mask-image: none; }
+  .platform-home .platform-home-hero__aside .platform-sport-diorama__scene { inset: 54px -16px 42px; }
+  .platform-home .platform-home-search { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-home .platform-home-search__submit { grid-column: 1 / -1; }
+  .platform-home .platform-home-hero__footer { width: min(calc(100% - 40px),1240px); margin-top: 20px; }
+  .platform-home .platform-sport-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .platform-home .platform-results-grid--premium { grid-template-columns: minmax(0,1fr); }
+}
+
+@media (max-width: 680px) {
+  .platform-home .platform-header--premium .platform-header__inner {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    gap: 8px;
+    padding-block: 12px;
+  }
+  .platform-home .platform-header--premium .platform-brand {
+    width: 100%;
+    min-height: 38px;
+  }
+  .platform-home .platform-header--premium .platform-brand__wordmark {
+    gap: 6px;
+    font-size: clamp(19px,5.8vw,23px);
+  }
+  .platform-home .platform-header--premium .platform-brand__wordmark span {
+    font-size: 8px;
+    letter-spacing: .11em;
+  }
+  .platform-home .platform-header--premium .platform-brand__premium-copy small {
+    max-width: none;
+    font-size: 9px;
+  }
+  .platform-home .platform-header--premium .platform-nav {
+    min-width: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    overflow: visible;
+    padding: 0;
+  }
+  .platform-home .platform-header--premium .platform-nav a {
+    min-width: 0;
+    min-height: 45px;
+    justify-content: center;
+    padding: 8px 10px;
+    border: 1px solid rgba(225,239,221,.13);
+    border-radius: 9px;
+    background: rgba(255,255,255,.025);
+    font-size: 13px;
+    text-align: center;
+    white-space: normal;
+  }
+  .platform-home .platform-header--premium .platform-nav .platform-nav__primary { border-color: var(--premium-lime); background: var(--premium-lime); }
+  .platform-home .platform-home-hero--premium,
+  .platform-home .platform-home-hero--premium.is-night { padding: 40px 0 34px; }
+  .platform-home .platform-home-hero__grid { row-gap: 21px; }
+  .platform-home .platform-home-hero__copy h1 {
+    max-width: 100%;
+    margin-block: 21px 14px;
+    font-size: clamp(35px,9.1vw,55px);
+    line-height: 1.065;
+    letter-spacing: -.062em;
+    overflow-wrap: break-word;
+  }
+  .platform-home .platform-home-hero__copy h1 span { font-size: .85em; letter-spacing: -.055em; }
+  .platform-home .platform-home-hero__copy > p { font-size: 15px; line-height: 1.55; }
+  .platform-home .platform-home-hero__tagline { font-size: 12px; }
+  .platform-home .platform-home-hero__discover { margin-top: 12px; font-size: 12px; }
+  .platform-home .platform-live-label { max-width: 100%; font-size: 10px; gap: 6px; }
+  .platform-home .platform-live-label__city { font-size: 9px; }
+  .platform-home .platform-home-hero__aside { min-height: 280px; border-radius: 19px; }
+  .platform-home .platform-home-hero__aside .platform-sport-diorama__scene { inset: 35px -25px 33px; }
+  .platform-home .platform-home-hero__scene-meta { top: 14px; left: 14px; gap: 3px; }
+  .platform-home .platform-home-hero__scene-meta > span { font-size: 9px; }
+  .platform-home .platform-home-hero__scene-meta small { font-size: 10px; }
+  .platform-home .platform-home-hero__finder { padding: 20px 16px; border-radius: 18px; }
+  .platform-home .platform-home-hero__finder-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .platform-home .platform-home-hero__finder-heading strong { font-size: 21px; }
+  .platform-home .platform-home-hero__finder-heading small { max-width: none; text-align: left; font-size: 12px; }
+  .platform-home .platform-home-search { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 19px; }
+  .platform-home .platform-home-search__coverage strong,
+  .platform-home .platform-home-search select,
+  .platform-home .platform-home-search input { min-height: 50px; font-size: 13px; }
+  .platform-home .platform-home-search label > span,
+  .platform-home .platform-home-search__coverage small { font-size: 10px; }
+  .platform-home .platform-home-search__submit { grid-column: 1 / -1; min-height: 52px; font-size: 14px; }
+  .platform-home .platform-night-indicator { font-size: 11px; }
+  .platform-home .platform-home-hero__footer { width: calc(100% - 24px); gap: 12px; }
+  .platform-home .platform-home-hero__sports { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+  .platform-home .platform-home-hero__sport { min-height: 52px; font-size: 12px; }
+  .platform-home .platform-home-hero__footer .platform-market-stats { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+  .platform-home .platform-home-hero__footer .platform-market-stats div { min-height: 64px; padding: 10px 6px; }
+  .platform-home .platform-market-stats strong { font-size: 24px; }
+  .platform-home .platform-market-stats span { font-size: 10px; }
+  .platform-home .platform-proof-strip__inner { grid-template-columns: 1fr; }
+  .platform-home .platform-proof-strip__inner > div,
+  .platform-home .platform-proof-strip__inner > div:first-child,
+  .platform-home .platform-proof-strip__inner > div:last-child { min-height: 74px; padding: 14px 0; border-right: 0; border-bottom: 1px solid var(--premium-stroke); }
+  .platform-home .platform-proof-strip__inner > div:last-child { border-bottom: 0; }
+  .platform-home .platform-proof-strip strong { font-size: 15px; }
+  .platform-home .platform-proof-strip small { font-size: 12px; }
+  .platform-home .platform-section { padding-block: 66px 72px; }
+  .platform-home .platform-section__heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .platform-home .platform-section__heading h2 { font-size: clamp(32px,8vw,40px); }
+  .platform-home .platform-section__heading p { font-size: 14px; }
+  .platform-home .platform-sport-grid { grid-template-columns: 1fr; gap: 12px; }
+  .platform-home .platform-sport-card { min-height: 146px; padding: 19px; }
+  .platform-home .platform-sport-card strong { font-size: 21px; }
+  .platform-home .platform-results-grid--spotlight .platform-business-card { display: flex; flex-direction: column; }
+  .platform-home .platform-results-grid--premium .platform-business-card__visual { min-height: 245px; height: 245px; }
+  .platform-home .platform-results-grid--premium .platform-business-card__body { gap: 17px; padding: 22px; }
+  .platform-home .platform-results-grid--premium .platform-business-card__copy h3 { font-size: 29px; }
+  .platform-home .platform-results-grid--premium .platform-business-card__bottom { align-items: stretch; flex-direction: column; }
+  .platform-home .platform-results-grid--premium .platform-business-card .button--primary { width: 100%; }
+  .platform-home .platform-footer { padding: 30px 0; }
+  .platform-home .platform-footer__inner { gap: 18px; }
+}
+
+@media (max-width: 375px) {
+  .platform-home .platform-home-hero__copy h1 { font-size: clamp(33px,8.8vw,38px); }
+  .platform-home .platform-live-label__city { display: none; }
+  .platform-home .platform-home-search__coverage strong { font-size: 11px; padding-inline: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-home .platform-sport-card,
+  .platform-home .platform-business-card,
+  .platform-home .platform-home-hero__discover,
+  .platform-home .platform-home-search__submit,
+  .platform-home .platform-business-card__cover { transition: none !important; }
+  .platform-home .platform-sport-card:hover,
+  .platform-home .platform-business-card:hover { transform: none; }
+}
+
+/* Search-copy integrity: date/time are guidance until an actual court is opened. */
+.platform-search-page__timing-note {
+  margin: 0 0 22px;
+  padding: 13px 17px;
+  border: 1px solid rgba(210,220,209,.22);
+  border-radius: 12px;
+  background: rgba(185,208,166,.06);
+  color: #d4ded2;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.platform-results-feedback {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  max-width: 680px;
+}
+.platform-results-feedback .state-box {
+  width: 100%;
+  padding: 24px 28px;
+  border: 1px solid rgba(210,225,210,.24);
+  border-radius: 16px;
+  background: rgba(23,32,29,.96);
+  color: #f3f8ed;
+}
+.platform-results-feedback .state-box :is(strong,span) { color: #edf3e8; font-size: 14px; }
+.platform-results-feedback .state-box strong { font-size: 19px; }
+.platform-results-feedback .button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 9px 17px;
+  border: 1px solid rgba(218,241,199,.42);
+  border-radius: 10px;
+  color: #efffd4;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 760;
+}

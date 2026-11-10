@@ -49,7 +49,7 @@ test("rediseño bloque 13 conserva wordmark premium y noche", () => {
   assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp|next\/image/);
   assert.match(css, /\.platform-sport-diorama\.is-night/);
   assert.match(css, /\.platform-sport-diorama\.is-night \.platform-sport-diorama__lights > span i/);
-  assert.match(hero, /Con iluminación/);
+  assert.match(hero, /Horario nocturno: consulta la iluminación de la cancha/);
   assert.match(hero, /Cajamarca/);
 });
 

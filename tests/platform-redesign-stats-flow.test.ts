@@ -18,10 +18,10 @@ test("rediseño bloque 10 mantiene estadísticas derivadas del catálogo", () =>
   assert.doesNotMatch(hero, />2<\/strong>/);
 });
 
-test("rediseño bloque 10 conserva copy final 01 Explora 02 Compara 03 Reserva", () => {
-  assert.match(experience, /<span>01<\/span><p><strong>Explora<\/strong><small>Encuentra espacios por deporte y horario\.<\/small>/);
-  assert.match(experience, /<span>02<\/span><p><strong>Compara<\/strong><small>Revisa complejos, canchas y disponibilidad\.<\/small>/);
-  assert.match(experience, /<span>03<\/span><p><strong>Reserva<\/strong><small>Coordina por WhatsApp con el complejo elegido\.<\/small>/);
+test("rediseño bloque 10 explica explorar, conocer y coordinar por WhatsApp", () => {
+  assert.match(experience, /<span>01<\/span><p><strong>Explora<\/strong><small>Elige el deporte y encuentra tu espacio\.<\/small>/);
+  assert.match(experience, /<span>02<\/span><p><strong>Conoce<\/strong><small>Descubre canchas, precios y horarios\.<\/small>/);
+  assert.match(experience, /<span>03<\/span><p><strong>Coordina<\/strong><small>Habla por WhatsApp con el complejo\.<\/small>/);
 });
 
 test("rediseño bloque 10 usa tarjetas estadísticas metálicas minimalistas", () => {

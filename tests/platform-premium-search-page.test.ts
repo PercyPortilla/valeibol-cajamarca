@@ -19,7 +19,7 @@ test("B82 conserva filtros y panorama contextual sin tocar catálogo", () => {
   assert.match(search, /<SportLandingVisual sportSlug=\{sport\} \/>/);
   assert.match(search, /<PlatformSearchForm sport=\{sport\} city=\{city\} date=\{date\} time=\{time\} \/>/);
   assert.match(search, /<PlatformLocationExplorer points=\{locations\} \/>/);
-  assert.match(search, /<PlatformResults businesses=\{businesses\} premium lightingRequired=\{lightingRequired\} \/>/);
+  assert.match(search, /<PlatformResults businesses=\{businesses\} premium lightingRequired=\{lightingRequired\} loadFailed=\{catalogResult\.failed\}/);
 });
 
 test("B82 mantiene SEO y filtros activos existentes", () => {

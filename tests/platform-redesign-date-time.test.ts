@@ -13,7 +13,7 @@ test("rediseño bloque 7 mantiene deporte fecha hora y CTA en el buscador princi
   assert.match(hero, /name="deporte"/);
   assert.match(hero, /name="fecha" type="date"/);
   assert.match(hero, /name="hora" type="time"/);
-  assert.match(hero, /Explorar espacios/);
+  assert.match(hero, /Explorar canchas/);
 });
 
 test("rediseño bloque 7 normaliza fecha y hora sin usar reloj del dispositivo", () => {
@@ -31,14 +31,14 @@ test("rediseño bloque 7 conserva fecha y hora al llegar a buscar", () => {
   assert.match(searchPage, /normalizeSearchDate\(first\(params\.fecha\)\)/);
   assert.match(searchPage, /normalizeSearchTime\(first\(params\.hora\)\)/);
   assert.match(searchPage, /<PlatformSearchForm sport=\{sport\} city=\{city\} date=\{date\} time=\{time\} \/>/);
-  assert.match(searchPage, /Fecha: <strong>\{date\}<\/strong>/);
-  assert.match(searchPage, /Hora: <strong>\{time\}<\/strong>/);
+  assert.match(searchPage, /Fecha de consulta: <strong>\{date\}<\/strong>/);
+  assert.match(searchPage, /Hora de consulta: <strong>\{time\}<\/strong>/);
   assert.match(searchForm, /defaultValue=\{date\}/);
   assert.match(searchForm, /defaultValue=\{time\}/);
 });
 
 test("rediseño bloque 7 no pretende filtrar disponibilidad desde catálogo", () => {
-  assert.match(searchPage, /getPublicPlatformCatalog\(\{ sportSlug: sport \|\| null, city: city \|\| null \}\)/);
+  assert.match(searchPage, /getPublicPlatformCatalogResult\(\{ sportSlug: sport \|\| null, city: city \|\| null \}\)/);
   assert.doesNotMatch(searchPage, /availability|pricing.*time/i);
 });
 

@@ -15,7 +15,7 @@ test("rediseño bloque 8 conserva la regla comercial de iluminación desde las 1
 });
 
 test("rediseño bloque 8 muestra indicador exacto sin precio inventado", () => {
-  assert.match(hero, /reservationNeedsLighting \? "Con iluminación" : "Iluminación no requerida para este horario"/);
+  assert.match(hero, /reservationNeedsLighting \? "Horario nocturno: consulta la iluminación de la cancha\." : "Los horarios se confirman directamente con cada negocio\."/);
   assert.doesNotMatch(hero, /S\/\s*60|precio.*iluminación/i);
 });
 

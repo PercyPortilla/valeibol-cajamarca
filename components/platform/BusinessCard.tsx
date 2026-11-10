@@ -46,16 +46,16 @@ export function BusinessCard({ business, premium = false, lightingRequired = fal
           <div className="platform-business-card__sports">
             {(business.sports.length ? business.sports : ["Deportes"]).slice(0, 3).map((sport) => <Badge key={sport} tone="info">{sport}</Badge>)}
             {business.sports.length > 3 ? <Badge tone="neutral">+{business.sports.length - 3}</Badge> : null}
-            {lightingRequired ? <span className="platform-lighting-badge"><Icon name="lighting" size={13} /> Con iluminación</span> : null}
+            {lightingRequired ? <span className="platform-lighting-badge"><Icon name="lighting" size={13} /> Consulta iluminación</span> : null}
           </div>
           <span><Icon name="location" size={14} /> {business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""}</span>
         </div>
         <div className="platform-business-card__copy">
-          <h2>{business.name}</h2>
+          {premium ? <h3>{business.name}</h3> : <h2>{business.name}</h2>}
           <p>{business.venues} {business.venues === 1 ? "sede" : "sedes"} · {business.courts} {business.courts === 1 ? "cancha" : "canchas"}</p>
         </div>
         <div className="platform-business-card__meta">
-          <span><Icon name="clock" size={15} /> Reserva por hora</span>
+          <span><Icon name="clock" size={15} /> {premium ? "Consulta por hora" : "Reserva por hora"}</span>
           <span>{business.priceFrom === null ? "Precio por consultar" : `Desde ${formatMoney(business.priceFrom, business.currency)}/h`}</span>
         </div>
         <div className="platform-business-card__reputation">

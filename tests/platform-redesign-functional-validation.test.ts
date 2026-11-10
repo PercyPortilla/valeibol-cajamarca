@@ -19,7 +19,7 @@ test("rediseño bloque 12 conserva scripts de validación técnica", () => {
 
 test("rediseño bloque 12 mantiene rutas y superficies funcionales existentes", () => {
   assert.match(home, /<PlatformHeader premium \/>/);
-  assert.match(home, /<PlatformResults businesses=\{businesses\} premium \/>/);
+  assert.match(home, /<PlatformResults businesses=\{businesses\} premium loadFailed=\{catalogResult\.failed\}/);
   assert.match(search, /getPublicPlatformCatalog/);
   assert.match(search, /<PlatformSearchForm/);
   assert.match(search, /<PlatformLocationExplorer/);
