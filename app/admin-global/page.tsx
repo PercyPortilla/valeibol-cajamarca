@@ -118,6 +118,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
             <div className="global-admin-header__actions">
               <a href="#admin-negocios" className="global-admin-header__cta">Explorar negocios <span aria-hidden="true">↗</span></a>
               <a href="#admin-alta-negocio" className="global-admin-header__cta global-admin-header__cta--secondary">Crear negocio <span aria-hidden="true">+</span></a>
+              <a href="#admin-negocios" className="global-admin-header__cta global-admin-header__cta--secondary">✦ Estudio de páginas</a>
             </div>
           </div>
           <div className="global-admin-account">
@@ -129,6 +130,7 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
         <nav className="global-admin-links" aria-label="Navegación global">
           <a href="#admin-overview" aria-label="Ir al resumen global">Resumen <span aria-hidden="true">↗</span></a>
           <a href="#admin-negocios">Negocios <span aria-hidden="true">↗</span></a>
+          <a href="#admin-negocios">Diseñar páginas <span aria-hidden="true">✦</span></a>
           <a href="#admin-deportes">Deportes <span aria-hidden="true">↗</span></a>
           <a href="#admin-resenas">Reseñas <span aria-hidden="true">↗</span></a>
           <a href="#admin-alta-negocio">Nuevo negocio <span aria-hidden="true">+</span></a>

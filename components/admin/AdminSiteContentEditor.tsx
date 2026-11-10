@@ -284,7 +284,7 @@ export function AdminSiteContentEditor({ content, role, localMode }: { content: 
               className={theme.presetId === preset.id ? "admin-theme-preset admin-theme-preset--active" : "admin-theme-preset"}
               type="button"
               key={preset.id}
-              onClick={() => setTheme({ ...preset.theme })}
+              onClick={() => setTheme((current) => ({ ...current, ...preset.theme }))}
             >
               <span className="admin-theme-preset__swatches" aria-hidden="true">
                 {[preset.theme.navy, preset.theme.blue, preset.theme.red, preset.theme.yellow, preset.theme.canvas].map((color) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -58,6 +59,7 @@ export function PlatformAdminBusinessOnboarding() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [createdBusinessId, setCreatedBusinessId] = useState<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -71,6 +73,7 @@ export function PlatformAdminBusinessOnboarding() {
     setBusy(true);
     setMessage(null);
     setSuccess(false);
+    setCreatedBusinessId(null);
     try {
       const result = await invokeOnboarding({
         slug: String(form.get("slug") ?? ""),
@@ -84,6 +87,7 @@ export function PlatformAdminBusinessOnboarding() {
         timezone: String(form.get("timezone") ?? "America/Lima"),
       });
       setSuccess(true);
+      setCreatedBusinessId(result.business.business_id);
       setMessage(result.ownerInvited
         ? `${result.business.business_name} fue creado. Enviamos al propietario una invitación para crear su contraseña y activar el acceso.`
         : `${result.business.business_name} fue creado y vinculado a la cuenta existente del propietario.`);
@@ -142,7 +146,14 @@ export function PlatformAdminBusinessOnboarding() {
           <Button type="submit" disabled={busy}>{busy ? "Creando…" : "Crear negocio y preparar acceso"}</Button>
         </div>
       </form>
-      {message ? <div className={success ? "global-admin-notice" : "auth-error"} role={success ? "status" : "alert"}>{message}</div> : null}
+      {message ? <div className={success ? "global-admin-notice" : "auth-error"} role={success ? "status" : "alert"}>
+        <p>{message}</p>
+        {success && createdBusinessId ? (
+          <Link className="button button--primary" href={`/admin-global/disenar/${createdBusinessId}`}>
+            ✦ Diseñar ahora la página del negocio
+          </Link>
+        ) : null}
+      </div> : null}
     </section>
   );
 }

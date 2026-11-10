@@ -203,9 +203,12 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
               <div><dt>Reservas</dt><dd>{business.reservationCount}</dd></div>
             </dl>
             <div className="global-admin-business-row__actions">
+              <Link href={`/admin-global/disenar/${business.businessId}`} className="button button--primary global-admin-business-row__design">
+                ✦ Diseñar página
+              </Link>
               <form action="/api/admin-global/select-business" method="post" className="global-admin-business-row__selection">
                 <input type="hidden" name="businessId" value={business.businessId} />
-                <button type="submit" className="button button--primary">
+                <button type="submit" className="button button--secondary">
                   Administrar negocio
                 </button>
               </form>

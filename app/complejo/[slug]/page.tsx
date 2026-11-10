@@ -89,8 +89,8 @@ export default async function ComplexPage({ params }: { params: Params }) {
     getPublicSiteContent(business.slug),
     getPublicBusinessContact(business.slug),
   ]);
-  const services = siteContent.services.filter((service) => service.isVisible);
-  const galleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
+  const services = siteContent.theme.showServices === false ? [] : siteContent.services.filter((service) => service.isVisible);
+  const galleryItems = siteContent.theme.showGallery === false ? [] : siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
   const whatsappHref = publicContact.phoneE164 ? buildWhatsAppChatHref(
     publicContact.phoneE164,
     `Hola, quisiera consultar disponibilidad y reservas en ${business.name}.`,
@@ -101,6 +101,26 @@ export default async function ComplexPage({ params }: { params: Params }) {
   const pricedCourts = business.venues.flatMap((venue) => venue.courts).filter((court) => court.priceFrom !== null);
   const lowestPrice = pricedCourts.length ? Math.min(...pricedCourts.map((court) => court.priceFrom as number)) : null;
   const currency = pricedCourts[0]?.currency ?? "PEN";
+  const serviceSection = services.length > 0 ? (
+    <section className="platform-section platform-section--tenant-content" aria-labelledby="tenant-services-title" key="services">
+      <div className="shell">
+        <div className="platform-section__heading"><div><span className="eyebrow">SERVICIOS</span><h2 id="tenant-services-title">{siteContent.theme.servicesHeading || `Lo que ofrece ${business.name}`}</h2></div></div>
+        <div className="platform-service-grid">
+          {services.map((service) => <article className="platform-service-card" key={service.id}><span className="platform-service-card__icon" aria-hidden="true"><Icon name={service.icon} size={24} /></span><h3>{service.title}</h3><p>{service.description}</p></article>)}
+        </div>
+      </div>
+    </section>
+  ) : null;
+  const gallerySection = galleryItems.length > 0 ? (
+    <section className="platform-section platform-section--tenant-gallery" aria-labelledby="tenant-gallery-title" key="gallery">
+      <div className="shell">
+        <div className="platform-section__heading"><div><span className="eyebrow">GALERÍA</span><h2 id="tenant-gallery-title">{siteContent.theme.galleryHeading || "Conoce las instalaciones"}</h2></div></div>
+        <div className="platform-gallery-grid">
+          {galleryItems.map((item) => <figure className="platform-gallery-card" key={item.id}><div className="platform-gallery-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} role="img" aria-label={item.altText || item.title} /><figcaption><strong>{item.title}</strong>{item.altText ? <small>{item.altText}</small> : null}</figcaption></figure>)}
+        </div>
+      </div>
+    </section>
+  ) : null;
 
   return (
     <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
@@ -127,10 +147,10 @@ export default async function ComplexPage({ params }: { params: Params }) {
               <span className="platform-live-label"><i aria-hidden="true" /> COMPLEJO EN LA PLATAFORMA</span>
               <div className="platform-complex-title-row">
                 {business.logoUrl ? <span className="platform-complex-logo"><Image src={business.logoUrl} alt={`Logo de ${business.name}`} width={72} height={72} /></span> : null}
-                <h1>{business.name}</h1>
+                <h1>{siteContent.theme.pageHeadline || business.name}</h1>
               </div>
               <p>{business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""} · {sportNames.join(" · ") || "Deportes"}</p>
-              <p className="platform-complex-hero__intro">Conoce las canchas y consulta directamente con el complejo antes de coordinar tu partido. No necesitas registrarte para explorar.</p>
+              <p className="platform-complex-hero__intro">{siteContent.theme.pageIntro || "Conoce las canchas y consulta directamente con el complejo antes de coordinar tu partido. No necesitas registrarte para explorar."}</p>
               <div className="platform-complex-hero__chips">
                 {sportNames.slice(0, 4).map((sport) => <span key={sport}>{sport}</span>)}
                 <span>{lowestPrice === null ? "Precio por consultar" : `Desde ${formatMoney(lowestPrice, currency)}/h`}</span>
@@ -179,41 +199,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
             </div>
           </div>
         </section>
-        {services.length > 0 ? (
-          <section className="platform-section platform-section--tenant-content" aria-labelledby="tenant-services-title">
-            <div className="shell">
-              <div className="platform-section__heading">
-                <div><span className="eyebrow">SERVICIOS</span><h2 id="tenant-services-title">Lo que ofrece {business.name}</h2></div>
-              </div>
-              <div className="platform-service-grid">
-                {services.map((service) => (
-                  <article className="platform-service-card" key={service.id}>
-                    <span className="platform-service-card__icon" aria-hidden="true"><Icon name={service.icon} size={24} /></span>
-                    <h3>{service.title}</h3>
-                    <p>{service.description}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : null}
-        {galleryItems.length > 0 ? (
-          <section className="platform-section platform-section--tenant-gallery" aria-labelledby="tenant-gallery-title">
-            <div className="shell">
-              <div className="platform-section__heading">
-                <div><span className="eyebrow">GALERÍA</span><h2 id="tenant-gallery-title">Conoce las instalaciones</h2></div>
-              </div>
-              <div className="platform-gallery-grid">
-                {galleryItems.map((item) => (
-                  <figure className="platform-gallery-card" key={item.id}>
-                    <div className="platform-gallery-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} role="img" aria-label={item.altText || item.title} />
-                    <figcaption><strong>{item.title}</strong>{item.altText ? <small>{item.altText}</small> : null}</figcaption>
-                  </figure>
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : null}
+        {siteContent.theme.sectionOrder === "gallery-first" ? <>{gallerySection}{serviceSection}</> : <>{serviceSection}{gallerySection}</>}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
         </main>
         <PlatformFooter businessSlug={slug} />

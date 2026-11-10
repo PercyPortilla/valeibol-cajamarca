@@ -27,6 +27,14 @@ export type SiteTheme = {
   redDark: string;
   yellow: string;
   canvas: string;
+  /** Ajustes editoriales de la página hija guardados en el JSONB existente. */
+  pageHeadline?: string;
+  pageIntro?: string;
+  servicesHeading?: string;
+  galleryHeading?: string;
+  sectionOrder?: "services-first" | "gallery-first";
+  showServices?: boolean;
+  showGallery?: boolean;
 };
 
 export type SiteContent = {
@@ -225,6 +233,13 @@ export function normalizeSiteTheme(value: unknown): SiteTheme {
     redDark: cleanHex(record.redDark, DEFAULT_SITE_THEME.redDark),
     yellow: cleanHex(record.yellow, DEFAULT_SITE_THEME.yellow),
     canvas: cleanHex(record.canvas, DEFAULT_SITE_THEME.canvas),
+    pageHeadline: cleanText(record.pageHeadline, 100),
+    pageIntro: cleanText(record.pageIntro, 240),
+    servicesHeading: cleanText(record.servicesHeading, 96),
+    galleryHeading: cleanText(record.galleryHeading, 96),
+    sectionOrder: record.sectionOrder === "gallery-first" ? "gallery-first" : "services-first",
+    showServices: record.showServices !== false,
+    showGallery: record.showGallery !== false,
   };
 }
 

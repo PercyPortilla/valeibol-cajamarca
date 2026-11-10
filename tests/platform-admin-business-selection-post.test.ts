@@ -12,7 +12,7 @@ const scopeMigration = readFileSync("supabase/migrations/20261025075524_pre_b33_
 test("Administrar negocio usa formulario POST nativo, no navegación SPA hacia una ruta que escribe cookies", () => {
   assert.match(list, /<form action="\/api\/admin-global\/select-business" method="post"/);
   assert.match(list, /<input type="hidden" name="businessId" value=\{business\.businessId\}/);
-  assert.match(list, /<button type="submit" className="button button--primary">/);
+  assert.match(list, /<button type="submit" className="button button--secondary">/);
   assert.doesNotMatch(list, /href=\{`\/api\/admin-global\/select-business/);
 });
 
