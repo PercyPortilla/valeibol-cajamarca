@@ -38,6 +38,10 @@ export function AdminLoginForm() {
     const params = new URLSearchParams(window.location.search);
     const raw = params.get("reason");
     if (raw === "config" || raw === "session" || raw === "logout") setReason(raw);
+    if (params.get("recovery") === "1") {
+      setMessageKind("success");
+      setMessage("Escribe tu correo y selecciona «Olvidé mi contraseña» para recibir un enlace seguro.");
+    }
   }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -95,6 +99,18 @@ export function AdminLoginForm() {
 
   async function sendPasswordRecovery() {
     if (!configured || localDev || busy) return;
+
+    // Supabase Auth conserva temporalmente autorizada la URL anterior.
+    // Iniciar recuperación allí mantiene el verificador PKCE y la callback
+    // en el mismo origen hasta completar la lista de redirecciones nueva.
+    if (window.location.hostname === "caxas-sportcenter.vercel.app") {
+      const legacy = new URL("/admin/login", "https://valeibol-cajamarca-live.vercel.app");
+      const target = safeTenantAdminRedirectPath(new URLSearchParams(window.location.search).get("next"));
+      if (target) legacy.searchParams.set("next", target);
+      legacy.searchParams.set("recovery", "1");
+      window.location.assign(legacy.toString());
+      return;
+    }
 
     const normalizedEmail = email.trim();
     if (!normalizedEmail) {

@@ -30,6 +30,8 @@ test("el ingreso respeta el negocio solicitado y comprueba permisos en el servid
   const route = source("app/complejo/[slug]/administrar/route.ts");
   assert.match(login, /safeTenantAdminRedirectPath/);
   assert.match(form, /if \(tenantTarget\)/);
+  assert.match(form, /valeibol-cajamarca-live\.vercel\.app/);
+  assert.match(form, /legacy\.searchParams\.set\("next", target\)/);
   assert.match(route, /auth\.getUser\(\)/);
   assert.match(route, /get_public_business_config/);
   assert.match(route, /get_platform_admin_context/);
