@@ -16,6 +16,7 @@ import type { CSSProperties } from "react";
 import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
 import { PublicReviewsSection } from "@/components/platform/PublicReviewsSection";
 import { getPublicBusinessReviews } from "@/lib/data/reputationService";
+import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
 
 export async function ValeibolLanding() {
   const [pricing, siteContent, catalog, reviewResult, publicContact] = await Promise.all([
@@ -33,7 +34,7 @@ export async function ValeibolLanding() {
   if (catalog.length === 0) courtSports[demoCourt.id] = "voley";
   const services = siteContent.services.filter((service) => service.isVisible);
   const configuredGalleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
-  const galleryItems = configuredGalleryItems.length > 0 ? configuredGalleryItems : [
+  const galleryItems = siteContent.source === "default" ? [
     {
       id: "valeibol-wide",
       title: "Vista de la cancha",
@@ -50,17 +51,19 @@ export async function ValeibolLanding() {
       sortOrder: 20,
       isVisible: true,
     },
-  ];
+  ] : configuredGalleryItems;
   const pricingAvailable = pricing.withoutLights !== null && pricing.withLights !== null;
   const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessConfig.address)}`;
   const mapsEmbedHref = `https://www.google.com/maps?q=${encodeURIComponent(businessConfig.address)}&output=embed`;
-  const phoneDigits = businessConfig.phone.replace(/\D/g, "");
-  const phoneHref = `tel:+51${phoneDigits}`;
-  const whatsappHref = `https://wa.me/51${phoneDigits}?text=${encodeURIComponent("Hola, quisiera consultar disponibilidad para reservar la cancha.")}`;
+  const phoneE164 = publicContact.phoneE164;
+  const phoneHref = phoneE164 ? `tel:${phoneE164}` : null;
+  const whatsappHref = phoneE164
+    ? buildWhatsAppChatHref(phoneE164, "Hola, quisiera consultar disponibilidad para reservar la cancha.")
+    : null;
 
   return (
-    <div className="site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
-      <Header logoUrl={businessLogoUrl} />
+    <div className="site-theme site-theme--caxas-child" style={themeCssVariables(siteContent.theme) as CSSProperties}>
+      <Header logoUrl={businessLogoUrl} showGallery={galleryItems.length > 0} showServices={services.length > 0} />
       <main className="commercial-main" id="valeibol-main" tabIndex={-1}>
         <section className="hero hero--commercial" id="inicio">
           <div className="hero-commercial__media">
@@ -69,8 +72,8 @@ export async function ValeibolLanding() {
           <div className="hero-commercial__shade" aria-hidden="true" />
           <div className="shell hero-commercial__inner">
             <div className="hero-commercial__copy">
-              <span className="hero-commercial__eyebrow">CLUB DE VOLEIBOL EN CAJAMARCA</span>
-              <h1>Reserva tu cancha <span>de vóley</span> en Cajamarca</h1>
+              <span className="hero-commercial__eyebrow">VÓLEY EN CAJAMARCA · VALEIBOL</span>
+              <h1>Tu próxima partida <span>de vóley</span> empieza aquí</h1>
               <p>
                 Revisa horarios y tarifas, y consulta tu reserva directamente por WhatsApp. No necesitas registrarte.
               </p>
@@ -79,14 +82,14 @@ export async function ValeibolLanding() {
                   <Icon name="calendar" size={18} />
                   Consultar horarios
                 </a>
-                <a className="button button--hero-outline" href={phoneHref}>
+                {phoneHref ? <a className="button button--hero-outline" href={phoneHref}>
                   <Icon name="phone" size={18} />
                   Llamar
-                </a>
-                <a className="button button--whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
+                </a> : null}
+                {whatsappHref ? <a className="button button--whatsapp" href={whatsappHref} target="_blank" rel="noreferrer">
                   <Icon name="whatsapp" size={18} />
                   WhatsApp
-                </a>
+                </a> : null}
               </div>
             </div>
           </div>
@@ -95,11 +98,11 @@ export async function ValeibolLanding() {
         <section className="trust-strip shell" aria-label="Información principal">
           <div className="trust-item">
             <span className="trust-item__icon"><Icon name="check" size={20} /></span>
-            <div><strong>Reserva por hora</strong><small>Elige un bloque disponible</small></div>
+            <div><strong>Consulta por hora</strong><small>Selecciona el horario que te interese</small></div>
           </div>
           <div className="trust-item">
             <span className="trust-item__icon"><Icon name="clock" size={20} /></span>
-            <div><strong>Disponibilidad en línea</strong><small>Consulta antes de solicitar</small></div>
+            <div><strong>Agenda para consultar</strong><small>Confirma el horario por WhatsApp</small></div>
           </div>
           <div className="trust-item">
             <span className="trust-item__icon"><Icon name="location" size={20} /></span>
@@ -107,7 +110,7 @@ export async function ValeibolLanding() {
           </div>
           <div className="trust-item">
             <span className="trust-item__icon"><Icon name="phone" size={20} /></span>
-            <div><strong>{businessConfig.phone}</strong><small>Llámanos o escríbenos por WhatsApp</small></div>
+            <div><strong>{phoneE164 ?? "Contacto por publicar"}</strong><small>Confirma directamente con el complejo</small></div>
           </div>
         </section>
 
@@ -116,7 +119,7 @@ export async function ValeibolLanding() {
             <div className="section-heading section-heading--commercial section-heading--availability">
               <div>
                 <span className="eyebrow">HORARIOS</span>
-                <h2>Horarios disponibles</h2>
+                <h2>Explora los horarios</h2>
                 <p>Selecciona un día y consulta por WhatsApp el horario que más te convenga.</p>
               </div>
               <div className="privacy-pill">Sin registro · Atención por WhatsApp</div>
@@ -132,7 +135,7 @@ export async function ValeibolLanding() {
           </div>
         </section>
 
-        <section className="section section--commercial section--services" id="servicios">
+        {services.length > 0 ? <section className="section section--commercial section--services" id="servicios">
           <div className="shell">
             <div className="section-heading section-heading--commercial">
               <div>
@@ -151,7 +154,7 @@ export async function ValeibolLanding() {
               ))}
             </div>
           </div>
-        </section>
+        </section> : null}
 
         <section className="section section--commercial price-section" id="precios">
           <div className="shell price-layout">
@@ -201,7 +204,7 @@ export async function ValeibolLanding() {
           </div>
         </section>
 
-        <section className="section section--commercial gallery-section" id="galeria">
+        {galleryItems.length > 0 ? <section className="section section--commercial gallery-section" id="galeria">
           <div className="shell">
             <div className="section-heading section-heading--commercial gallery-heading">
               <div>
@@ -220,7 +223,7 @@ export async function ValeibolLanding() {
               ) : null)}
             </div>
           </div>
-        </section>
+        </section> : null}
 
         <section className="section section--commercial valeibol-reviews-section" id="resenas">
           <div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={ratingAverage} reviewCount={reviewCount} loadFailed={reviewResult.loadFailed} /></div>
@@ -238,14 +241,14 @@ export async function ValeibolLanding() {
                   <span><Icon name="location" size={20} /></span>
                   <div><small>Dirección</small><strong>{businessConfig.address}</strong></div>
                 </a>
-                <a href={phoneHref}>
+                {phoneHref ? <a href={phoneHref}>
                   <span><Icon name="phone" size={20} /></span>
-                  <div><small>Teléfono</small><strong>{businessConfig.phone}</strong></div>
-                </a>
-                <a href={whatsappHref} target="_blank" rel="noreferrer">
+                  <div><small>Teléfono</small><strong>{phoneE164}</strong></div>
+                </a> : null}
+                {whatsappHref ? <a href={whatsappHref} target="_blank" rel="noreferrer">
                   <span><Icon name="whatsapp" size={20} /></span>
                   <div><small>WhatsApp</small><strong>Consultar disponibilidad</strong></div>
-                </a>
+                </a> : null}
               </div>
 
               <div className="location-actions">
@@ -272,7 +275,7 @@ export async function ValeibolLanding() {
           </div>
         </section>
       </main>
-      <Footer logoUrl={businessLogoUrl} />
+      <Footer logoUrl={businessLogoUrl} phoneE164={phoneE164} showGallery={galleryItems.length > 0} showServices={services.length > 0} />
     </div>
   );
 }

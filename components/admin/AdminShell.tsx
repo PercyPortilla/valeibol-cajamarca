@@ -17,6 +17,7 @@ export function AdminShell({ context, children, theme, unreadNotifications = 0 }
         <Link href="/admin" className="brand brand--admin" aria-label="Caxas SportCenter · Administración">
           <PlatformAdminBrand context="admin" />
         </Link>
+        <span className="admin-sidebar__context">Gestión del complejo</span>
         <AdminNavigation unreadNotifications={unreadNotifications} />
         <div className="admin-account">
           <span className="admin-account__avatar" aria-hidden="true">{(context.displayName ?? context.email ?? "A").charAt(0).toUpperCase()}</span>

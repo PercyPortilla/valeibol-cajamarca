@@ -33,8 +33,8 @@ test("B62 muestra logo tenant en ficha genérica y lo usa como fallback social",
 
 test("B62 landing Valeibol usa el logo configurado del catálogo en header y footer", () => {
   assert.match(legacyLanding, /const businessLogoUrl = catalog\[0\]\?\.logoUrl \?\? null/);
-  assert.match(legacyLanding, /<Header logoUrl=\{businessLogoUrl\} \/>/);
-  assert.match(legacyLanding, /<Footer logoUrl=\{businessLogoUrl\} \/>/);
+  assert.match(legacyLanding, /<Header logoUrl=\{businessLogoUrl\} showGallery=/);
+  assert.match(legacyLanding, /<Footer logoUrl=\{businessLogoUrl\} phoneE164=\{phoneE164\}/);
   assert.match(header, /<BrandLogo logoUrl=\{logoUrl\} name=\{businessConfig\.name\} \/>/);
   assert.match(footer, /<BrandLogo context="footer" logoUrl=\{logoUrl\} name=\{businessConfig\.name\} \/>/);
   assert.match(brandLogo, /const src = logoUrl \|\| "\/images\/valeibol-logo\.webp"/);

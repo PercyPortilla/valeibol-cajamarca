@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const location = business.city ? ` en ${business.city}` : "";
   const description = slug === businessConfig.slug
-    ? `Consulta disponibilidad, precios y reserva la cancha de ${business.name}${location}.`
-    : `Explora sedes, canchas, deportes y disponibilidad de ${business.name}${location}.`;
+    ? `Consulta horarios y precios de ${business.name}${location}, y coordina con el complejo por WhatsApp.`
+    : `Explora las sedes y canchas de ${business.name}${location}, y consulta sus horarios directamente.`;
   const image = business.coverImageUrl?.startsWith("http")
     ? business.coverImageUrl
     : business.coverImageUrl
@@ -122,7 +122,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
             />
           ) : null}
           <div className="shell platform-complex-hero__grid">
-            <div>
+            <div className="platform-complex-hero__copy">
               <nav className="platform-breadcrumbs" aria-label="Migas de pan"><ol><li><Link href="/">Inicio</Link></li><li aria-hidden="true">/</li><li><Link href="/buscar">Buscar canchas</Link></li><li aria-hidden="true">/</li><li aria-current="page">{business.name}</li></ol></nav>
               <span className="platform-live-label"><i aria-hidden="true" /> COMPLEJO EN LA PLATAFORMA</span>
               <div className="platform-complex-title-row">
@@ -130,6 +130,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
                 <h1>{business.name}</h1>
               </div>
               <p>{business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""} · {sportNames.join(" · ") || "Deportes"}</p>
+              <p className="platform-complex-hero__intro">Conoce las canchas y consulta directamente con el complejo antes de coordinar tu partido. No necesitas registrarte para explorar.</p>
               <div className="platform-complex-hero__chips">
                 {sportNames.slice(0, 4).map((sport) => <span key={sport}>{sport}</span>)}
                 <span>{lowestPrice === null ? "Precio por consultar" : `Desde ${formatMoney(lowestPrice, currency)}/h`}</span>
@@ -137,6 +138,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
               </div>
               <div className="platform-complex-contact">
                 {whatsappHref ? <a className="button platform-whatsapp-contact" href={whatsappHref} target="_blank" rel="noreferrer">Contactar por WhatsApp ↗</a> : <small>Este complejo no publicó un WhatsApp de contacto.</small>}
+                <a className="platform-complex-contact__secondary" href="#canchas">Explorar sus canchas <span aria-hidden="true">↓</span></a>
               </div>
             </div>
             <div className="platform-complex-summary">
@@ -146,14 +148,14 @@ export default async function ComplexPage({ params }: { params: Params }) {
           </div>
         </section>
 
-        <section className="platform-section">
+        <section className="platform-section platform-complex-venues" id="canchas" aria-labelledby="complex-venues-title">
           <div className="shell">
-            <div className="platform-section__heading"><div><span className="eyebrow">SEDES Y CANCHAS</span><h2>Elige dónde jugar</h2></div></div>
+            <div className="platform-section__heading"><div><span className="eyebrow">SEDES Y CANCHAS</span><h2 id="complex-venues-title">Encuentra tu espacio</h2><p>Revisa la información publicada por el complejo y elige qué horario te gustaría consultar.</p></div></div>
             <div className="platform-venue-list">
               {business.venues.map((venue) => (
                 <section className="platform-venue-card" key={venue.id}>
                   <header>
-                    <div><h2>{venue.name}</h2><p>{venue.address ?? venue.city ?? "Ubicación por confirmar"}</p></div>
+                    <div><h3>{venue.name}</h3><p>{venue.address ?? venue.city ?? "Ubicación por confirmar"}</p></div>
                     <div className="platform-venue-card__actions">
                       {venue.city ? <Badge tone="neutral">{venue.city}</Badge> : null}
                       {googleMapsSearchHref(venue) ? <a href={googleMapsSearchHref(venue) ?? undefined} target="_blank" rel="noreferrer">Cómo llegar ↗</a> : null}
@@ -166,9 +168,9 @@ export default async function ComplexPage({ params }: { params: Params }) {
                           <Badge tone="info">{court.sportName}</Badge>
                           <span>{court.surface ?? "Superficie por confirmar"}</span>
                         </div>
-                        <h3>{court.name}</h3>
+                        <h4>{court.name}</h4>
                         <p>{court.priceFrom === null ? "Precio por consultar" : `Desde ${formatMoney(court.priceFrom, court.currency)} por hora`}</p>
-                        <Link className="button button--primary" href={`/reservar?negocio=${encodeURIComponent(business.slug)}&cancha=${encodeURIComponent(court.id)}`}>Ver disponibilidad <b aria-hidden="true">→</b></Link>
+                        <Link className="button button--primary" href={`/reservar?negocio=${encodeURIComponent(business.slug)}&cancha=${encodeURIComponent(court.id)}`}>Consultar horarios <b aria-hidden="true">→</b></Link>
                       </article>
                     ))}
                   </div>

@@ -23,6 +23,7 @@ test("landing histórica de Valeibol se conserva en su slug", () => {
 
 test("la landing Valeibol conserva disponibilidad y contacto existentes", () => {
   assert.match(legacy, /<AvailabilityCalendar/);
-  assert.match(legacy, /businessConfig\.phone/);
+  assert.match(legacy, /const phoneE164 = publicContact\.phoneE164/);
+  assert.match(legacy, /buildWhatsAppChatHref\(phoneE164/);
   assert.match(legacy, /businessConfig\.address/);
 });

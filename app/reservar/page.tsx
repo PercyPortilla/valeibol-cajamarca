@@ -56,15 +56,34 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
       <PlatformHeader premium />
       <main id="platform-main" tabIndex={-1}>
         <section className="platform-reservation-hero">
-          <div className="shell">
-            <span className="eyebrow">CONSULTA POR WHATSAPP</span>
-            <h1>{selectedCourt.businessName}</h1>
-            <p>{selectedCourt.venueName} · {selectedCourt.courtName} · {selectedCourt.sportName}</p>
-            <p>Explora los horarios y consulta directamente con el negocio. No necesitas crear una cuenta.</p>
+          <div className="shell platform-reservation-hero__grid">
+            <div className="platform-reservation-hero__copy">
+              <nav aria-label="Volver al complejo" className="platform-reservation-back">
+                <Link href={`/complejo/${encodeURIComponent(selectedCourt.businessSlug)}`}>← Volver al complejo</Link>
+              </nav>
+              <span className="eyebrow">CONSULTA POR WHATSAPP</span>
+              <h1>Encuentra el momento para jugar.</h1>
+              <p className="platform-reservation-hero__lead">{selectedCourt.businessName}</p>
+              <p>{selectedCourt.venueName} · {selectedCourt.courtName} · {selectedCourt.sportName}</p>
+              <p>Consulta los bloques horarios y coordina directamente con el negocio. No necesitas crear una cuenta.</p>
+            </div>
+            <aside className="platform-reservation-process" aria-label="Cómo consultar tu horario">
+              <span>ASÍ FUNCIONA</span>
+              <ol>
+                <li><b>01</b><div><strong>Explora</strong><small>Elige la fecha y la cancha.</small></div></li>
+                <li><b>02</b><div><strong>Consulta</strong><small>Selecciona un bloque con opción de contacto.</small></div></li>
+                <li><b>03</b><div><strong>Confirma</strong><small>El negocio confirma horario y tarifa por WhatsApp.</small></div></li>
+              </ol>
+            </aside>
           </div>
         </section>
         <section className="platform-reservation-section">
           <div className="shell">
+            <div className="platform-reservation-section__heading">
+              <span className="eyebrow">AGENDA DEL COMPLEJO</span>
+              <h2>Consulta tu horario</h2>
+              <p>La disponibilidad puede cambiar. Abrir WhatsApp inicia una conversación, no crea una reserva automáticamente.</p>
+            </div>
             <AvailabilityCalendar
               businessSlug={selectedCourt.businessSlug}
               businessName={selectedCourt.businessName}

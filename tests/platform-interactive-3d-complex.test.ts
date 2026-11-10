@@ -70,7 +70,7 @@ test("B96 mantiene Hero full-bleed y wordmark de texto, sin isotipo raster", () 
 });
 
 test("B97 el tenant Valeibol no monta la escena ni la carcasa de la madre", () => {
-  assert.match(tenant, /className="site-theme"/);
+  assert.match(tenant, /className="site-theme site-theme--caxas-child"/);
   assert.doesNotMatch(tenant, /SportComplexVisual|platform-public-premium--tenant|platform-home/);
   assert.doesNotMatch(css, /platform-public-premium--tenant/);
 });

@@ -203,8 +203,9 @@ export function AvailabilityCalendar({
   const selectedDay = days.find((day) => day.date === selectedDate) ?? days[0];
 
   function moveWeek(amount: -7 | 7) {
-    if (!weekReference) return;
+    if (!weekReference || !today) return;
     const nextReference = addDays(startOfWeekMonday(weekReference), amount);
+    if (startOfWeekMonday(nextReference) < startOfWeekMonday(today)) return;
     setWeekReference(nextReference);
     setSelectedDate(nextReference);
   }
@@ -240,6 +241,8 @@ export function AvailabilityCalendar({
     );
   }
 
+  const canGoToPreviousWeek = Boolean(today && weekReference && startOfWeekMonday(weekReference) > startOfWeekMonday(today));
+
   if (!today || !weekReference || demoState === "loading" || loadState === "idle" || loadState === "loading") {
     return <LoadingState label="Cargando disponibilidad…" />;
   }
@@ -265,7 +268,7 @@ export function AvailabilityCalendar({
     <div className="availability-app" aria-live="polite">
       <div className="availability-toolbar">
         <div className="week-navigation" aria-label="Navegación semanal">
-          <button className="week-nav-button" type="button" onClick={() => moveWeek(-7)}>
+          <button className="week-nav-button" type="button" onClick={() => moveWeek(-7)} disabled={!canGoToPreviousWeek}>
             <span aria-hidden="true">←</span>
             <span>Semana anterior</span>
           </button>
@@ -341,7 +344,7 @@ export function AvailabilityCalendar({
                 type="button"
                 role="tab"
                 aria-selected={isSelected}
-                aria-controls={dayPanelId(day.date)}
+                aria-controls={isSelected ? dayPanelId(day.date) : undefined}
                 tabIndex={isSelected ? 0 : -1}
                 onClick={() => setSelectedDate(day.date)}
                 onKeyDown={(event) => handleMobileDayKeyDown(event, days.indexOf(day))}

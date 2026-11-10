@@ -32,9 +32,10 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   if (sessionTarget) redirect(sessionTarget);
 
   return (
-    <main className="auth-page">
+    <main className="auth-page auth-page--caxas">
       <section className="auth-card" aria-labelledby="admin-login-title">
         <Link className="auth-back" href="/">← Volver a la web pública</Link>
+        <div className="auth-card__edition"><span aria-hidden="true" /> CAXAS SPORTCENTER <span>· ACCESO SEGURO</span></div>
         <div className="brand brand--auth">
           <PlatformAdminBrand context="auth" />
           <span className="brand-context-label">{tenantTarget ? "Página hija · acceso privado" : "Plataforma madre · acceso privado"}</span>

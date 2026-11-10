@@ -17,7 +17,7 @@ test("B86 aplica la carcasa premium a superficies de la madre sin invadir el ten
   assert.match(account, /platform-public-premium--account/);
   assert.match(recovery, /platform-public-premium--recovery/);
   assert.match(owner, /platform-public-premium--owner/);
-  assert.match(tenant, /className="site-theme"/);
+  assert.match(tenant, /className="site-theme site-theme--caxas-child"/);
   assert.doesNotMatch(tenant, /platform-public-premium--tenant/);
 });
 
