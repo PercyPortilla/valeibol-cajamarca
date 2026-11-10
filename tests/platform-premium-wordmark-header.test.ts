@@ -18,8 +18,9 @@ test("B85 mantiene el wordmark metálico sin depender de imagen raster", () => {
   assert.match(css, /platform-brand__wordmark \{[\s\S]*?linear-gradient\(180deg,#fff[\s\S]*?background-clip:\s*text/);
 });
 
-test("B85 mantiene navegación completa con targets accesibles", () => {
-  for (const label of ["Explorar", "Deportes", "Complejos", "Mi cuenta"]) assert.match(header, new RegExp(label));
+test("B85 mantiene navegación pública completa sin exigir cuenta", () => {
+  for (const label of ["Explorar", "Deportes", "Complejos", "Consultar canchas"]) assert.match(header, new RegExp(label));
+  assert.doesNotMatch(header, /href="\/mi-cuenta"/);
   assert.match(header, /aria-label="Navegación de la plataforma deportiva"/);
   assert.match(css, /platform-header--premium \.platform-nav a \{[\s\S]*?min-height:\s*44px/);
   assert.match(css, /platform-header--premium \.platform-nav a:focus-visible \{[\s\S]*?outline:\s*3px solid #f4b740/);

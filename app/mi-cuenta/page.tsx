@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { PUBLIC_WHATSAPP_ONLY } from "@/lib/platform/publicAccess";
 import { CustomerAuthForm } from "@/components/account/CustomerAuthForm";
 import { CustomerLogoutButton } from "@/components/account/CustomerLogoutButton";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
@@ -105,6 +107,7 @@ function reservationMode(reservation: CustomerReservation) {
 export default async function CustomerAccountPage({ searchParams }: {
   searchParams: Promise<{ notificationCreated?: string; notificationId?: string; reservationCreated?: string; reservationId?: string }>;
 }) {
+  if (PUBLIC_WHATSAPP_ONLY) redirect("/buscar");
   const params = await searchParams;
   const notificationPageCursor = notificationCursor(params);
   const reservationPageCursor = reservationCursor(params);

@@ -47,7 +47,7 @@ test("Edge B36 exige JWT, revalida ADMIN y solo invita tras owner_account_not_fo
 });
 
 test("payload B36 no acepta actor, role ni owner user id desde navegador", () => {
-  const parser = edge.match(/function parseBody[\s\S]*?return \{ businessId, ownerEmail \};\n\}/)?.[0] ?? "";
+  const parser = edge.match(/function parseBody[\s\S]*?return \{ businessId, ownerEmail \};\r?\n\}/)?.[0] ?? "";
   assert.match(parser, /businessId/);
   assert.match(parser, /ownerEmail/);
   assert.doesNotMatch(parser, /actor|role|ownerUserId|user_id/i);

@@ -11,7 +11,7 @@ export function PlatformFooter() {
           <Link href="/voley">Vóley</Link>
           <Link href="/futbol">Fútbol</Link>
           <Link href="/privacidad">Privacidad</Link>
-          <Link href="/admin/login">Administración</Link>
+          <Link href="/admin/login">Acceso de propietarios</Link>
         </nav>
       </div>
     </footer>

@@ -5,7 +5,6 @@ import { formatMoney } from "@/lib/booking";
 import { complexRoute } from "@/lib/platform/routes";
 import type { PlatformBusinessCard } from "@/lib/data/repositories/platformRepository";
 import { Icon } from "@/components/ui/Icon";
-import { FavoriteButton } from "@/components/platform/FavoriteButton";
 
 type Props = {
   business: PlatformBusinessCard;
@@ -16,7 +15,6 @@ type Props = {
 export function BusinessCard({ business, premium = false, lightingRequired = false }: Props) {
   return (
     <article className={`platform-business-card${premium ? " platform-business-card--premium" : ""}`}>
-      <FavoriteButton businessId={business.businessId} businessName={business.name} />
       <div
         className={business.coverImageUrl ? "platform-business-card__visual platform-business-card__visual--image" : "platform-business-card__visual"}
         aria-hidden={business.coverImageUrl ? undefined : true}

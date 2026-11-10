@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/data/supabase/server";
+import { PUBLIC_WHATSAPP_ONLY } from "@/lib/platform/publicAccess";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -99,6 +100,9 @@ function parseBody(value: unknown): PublicRequestBody | null {
 }
 
 export async function POST(request: NextRequest) {
+  if (PUBLIC_WHATSAPP_ONLY) {
+    return jsonError("reservations_via_whatsapp", 410);
+  }
   let body: unknown;
   try {
     body = await request.json();

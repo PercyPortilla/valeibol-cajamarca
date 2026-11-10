@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeAdminRedirectPath } from "@/lib/auth";
 import { LOCAL_DEV_ADMIN_COOKIE, isLocalDevAdminAllowed } from "@/lib/auth/localDev";
 import { PLATFORM_ADMIN_BUSINESS_COOKIE } from "@/lib/auth/platformScope";
+import { PUBLIC_WHATSAPP_ONLY } from "@/lib/platform/publicAccess";
 
 function isPublicAdminPath(pathname: string) {
   return pathname === "/admin/login"
@@ -17,6 +18,9 @@ function isCustomerAccountPath(pathname: string) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  if (PUBLIC_WHATSAPP_ONLY && isCustomerAccountPath(pathname)) {
+    return NextResponse.redirect(new URL("/buscar", request.url));
+  }
   const platformAdminHome = pathname === "/admin-global" || pathname.startsWith("/admin-global/");
   if (platformAdminHome) request.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
   const adminPath = pathname.startsWith("/admin");

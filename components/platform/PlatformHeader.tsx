@@ -23,7 +23,7 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
           <Link href="/buscar">{premium ? "Explorar" : "Buscar"}</Link>
           <Link href="/#deportes">Deportes</Link>
           <Link href="/#complejos">Complejos</Link>
-          <Link href="/mi-cuenta">Mi cuenta</Link>
+          <Link href="/buscar">Consultar canchas</Link>
         </nav>
       </div>
     </header>

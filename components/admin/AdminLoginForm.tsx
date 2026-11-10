@@ -76,7 +76,10 @@ export function AdminLoginForm() {
       }
 
       const params = new URLSearchParams(window.location.search);
-      window.location.assign(safeAdminRedirectPath(params.get("next")));
+      const requested = params.get("next");
+      const { data: platformAdmin } = await supabase.rpc("get_platform_admin_context");
+      const isPlatformAdmin = Boolean(platformAdmin?.length);
+      window.location.assign(isPlatformAdmin ? "/admin-global" : safeAdminRedirectPath(requested));
     } catch {
       setMessage("No pudimos conectar con el servicio de autenticación. Inténtalo nuevamente.");
     } finally {
@@ -99,7 +102,7 @@ export function AdminLoginForm() {
     setMessageKind("error");
     try {
       const callback = new URL("/auth/callback", window.location.origin);
-      callback.searchParams.set("next", "/admin/configuracion?passwordRecovery=1");
+      callback.searchParams.set("next", "/admin/activar?recovery=1");
 
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {

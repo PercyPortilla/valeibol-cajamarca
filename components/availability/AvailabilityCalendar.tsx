@@ -15,19 +15,18 @@ import { isPastLocalStart } from "@/lib/booking";
 import { createPublicAvailabilityRepository } from "@/lib/data/availabilityService";
 import { subscribeToPublicAvailabilityChanges } from "@/lib/data/availabilityRealtime";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
-import {
-  ReservationDialog,
-  type ReservationSelection,
-} from "@/components/booking/ReservationDialog";
+import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
 
 type DemoState = "ready" | "loading" | "empty" | "error";
 type LoadState = "idle" | "loading" | "ready" | "error";
 
 type AvailabilityCalendarProps = {
   businessSlug: string;
+  businessName: string;
   businessTimezone: string;
   initialCourtId: string | null;
   courtSports: Record<string, string>;
+  contactPhoneE164: string | null;
 };
 
 const STATUS_LABELS: Record<SlotStatus, string> = {
@@ -45,15 +44,13 @@ function readDemoState(): DemoState {
 function Slot({
   slot,
   compact = false,
-  onRequest,
-  bookable,
+  whatsappHref,
 }: {
   slot: AvailabilitySlot;
   compact?: boolean;
-  onRequest: (slot: AvailabilitySlot) => void;
-  bookable: boolean;
+  whatsappHref: string | null;
 }) {
-  const effectiveStatus: SlotStatus = slot.status === "available" && !bookable ? "unavailable" : slot.status;
+  const effectiveStatus: SlotStatus = slot.status;
   return (
     <div className={`time-slot time-slot--${effectiveStatus} ${compact ? "time-slot--compact" : ""}`}>
       <div className="time-slot__main">
@@ -63,15 +60,16 @@ function Slot({
           {STATUS_LABELS[effectiveStatus]}
         </span>
       </div>
-      {bookable ? (
-        <button
+      {whatsappHref ? (
+        <a
           className="slot-cta"
-          type="button"
-          onClick={() => onRequest(slot)}
-          aria-label={`Solicitar horario del ${slot.date}, ${slot.start} a ${slot.end}`}
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Consultar por WhatsApp el horario del ${slot.date}, ${slot.start} a ${slot.end}`}
         >
-          Solicitar
-        </button>
+          WhatsApp
+        </a>
       ) : null}
     </div>
   );
@@ -90,7 +88,7 @@ function DataSourceNotice({ snapshot }: { snapshot: AvailabilityWeekSnapshot }) 
             ? "Esta agenda es referencial. Para confirmar un horario, utiliza el contacto directo del negocio."
             : snapshot.isProvisional
               ? `Consulta la disponibilidad${court ? ` de ${court.courtName}` : ""}. Algunos horarios pueden requerir confirmación antes de reservar.`
-              : `Disponibilidad actualizada${court ? ` para ${court.courtName}` : ""}. Selecciona un bloque libre para enviar tu solicitud.`}
+              : `Disponibilidad actualizada${court ? ` para ${court.courtName}` : ""}. Consulta por WhatsApp antes de confirmar una reserva.`}
         </p>
       </div>
     </div>
@@ -107,9 +105,11 @@ function dayPanelId(date: string) {
 
 export function AvailabilityCalendar({
   businessSlug,
+  businessName,
   businessTimezone,
   initialCourtId,
   courtSports,
+  contactPhoneE164,
 }: AvailabilityCalendarProps) {
   const repository = useMemo(() => createPublicAvailabilityRepository(), []);
   const [today, setToday] = useState<string | null>(null);
@@ -121,7 +121,6 @@ export function AvailabilityCalendar({
   const [snapshot, setSnapshot] = useState<AvailabilityWeekSnapshot | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshNonce, setRefreshNonce] = useState(0);
-  const [reservationSelection, setReservationSelection] = useState<ReservationSelection | null>(null);
 
   useEffect(() => {
     const current = businessTodayDateKey(new Date(), businessTimezone);
@@ -133,7 +132,6 @@ export function AvailabilityCalendar({
 
   useEffect(() => {
     setActiveCourtId(initialCourtId);
-    setReservationSelection(null);
   }, [businessSlug, initialCourtId]);
 
   useEffect(() => {
@@ -209,14 +207,12 @@ export function AvailabilityCalendar({
     const nextReference = addDays(startOfWeekMonday(weekReference), amount);
     setWeekReference(nextReference);
     setSelectedDate(nextReference);
-    setReservationSelection(null);
   }
 
   function goToToday() {
     if (!today) return;
     setWeekReference(today);
     setSelectedDate(today);
-    setReservationSelection(null);
   }
 
   function handleMobileDayKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -234,26 +230,14 @@ export function AvailabilityCalendar({
     window.requestAnimationFrame(() => document.getElementById(dayTabId(nextDay.date))?.focus());
   }
 
-  function openReservation(slot: AvailabilitySlot, daySlots: AvailabilitySlot[]) {
-    if (!snapshot || !activeCourt || slot.status !== "available" || isPastLocalStart(slot.date, slot.start, activeCourt.timezone)) return;
+  function whatsappForSlot(slot: AvailabilitySlot) {
+    if (!activeCourt || slot.status !== "available" || isPastLocalStart(slot.date, slot.start, activeCourt.timezone) || !contactPhoneE164) return null;
     const sportSlug = courtSports[activeCourt.courtId];
-    if (!sportSlug) return;
-    setReservationSelection({
-      courtId: activeCourt.courtId,
-      courtName: activeCourt.courtName,
-      sportSlug,
-      timezone: activeCourt.timezone,
-      slot,
-      daySlots,
-      source: snapshot.source,
-      scheduleIsProvisional: snapshot.isProvisional,
-    });
-  }
-
-  const activeCourtHasSport = Boolean(activeCourt && courtSports[activeCourt.courtId]);
-
-  function refreshAvailability() {
-    setRefreshNonce((value) => value + 1);
+    if (!sportSlug) return null;
+    return buildWhatsAppChatHref(
+      contactPhoneE164,
+      `Hola, quisiera consultar el horario en ${businessName} para ${activeCourt.courtName} (${sportSlug}), el ${slot.date} de ${slot.start} a ${slot.end}. ¿Podrían confirmar disponibilidad y tarifa?`,
+    );
   }
 
   if (!today || !weekReference || demoState === "loading" || loadState === "idle" || loadState === "loading") {
@@ -307,7 +291,6 @@ export function AvailabilityCalendar({
               aria-pressed={court.courtId === activeCourt.courtId}
               onClick={() => {
                 setActiveCourtId(court.courtId);
-                setReservationSelection(null);
               }}
             >
               {court.courtName}
@@ -336,8 +319,7 @@ export function AvailabilityCalendar({
                   key={slot.id}
                   slot={slot}
                   compact
-                  bookable={activeCourtHasSport && slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
-                  onRequest={(requested) => openReservation(requested, day.slots)}
+                  whatsappHref={whatsappForSlot(slot)}
                 />
               )) : (
                 <span className="day-column__empty">Sin horarios</span>
@@ -390,8 +372,7 @@ export function AvailabilityCalendar({
               <Slot
                 key={slot.id}
                 slot={slot}
-                bookable={activeCourtHasSport && slot.status === "available" && !isPastLocalStart(slot.date, slot.start, activeCourt.timezone)}
-                onRequest={(requested) => openReservation(requested, selectedDay.slots)}
+                whatsappHref={whatsappForSlot(slot)}
               />
             )) : (
               <EmptyState title="Sin horarios" detail="No hay bloques configurados para este día." />
@@ -401,16 +382,13 @@ export function AvailabilityCalendar({
       </div>
 
       <p className="availability-footnote">
-        “Solicitar” solo aparece en horarios disponibles. Tu solicitud queda <strong>Pendiente</strong> hasta que el negocio la confirme.
+        Los horarios son informativos. Consulta por WhatsApp y espera la confirmación del negocio; abrir el chat no crea ni confirma una reserva.
       </p>
-
-      <ReservationDialog
-        businessSlug={businessSlug}
-        selection={reservationSelection}
-        onClose={() => setReservationSelection(null)}
-        onPersisted={refreshAvailability}
-        onAvailabilityStale={refreshAvailability}
-      />
+      {!contactPhoneE164 ? (
+        <p className="availability-footnote" role="status">
+          Este negocio aún no ha publicado un número de WhatsApp. Puedes revisar sus horarios, pero las solicitudes quedarán disponibles cuando configure su contacto.
+        </p>
+      ) : null}
     </div>
   );
 }

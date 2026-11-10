@@ -77,10 +77,11 @@ export function AdminInviteActivation() {
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        setMessage("No pudimos guardar la contraseña. Solicita una nueva invitación al propietario.");
+        setMessage("No pudimos guardar la contraseña. Solicita un nuevo enlace de acceso o recuperación.");
         return;
       }
-      router.push("/admin");
+      const { data: platformAdmin } = await supabase.rpc("get_platform_admin_context");
+      router.push(platformAdmin?.length ? "/admin-global" : "/admin");
       router.refresh();
     } catch {
       setMessage("No pudimos completar la activación. Inténtalo nuevamente.");
@@ -96,7 +97,7 @@ export function AdminInviteActivation() {
   if (state === "invalid") {
     return (
       <div className="auth-error" role="alert">
-        Esta invitación no es válida, ya expiró o no pudo establecer una sesión. Pide al propietario que te envíe una nueva.
+        Este enlace no es válido, ya expiró o no pudo establecer una sesión. Solicita uno nuevo desde el inicio de sesión.
       </div>
     );
   }

@@ -14,7 +14,6 @@ import { businessConfig } from "@/config/business";
 import { StructuredData } from "@/components/platform/StructuredData";
 import { buildBusinessJsonLd } from "@/lib/platform/seo";
 import { absoluteSiteUrl } from "@/lib/platform/siteUrl";
-import { FavoriteButton } from "@/components/platform/FavoriteButton";
 import { PublicReviewsSection } from "@/components/platform/PublicReviewsSection";
 import { getPublicBusinessReviews } from "@/lib/data/reputationService";
 import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
@@ -129,7 +128,6 @@ export default async function ComplexPage({ params }: { params: Params }) {
               <div className="platform-complex-title-row">
                 {business.logoUrl ? <span className="platform-complex-logo"><Image src={business.logoUrl} alt={`Logo de ${business.name}`} width={72} height={72} /></span> : null}
                 <h1>{business.name}</h1>
-                <FavoriteButton businessId={business.id} businessName={business.name} variant="button" />
               </div>
               <p>{business.city ?? "Ciudad por confirmar"}{business.country ? `, ${business.country}` : ""} · {sportNames.join(" · ") || "Deportes"}</p>
               <div className="platform-complex-hero__chips">

@@ -41,7 +41,7 @@ export function HomeSportExperience({ sports, stats, sportCourtCounts }: Props) 
         <div className="shell platform-proof-strip__inner">
           <div><span>01</span><p><strong>Explora</strong><small>Encuentra espacios por deporte y horario.</small></p></div>
           <div><span>02</span><p><strong>Compara</strong><small>Revisa complejos, canchas y disponibilidad.</small></p></div>
-          <div><span>03</span><p><strong>Reserva</strong><small>Gestiona tu reserva desde el complejo elegido.</small></p></div>
+          <div><span>03</span><p><strong>Reserva</strong><small>Coordina por WhatsApp con el complejo elegido.</small></p></div>
         </div>
       </section>
 

@@ -63,9 +63,8 @@ test("confirmed solo puede completarse después de end_at y habilita reseña", (
   assert.match(adminActions, /Marcar completada/);
 });
 
-test("favorito es una isla cliente accesible y no queda dentro de aria-hidden", () => {
-  assert.match(businessCard, /<FavoriteButton businessId=\{business\.businessId\}/);
-  assert.ok(businessCard.indexOf("<FavoriteButton") < businessCard.indexOf("aria-hidden"));
+test("el catálogo público no exige cuenta para navegar; favoritos antiguos se preservan fuera de la vista pública", () => {
+  assert.doesNotMatch(businessCard, /<FavoriteButton/);
   assert.match(favoriteButton, /aria-pressed=\{signedIn \? favorite : undefined\}/);
   assert.match(favoriteButton, /router\.push\("\/mi-cuenta"\)/);
   assert.match(favoriteButton, /setError\("No pudimos cargar tus favoritos\."\)/);

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { requireAdminContext } from "@/lib/auth/server";
+import { getPlatformAdminContext } from "@/lib/auth/platformAdmin";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,6 +24,12 @@ const ownerSections = [
 ] as const;
 
 export default async function OwnerPortalPage() {
+  let isGlobalAdmin = false;
+  try {
+    await getPlatformAdminContext();
+    isGlobalAdmin = true;
+  } catch {}
+  if (isGlobalAdmin) redirect("/admin-global");
   const context = await requireAdminContext();
   if (context.role === "staff") redirect("/admin");
 

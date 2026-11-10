@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { PUBLIC_WHATSAPP_ONLY } from "@/lib/platform/publicAccess";
 import type { Metadata } from "next";
 import { CustomerPasswordRecoveryForm } from "@/components/account/CustomerPasswordRecoveryForm";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CustomerPasswordRecoveryPage() {
+  if (PUBLIC_WHATSAPP_ONLY) redirect("/buscar");
   let hasRecoverySession = false;
 
   if (hasPublicSupabaseServerConfig()) {

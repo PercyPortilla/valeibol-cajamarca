@@ -13,19 +13,19 @@ import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { formatMoney } from "@/lib/booking";
 import { themeCssVariables } from "@/lib/siteContent";
 import type { CSSProperties } from "react";
-import { FavoriteButton } from "@/components/platform/FavoriteButton";
+import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
 import { PublicReviewsSection } from "@/components/platform/PublicReviewsSection";
 import { getPublicBusinessReviews } from "@/lib/data/reputationService";
 
 export async function ValeibolLanding() {
-  const [pricing, siteContent, catalog, reviewResult] = await Promise.all([
+  const [pricing, siteContent, catalog, reviewResult, publicContact] = await Promise.all([
     getPublicCurrentPricing(),
     getPublicSiteContent(),
     getPublicPlatformCatalog({ businessSlug: businessConfig.slug }),
     getPublicBusinessReviews(businessConfig.slug),
+    getPublicBusinessContact(businessConfig.slug),
   ]);
   const initialCourtId = catalog[0]?.courtId ?? demoCourt.id;
-  const businessId = catalog[0]?.businessId ?? null;
   const businessLogoUrl = catalog[0]?.logoUrl ?? null;
   const ratingAverage = catalog[0]?.ratingAverage ?? null;
   const reviewCount = catalog[0]?.reviewCount ?? 0;
@@ -72,12 +72,12 @@ export async function ValeibolLanding() {
               <span className="hero-commercial__eyebrow">CLUB DE VOLEIBOL EN CAJAMARCA</span>
               <h1>Reserva tu cancha <span>de vóley</span> en Cajamarca</h1>
               <p>
-                Revisa horarios disponibles, conoce la tarifa vigente y envía tu solicitud de reserva en pocos pasos.
+                Revisa horarios y tarifas, y consulta tu reserva directamente por WhatsApp. No necesitas registrarte.
               </p>
               <div className="hero__actions hero-commercial__actions">
                 <a className="button button--primary" href="#disponibilidad">
                   <Icon name="calendar" size={18} />
-                  Reservar ahora
+                  Consultar horarios
                 </a>
                 <a className="button button--hero-outline" href={phoneHref}>
                   <Icon name="phone" size={18} />
@@ -87,7 +87,6 @@ export async function ValeibolLanding() {
                   <Icon name="whatsapp" size={18} />
                   WhatsApp
                 </a>
-                {businessId ? <FavoriteButton businessId={businessId} businessName={businessConfig.name} variant="button" /> : null}
               </div>
             </div>
           </div>
@@ -118,15 +117,17 @@ export async function ValeibolLanding() {
               <div>
                 <span className="eyebrow">HORARIOS</span>
                 <h2>Horarios disponibles</h2>
-                <p>Selecciona un día, revisa los bloques y solicita el horario que más te convenga.</p>
+                <p>Selecciona un día y consulta por WhatsApp el horario que más te convenga.</p>
               </div>
-              <div className="privacy-pill">Tus datos se solicitan solo al reservar</div>
+              <div className="privacy-pill">Sin registro · Atención por WhatsApp</div>
             </div>
             <AvailabilityCalendar
               businessSlug={businessConfig.slug}
+              businessName={businessConfig.name}
               businessTimezone={businessConfig.timezone}
               initialCourtId={initialCourtId}
               courtSports={courtSports}
+              contactPhoneE164={publicContact.phoneE164}
             />
           </div>
         </section>
@@ -248,7 +249,7 @@ export async function ValeibolLanding() {
               </div>
 
               <div className="location-actions">
-                <a className="button button--primary" href="#disponibilidad">Reservar ahora</a>
+                <a className="button button--primary" href="#disponibilidad">Consultar horarios</a>
                 <a className="button button--commercial-outline" href={mapsHref} target="_blank" rel="noreferrer">Abrir en Google Maps</a>
               </div>
             </div>

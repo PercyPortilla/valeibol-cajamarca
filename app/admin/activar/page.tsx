@@ -12,9 +12,9 @@ export default function AdminInviteActivationPage() {
           <span className="brand-context-label">Administración · activación de acceso</span>
         </div>
         <div className="auth-card__title">
-          <span className="eyebrow">INVITACIÓN PRIVADA</span>
-          <h1 id="admin-activate-title">Activa tu acceso administrativo.</h1>
-          <p>Esta pantalla solo se utiliza después de una invitación enviada por un propietario. Crea tu contraseña para finalizar.</p>
+          <span className="eyebrow">ACCESO SEGURO</span>
+          <h1 id="admin-activate-title">Configura tu contraseña de acceso.</h1>
+          <p>Después de abrir un enlace de invitación o recuperación enviado a tu correo, crea una nueva contraseña para entrar al panel.</p>
         </div>
         <AdminInviteActivation />
         <p className="auth-note">Después de activarte, los siguientes ingresos se realizan con correo y contraseña.</p>
