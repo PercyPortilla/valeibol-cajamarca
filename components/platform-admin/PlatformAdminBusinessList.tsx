@@ -203,12 +203,12 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
               <div><dt>Reservas</dt><dd>{business.reservationCount}</dd></div>
             </dl>
             <div className="global-admin-business-row__actions">
-              <Link
-                className="button button--primary"
-                href={`/api/admin-global/select-business?businessId=${encodeURIComponent(business.businessId)}&next=${encodeURIComponent("/admin")}`}
-              >
-                Administrar negocio
-              </Link>
+              <form action="/api/admin-global/select-business" method="post" className="global-admin-business-row__selection">
+                <input type="hidden" name="businessId" value={business.businessId} />
+                <button type="submit" className="button button--primary">
+                  Administrar negocio
+                </button>
+              </form>
               <button type="button" className="button button--secondary" disabled={Boolean(busyId) || business.configurationStatus !== "provisional"} onClick={() => setEditingId((current) => current === business.businessId ? null : business.businessId)}>
                 {editingId === business.businessId ? "Cerrar edición" : "Editar configuración"}
               </button>
