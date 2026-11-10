@@ -8,6 +8,7 @@ const search = readFileSync("app/buscar/page.tsx", "utf8");
 const searchForm = readFileSync("components/platform/PlatformSearchForm.tsx", "utf8");
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
 const footer = readFileSync("components/platform/PlatformFooter.tsx", "utf8");
+const chromeBrand = readFileSync("components/brand/CaxasChromeBrand.tsx", "utf8");
 const layout = readFileSync("app/layout.tsx", "utf8");
 const adminShell = readFileSync("components/admin/AdminShell.tsx", "utf8");
 const ownerPortal = readFileSync("app/propietario/page.tsx", "utf8");
@@ -17,7 +18,9 @@ const teamAccessMigration = readFileSync("supabase/migrations/20261027002805_pla
 test("marca principal es Caxas SportCenter sin renombrar el tenant Valeibol", () => {
   assert.match(config, /name:\s*"Caxas SportCenter"/);
   assert.match(header, /platformConfig\.name/);
-  assert.match(footer, /platformConfig\.name/);
+  assert.match(footer, /<CaxasChromeBrand compact \/>/);
+  assert.match(chromeBrand, /alt="CAXAS"/);
+  assert.match(chromeBrand, />SPORTCENTER<\/strong>/);
   assert.match(layout, /platformConfig\.name/);
 });
 

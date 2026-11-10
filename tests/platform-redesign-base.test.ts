@@ -21,10 +21,9 @@ test("rediseño bloque 1 hace autosuficiente la estructura del Hero premium", ()
   assert.match(css, /\.platform-home \.platform-home-hero__aside \{[^}]*min-width:\s*0/);
 });
 
-test("rediseño bloque 1 conserva branding tipográfico sin isotipo", () => {
-  assert.match(header, /data-brand-asset="wordmark-only"/);
-  assert.match(header, /platform-brand__wordmark/);
-  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp|next\/image/);
+test("rediseño bloque 1 conserva branding premium con nueva marca cromo", () => {
+  assert.match(header, /<CaxasChromeBrand \/>/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp/);
   assert.match(css, /platform-brand__wordmark/);
 });
 

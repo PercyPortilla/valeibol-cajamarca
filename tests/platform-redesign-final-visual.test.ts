@@ -9,15 +9,16 @@ const experience = readFileSync("components/platform/HomeSportExperience.tsx", "
 const visual = readFileSync("components/platform/SportComplexVisual.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
+const brand = readFileSync("components/brand/CaxasChromeBrand.tsx", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("rediseño bloque 13 mantiene identidad final Caxas negro plata en la home", () => {
+test("rediseño bloque 13 conserva identidad Caxas con logo cromo-violeta en la home", () => {
   assert.match(home, /platform-page platform-home/);
   assert.match(hero, /CAXAS SPORTCENTER/);
-  assert.match(header, /data-brand-asset="wordmark-only"/);
-  assert.match(header, /platform-brand__wordmark">CAXAS <span>SPORTCENTER<\/span>/);
+  assert.match(header, /<CaxasChromeBrand \/>/);
+  assert.match(brand, /data-brand-asset="chrome-violet"/);
   assert.match(header, /platformConfig\.name/);
-  assert.match(header, /Plataforma deportiva · Cajamarca/);
+  assert.match(brand, /Plataforma deportiva · Cajamarca/);
   assert.match(css, /\.platform-home \{[\s\S]*?--caxas-black:[\s\S]*?--caxas-silver:/);
   assert.match(css, /\.platform-home \.platform-business-card/);
 });
@@ -44,9 +45,9 @@ test("rediseño bloque 13 resuelve todos los contextos deportivos principales", 
   }
 });
 
-test("rediseño bloque 13 conserva wordmark premium y noche", () => {
+test("rediseño bloque 13 conserva wordmark premium y escena noche", () => {
   assert.match(css, /platform-brand__wordmark/);
-  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp|next\/image/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp/);
   assert.match(css, /\.platform-sport-diorama\.is-night/);
   assert.match(css, /\.platform-sport-diorama\.is-night \.platform-sport-diorama__lights > span i/);
   assert.match(hero, /Horario nocturno: consulta la iluminación de la cancha/);

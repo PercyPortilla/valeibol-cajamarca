@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { platformConfig } from "@/config/platform";
+import { CaxasChromeBrand } from "@/components/brand/CaxasChromeBrand";
 
 export function PlatformFooter({ businessSlug }: { businessSlug?: string } = {}) {
   return (
     <footer className="platform-footer">
       <div className="shell platform-footer__inner">
-        <div><strong>{platformConfig.name} <em>•</em> Cajamarca</strong><span>Descubre complejos y encuentra dónde jugar en Cajamarca desde una sola plataforma.</span></div>
+        <div className="platform-footer__brand">
+          <CaxasChromeBrand compact />
+          <span>Descubre complejos y encuentra dónde jugar en Cajamarca desde una sola plataforma.</span>
+        </div>
         <nav aria-label="Enlaces de plataforma">
           <Link href="/buscar">Buscar</Link>
           <Link href="/voley">Vóley</Link>

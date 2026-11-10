@@ -1,0 +1,185 @@
+/*
+ * CAXAS SportCenter / Chrome Violet · sistema visual 2026.
+ * Capa corporativa final: no modifica escenarios 3D, temas editables de
+ * negocios, estados semánticos de disponibilidad o colores de WhatsApp.
+ */
+:root {
+  --caxas-violet: #bd7aff;
+  --caxas-violet-hover: #dfbbff;
+  --caxas-violet-focus: #d2a7ff;
+  --caxas-silver-chrome: #e3e6f0;
+  --caxas-graphite-neutral: #0d0b13;
+}
+
+/* Identidad real, recortada de la imagen aprobada. */
+.caxas-chrome-brand {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 5px;
+  color: #e7e7ef;
+}
+.caxas-chrome-brand__row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(7px,1vw,11px);
+}
+.caxas-chrome-brand__wordmark {
+  display: block;
+  width: clamp(178px,16vw,218px);
+  height: auto;
+  min-width: 0;
+  flex: none;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 7px rgba(155,60,251,.27));
+}
+.caxas-chrome-brand__sport {
+  display: block;
+  margin-top: 2px;
+  background: linear-gradient(180deg,#ffffff 5%,#d9dbe7 41%,#838397 76%,#e8e6ef 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 950;
+  letter-spacing: .11em;
+  line-height: 1.1;
+  text-shadow: 0 0 18px rgba(189,122,255,.08);
+}
+.caxas-chrome-brand__tagline {
+  display: block;
+  margin-left: 2px;
+  color: #a7a1b8;
+  font-size: 9px;
+  font-weight: 770;
+  line-height: 1.35;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.platform-header--premium .caxas-chrome-brand { max-width: 375px; }
+.platform-header--premium .platform-brand {
+  min-height: 62px;
+  max-width: 375px;
+  text-decoration: none;
+}
+.platform-header--premium .platform-header__inner { min-height: 82px; }
+.platform-header--premium .platform-brand:hover .caxas-chrome-brand__wordmark {
+  filter: drop-shadow(0 0 9px rgba(189,122,255,.42));
+}
+
+/* Navegación y foco de marca unificados en portada, buscador e hijas. */
+.platform-header--premium {
+  background: linear-gradient(180deg,#111019,#08080e);
+  border-bottom-color: rgba(197,174,224,.2);
+}
+.platform-page .platform-header--premium .platform-nav .platform-nav__primary {
+  border: 1px solid #bd7aff;
+  border-radius: 11px;
+  background: #bd7aff;
+  color: #110b19;
+  box-shadow: 0 5px 16px rgba(135,63,214,.16);
+  font-weight: 840;
+}
+.platform-page .platform-header--premium .platform-nav .platform-nav__primary:hover {
+  border-color: #dfbbff;
+  background: #dfbbff;
+  color: #110b19;
+}
+.platform-header--premium .platform-brand:focus-visible,
+.platform-header--premium .platform-nav a:focus-visible,
+.platform-page :is(a,button,input,select,textarea):focus-visible,
+.site-theme--caxas-child :is(a,button,input,select,textarea):focus-visible,
+.auth-page--caxas :is(a,button,input):focus-visible,
+.global-admin-page :is(a,button,input,select):focus-visible {
+  outline: 3px solid #d2a7ff;
+  outline-offset: 3px;
+}
+.platform-page .platform-header--premium .platform-nav a:not(.platform-nav__primary):hover { color: #e3c8ff; }
+.platform-page .platform-brand__premium-copy small { color: #b4adbf; }
+.platform-sport-landing .platform-sport-landing__results {
+  background: linear-gradient(160deg,#100e17,#0a090e);
+}
+
+/* Pie de página con la misma marca; mantiene legibilidad del texto secundario. */
+.platform-footer .platform-footer__brand {
+  min-width: 0;
+  display: grid;
+  gap: 15px;
+}
+.platform-footer .caxas-chrome-brand--compact .caxas-chrome-brand__wordmark { width: 160px; }
+.platform-footer .caxas-chrome-brand--compact .caxas-chrome-brand__sport { font-size: 10px; }
+.platform-footer .caxas-chrome-brand__tagline { max-width: none; font-size: 9px; color: #9e99ad; }
+.platform-footer .platform-footer__brand > span:last-child {
+  max-width: 450px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #aaa5b8;
+}
+.platform-footer {
+  border-top-color: rgba(187,150,225,.2);
+  background: #0b0911;
+}
+.platform-footer nav a:hover { color: #cf9fff; }
+
+/* Consola global y pantalla de acceso: la identidad principal también es cromada. */
+.platform-admin-brand__copy .caxas-chrome-brand__row { flex-wrap: wrap; gap: 3px 9px; }
+.platform-admin-brand__copy .caxas-chrome-brand__wordmark { width: 126px; }
+.platform-admin-brand__copy .caxas-chrome-brand__sport { font-size: 9px; letter-spacing: .06em; }
+.platform-admin-brand__copy .caxas-chrome-brand__tagline { font-size: 9px; }
+.auth-page--caxas .platform-admin-brand__copy .caxas-chrome-brand__row {
+  padding: 8px 11px;
+  border: 1px solid rgba(186,134,235,.28);
+  border-radius: 10px;
+  background: #0d0b15;
+}
+.auth-page--caxas .platform-admin-brand__copy .caxas-chrome-brand__sport {
+  background: linear-gradient(180deg,#fff,#b9a6d9 84%);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+.auth-page--caxas .platform-admin-brand__copy .caxas-chrome-brand__tagline { color: #605a6c; }
+.auth-page--caxas .auth-card .button--primary:not(:disabled) {
+  background: #5e2b91;
+  color: #fff;
+}
+.auth-page--caxas .auth-card .button--primary:not(:disabled):hover { background: #7434af; }
+.admin-shell .platform-admin-brand__copy .caxas-chrome-brand__tagline {
+  color: var(--brand-muted);
+}
+
+/* El violeta sustituye acentos de marca, no estados operativos verdes. */
+.platform-home { background: #0a0910; }
+.platform-home .platform-header--premium { background: #0c0b12; }
+.platform-home .platform-footer { background: #0c0b12; }
+.platform-public-premium--complex .platform-header--premium,
+.platform-public-premium--reservation .platform-header--premium,
+.platform-public-premium--owner .platform-header--premium { background: #0c0b12; }
+.global-admin-page .global-admin-header .eyebrow { color: #c59aff; }
+.global-admin-page .global-admin-links a:hover { border-color: #bd7aff; }
+
+@media (max-width: 1080px) and (min-width: 681px) {
+  .platform-header--premium .caxas-chrome-brand__wordmark { width: 167px; }
+  .platform-header--premium .caxas-chrome-brand__sport { font-size: 9px; letter-spacing: .075em; }
+  .platform-header--premium .caxas-chrome-brand__tagline { font-size: 8px; }
+  .platform-header--premium .platform-header__inner { gap: 13px; }
+}
+@media (max-width: 680px) {
+  .platform-header--premium .platform-brand { min-height: 45px; }
+  .platform-header--premium .caxas-chrome-brand__wordmark { width: clamp(155px,46vw,186px); }
+  .platform-header--premium .caxas-chrome-brand__sport { font-size: clamp(8px,2.45vw,10px); letter-spacing: .07em; }
+  .platform-header--premium .caxas-chrome-brand__tagline { font-size: 9px; }
+  .platform-header--premium .platform-header__inner { min-height: 0; }
+  .platform-footer .platform-footer__brand { gap: 12px; }
+}
+@media (max-width: 375px) {
+  .platform-header--premium .caxas-chrome-brand__wordmark { width: 148px; }
+  .platform-header--premium .caxas-chrome-brand__sport { font-size: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .platform-header--premium .platform-brand,
+  .platform-header--premium .caxas-chrome-brand__wordmark { transition: none !important; }
+}

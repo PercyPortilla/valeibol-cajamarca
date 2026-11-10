@@ -60,11 +60,11 @@ test("B95 comparte sportSlug e inventario real con la escena", () => {
   assert.match(experience, /Sin oferta activa todav/);
 });
 
-test("B96 mantiene Hero full-bleed y wordmark de texto, sin isotipo raster", () => {
+test("B96 mantiene Hero full-bleed y activa wordmark cromo-violeta sin tocar diorama", () => {
   assert.match(css, /B84 · Hero full-bleed premium/);
   assert.match(css, /platform-home-hero__aside[\s\S]*?position:\s*absolute/);
-  assert.match(header, /data-brand-asset="wordmark-only"/);
-  assert.doesNotMatch(header, /next\/image|caxas-sportcenter-logo\.webp/);
+  assert.match(header, /<CaxasChromeBrand \/>/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp/);
   assert.doesNotMatch(css, /platform-brand__premium-logo/);
   assert.equal(existsSync("public/images/caxas-sportcenter-logo.webp"), false);
 });

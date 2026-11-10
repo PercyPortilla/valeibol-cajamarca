@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { platformConfig } from "@/config/platform";
+import { CaxasChromeBrand } from "@/components/brand/CaxasChromeBrand";
 
 export function PlatformHeader({ premium = false }: { premium?: boolean }) {
   return (
@@ -8,10 +9,7 @@ export function PlatformHeader({ premium = false }: { premium?: boolean }) {
       <div className="shell platform-header__inner">
         <Link className="platform-brand" href="/" aria-label={`Ir al inicio de ${platformConfig.name}`}>
           {premium ? (
-            <span className="platform-brand__premium-copy" data-brand-asset="wordmark-only">
-              <strong className="platform-brand__wordmark">CAXAS <span>SPORTCENTER</span></strong>
-              <small>Plataforma deportiva · Cajamarca</small>
-            </span>
+            <CaxasChromeBrand />
           ) : (
             <>
               <span className="platform-brand__mark" aria-hidden="true"><i>C</i></span>

@@ -3,21 +3,23 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const header = readFileSync("components/platform/PlatformHeader.tsx", "utf8");
+const brand = readFileSync("components/brand/CaxasChromeBrand.tsx", "utf8");
 const css = readFileSync("app/styles/globals-5.css", "utf8");
+const violetCss = readFileSync("app/styles/caxas-chrome-violet-2026.css", "utf8");
 const completeness = readFileSync("scripts/validate-repository.mjs", "utf8");
 
-test("B64 usa identidad tipográfica únicamente en el header premium de la página madre", () => {
+test("B64 mantiene branding de la madre y usa ahora el arte cromado aprobado", () => {
   assert.match(header, /premium \? \(/);
-  assert.match(header, /data-brand-asset="wordmark-only"/);
-  assert.match(header, /platform-brand__wordmark">CAXAS <span>SPORTCENTER<\/span>/);
-  assert.match(header, /platform-brand__premium-copy/);
-  assert.doesNotMatch(header, /next\/image|caxas-sportcenter-logo\.webp|premium-logo/);
+  assert.match(header, /<CaxasChromeBrand \/>/);
+  assert.match(brand, /data-brand-asset="chrome-violet"/);
+  assert.match(brand, /caxas-chrome-violet-wordmark\.webp/);
+  assert.doesNotMatch(header, /caxas-sportcenter-logo\.webp/);
 });
 
-test("B64 conserva subtexto, responsive y contraste del header premium", () => {
-  assert.match(header, /Plataforma deportiva · Cajamarca/);
+test("B64 conserva subtexto y responsive del nuevo wordmark", () => {
+  assert.match(brand, /Plataforma deportiva · Cajamarca/);
   assert.match(css, /\.platform-header--premium \.platform-brand__wordmark/);
-  assert.match(css, /@media \(max-width: 680px\)[\s\S]*?platform-brand__wordmark/);
+  assert.match(violetCss, /@media \(max-width: 680px\)[\s\S]*?\.caxas-chrome-brand__wordmark/);
 });
 
 test("B64/B69 QA mantiene escenas deportivas diferenciadas", () => {

@@ -1,6 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="mi valeibol">
-  <rect width="64" height="64" rx="15" fill="#F7FAFD"/>
-  <circle cx="32" cy="32" r="22" fill="#F4C430" stroke="#0F4B88" stroke-width="3"/>
-  <path d="M17 28c8-7 18-9 29-6M21 44c2-10 7-18 16-25M47 40c-10 0-18-4-24-12" fill="none" stroke="#155FA8" stroke-width="5" stroke-linecap="round"/>
-  <path d="M9 52h46" stroke="#B72F34" stroke-width="5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Caxas SportCenter">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0.15" y2="1">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".38" stop-color="#D7DBE8"/>
+      <stop offset=".61" stop-color="#76788A"/>
+      <stop offset="1" stop-color="#F3F3FC"/>
+    </linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E5C4FF"/>
+      <stop offset=".55" stop-color="#B44AFF"/>
+      <stop offset="1" stop-color="#6323B1"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="13" fill="#0B0912"/>
+  <path d="M11 14h12l10 13 10-13h12L39 33l17 18H43L32 38 21 51H8l18-19z" fill="url(#chrome)" stroke="#A8A5BA" stroke-width=".7"/>
+  <path d="M42 10h11L20 55H9z" fill="url(#violet)" stroke="#E2B4FF" stroke-width=".7"/>
+  <path d="M13 56h38" stroke="#B65EFF" stroke-width="1.5"/>
 </svg>
