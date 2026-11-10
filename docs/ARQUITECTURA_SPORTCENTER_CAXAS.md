@@ -35,9 +35,10 @@ El modo PUBLIC_WHATSAPP_ONLY desactiva el endpoint de reserva pública con
 HTTP 410 y redirige /mi-cuenta al catálogo. Las reservas históricas continúan
 en la base de datos. Si una hija no publica un WhatsApp, no se inventa un número.
 
-La dirección principal es `https://caxas-sportcenter.vercel.app`, alojada
-gratuitamente en Vercel. La dirección anterior de Valeibol queda conservada
-para enlaces compartidos y redirecciones de recuperación heredadas.
+La única dirección pública difundida es `https://caxas-sportcenter.vercel.app`,
+alojada en Vercel. Los accesos públicos al dominio histórico redirigen
+permanentemente (HTTP 308) al nuevo dominio. Su asociación técnica temporal
+persiste solo por los correos de Auth/PKCE ya autorizados en Supabase.
 La nueva URL debe agregarse además en Supabase > Authentication > URL Configuration
 (Site URL y Redirect URLs): la conexión de gestión actual no permite modificar
 esa configuración. Hasta completar ese ajuste, los correos de invitación de

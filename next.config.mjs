@@ -16,6 +16,26 @@ try {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    const legacyHost = [{ type: "host", value: "valeibol-cajamarca-live.vercel.app" }];
+    const newOrigin = "https://caxas-sportcenter.vercel.app";
+    return [
+      {
+        source: "/",
+        has: legacyHost,
+        destination: newOrigin,
+        permanent: true,
+      },
+      {
+        // Auth/PKCE mantiene provisionalmente el origen antiguo hasta
+        // actualizar la lista permitida en Supabase Authentication.
+        source: "/:path((?!admin/login|admin/activar|auth/callback).*)",
+        has: legacyHost,
+        destination: `${newOrigin}/:path`,
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: supabaseImagePatterns,
   },
