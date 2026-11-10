@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
+import { safeTenantAdminRedirectPath } from "@/lib/auth/tenantAccess";
 
 type ActivationState = "loading" | "ready" | "invalid";
 
@@ -16,6 +17,7 @@ export function AdminInviteActivation() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [returnTo, setReturnTo] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -24,6 +26,7 @@ export function AdminInviteActivation() {
       try {
         const supabase = createPublicBrowserSupabaseClient();
         const url = new URL(window.location.href);
+        const tenantTarget = safeTenantAdminRedirectPath(url.searchParams.get("tenant"));
         const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
         const accessToken = hash.get("access_token");
         const refreshToken = hash.get("refresh_token");
@@ -45,6 +48,7 @@ export function AdminInviteActivation() {
 
         if (!active) return;
         setEmail(data.user.email ?? null);
+        setReturnTo(tenantTarget);
         setState("ready");
         window.history.replaceState(null, "", "/admin/activar");
       } catch {
@@ -81,7 +85,7 @@ export function AdminInviteActivation() {
         return;
       }
       const { data: platformAdmin } = await supabase.rpc("get_platform_admin_context");
-      router.push(platformAdmin?.length ? "/admin-global" : "/admin");
+      router.push(returnTo ?? (platformAdmin?.length ? "/admin-global" : "/admin"));
       router.refresh();
     } catch {
       setMessage("No pudimos completar la activación. Inténtalo nuevamente.");

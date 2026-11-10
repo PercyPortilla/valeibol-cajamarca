@@ -9,7 +9,7 @@ const legacy = readFileSync("components/site/ValeibolLanding.tsx", "utf8");
 test("la raíz ahora es marketplace global y no la landing exclusiva de Valeibol", () => {
   assert.match(root, /HomeSportExperience/);
   assert.match(root, /getPublicPlatformCatalog/);
-  assert.match(root, /PARA PROPIETARIOS/);
+  assert.doesNotMatch(root, /PARA PROPIETARIOS/);
   assert.doesNotMatch(root, /CourtVisual/);
 });
 

@@ -11,10 +11,13 @@ type RecoveryRow = {
   owner_user_id: string;
 };
 
-const PROD_ORIGIN = "https://valeibol-cajamarca-live.vercel.app";
-const DEFAULT_INVITE_REDIRECT = `${PROD_ORIGIN}/admin/activar`;
+const PROD_ORIGIN = "https://caxas-sportcenter.vercel.app";
+const LEGACY_ORIGIN = "https://valeibol-cajamarca-live.vercel.app";
+// URL heredada permitida actualmente por Supabase Auth; conservar hasta actualizar su allowlist.
+const DEFAULT_INVITE_REDIRECT = `${LEGACY_ORIGIN}/admin/activar`;
 const ALLOWED_ORIGINS = new Set([
   PROD_ORIGIN,
+  LEGACY_ORIGIN,
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ]);

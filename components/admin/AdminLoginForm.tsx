@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { safeAdminRedirectPath } from "@/lib/auth";
+import { safeTenantAdminRedirectPath } from "@/lib/auth/tenantAccess";
 import {
   createPublicBrowserSupabaseClient,
   hasPublicSupabaseConfig,
@@ -77,6 +78,11 @@ export function AdminLoginForm() {
 
       const params = new URLSearchParams(window.location.search);
       const requested = params.get("next");
+      const tenantTarget = safeTenantAdminRedirectPath(requested);
+      if (tenantTarget) {
+        window.location.assign(tenantTarget);
+        return;
+      }
       const { data: platformAdmin } = await supabase.rpc("get_platform_admin_context");
       const isPlatformAdmin = Boolean(platformAdmin?.length);
       window.location.assign(isPlatformAdmin ? "/admin-global" : safeAdminRedirectPath(requested));
@@ -102,7 +108,11 @@ export function AdminLoginForm() {
     setMessageKind("error");
     try {
       const callback = new URL("/auth/callback", window.location.origin);
-      callback.searchParams.set("next", "/admin/activar?recovery=1");
+      const requested = new URLSearchParams(window.location.search).get("next");
+      const tenantTarget = safeTenantAdminRedirectPath(requested);
+      const activation = new URLSearchParams({ recovery: "1" });
+      if (tenantTarget) activation.set("tenant", tenantTarget);
+      callback.searchParams.set("next", `/admin/activar?${activation.toString()}`);
 
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {

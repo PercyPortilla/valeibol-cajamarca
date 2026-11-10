@@ -19,6 +19,11 @@ Esta selección no concede acceso global a dueños o trabajadores de hijas.
 /admin/login es la entrada privada de gestores y /admin/activar sirve para
 invitaciones y recuperación de contraseña.
 
+Desde el pie de página de una hija se entra mediante
+`/complejo/[slug]/administrar`. Esa ruta valida la sesión y el contexto del
+negocio; para un ADMIN global selecciona explícitamente la página hija antes de
+abrir `/admin`. El acceso de la madre va a `/admin-global`, sin mezclar ambos.
+
 ## Público sin cuentas
 
 Los visitantes exploran la madre, las páginas hijas y los horarios sin login.
@@ -29,6 +34,14 @@ WhatsApp: abrir el chat no genera ni confirma una reserva automática.
 El modo PUBLIC_WHATSAPP_ONLY desactiva el endpoint de reserva pública con
 HTTP 410 y redirige /mi-cuenta al catálogo. Las reservas históricas continúan
 en la base de datos. Si una hija no publica un WhatsApp, no se inventa un número.
+
+La dirección principal es `https://caxas-sportcenter.vercel.app`, alojada
+gratuitamente en Vercel. La dirección anterior de Valeibol queda conservada
+para enlaces compartidos y redirecciones de recuperación heredadas.
+La nueva URL debe agregarse además en Supabase > Authentication > URL Configuration
+(Site URL y Redirect URLs): la conexión de gestión actual no permite modificar
+esa configuración. Hasta completar ese ajuste, los correos de invitación de
+los Edge Functions conservan el destino heredado permitido por Supabase.
 
 ## Condiciones de publicación
 

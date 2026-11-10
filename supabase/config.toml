@@ -18,8 +18,9 @@ port = 54323
 [auth]
 enabled = true
 enable_signup = false
-site_url = "https://valeibol-cajamarca-live.vercel.app"
+site_url = "https://caxas-sportcenter.vercel.app"
 additional_redirect_urls = [
+  "https://caxas-sportcenter.vercel.app/**",
   "https://valeibol-cajamarca-live.vercel.app/**",
   "http://localhost:3000/**",
   "http://127.0.0.1:3000/**"

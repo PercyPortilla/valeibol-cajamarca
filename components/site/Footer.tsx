@@ -37,7 +37,7 @@ export function Footer({ logoUrl }: { logoUrl?: string | null } = {}) {
       <div className="shell commercial-footer__bottom">
         <small>© {new Date().getFullYear()} {businessConfig.name}. Todos los derechos reservados.</small>
         <span>{businessConfig.city}, {businessConfig.country}</span>
-        <Link href="/admin/login">Acceso de propietarios</Link>
+        <Link href={`/complejo/${businessConfig.slug}/administrar`}>Acceso del propietario</Link>
       </div>
     </footer>
   );

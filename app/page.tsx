@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { PlatformResults } from "@/components/platform/PlatformResults";
@@ -56,12 +55,6 @@ export default async function PlatformHomePage() {
           </div>
         </section>
 
-        <section className="platform-home-owner">
-          <div className="shell platform-home-owner__inner">
-            <div><span className="eyebrow">PARA PROPIETARIOS DE CAJAMARCA</span><h2>Administra reservas, precios y operación desde un solo panel.</h2><p>Cada negocio gestiona únicamente su propia operación dentro de Caxas SportCenter.</p></div>
-            <Link className="button button--primary" href="/propietario">Ir al panel propietario</Link>
-          </div>
-        </section>
       </main>
       <PlatformFooter />
     </div>

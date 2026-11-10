@@ -214,7 +214,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
         ) : null}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
         </main>
-        <PlatformFooter />
+        <PlatformFooter businessSlug={slug} />
       </div>
     </div>
   );

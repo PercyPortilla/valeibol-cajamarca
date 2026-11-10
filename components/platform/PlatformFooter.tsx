@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { platformConfig } from "@/config/platform";
 
-export function PlatformFooter() {
+export function PlatformFooter({ businessSlug }: { businessSlug?: string } = {}) {
   return (
     <footer className="platform-footer">
       <div className="shell platform-footer__inner">
@@ -11,7 +11,9 @@ export function PlatformFooter() {
           <Link href="/voley">Vóley</Link>
           <Link href="/futbol">Fútbol</Link>
           <Link href="/privacidad">Privacidad</Link>
-          <Link href="/admin/login">Acceso de propietarios</Link>
+          <Link href={businessSlug ? `/complejo/${encodeURIComponent(businessSlug)}/administrar` : "/admin/login?next=%2Fadmin-global"}>
+            {businessSlug ? "Administración del negocio" : "Administración"}
+          </Link>
         </nav>
       </div>
     </footer>
