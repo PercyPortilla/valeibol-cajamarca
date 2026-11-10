@@ -10,7 +10,7 @@ export function hasPublicSupabaseServerConfig() {
   );
 }
 
-export async function createServerSupabaseClient() {
+export async function createServerSupabaseClient(options?: { explicitPlatformBusinessId?: string }) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -19,7 +19,12 @@ export async function createServerSupabaseClient() {
   }
 
   const cookieStore = await cookies();
-  const selectedBusinessId = validPlatformBusinessId(cookieStore.get(PLATFORM_ADMIN_BUSINESS_COOKIE)?.value);
+  // El selector POST necesita comprobar el RPC con el nuevo negocio antes
+  // de emitir la cookie. El argumento explícito solo se usa tras autenticar
+  // al ADMIN global; PostgreSQL mantiene toda la validación de permisos.
+  const selectedBusinessId = options?.explicitPlatformBusinessId !== undefined
+    ? validPlatformBusinessId(options.explicitPlatformBusinessId)
+    : validPlatformBusinessId(cookieStore.get(PLATFORM_ADMIN_BUSINESS_COOKIE)?.value);
 
   return createServerClient<Database>(url, anonKey, {
     global: selectedBusinessId

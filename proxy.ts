@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeAdminRedirectPath } from "@/lib/auth";
 import { LOCAL_DEV_ADMIN_COOKIE, isLocalDevAdminAllowed } from "@/lib/auth/localDev";
 import { PLATFORM_ADMIN_BUSINESS_COOKIE } from "@/lib/auth/platformScope";
+import { shouldClearPlatformBusinessSelection } from "@/lib/auth/platformNavigation";
 import { PUBLIC_WHATSAPP_ONLY } from "@/lib/platform/publicAccess";
 
 function isPublicAdminPath(pathname: string) {
@@ -21,8 +22,12 @@ export async function proxy(request: NextRequest) {
   if (PUBLIC_WHATSAPP_ONLY && isCustomerAccountPath(pathname)) {
     return NextResponse.redirect(new URL("/buscar", request.url));
   }
-  const platformAdminHome = pathname === "/admin-global" || pathname.startsWith("/admin-global/");
-  if (platformAdminHome) request.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
+  const clearPlatformSelection = shouldClearPlatformBusinessSelection({
+    pathname,
+    method: request.method,
+    headers: request.headers,
+  });
+  if (clearPlatformSelection) request.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
   const adminPath = pathname.startsWith("/admin");
   const customerAccountPath = isCustomerAccountPath(pathname);
   if ((!adminPath && !customerAccountPath) || (adminPath && isPublicAdminPath(pathname))) {
@@ -75,7 +80,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (platformAdminHome) response.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
+  if (clearPlatformSelection) response.cookies.delete(PLATFORM_ADMIN_BUSINESS_COOKIE);
 
   return response;
 }

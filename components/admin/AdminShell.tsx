@@ -28,7 +28,7 @@ export function AdminShell({ context, children, theme, unreadNotifications = 0 }
         </div>
         <AdminLogoutButton />
         {context.isPlatformAdmin
-          ? <Link href="/admin-global" className="admin-exit">Administración principal</Link>
+          ? <a href="/admin-global" className="admin-exit">Administración principal</a>
           : context.role !== "staff" ? <Link href="/propietario" className="admin-exit">Panel propietario</Link> : null}
         <Link href="/" className="admin-exit">← Ver sitio público</Link>
       </aside>
@@ -36,7 +36,7 @@ export function AdminShell({ context, children, theme, unreadNotifications = 0 }
         {localMode ? <div className="admin-local-banner" role="status">Modo local de prueba · las acciones se guardan solo mientras este servidor de desarrollo esté activo.</div> : null}
         {context.isPlatformAdmin ? (
           <div className="admin-local-banner" role="status">
-            Supervisión global · estás administrando <strong>{context.businessName}</strong>. <Link href="/admin-global">Volver a la administración principal</Link>
+            Supervisión global · estás administrando <strong>{context.businessName}</strong>. <a href="/admin-global">Volver a la administración principal</a>
           </div>
         ) : null}
         {children}

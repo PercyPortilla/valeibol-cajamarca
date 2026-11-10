@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdminContext } from "@/lib/auth/platformAdmin";
 import { PLATFORM_ADMIN_BUSINESS_COOKIE, validPlatformBusinessId } from "@/lib/auth/platformScope";
+import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,21 @@ export async function POST(request: NextRequest) {
   const businessId = validPlatformBusinessId(typeof rawBusinessId === "string" ? rawBusinessId : null);
   if (!businessId) {
     return new NextResponse(null, { status: 303, headers: { Location: "/admin-global", "Cache-Control": "no-store" } });
+  }
+
+  // Comprobar en Supabase que el ámbito seleccionado realmente se reconoce.
+  // Nunca interpretar una cookie o un UUID como permiso autónomo.
+  const scopedClient = await createServerSupabaseClient({ explicitPlatformBusinessId: businessId });
+  const { data: selectedContext, error: selectedError } = await scopedClient.rpc("get_current_admin_context");
+  if (selectedError || !selectedContext?.some((row) => row.business_id === businessId && row.role === "admin")) {
+    console.warn("[admin-scope] selection_preflight_failed", {
+      rpcError: selectedError?.code ?? null,
+      contextReturned: Boolean(selectedContext?.length),
+    });
+    return new NextResponse(null, {
+      status: 303,
+      headers: { Location: "/admin-global?selectionError=scope", "Cache-Control": "no-store" },
+    });
   }
 
   // Location relativa: no salta al hostname interno normalizado de Next.js,

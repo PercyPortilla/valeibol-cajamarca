@@ -33,7 +33,7 @@ function toReviewStatus(value: string | undefined): ReviewModerationStatus {
   return value === "published" || value === "rejected" || value === "hidden" ? value : "pending";
 }
 
-export default async function PlatformAdminPage({ searchParams }: { searchParams: Promise<{ page?: string; reviewStatus?: string; reviewPage?: string }> }) {
+export default async function PlatformAdminPage({ searchParams }: { searchParams: Promise<{ page?: string; reviewStatus?: string; reviewPage?: string; selectionError?: string }> }) {
   const context = await requirePlatformAdminContext();
   const client = await createServerSupabaseClient();
   const params = await searchParams;
@@ -212,6 +212,9 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
         </section>
 
         <div className="global-admin-section-anchor" id="admin-negocios">
+          {params.selectionError === "scope" ? (
+            <p role="alert" className="auth-error">SC-02: El servidor validó tu sesión global, pero Supabase no confirmó el acceso al negocio seleccionado. No se modificaron roles ni permisos. Comunica este código para completar el diagnóstico.</p>
+          ) : null}
           <PlatformAdminBusinessList
             businesses={businesses}
             totalBusinesses={totalBusinesses}

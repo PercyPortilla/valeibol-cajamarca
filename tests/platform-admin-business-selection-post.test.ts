@@ -61,8 +61,9 @@ test("IDs UUID inválidos no se usan como ámbito de acceso", () => {
 test("pantalla de acceso restringido ofrece recuperación solo si la sesión global sigue autorizada", () => {
   assert.match(accessDenied, /export const dynamic = "force-dynamic"/);
   assert.match(accessDenied, /await getPlatformAdminContext\(\)/);
-  assert.match(accessDenied, /isPlatformAdmin \? <Link className="button button--primary" href="\/admin-global"/);
-  assert.match(accessDenied, /no se completó la selección del negocio/);
+  assert.match(accessDenied, /isPlatformAdmin \? <a className="button button--primary" href="\/admin-global"/);
+  assert.match(accessDenied, /SC-11: La sesión global está activa/);
+  assert.match(accessDenied, /SC-12: La selección del negocio llegó al servidor/);
   assert.match(accessDenied, /<AdminLogoutButton \/>/);
   assert.match(accessDenied, /auth-page auth-page--caxas/);
 });

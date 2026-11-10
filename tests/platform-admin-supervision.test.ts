@@ -43,7 +43,8 @@ test("ADMIN global vuelve a la administración principal y no queda atrapado en 
 });
 
 test("proxy cubre admin-global y limpia el scope tenant al volver al panel principal", () => {
-  assert.match(proxy, /platformAdminHome/);
+  assert.match(proxy, /shouldClearPlatformBusinessSelection/);
+  assert.match(proxy, /if \(clearPlatformSelection\)/);
   assert.match(proxy, /request\.cookies\.delete\(PLATFORM_ADMIN_BUSINESS_COOKIE\)/);
   assert.match(proxy, /response\.cookies\.delete\(PLATFORM_ADMIN_BUSINESS_COOKIE\)/);
   assert.match(proxy, /"\/admin-global\/:path\*"/);
