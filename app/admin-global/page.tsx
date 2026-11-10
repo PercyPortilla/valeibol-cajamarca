@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { PlatformAdminReviewModeration, type PlatformAdminReview } from "@/components/platform-admin/PlatformAdminReviewModeration";
 import { PlatformAdminBusinessOnboarding } from "@/components/platform-admin/PlatformAdminBusinessOnboarding";
 import { PlatformAdminSportManagement, type PlatformAdminSport } from "@/components/platform-admin/PlatformAdminSportManagement";
+import { GlobalAdminMetricIcon } from "@/components/platform-admin/GlobalAdminMetricIcon";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -95,15 +96,29 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
     activeCourtCount: toNumber(row.active_court_count),
     courtCount: toNumber(row.court_count),
   }));
+  const businessesActive = summary ? toNumber(summary.businesses_active) : 0;
+  const businessShare = totalBusinesses > 0 ? Math.round((businessesActive / totalBusinesses) * 100) : 0;
+  const sportsByCourts = [...platformSports]
+    .filter((item) => item.isActive)
+    .sort((a, b) => b.activeCourtCount - a.activeCourtCount)
+    .slice(0, 5);
+  const sportBarMaximum = Math.max(1, ...sportsByCourts.map((item) => item.activeCourtCount));
 
   return (
     <main className="global-admin-page">
       <div className="shell global-admin-shell">
         <header className="global-admin-header">
-          <div>
-            <span className="eyebrow">CAXAS SPORT CENTER · ADMINISTRACIÓN PRINCIPAL</span>
-            <h1>Control de la plataforma</h1>
-            <p>Vista reservada al equipo ADMIN global de Caxas Sport Center. Desde aquí puedes supervisar la plataforma y entrar al panel operativo de cualquier negocio mediante selección explícita.</p>
+          <div className="global-admin-header__copy">
+            <div className="global-admin-header__statusline">
+              <span className="eyebrow">CAXAS / COMMAND CENTER</span>
+              <span className="global-admin-header__verified"><i aria-hidden="true" /> ACCESO GLOBAL VERIFICADO</span>
+            </div>
+            <h1>Control de la <span>plataforma.</span></h1>
+            <p>Vista reservada al equipo ADMIN global de Caxas Sport Center. Supervisa negocios, canchas y actividad real desde un solo lugar; los accesos a cada negocio permanecen separados y protegidos.</p>
+            <div className="global-admin-header__actions">
+              <a href="#admin-negocios" className="global-admin-header__cta">Explorar negocios <span aria-hidden="true">↗</span></a>
+              <a href="#admin-alta-negocio" className="global-admin-header__cta global-admin-header__cta--secondary">Crear negocio <span aria-hidden="true">+</span></a>
+            </div>
           </div>
           <div className="global-admin-account">
             <div><small>Sesión global</small><strong>{context.displayName ?? context.email ?? "Administrador"}</strong></div>
@@ -112,38 +127,109 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
         </header>
 
         <nav className="global-admin-links" aria-label="Navegación global">
-          <Link href="/buscar">Ver plataforma pública</Link>
-          <span>Selecciona “Administrar negocio” para entrar al panel operativo de una cancha o complejo.</span>
+          <a href="#admin-overview" aria-label="Ir al resumen global">Resumen <span aria-hidden="true">↗</span></a>
+          <a href="#admin-negocios">Negocios <span aria-hidden="true">↗</span></a>
+          <a href="#admin-deportes">Deportes <span aria-hidden="true">↗</span></a>
+          <a href="#admin-resenas">Reseñas <span aria-hidden="true">↗</span></a>
+          <a href="#admin-alta-negocio">Nuevo negocio <span aria-hidden="true">+</span></a>
+          <Link href="/buscar">Web pública <span aria-hidden="true">↗</span></Link>
         </nav>
 
-        <section className="global-admin-metrics" aria-label="Métricas globales">
-          <article><span>Negocios activos</span><strong>{summary ? toNumber(summary.businesses_active) : 0}</strong><small>de {summary ? toNumber(summary.businesses_total) : 0}</small></article>
-          <article><span>Sedes activas</span><strong>{summary ? toNumber(summary.venues_active) : 0}</strong></article>
-          <article><span>Canchas activas</span><strong>{summary ? toNumber(summary.courts_active) : 0}</strong></article>
-          <article><span>Usuarios</span><strong>{summary ? toNumber(summary.users_total) : 0}</strong></article>
-          <article><span>Reservas</span><strong>{summary ? toNumber(summary.reservations_total) : 0}</strong></article>
+        <section className="global-admin-overview" id="admin-overview" aria-labelledby="admin-overview-title">
+          <div className="global-admin-overview__heading">
+            <div>
+              <span className="eyebrow">PULSO DE LA PLATAFORMA</span>
+              <h2 id="admin-overview-title">Tu operación, en perspectiva.</h2>
+            </div>
+            <span className="global-admin-data-note">Datos reales · resumen de esta consulta</span>
+          </div>
+          <div className="global-admin-metrics" aria-label="Métricas globales">
+            <article className="global-admin-metric">
+              <div className="global-admin-metric__top"><span>Negocios activos</span><GlobalAdminMetricIcon kind="businesses" /></div>
+              <strong>{businessesActive}</strong><small>de {totalBusinesses} registrados</small>
+            </article>
+            <article className="global-admin-metric">
+              <div className="global-admin-metric__top"><span>Sedes activas</span><GlobalAdminMetricIcon kind="venues" /></div>
+              <strong>{summary ? toNumber(summary.venues_active) : 0}</strong><small>En los complejos publicados</small>
+            </article>
+            <article className="global-admin-metric">
+              <div className="global-admin-metric__top"><span>Canchas activas</span><GlobalAdminMetricIcon kind="courts" /></div>
+              <strong>{summary ? toNumber(summary.courts_active) : 0}</strong><small>Del inventario operativo</small>
+            </article>
+            <article className="global-admin-metric">
+              <div className="global-admin-metric__top"><span>Usuarios</span><GlobalAdminMetricIcon kind="users" /></div>
+              <strong>{summary ? toNumber(summary.users_total) : 0}</strong><small>Total registrado</small>
+            </article>
+            <article className="global-admin-metric">
+              <div className="global-admin-metric__top"><span>Reservas</span><GlobalAdminMetricIcon kind="reservations" /></div>
+              <strong>{summary ? toNumber(summary.reservations_total) : 0}</strong><small>Total histórico registrado</small>
+            </article>
+          </div>
+          <div className="global-admin-command-grid">
+            <section className="global-admin-command-panel global-admin-command-panel--pulse" aria-labelledby="admin-business-health-title">
+              <span className="eyebrow">ESTADO DEL CATÁLOGO</span>
+              <h3 id="admin-business-health-title">Negocios en operación</h3>
+              <div className="global-admin-activation">
+                <strong>{businessShare}<small>%</small></strong>
+                <span>de negocios activos</span>
+              </div>
+              <div className="global-admin-progress" role="progressbar" aria-label="Proporción de negocios activos" aria-valuemin={0} aria-valuemax={100} aria-valuenow={businessShare}>
+                <span style={{ width: `${businessShare}%` }} />
+              </div>
+              <p>{totalBusinesses === 0 ? "Todavía no hay negocios registrados." : `${businessesActive} de ${totalBusinesses} negocios figuran activos en la plataforma.`}</p>
+              <a href="#admin-negocios">Gestionar negocios <span aria-hidden="true">↗</span></a>
+            </section>
+            <section className="global-admin-command-panel global-admin-command-panel--sports" aria-labelledby="admin-sport-chart-title">
+              <span className="eyebrow">INVENTARIO POR DISCIPLINA</span>
+              <h3 id="admin-sport-chart-title">Canchas habilitadas</h3>
+              {sportsResult.error ? (
+                <p role="alert">No fue posible cargar los datos deportivos para esta visualización.</p>
+              ) : sportsByCourts.length === 0 ? (
+                <p>No hay disciplinas activas registradas todavía.</p>
+              ) : (
+                <div className="global-admin-sport-bars">
+                  {sportsByCourts.map((sport) => (
+                    <div className="global-admin-sport-bar" key={sport.sportId}>
+                      <div><span>{sport.name}</span><strong>{sport.activeCourtCount}</strong></div>
+                      <div className="global-admin-sport-bar__track" aria-hidden="true">
+                        <span style={{ width: `${(sport.activeCourtCount / sportBarMaximum) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p>Cuenta canchas marcadas como activas por deporte; no representa disponibilidad en tiempo real.</p>
+            </section>
+            <section className="global-admin-command-panel global-admin-command-panel--actions" aria-labelledby="admin-quick-title">
+              <span className="eyebrow">ACCESOS DIRECTOS</span>
+              <h3 id="admin-quick-title">Centro de acciones</h3>
+              <a href="#admin-alta-negocio"><span>01</span><strong>Incorporar negocio</strong><b aria-hidden="true">↗</b></a>
+              <a href="#admin-negocios"><span>02</span><strong>Administrar complejos</strong><b aria-hidden="true">↗</b></a>
+              <a href="#admin-resenas"><span>03</span><strong>Revisar reseñas</strong><b aria-hidden="true">↗</b></a>
+              <a href="#admin-deportes"><span>04</span><strong>Editar deportes</strong><b aria-hidden="true">↗</b></a>
+            </section>
+          </div>
         </section>
 
-        <PlatformAdminBusinessOnboarding />
-
-        <PlatformAdminSportManagement sports={platformSports} loadFailed={Boolean(sportsResult.error)} />
-
-        <PlatformAdminReviewModeration
+        <div className="global-admin-section-anchor" id="admin-negocios">
+          <PlatformAdminBusinessList
+            businesses={businesses}
+            totalBusinesses={totalBusinesses}
+            currentPage={page}
+            totalPages={totalPages}
+            pageSize={PAGE_SIZE}
+          />
+        </div>
+        <div className="global-admin-section-anchor" id="admin-alta-negocio"><PlatformAdminBusinessOnboarding /></div>
+        <div className="global-admin-section-anchor" id="admin-deportes"><PlatformAdminSportManagement sports={platformSports} loadFailed={Boolean(sportsResult.error)} /></div>
+        <div className="global-admin-section-anchor" id="admin-resenas"><PlatformAdminReviewModeration
           reviews={reviews}
           status={reviewStatus}
           currentPage={reviewPage}
           hasNext={reviewHasNext}
           loadFailed={Boolean(reviewsResult.error)}
           businessPage={page}
-        />
-
-        <PlatformAdminBusinessList
-          businesses={businesses}
-          totalBusinesses={totalBusinesses}
-          currentPage={page}
-          totalPages={totalPages}
-          pageSize={PAGE_SIZE}
-        />
+        /></div>
 
         <p className="global-admin-footnote">Los dueños y administradores de negocio nunca reciben esta vista principal por su rol tenant. Solo las cuentas ADMIN globales autorizadas de Caxas Sport Center pueden verla y supervisar negocios mediante selección explícita.</p>
       </div>

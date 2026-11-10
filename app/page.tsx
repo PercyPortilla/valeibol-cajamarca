@@ -7,6 +7,7 @@ import { groupCatalogByBusiness } from "@/lib/data/repositories/platformReposito
 import { StructuredData } from "@/components/platform/StructuredData";
 import { buildMarketplaceJsonLd } from "@/lib/platform/seo";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { platformConfig } from "@/config/platform";
 
 export const metadata: Metadata = {
@@ -54,7 +55,7 @@ export default async function PlatformHomePage() {
             </div>
             <PlatformResults businesses={businesses} premium loadFailed={catalogResult.failed} retryHref="/" />
             {allBusinesses.length > businesses.length ? (
-              <a className="platform-home-featured__all" href="/buscar">Explorar los {allBusinesses.length} complejos <span aria-hidden="true">↗</span></a>
+              <Link className="platform-home-featured__all" href="/buscar">Explorar los {allBusinesses.length} complejos <span aria-hidden="true">↗</span></Link>
             ) : null}
           </div>
         </section>

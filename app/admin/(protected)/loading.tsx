@@ -1,5 +1,5 @@
-import { LoadingState } from "@/components/ui/States";
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function AdminLoading() {
-  return <LoadingState label="Validando sesión y cargando el panel…" />;
+  return <RouteLoading context="admin" />;
 }

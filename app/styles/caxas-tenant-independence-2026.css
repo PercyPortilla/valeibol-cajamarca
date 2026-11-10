@@ -1,0 +1,232 @@
+/*
+ * Identidad independiente por complejo.
+ * La cabecera CAXAS pertenece a la plataforma; el negocio controla el resto.
+ * Valeibol = azul + rojo + dorado de su marca real. Otros complejos = sus
+ * variables editables (--brand-*), o neutral cuando todavía no se configuran.
+ */
+
+/* Evita flash azul del body antiguo entre navegaciones nativas. */
+body { background: #0a0910; }
+
+/* Valeibol: eliminar herencia cromática violeta de la página madre. */
+.site-theme--caxas-child {
+  --tenant-accent: var(--brand-red);
+  --tenant-secondary: var(--brand-blue);
+  --tenant-ink: var(--brand-navy);
+  background: var(--brand-canvas);
+}
+.site-theme--caxas-child .site-header--commercial {
+  border-bottom: 1px solid rgba(204,226,251,.22);
+  background: linear-gradient(180deg,#08203b,#081727);
+  color: #f8fbff;
+}
+.site-theme--caxas-child .site-header__parent {
+  border-bottom: 1px solid rgba(204,226,251,.18);
+  background: #061522;
+}
+.site-theme--caxas-child .site-header__parent .shell :is(a,span) { color: #c3d7e9; }
+.site-theme--caxas-child .site-header__parent a:hover { color: #f4c430; }
+.site-theme--caxas-child .site-nav--commercial > a:not(.site-nav__reserve) { color: #e7f1fb; }
+.site-theme--caxas-child .site-nav--commercial > a:not(.site-nav__reserve):hover { color: #ffdda1; }
+.site-theme--caxas-child .site-nav--commercial .site-nav__reserve {
+  border: 1px solid var(--brand-red);
+  background: var(--brand-red);
+  color: #fff;
+  box-shadow: 0 9px 28px rgba(155,29,44,.18);
+}
+.site-theme--caxas-child .site-nav--commercial .site-nav__reserve:hover {
+  background: var(--brand-red-dark);
+  color: #fff;
+}
+.site-theme--caxas-child .hero-commercial__shade {
+  background: linear-gradient(90deg,rgba(5,20,36,.98),rgba(7,29,51,.83) 48%,rgba(5,23,42,.27) 100%);
+}
+.site-theme--caxas-child .hero-commercial__eyebrow {
+  color: #f4d26c;
+  letter-spacing: .17em;
+}
+.site-theme--caxas-child .hero-commercial__copy h1 span {
+  color: #f8d569;
+  text-shadow: 0 3px 24px rgba(13,28,47,.3);
+}
+.site-theme--caxas-child .hero-commercial__copy > p { color: #e9f2fa; }
+.site-theme--caxas-child .commercial-main .hero-commercial__actions .button--primary {
+  border: 1px solid var(--brand-red);
+  background: var(--brand-red);
+  color: #fff;
+  box-shadow: 0 15px 31px rgba(66,8,20,.21);
+}
+.site-theme--caxas-child .commercial-main .hero-commercial__actions .button--primary:hover {
+  background: var(--brand-red-dark);
+  color: #fff;
+}
+.site-theme--caxas-child .trust-strip {
+  border: 1px solid #c8d8e9;
+  background: #fff;
+  box-shadow: 0 24px 50px rgba(13,42,73,.12);
+}
+.site-theme--caxas-child .trust-item__icon {
+  background: #e7eff9;
+  color: var(--brand-blue-dark);
+}
+.site-theme--caxas-child .trust-item strong { color: var(--brand-navy); }
+.site-theme--caxas-child .trust-item small { color: #516b82; }
+.site-theme--caxas-child .commercial-main .section--commercial { background: var(--brand-canvas); }
+.site-theme--caxas-child .commercial-main .availability-section,
+.site-theme--caxas-child .commercial-main .location-section { background: var(--brand-surface-soft); }
+.site-theme--caxas-child .commercial-main .section-heading--commercial h2 {
+  color: var(--brand-navy);
+}
+.site-theme--caxas-child .commercial-main .section-heading--commercial p { color: #4a627c; }
+.site-theme--caxas-child .commercial-main .eyebrow { color: var(--brand-red-dark); }
+.site-theme--caxas-child .commercial-main .availability-app {
+  border: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+}
+.site-theme--caxas-child .commercial-main .mobile-day--selected,
+.site-theme--caxas-child .commercial-main .court-picker__button--active,
+.site-theme--caxas-child .commercial-main .today-button {
+  border: 1px solid var(--brand-blue);
+  background: var(--brand-blue-soft);
+  color: var(--brand-blue-dark);
+}
+.site-theme--caxas-child .commercial-main .mobile-day--selected :is(strong,span,small) { color: var(--brand-blue-dark); }
+.site-theme--caxas-child .commercial-main .slot-cta {
+  border: 1px solid var(--brand-red);
+  background: var(--brand-red);
+  color: #fff;
+}
+.site-theme--caxas-child .commercial-main .slot-cta:hover { background: var(--brand-red-dark); color: #fff; }
+.site-theme--caxas-child .commercial-main .availability-footnote { color: #50677c; }
+.site-theme--caxas-child .site-footer--commercial {
+  border-top: 1px solid rgba(204,226,251,.2);
+  background: #081b30;
+}
+.site-theme--caxas-child .commercial-footer__bottom a:hover { color: #f5d174; }
+.site-theme--caxas-child :is(a,button,input,select,textarea):focus-visible {
+  outline: 3px solid var(--brand-focus);
+  outline-offset: 3px;
+}
+
+/* Todos los demás negocios: marca distinta de madre y de Valeibol.
+   No se asigna arbitrariamente el rojo/azul del preset Valeibol a uno nuevo. */
+.platform-public-premium--complex {
+  --tenant-accent: #b9c9d9;
+  --tenant-deep: #15283c;
+  --tenant-accent-on-dark: #e5edf6;
+  --tenant-button-text: #0b1726;
+  --caxas-accent: var(--tenant-accent);
+  --public-premium-canvas: #edf2f7;
+  --public-premium-text: #15253a;
+  --public-premium-muted: #53677b;
+  background: #edf2f7;
+  color: #15253a;
+}
+.platform-public-premium--complex[data-tenant-brand="configured"] {
+  --tenant-accent: var(--brand-blue);
+  --tenant-deep: var(--brand-navy);
+  --tenant-accent-on-dark: #f4f8fc;
+  --tenant-button-text: #fff;
+}
+.platform-public-premium--complex .platform-complex-hero {
+  background:
+    radial-gradient(circle at 86% 12%,color-mix(in srgb,var(--tenant-accent) 26%,transparent),transparent 35rem),
+    linear-gradient(125deg,#091c30,#152b40 67%,#081c30);
+}
+.platform-public-premium--complex .platform-complex-hero--image::before {
+  background: linear-gradient(90deg,rgba(3,17,32,.97),rgba(7,27,47,.84) 54%,rgba(8,25,42,.38));
+}
+.platform-public-premium--complex .platform-complex-hero__copy :is(h1,p) { color: #f7fbff; }
+.platform-public-premium--complex .platform-complex-hero__intro { color: #dfeaf4; }
+.platform-public-premium--complex .platform-live-label { color: #d9e8f9; }
+.platform-public-premium--complex .platform-live-label i { background: var(--tenant-accent); }
+.platform-public-premium--complex .platform-complex-hero__chips span {
+  border-color: rgba(212,230,248,.27);
+  background: rgba(14,32,52,.8);
+  color: #f0f6fc;
+}
+.platform-public-premium--complex .platform-complex-contact .platform-whatsapp-contact {
+  border-color: var(--tenant-accent);
+  background: var(--tenant-accent);
+  color: var(--tenant-button-text);
+}
+.platform-public-premium--complex .platform-complex-contact .platform-whatsapp-contact:hover {
+  border-color: var(--tenant-accent);
+  filter: brightness(1.12);
+}
+.platform-public-premium--complex .platform-complex-contact__secondary { color: #dce9f6; }
+.platform-public-premium--complex .platform-complex-contact__secondary:hover { color: #fff; }
+.platform-public-premium--complex .platform-complex-summary div {
+  border-color: rgba(218,233,249,.24);
+  background: rgba(7,24,42,.77);
+}
+.platform-public-premium--complex .platform-complex-summary :is(strong,span) { color: #eff6ff; }
+.platform-public-premium--complex .platform-section,
+.platform-public-premium--complex .platform-section:nth-of-type(even) {
+  background: #edf2f7;
+  color: #15253a;
+}
+.platform-public-premium--complex .platform-section:nth-of-type(even) { background: #e5edf5; }
+.platform-public-premium--complex .platform-section__heading h2,
+.platform-public-premium--complex .platform-venue-card h3,
+.platform-public-premium--complex .platform-court-card h4,
+.platform-public-premium--complex .platform-service-card h3 {
+  color: #13283e;
+}
+.platform-public-premium--complex .platform-section__heading p,
+.platform-public-premium--complex .platform-venue-card header p,
+.platform-public-premium--complex .platform-court-card p,
+.platform-public-premium--complex .platform-service-card p {
+  color: #556a7e;
+}
+.platform-public-premium--complex .platform-section .eyebrow { color: var(--tenant-deep); }
+.platform-public-premium--complex .platform-venue-card {
+  border: 1px solid #cad7e5;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(20,46,74,.07);
+}
+.platform-public-premium--complex .platform-venue-card > header { border-bottom-color: #e0e8f0; }
+.platform-public-premium--complex .platform-court-card {
+  border: 1px solid #d4e0eb;
+  background: #f5f8fc;
+}
+.platform-public-premium--complex .platform-court-card:hover { border-color: var(--tenant-accent); }
+.platform-public-premium--complex .platform-court-card .button,
+.platform-public-premium--complex .platform-court-card .button:hover {
+  border-color: var(--tenant-accent);
+  background: var(--tenant-accent);
+  color: var(--tenant-button-text);
+}
+.platform-public-premium--complex .platform-venue-card__actions a { color: #215582; }
+.platform-public-premium--complex .platform-service-card,
+.platform-public-premium--complex .platform-review-card,
+.platform-public-premium--complex .platform-gallery-card {
+  border-color: #d1dfeb;
+  background: #fff;
+  color: #152b40;
+}
+.platform-public-premium--complex .platform-gallery-card figcaption strong,
+.platform-public-premium--complex .platform-review-card strong { color: #1a334a; }
+.platform-public-premium--complex .platform-footer { background: #0b1320; }
+.platform-public-premium--complex :is(a,button,input,select,textarea):focus-visible {
+  outline: 3px solid var(--tenant-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1060px) {
+  .site-theme--caxas-child .site-nav--commercial > a:not(.site-nav__reserve) {
+    border-color: rgba(176,215,245,.2);
+    background: #102b46;
+    color: #edf6ff;
+  }
+  .site-theme--caxas-child .site-nav--commercial > .site-nav__reserve {
+    border-color: var(--brand-red);
+    background: var(--brand-red) !important;
+    color: #fff !important;
+  }
+}
+@media (max-width: 680px) {
+  .site-theme--caxas-child .hero-commercial__shade {
+    background: linear-gradient(90deg,rgba(5,20,36,.97),rgba(7,27,46,.68));
+  }
+}

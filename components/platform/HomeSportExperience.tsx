@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { HomeHero } from "@/components/platform/HomeHero";
-import { Icon } from "@/components/ui/Icon";
+import { SportEmblem } from "@/components/platform/SportEmblem";
 import type { PublicSport } from "@/lib/data/repositories/platformRepository";
 
 type Props = {
@@ -64,7 +64,7 @@ export function HomeSportExperience({ sports, stats, sportCourtCounts }: Props) 
                   aria-label={`Explorar ${sport.name} en la vista interactiva`}
                   onClick={() => selectSport(sport.slug, true)}
                 >
-                  <span><Icon name={sport.slug === "voley" ? "net" : sport.slug === "basquet" ? "court" : "ball"} size={26} /></span>
+                  <span className="platform-sport-card__emblem"><SportEmblem sportSlug={sport.slug} /></span>
                   <div>
                     <span className="platform-sport-card__index">{String(index + 1).padStart(2, "0")} / DEPORTE</span>
                     <strong>{sport.name}</strong>

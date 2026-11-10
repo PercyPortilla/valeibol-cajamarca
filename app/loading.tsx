@@ -1,9 +1,5 @@
-import { LoadingState } from "@/components/ui/States";
+import { RouteLoading } from "@/components/ui/RouteLoading";
 
 export default function GlobalLoading() {
-  return (
-    <main className="section shell" aria-label="Cargando página">
-      <LoadingState label="Cargando contenido…" />
-    </main>
-  );
+  return <RouteLoading />;
 }

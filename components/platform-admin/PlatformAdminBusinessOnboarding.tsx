@@ -102,18 +102,45 @@ export function PlatformAdminBusinessOnboarding() {
         <div><span className="eyebrow">ALTA DE TENANT</span><h2 id="new-business-title">Nuevo negocio</h2></div>
         <span>Sin SQL manual</span>
       </div>
-      <p className="global-admin-footnote">Si el propietario ya tiene cuenta, se vincula como OWNER. Si todavía no existe, la plataforma crea una invitación segura para que defina su contraseña. El ADMIN global no obtiene acceso operativo al tenant.</p>
+      <div className="global-admin-onboarding__introduction">
+        <p className="global-admin-footnote">Da de alta un negocio con su identidad, propietario y configuración operativa. Cada complejo tendrá permisos independientes y podrá personalizar su propia página pública.</p>
+        <span>Identidad → Propietario → Operación</span>
+      </div>
       <form className="global-admin-onboarding__form" onSubmit={submit} noValidate>
-        <Input label="Nombre del negocio" name="name" required maxLength={120} />
-        <Input label="Slug público" name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="complejo-deportivo" />
-        <Input label="Correo del propietario" name="ownerEmail" type="email" required autoComplete="off" />
-        <Input label="Ciudad" name="city" maxLength={120} defaultValue={platformConfig.city} required />
-        <Input label="País" name="country" maxLength={120} defaultValue={platformConfig.country} required />
-        <Input label="Dirección" name="address" maxLength={240} />
-        <Input label="Teléfono público (E.164)" name="phone" type="tel" placeholder="+51999999999" />
-        <Input label="Moneda" name="currency" defaultValue="PEN" maxLength={3} required />
-        <Input label="Zona horaria IANA" name="timezone" defaultValue="America/Lima" required />
-        <Button type="submit" disabled={busy}>{busy ? "Creando…" : "Crear negocio y preparar acceso"}</Button>
+        <fieldset className="global-admin-onboarding__group">
+          <legend><span>01</span> Identidad del negocio</legend>
+          <p>Nombre y dirección pública que verá quien busque el complejo.</p>
+          <div className="global-admin-onboarding__fields">
+            <Input label="Nombre del negocio" name="name" required maxLength={120} />
+            <Input label="Slug público" name="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="complejo-deportivo" />
+          </div>
+        </fieldset>
+        <fieldset className="global-admin-onboarding__group">
+          <legend><span>02</span> Persona responsable</legend>
+          <p>El propietario conservará el control de su negocio y de su página.</p>
+          <div className="global-admin-onboarding__fields">
+            <Input label="Correo del propietario" name="ownerEmail" type="email" required autoComplete="off" />
+            <Input label="Teléfono público (E.164)" name="phone" type="tel" placeholder="+51999999999" />
+          </div>
+        </fieldset>
+        <fieldset className="global-admin-onboarding__group">
+          <legend><span>03</span> Ubicación y operación</legend>
+          <p>Los parámetros se guardan para la operación del complejo, no del resto de negocios.</p>
+          <div className="global-admin-onboarding__fields global-admin-onboarding__fields--three">
+            <Input label="Ciudad" name="city" maxLength={120} defaultValue={platformConfig.city} required />
+            <Input label="País" name="country" maxLength={120} defaultValue={platformConfig.country} required />
+            <Input label="Dirección" name="address" maxLength={240} />
+            <Input label="Moneda" name="currency" defaultValue="PEN" maxLength={3} required />
+            <Input label="Zona horaria IANA" name="timezone" defaultValue="America/Lima" required />
+          </div>
+        </fieldset>
+        <div className="global-admin-onboarding__submit">
+          <div>
+            <strong>Alta y acceso seguro</strong>
+            <small>Si el propietario ya tiene cuenta, se vincula como OWNER. Si todavía no existe, la plataforma crea una invitación segura para que defina su contraseña. El ADMIN global no obtiene acceso operativo al tenant.</small>
+          </div>
+          <Button type="submit" disabled={busy}>{busy ? "Creando…" : "Crear negocio y preparar acceso"}</Button>
+        </div>
       </form>
       {message ? <div className={success ? "global-admin-notice" : "auth-error"} role={success ? "status" : "alert"}>{message}</div> : null}
     </section>

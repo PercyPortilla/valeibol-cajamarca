@@ -1,0 +1,444 @@
+/* Experiencia pública Caxas · continuidad visual de Home a buscar/deportes,
+   iconografía original y estados de transición. Sin tocar mallas ni controles 3D. */
+
+/* 1 — Navegación /buscar: el mismo lenguaje editorial Chrome Violet. */
+.platform-search-page {
+  --caxas-search-bg: #0a0910;
+  --caxas-search-surface: #17131f;
+  --caxas-search-surface-2: #201a29;
+  --caxas-search-line: rgba(193,163,224,.22);
+  --caxas-search-text: #f5f4f9;
+  --caxas-search-muted: #b7b0c5;
+  background: #0a0910;
+  color: #f5f4f9;
+}
+.platform-search-page__hero {
+  padding: clamp(43px,5vw,73px) 0 49px;
+  border-bottom: 1px solid rgba(189,122,255,.17);
+  background:
+    radial-gradient(ellipse at 85% 16%,rgba(158,90,237,.16),transparent 34rem),
+    radial-gradient(ellipse at 2% 75%,rgba(116,89,156,.09),transparent 29rem),
+    linear-gradient(138deg,#0a0910,#17131f 60%,#0b0911);
+}
+.platform-search-page__hero-grid { grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr); align-items: center; column-gap: 46px; row-gap: 35px; }
+.platform-search-page__copy { display: grid; align-content: center; justify-items: start; }
+.platform-search-page__copy .platform-breadcrumbs { margin-bottom: 22px; }
+.platform-search-page__copy .platform-breadcrumbs :is(a,li) { color: #b9b1ca; font-size: 12px; }
+.platform-search-page__eyebrow {
+  min-height: 34px;
+  padding: 8px 13px;
+  border: 1px solid rgba(189,122,255,.36);
+  background: rgba(189,122,255,.08);
+  color: #d9b9ff;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.platform-search-page__eyebrow i {
+  background: #bd7aff;
+  box-shadow: 0 0 13px rgba(189,122,255,.55);
+}
+.platform-search-page__copy h1 {
+  max-width: 740px;
+  margin: 21px 0 20px;
+  color: #f7f5fa;
+  font-size: clamp(44px,5.2vw,72px);
+  font-style: normal;
+  line-height: 1.025;
+  letter-spacing: -.064em;
+  font-weight: 930;
+  text-wrap: balance;
+}
+.platform-search-page__copy h1::after {
+  width: min(154px,36%);
+  height: 3px;
+  margin-top: 24px;
+  background: linear-gradient(90deg,#bd7aff,rgba(189,122,255,0));
+  box-shadow: 0 0 20px rgba(189,122,255,.2);
+}
+.platform-search-page__copy > p {
+  max-width: 585px;
+  color: #c8c2d0;
+  font-size: clamp(14px,1.25vw,17px);
+  line-height: 1.65;
+}
+.platform-search-page__context {
+  max-width: 100%;
+  min-height: 37px;
+  margin-top: 24px;
+  padding: 10px 13px;
+  border: 1px solid rgba(198,180,218,.22);
+  background: rgba(19,16,26,.86);
+}
+.platform-search-page__context span { color: #f1e9fc; font-size: 11px; }
+.platform-search-page__context small { color: #b1a9bc; font-size: 10px; }
+.platform-search-page__visual {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(189,122,255,.25);
+  border-radius: 25px;
+  background: linear-gradient(150deg,#24202e,#100f17);
+  box-shadow: 0 31px 68px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);
+}
+.platform-search-page__visual .platform-sport-diorama { min-height: 435px; border: 0; border-radius: 0; box-shadow: none; }
+.platform-search-page__form { align-self: stretch; }
+.platform-search-page .platform-search-form {
+  gap: 12px;
+  padding: clamp(15px,2.3vw,25px);
+  border: 1px solid rgba(193,163,224,.25);
+  border-radius: 20px;
+  background: linear-gradient(150deg,#201c28,#15131b);
+  box-shadow: 0 25px 60px rgba(0,0,0,.28);
+}
+.platform-search-page .platform-search-form label span { color: #c9c2d1; font-size: 11px; letter-spacing: .06em; }
+.platform-search-page .platform-search-form input,
+.platform-search-page .platform-search-form select {
+  min-height: 49px;
+  border: 1px solid rgba(208,196,221,.28);
+  border-radius: 11px;
+  background: #100f17;
+  color: #f5f4f9;
+}
+.platform-search-page .platform-search-form :is(input,select):focus-visible {
+  outline: 3px solid #d2a7ff;
+  outline-offset: 2px;
+  border-color: #bd7aff;
+}
+.platform-search-page .platform-search-form .button {
+  min-height: 49px;
+  border: 1px solid #bd7aff;
+  border-radius: 11px;
+  background: #bd7aff;
+  color: #14101c;
+  font-size: 13px;
+  font-weight: 870;
+  box-shadow: 0 11px 24px rgba(131,54,203,.19);
+}
+.platform-search-page .platform-search-form .button:hover { border-color: #e1bcff; background: #e1bcff; color: #14101c; transform: translateY(-1px); }
+.platform-search-page__results {
+  padding-block: 72px;
+  background: linear-gradient(180deg,#0e0c14,#0a0910);
+}
+.platform-search-page__summary { border-color: rgba(189,122,255,.18); }
+.platform-search-page__summary .eyebrow,
+.platform-search-page .platform-location-explorer__heading .eyebrow { color: #c695ff; }
+.platform-search-page__summary h2,
+.platform-search-page .platform-location-explorer__heading h2 { color: #f5f4f9; letter-spacing: -.05em; }
+.platform-search-page .platform-location-explorer { border-color: rgba(193,163,224,.2); background: #17131f; }
+.platform-search-page .platform-location-option { background: #111019; color: #e9e7ef; }
+.platform-search-page .platform-location-option.is-active { border-color: #bd7aff; background: #261b31; box-shadow: inset 3px 0 0 #bd7aff; }
+.platform-search-page .platform-map-frame { background: #0e0d14; }
+.platform-search-page .platform-footer { background: #0b0911; }
+.platform-search-page .platform-footer nav a:hover { color: #dcb5ff; }
+
+/* 2 — Rutas por deporte: la tipografía mantiene personalidad por disciplina,
+   pero el marco y los controles tienen calidad visual homogénea con Home. */
+.platform-sport-landing {
+  background: #0a0910;
+  color: #f5f4f9;
+}
+.platform-sport-landing__hero {
+  padding: clamp(42px,5vw,75px) 0 48px;
+  border-bottom: 1px solid rgba(189,122,255,.16);
+  background:
+    radial-gradient(circle at 88% 16%,rgba(139,91,207,.15),transparent 32rem),
+    linear-gradient(140deg,#0a0910,#17131f 62%,#0e0b16);
+}
+.platform-sport-landing__hero-grid { grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr); column-gap: 43px; row-gap: 32px; }
+.platform-sport-landing__eyebrow {
+  min-height: 34px;
+  padding: 8px 13px;
+  border: 1px solid rgba(189,122,255,.3);
+  border-radius: 999px;
+  background: rgba(189,122,255,.09);
+  color: #dcb6ff;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .12em;
+}
+.platform-sport-landing__eyebrow i { background: #bd7aff; box-shadow: 0 0 12px rgba(189,122,255,.34); }
+.platform-sport-landing__copy h1 {
+  max-width: 730px;
+  margin: 21px 0;
+  color: #f7f5fa;
+  font-size: clamp(44px,5.3vw,73px);
+  font-style: normal;
+  line-height: 1.035;
+  font-weight: 930;
+  letter-spacing: -.06em;
+  text-wrap: balance;
+}
+.platform-sport-landing__copy h1::after { background: linear-gradient(90deg,#bd7aff,transparent); box-shadow: 0 0 16px rgba(189,122,255,.2); }
+.platform-sport-landing__copy p { color: #c8c2d0; font-size: 16px; }
+.platform-sport-landing__coverage { border-color: rgba(193,163,224,.22); background: #17131f; }
+.platform-sport-landing__coverage strong { color: #f5f4f9; }
+.platform-sport-landing__coverage span { color: #aba3b7; }
+.platform-sport-landing__visual {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(189,122,255,.22);
+  border-radius: 25px;
+  background: #17131f;
+  box-shadow: 0 30px 65px rgba(0,0,0,.26);
+}
+.platform-sport-landing__visual .platform-sport-diorama { min-height: 430px; border: 0; border-radius: 0; box-shadow: none; }
+.platform-sport-landing .platform-search-form {
+  gap: 12px;
+  padding: clamp(16px,2.2vw,24px);
+  border-color: rgba(193,163,224,.24);
+  border-radius: 20px;
+  background: #191520;
+}
+.platform-sport-landing .platform-search-form label span { color: #c9c3d0; font-size: 11px; }
+.platform-sport-landing .platform-search-form :is(input,select) {
+  border-color: rgba(203,184,224,.25);
+  border-radius: 11px;
+  background: #100f17;
+  color: #f6f4f8;
+}
+.platform-sport-landing .platform-search-form :is(input,select):focus-visible { outline: 3px solid #d2a7ff; outline-offset: 2px; }
+.platform-sport-landing .platform-search-form .button {
+  border: 1px solid #bd7aff;
+  border-radius: 11px;
+  background: #bd7aff;
+  color: #14101c;
+  box-shadow: 0 11px 25px rgba(131,54,203,.17);
+}
+.platform-sport-landing .platform-search-form .button:hover { background: #dfbbff; color: #14101c; }
+.platform-sport-landing__heading .eyebrow { color: #c695ff; }
+.platform-sport-landing .platform-footer { background: #0b0911; }
+
+/* Footer corporativo: navegación secundaria con jerarquía comparable al header. */
+.platform-page .platform-footer {
+  padding: 52px 0;
+  border-top: 1px solid rgba(205,168,240,.2);
+  background: linear-gradient(160deg,#100d18,#08070e);
+}
+.platform-page .platform-footer__inner {
+  display: grid;
+  grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr);
+  align-items: center;
+  gap: 35px;
+}
+.platform-page .platform-footer__brand { gap: 17px; }
+.platform-page .platform-footer__brand > span:last-child { max-width: 450px; color: #bfb5ca; font-size: 13px; line-height: 1.65; }
+.platform-page .platform-footer nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+.platform-page .platform-footer nav a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 13px;
+  border: 1px solid rgba(201,164,240,.19);
+  border-radius: 10px;
+  background: rgba(190,140,236,.045);
+  color: #dfd7e8;
+  font-size: 12px;
+  font-weight: 750;
+}
+.platform-page .platform-footer nav a:hover { border-color: rgba(201,164,240,.5); background: rgba(189,122,255,.12); color: #f2e7ff; }
+.platform-page .platform-footer nav a:last-child { border-color: rgba(189,122,255,.3); color: #d7b0ff; }
+.platform-page .platform-header--premium .platform-nav .platform-nav__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.platform-page .platform-header--premium .platform-nav .platform-nav__primary > span { flex: none; }
+
+/* 3 — Iconos vectoriales personalizados con tratamientos distintos. */
+.platform-home .platform-sport-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 229px;
+}
+.platform-home .platform-sport-card::before {
+  position: absolute;
+  top: -75px;
+  right: -58px;
+  width: 186px;
+  height: 186px;
+  border: 1px solid color-mix(in srgb,var(--caxas-sport-color,#bd7aff) 28%,transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 26px color-mix(in srgb,var(--caxas-sport-color,#bd7aff) 5%,transparent);
+  content: "";
+  pointer-events: none;
+  opacity: .8;
+}
+.platform-home .platform-sport-card--voley { --caxas-sport-color: #76bfff; }
+.platform-home .platform-sport-card--futbol { --caxas-sport-color: #79db95; }
+.platform-home .platform-sport-card--futsal { --caxas-sport-color: #66d9db; }
+.platform-home .platform-sport-card--basquet { --caxas-sport-color: #ffb36d; }
+.platform-home .platform-sport-card > .platform-sport-card__emblem {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid color-mix(in srgb,var(--caxas-sport-color,#bd7aff) 48%,#25212c);
+  border-radius: 21px;
+  background:
+    radial-gradient(circle at 30% 22%,color-mix(in srgb,var(--caxas-sport-color,#bd7aff) 22%,transparent),transparent 71%),
+    linear-gradient(140deg,#201b28,#101017);
+  color: var(--caxas-sport-color,#bd7aff);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13),0 14px 25px rgba(0,0,0,.25);
+}
+.platform-home .caxas-sport-emblem { width: 52px; height: 52px; filter: drop-shadow(0 0 8px color-mix(in srgb,var(--caxas-sport-color,#bd7aff) 28%,transparent)); }
+.platform-home .platform-sport-card:hover .caxas-sport-emblem { transform: scale(1.075); }
+.platform-home .platform-sport-card:hover .platform-sport-card__emblem { border-color: var(--caxas-sport-color,#bd7aff); }
+.platform-home .platform-sport-card--futsal .caxas-sport-emblem { width: 55px; height: 55px; }
+.platform-home .platform-sport-card__index { color: #bab4c5; }
+.platform-home .platform-sport-card b { color: #c898ff; }
+
+/* 4 — Sustituir la transición azul genérica por skeleton contextual. */
+.caxas-route-loading {
+  --loading-glow: #b68bf4;
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  padding: clamp(28px,4vw,55px) 16px 80px;
+  overflow: hidden;
+  color: #f4f2fa;
+  background:
+    radial-gradient(ellipse at 77% 16%,rgba(159,102,229,.16),transparent 35rem),
+    linear-gradient(155deg,#0a0911,#181321 65%,#0d0b15);
+}
+.caxas-route-loading--tenant {
+  --loading-glow: #7eaedb;
+  background: radial-gradient(ellipse at 75% 12%,rgba(70,130,198,.13),transparent 32rem),linear-gradient(155deg,#07121d,#101d29 60%,#091522);
+}
+.caxas-route-loading--admin {
+  --loading-glow: #b9adcd;
+  background: linear-gradient(150deg,#100e17,#191626 60%,#0c0a14);
+}
+.caxas-route-loading__shell { width: min(100%,1180px); margin-inline: auto; }
+.caxas-route-loading__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 73px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid rgba(211,189,236,.15);
+}
+.caxas-route-loading__brand > small { color: #bdb4cb; font-size: 12px; line-height: 1.4; }
+.caxas-route-loading__context { color: #e2dde8; font-size: 12px; font-weight: 850; letter-spacing: .18em; }
+.caxas-route-loading__content {
+  display: grid;
+  grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);
+  align-items: center;
+  gap: clamp(25px,5vw,70px);
+  padding-block: clamp(55px,8vw,106px);
+}
+.caxas-route-loading__copy { display: grid; gap: 21px; }
+.caxas-route-loading__line {
+  display: block;
+  height: 16px;
+  width: 75%;
+  border-radius: 11px;
+  background: linear-gradient(90deg,rgba(232,219,247,.08),rgba(218,196,240,.16),rgba(232,219,247,.08));
+  background-size: 200% 100%;
+  animation: caxas-loading-sweep 2.1s ease-in-out infinite;
+}
+.caxas-route-loading__line--short { width: 34%; height: 25px; border: 1px solid rgba(210,175,244,.14); border-radius: 20px; }
+.caxas-route-loading__line--headline { width: 93%; height: 54px; }
+.caxas-route-loading__line--headline-small { width: 73%; height: 54px; }
+.caxas-route-loading__line--medium { width: 88%; height: 14px; margin-top: 6px; }
+.caxas-route-loading__line--long { width: 61%; height: 14px; }
+.caxas-route-loading__scene {
+  min-height: clamp(270px,28vw,420px);
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(212,189,242,.16);
+  border-radius: 27px;
+  background: linear-gradient(145deg,rgba(245,233,255,.065),rgba(10,8,14,.25));
+  box-shadow: 0 28px 60px rgba(0,0,0,.2);
+}
+.caxas-route-loading__scene-ring {
+  width: min(51%,220px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(213,185,240,.23);
+  border-radius: 50%;
+  box-shadow: 0 0 0 29px rgba(212,183,238,.035),0 0 0 65px rgba(212,183,238,.024);
+}
+.caxas-route-loading__scene-mark {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border: 3px solid var(--loading-glow);
+  border-right-color: transparent;
+  border-bottom-color: rgba(255,255,255,.12);
+  border-radius: 50%;
+  animation: caxas-loading-spin 1.3s linear infinite;
+}
+.caxas-route-loading__scene-track { position: absolute; left: 10%; right: 10%; bottom: 16%; height: 1px; background: linear-gradient(90deg,transparent,rgba(223,203,246,.36),transparent); }
+.caxas-route-loading__bottom { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; }
+.caxas-route-loading__bottom span { height: 85px; border: 1px solid rgba(215,186,240,.11); border-radius: 15px; background: rgba(211,177,233,.04); }
+@keyframes caxas-loading-sweep { 0%,100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+@keyframes caxas-loading-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1080px) {
+  .platform-search-page__hero-grid,
+  .platform-sport-landing__hero-grid { grid-template-columns: minmax(0,1fr); }
+  .platform-search-page__visual,
+  .platform-sport-landing__visual { grid-row: 2; }
+  .platform-search-page__form,
+  .platform-sport-landing__search { grid-row: 3; }
+  .platform-page .platform-footer__inner { grid-template-columns: minmax(0,1fr); }
+  .platform-page .platform-footer nav { justify-content: flex-start; }
+}
+@media (max-width: 680px) {
+  .platform-search-page .platform-header--premium .platform-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    gap: 9px;
+    padding-block: 12px;
+  }
+  .platform-search-page .platform-header--premium .platform-nav {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 7px;
+    overflow: visible;
+    width: 100%;
+  }
+  .platform-search-page .platform-header--premium .platform-nav a {
+    min-width: 0;
+    min-height: 44px;
+    display: inline-flex;
+    justify-content: center;
+    padding: 8px;
+    border: 1px solid rgba(213,194,236,.18);
+    border-radius: 10px;
+    font-size: 12px;
+    text-align: center;
+    white-space: normal;
+  }
+  .platform-search-page .platform-header--premium .platform-nav .platform-nav__primary {
+    white-space: nowrap;
+  }
+  .platform-search-page__hero,.platform-sport-landing__hero { padding: 44px 0 39px; }
+  .platform-search-page__hero-grid,.platform-sport-landing__hero-grid { gap: 23px; }
+  .platform-search-page__copy h1,.platform-sport-landing__copy h1 { font-size: clamp(38px,10vw,53px); line-height: 1.04; }
+  .platform-search-page__visual,.platform-sport-landing__visual { border-radius: 20px; }
+  .platform-search-page__visual .platform-sport-diorama,.platform-sport-landing__visual .platform-sport-diorama { min-height: 350px; }
+  .platform-search-page .platform-search-form,.platform-sport-landing .platform-search-form { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 17px; }
+  .platform-search-page .platform-search-form .button,.platform-sport-landing .platform-search-form .button { grid-column: auto; }
+  .platform-search-page__results { padding-block: 52px; }
+  .platform-home .platform-sport-card { min-height: 201px; padding: 20px; }
+  .platform-home .platform-sport-card > .platform-sport-card__emblem { width: 67px; height: 67px; }
+  .platform-home .caxas-sport-emblem { width: 49px; height: 49px; }
+  .caxas-route-loading__content { grid-template-columns: minmax(0,1fr); gap: 33px; padding-block: 45px; }
+  .caxas-route-loading__brand { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .caxas-route-loading__scene { min-height: 250px; }
+  .caxas-route-loading__line--headline,.caxas-route-loading__line--headline-small { height: 35px; }
+  .caxas-route-loading__bottom { gap: 8px; }
+  .caxas-route-loading__bottom span { height: 54px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caxas-route-loading__line,.caxas-route-loading__scene-mark { animation: none; }
+  .platform-home .caxas-sport-emblem { transition: none; }
+}

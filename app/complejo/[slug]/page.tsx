@@ -104,7 +104,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
 
   return (
     <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
-      <div className="platform-public-premium platform-public-premium--complex">
+      <div className="platform-public-premium platform-public-premium--complex" data-tenant-brand={siteContent.source === "default" ? "neutral" : "configured"}>
         <StructuredData data={buildBusinessJsonLd(business)} />
         <PlatformHeader premium />
         <main id="platform-main" tabIndex={-1}>
