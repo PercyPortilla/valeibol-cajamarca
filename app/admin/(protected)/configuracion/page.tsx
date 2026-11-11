@@ -81,6 +81,11 @@ export default async function AdminConfigurationPage() {
             <strong>No pudimos cargar la configuración remota.</strong>
             <span>No se habilita el editor para evitar reemplazar por accidente servicios, galería o paleta con valores de respaldo. Recarga la página y vuelve a intentarlo.</span>
           </div>
+        ) : !localMode && (context.role === "owner" || context.role === "admin") ? (
+          <div className="phase7-permission-note" role="note">
+            <strong>Edición segura · sin publicaciones accidentales</strong>
+            <span>El contenido visual se edita desde CAXAS Studio, usando el enlace de arriba. Guarda un borrador, revísalo y decide cuándo publicarlo. El editor antiguo permanece disponible únicamente en desarrollo local.</span>
+          </div>
         ) : (
           <AdminSiteContentEditor content={content} role={context.role} localMode={localMode} />
         )}

@@ -24,6 +24,9 @@ const ROLES: Array<{value: Role;label:string}> = [
 ];
 function readableError(code: string) {
   const lookup: Record<string,string> = {
+    authentication_required: "La sesión expiró. Inicia sesión nuevamente para gestionar accesos.",
+    invalid_payload: "Revisa el correo, el nombre y el rol antes de continuar.",
+    user_not_in_business: "Esta persona ya no pertenece al equipo del negocio. Actualiza la lista.",
     user_assigned_elsewhere: "Esta cuenta ya está vinculada a otro negocio.",
     user_already_in_business: "La persona ya tiene acceso a este negocio. Puedes actualizar su rol abajo.",
     platform_admin_cannot_join_tenant: "Una cuenta administradora global no puede ser usuaria de un negocio hijo.",
@@ -44,8 +47,14 @@ async function invoke(body: Record<string,unknown>): Promise<ResponseBody> {
   if (error) {
     const ctx = (error as {context?: unknown}).context;
     if (typeof Response !== "undefined" && ctx instanceof Response) {
-      try { const payload = await ctx.clone().json() as ResponseBody; throw new Error(payload.code || "service_unavailable"); }
-      catch (cause) { if (cause instanceof Error && cause.message !== "service_unavailable" && cause.name === "Error") throw cause; }
+      let errorCode = "service_unavailable";
+      try {
+        const payload = await ctx.clone().json() as ResponseBody;
+        if (typeof payload.code === "string") errorCode = payload.code;
+      } catch {
+        // La respuesta podría ser texto plano o no estar disponible.
+      }
+      throw new Error(errorCode);
     }
     throw new Error("service_unavailable");
   }
@@ -61,6 +70,12 @@ function TeamUserEditor({user,businessId,onSaved}: {
   const [active,setActive] = useState(user.isActive);
   const [busy,setBusy] = useState(false);
   const [message,setMessage] = useState<string|null>(null);
+
+  useEffect(() => {
+    setRole(user.role);
+    setName(user.displayName || "");
+    setActive(user.isActive);
+  }, [user.role, user.displayName, user.isActive]);
 
   async function save() {
     if (busy || user.isPrimaryOwner) return;
@@ -96,6 +111,7 @@ function TeamUserEditor({user,businessId,onSaved}: {
 export function GlobalBusinessTeamPanel({businessId,businessName}: {businessId:string;businessName:string}) {
   const [users,setUsers]=useState<TeamUser[]>([]);
   const [loading,setLoading]=useState(true);
+  const [loadError,setLoadError]=useState<string|null>(null);
   const [busy,setBusy]=useState(false);
   const [email,setEmail]=useState("");
   const [displayName,setDisplayName]=useState("");
@@ -103,11 +119,11 @@ export function GlobalBusinessTeamPanel({businessId,businessName}: {businessId:s
   const [message,setMessage]=useState<{error:boolean;text:string}|null>(null);
   const load=useCallback(async()=>{
     setLoading(true);
+    setLoadError(null);
     try {
       const result=await invoke({action:"list",businessId});
       setUsers(result.users || []);
-      setMessage(null);
-    } catch(error) {setMessage({error:true,text:readableError(error instanceof Error ? error.message:"")});}
+    } catch(error) {setLoadError(readableError(error instanceof Error ? error.message:""));}
     finally {setLoading(false);}
   },[businessId]);
   useEffect(()=>{void load();},[load]);
@@ -147,8 +163,9 @@ export function GlobalBusinessTeamPanel({businessId,businessName}: {businessId:s
     </form>
     <p className="global-team-panel__note">El propietario principal se asigna en el alta del negocio o mediante «Recuperar propietario». Invitar a un propietario adicional no transfiere esa propiedad.</p>
     {message ? <p className={message.error?"auth-error":"global-admin-notice"} role={message.error?"alert":"status"}>{message.text}</p>:null}
-    <div className="global-team-users">{loading ? <p>Cargando usuarios…</p> :
-      users.length?users.map((user)=><TeamUserEditor key={user.userId} businessId={businessId} user={user} onSaved={(updated)=>setUsers((current)=>current.map((item)=>item.userId===updated.userId?updated:item))}/>):
+    <div className="global-team-users">{loading ? <p>Cargando usuarios…</p> : loadError ? (
+      <div role="alert" className="auth-error"><p>{loadError}</p><button type="button" className="button button--secondary" onClick={()=>void load()}>Reintentar consulta</button></div>
+    ) : users.length?users.map((user)=><TeamUserEditor key={user.userId} businessId={businessId} user={user} onSaved={(updated)=>setUsers((current)=>current.map((item)=>item.userId===updated.userId?updated:item))}/>):
       <p>No se encontraron perfiles para este negocio. Revisa la invitación del propietario principal.</p>}
     </div>
   </section>;

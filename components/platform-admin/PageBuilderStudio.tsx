@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { SERVICE_ICON_OPTIONS, type ServiceIconKey } from "@/lib/icons";
@@ -50,7 +50,7 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
   const [logoUrl, setLogoUrl] = useState(initialWork.logoUrl);
   const [services, setServices] = useState(initialWork.services);
   const [gallery, setGallery] = useState(initialWork.gallery);
-  const [theme, setTheme] = useState(initialWork.theme);
+  const [theme, setTheme] = useState(() => normalizeSiteTheme(initialWork.theme));
   const [saved, setSaved] = useState(JSON.stringify({ logoUrl: initialWork.logoUrl, services: initialWork.services, gallery: initialWork.gallery, theme: normalizeSiteTheme(initialWork.theme) }));
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
@@ -62,7 +62,8 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
   const [revisions, setRevisions] = useState(initialBuilderState.revisions);
   const [working, setWorking] = useState(false);
 
-  const isDirty = JSON.stringify({ logoUrl, services, gallery, theme }) !== saved;
+  // Normalizar ambos lados evita indicar cambios falsos en negocios con temas antiguos.
+  const isDirty = JSON.stringify({ logoUrl, services, gallery, theme: normalizeSiteTheme(theme) }) !== saved;
   const needsSave = isDirty || draftVersion === 0;
   const canPublish = !needsSave && !draftPublished && draftVersion > 0 && !saving && !working && !uploading;
   const extras = theme.extraSections ?? [];
@@ -89,11 +90,39 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
   const endpoint = `/api/admin-global/page-builder/${encodeURIComponent(business.id)}`;
   const datesLabel = useMemo(() => lastSaved ? new Date(lastSaved).toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short", timeZone: "America/Lima" }) : "Sin cambios guardados", [lastSaved]);
 
+  useEffect(() => {
+    if (!isDirty) return;
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    // Next.js navega entre rutas sin descargar la página: proteger también los enlaces internos.
+    const warnOnLink = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target;
+      const anchor = target instanceof Element ? target.closest<HTMLAnchorElement>("a[href]") : null;
+      if (!anchor || anchor.getAttribute("target") === "_blank" || anchor.hasAttribute("download")) return;
+      const destination = new URL(anchor.href, window.location.href);
+      if (destination.origin !== window.location.origin || destination.pathname !== window.location.pathname || destination.search !== window.location.search) {
+        if (!window.confirm("Tienes cambios sin guardar. ¿Salir del estudio y descartarlos?")) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    document.addEventListener("click", warnOnLink, true);
+    return () => {
+      window.removeEventListener("beforeunload", warnBeforeUnload);
+      document.removeEventListener("click", warnOnLink, true);
+    };
+  }, [isDirty]);
+
   function loadContent(content: SiteContent) {
     setLogoUrl(content.logoUrl);
     setServices(content.services);
     setGallery(content.gallery);
-    setTheme(content.theme);
+    setTheme(normalizeSiteTheme(content.theme));
     setSaved(JSON.stringify({ logoUrl: content.logoUrl, services: content.services, gallery: content.gallery, theme: normalizeSiteTheme(content.theme) }));
   }
 

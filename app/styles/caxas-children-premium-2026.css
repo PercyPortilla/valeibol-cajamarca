@@ -567,6 +567,17 @@
 }
 .platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card h3,.platform-court-card h4,.platform-service-card h3,.platform-gallery-card figcaption strong,.platform-review-card strong) { color: #28242b; }
 .platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card header p,.platform-court-card p,.platform-service-card p,.platform-court-card__head > span:last-child,.platform-section__heading p) { color: #514c56; }
+.platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card__actions a,.platform-custom-section__copy p,.platform-review-card p,.platform-gallery-card figcaption,.platform-service-card small) {
+  color: #48434d;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-court-card,.platform-service-card,.platform-review-card,.platform-gallery-card) a:not(.button) {
+  color: #332b40;
+  text-decoration-color: color-mix(in srgb, var(--tenant-accent) 50%, #332b40);
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero .platform-live-label,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-section .eyebrow {
+  color: color-mix(in srgb, var(--tenant-accent) 60%, #202027);
+}
 .platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-contact__secondary { color: #34303b; }
 .platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-contact .platform-whatsapp-contact { box-shadow: 0 14px 25px color-mix(in srgb,var(--tenant-accent) 20%,transparent); }
 
@@ -623,4 +634,12 @@
   .platform-public-premium--complex[data-tenant-style] .platform-complex-hero { min-height: 0; }
   .platform-public-premium--complex[data-tenant-style="noir"] .platform-complex-title-row h1,
   .platform-public-premium--complex[data-tenant-style="stadium"] .platform-complex-title-row h1 { font-size: clamp(35px,10vw,56px); }
+  .platform-public-premium--complex[data-tenant-style="glass"] :is(.platform-complex-summary div,.platform-venue-card) { backdrop-filter: blur(10px); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .platform-public-premium--complex[data-tenant-style="glass"] :is(.platform-complex-summary div,.platform-venue-card) {
+    background: #1c293d;
+    backdrop-filter: none;
+  }
 }
