@@ -33,6 +33,9 @@ function errorResponse(error: unknown) {
 }
 function databaseFailure(error: { code?: string; message: string }) {
   const message = error.message.toLowerCase();
+  // Keep SQL diagnostics on the server, without logging business content or user data.
+  // Avoid masking a programming error as a temporary network outage.
+  console.error("[page-builder] database RPC failed", { sqlstate: error.code ?? "unknown" });
   if (error.code === "40001") {
     return message.includes("live_changed")
       ? failure("live_changed", 409, "La página pública cambió desde que empezaste a editar. Conserva tu diseño y revisa los cambios antes de publicarlos.")
@@ -40,7 +43,7 @@ function databaseFailure(error: { code?: string; message: string }) {
   }
   if (error.code === "42501") return failure("unauthorized", 403, "No puedes modificar este negocio.");
   if (error.code === "22023") return failure("validation", 422, "El borrador o la versión seleccionada no son válidos.");
-  return failure("backend", 503, "No pudimos comunicarnos con el servidor de diseños.");
+  return failure("backend", 503, "El servidor no pudo procesar el diseño. Tus cambios guardados se conservan; vuelve a intentarlo.");
 }
 
 async function readJson(request: Request): Promise<unknown> {
