@@ -75,6 +75,11 @@ test("borradores privados solo se publican explícitamente y por negocio", () =>
   assert.match(route, /export async function DELETE/);
   assert.match(route, /"live_changed", 409/);
   assert.match(route, /"draft_changed", 409/);
+  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+    const part = route.split(`export async function ${method}`)[1]?.split("export async function ")[0] ?? "";
+    assert.ok(part.indexOf("await getScopedPageBuilderClient(businessId)") >= 0, method);
+    assert.ok(part.indexOf("await getScopedPageBuilderClient(businessId)") < part.indexOf("await readJson(request)"), `Auth antes de body: ${method}`);
+  }
   assert.match(schema, /platform_page_builder_get_state/);
   assert.match(schema, /platform_page_builder_publish_draft/);
 });

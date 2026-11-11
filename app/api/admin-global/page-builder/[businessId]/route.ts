@@ -118,9 +118,9 @@ export async function POST(request: Request, { params }: Context) {
   if (invalidOrigin) return invalidOrigin;
   const { businessId } = await params;
   try {
+    const client = await getScopedPageBuilderClient(businessId);
     const payload = parseDraft(await readJson(request));
     if (!payload) return failure("invalid_payload", 422, "Revisa el contenido, las URL y la paleta antes de guardar.");
-    const client = await getScopedPageBuilderClient(businessId);
     const { data, error } = await client.rpc("platform_page_builder_save_draft", {
       p_business_id: businessId,
       p_content: payload.draft as unknown as Json,
@@ -138,10 +138,10 @@ export async function PUT(request: Request, { params }: Context) {
   if (invalidOrigin) return invalidOrigin;
   const { businessId } = await params;
   try {
+    const client = await getScopedPageBuilderClient(businessId);
     const body = record(await readJson(request));
     const expectedVersion = versionOf(body?.expectedVersion);
     if (expectedVersion === null || expectedVersion === 0) return failure("invalid_version", 422, "Guarda primero un borrador.");
-    const client = await getScopedPageBuilderClient(businessId);
     const { data, error } = await client.rpc("platform_page_builder_publish_draft", {
       p_business_id: businessId, p_expected_version: expectedVersion,
     });
@@ -160,13 +160,13 @@ export async function PATCH(request: Request, { params }: Context) {
   if (invalidOrigin) return invalidOrigin;
   const { businessId } = await params;
   try {
+    const client = await getScopedPageBuilderClient(businessId);
     const body = record(await readJson(request));
     const expectedVersion = versionOf(body?.expectedVersion);
     const revisionId = body?.revisionId;
     if (expectedVersion === null || typeof revisionId !== "string" || !/^[1-9]\d{0,15}$/.test(revisionId)) {
       return failure("invalid_revision", 422, "Elige una versión publicada válida.");
     }
-    const client = await getScopedPageBuilderClient(businessId);
     const { data, error } = await client.rpc("platform_page_builder_restore_revision", {
       p_business_id: businessId, p_revision_id: Number(revisionId), p_expected_version: expectedVersion,
     });
@@ -181,10 +181,10 @@ export async function DELETE(request: Request, { params }: Context) {
   if (invalidOrigin) return invalidOrigin;
   const { businessId } = await params;
   try {
+    const client = await getScopedPageBuilderClient(businessId);
     const body = record(await readJson(request));
     const expectedVersion = versionOf(body?.expectedVersion);
     if (expectedVersion === null || expectedVersion === 0) return failure("invalid_version", 422, "No existe un borrador para descartar.");
-    const client = await getScopedPageBuilderClient(businessId);
     const { data, error } = await client.rpc("platform_page_builder_discard_draft", {
       p_business_id: businessId, p_expected_version: expectedVersion,
     });
