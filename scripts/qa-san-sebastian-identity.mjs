@@ -49,38 +49,74 @@ async function waitFor(expression, attempts = 45) {
   return false;
 }
 
-async function inspectSportSelection(slug) {
+async function clickChoice(group, test) {
   const clicked = await evaluate(`(() => {
-    const label = ${JSON.stringify(slug)} === 'futbol' ? /f[uú]tbol/i : /v[oó]ley/i;
-    const button = [...document.querySelectorAll('.availability-sport-choice button')]
-      .find((element) => label.test(element.textContent || ''));
+    const group = document.querySelectorAll('.ss-booking-board__choice')[${group}];
+    const button = [...(group?.querySelectorAll('button') ?? [])]
+      .find((item) => ${test}.test(item.textContent ?? ''));
     if (!button) return false;
     button.click();
     return true;
   })()`);
-  if (!clicked) return { clicked: false };
-  await pause(450);
-  return evaluate(`(() => {
-    const label = ${JSON.stringify(slug)} === 'futbol' ? /f[uú]tbol/i : /v[oó]ley/i;
-    const buttons = [...document.querySelectorAll('.availability-sport-choice button')];
-    const chosen = buttons.find((element) => label.test(element.textContent || ''));
-    const links = [...document.querySelectorAll('.desktop-week a.slot-cta[href]')];
-    const messages = links.map((element) => {
-      try { return new URL(element.href).searchParams.get('text') || ''; }
-      catch { return ''; }
-    });
-    return {
-      clicked: true,
-      selected: chosen?.getAttribute('aria-pressed') === 'true',
-      selectedCount: buttons.filter((button) => button.getAttribute('aria-pressed') === 'true').length,
-      court: document.querySelector('.platform-reservation-hero__copy')?.innerText.includes('Campo 1') ?? false,
-      agenda: document.querySelector('.desktop-week')?.innerText ?? '',
-      availableLinks: links.length,
-      whatsappCorrect: messages.length ? messages.every((message) =>
-        message.includes('Campo 1 (' + ${JSON.stringify(slug)} + ')') &&
-        message.includes('¿Podrían confirmar disponibilidad y tarifa?')) : null,
-    };
+  await pause(350);
+  return clicked;
+}
+
+async function inspectBookingPlanner(startOnPending) {
+  const boardReady = await waitFor("document.querySelectorAll('.ss-booking-board__choice').length === 3");
+  if (!boardReady) return { loaded: false };
+  if (startOnPending) {
+    return evaluate(`(() => {
+      const selected = document.querySelector('.ss-booking-board__choice .is-selected')?.textContent ?? '';
+      const pending = document.querySelector('.ss-booking-board__pending')?.textContent ?? '';
+      const link = document.querySelector('.ss-booking-board__pending a[href]')?.href;
+      return { loaded:true, pending: pending.includes('Campo 2') && pending.includes('Horarios y tarifas por confirmar'),
+        selectedCampo2:selected.includes('Campo 2'), noInventedSlots:!document.querySelector('.ss-booking-board__slot'),
+        whatsappInformative:!!link && decodeURIComponent(new URL(link).searchParams.get('text') ?? '').includes('Campo 2') };
+    })()`);
+  }
+  const hourChoice = await clickChoice(2, /^2 horas$/i);
+  const dates = await evaluate("document.querySelectorAll('.ss-booking-board__date').length");
+  let chosen = false;
+  for (let index = 0; index < dates && !chosen; index++) {
+    await evaluate(`(() => { document.querySelectorAll('.ss-booking-board__date')[${index}]?.click(); return true; })()`);
+    await pause(250);
+    chosen = await evaluate(`(() => { const slot = document.querySelector('.ss-booking-board__slot:not(:disabled)'); if (!slot) return false; slot.click(); return true; })()`);
+    if (chosen) await pause(250);
+  }
+  const read = () => evaluate(`(() => {
+    const board = document.querySelector('.ss-booking-board');
+    const link = board?.querySelector('.ss-booking-board__summary a[href]');
+    const buttons = [...document.querySelectorAll('.ss-booking-board__choice:nth-child(2) button')];
+    const message = link ? new URL(link.href).searchParams.get('text') : '';
+    return { message, available: document.querySelectorAll('.ss-booking-board__slot:not(:disabled)').length,
+      selectedSlot: document.querySelector('.ss-booking-board__slot.is-selected')?.textContent ?? '',
+      selectedSport: buttons.find((button) => button.getAttribute('aria-pressed') === 'true')?.textContent ?? '',
+      boardBackground: board ? getComputedStyle(board).backgroundColor : '',
+      duration: document.querySelector('.ss-booking-board__choice:nth-child(3) .is-selected')?.textContent ?? '' };
   })()`);
+  const voleyClicked = await clickChoice(1, /v[oó]ley/i);
+  const voley = await read();
+  const futbolClicked = await clickChoice(1, /f[uú]tbol/i);
+  const futbol = await read();
+  const campo2Clicked = await clickChoice(0, /Campo 2/i);
+  const pending = await evaluate(`(() => {
+    const link = document.querySelector('.ss-booking-board__pending a[href]');
+    return { status: document.querySelector('.ss-booking-board__pending')?.textContent.includes('Horarios y tarifas por confirmar'),
+      noInventedSlots: !document.querySelector('.ss-booking-board__slot'),
+      whatsapp: link ? new URL(link.href).searchParams.get('text') : '' };
+  })()`);
+  return {
+    loaded: true, hourChoice, chosen, voleyClicked, futbolClicked, campo2Clicked,
+    twoHours: voley.duration.trim() === '2 horas' && futbol.duration.trim() === '2 horas',
+    selectedSportWorks: /v[oó]ley/i.test(voley.selectedSport) && /f[uú]tbol/i.test(futbol.selectedSport),
+    samePhysicalSlot: voley.selectedSlot === futbol.selectedSlot && !!voley.selectedSlot,
+    messageWorks: !!voley.message && !!futbol.message &&
+      voley.message.includes('Campo 1') && voley.message.includes('Vóley') && voley.message.includes('2 horas') &&
+      futbol.message.includes('Campo 1') && futbol.message.includes('Fútbol') && futbol.message.includes('2 horas'),
+    lightOwnTheme: voley.boardBackground === 'rgb(255, 255, 255)',
+    campo2Pending: pending.status && pending.noInventedSlots && pending.whatsapp?.includes('Campo 2') && pending.whatsapp?.includes('2 horas'),
+  };
 }
 
 let failed = false;
@@ -88,29 +124,21 @@ for (const scene of [
   { id: "portada-desktop", path: business, width: 1440 },
   { id: "portada-mobile", path: business, width: 390 },
   { id: "consulta-desktop", path: "/reservar?negocio=polideportivo-san-sebastian&cancha=d86214c0-03bb-4104-a848-af70e34cbab7", width: 1200 },
+  { id: "consulta-mobile", path: "/reservar?negocio=polideportivo-san-sebastian&cancha=d86214c0-03bb-4104-a848-af70e34cbab7", width: 390 },
+  { id: "campo2-desktop", path: "/reservar?negocio=polideportivo-san-sebastian&cancha=b8b5bffe-189d-4490-8671-0591a642be36", width: 1200 },
+  { id: "campo2-mobile", path: "/reservar?negocio=polideportivo-san-sebastian&cancha=b8b5bffe-189d-4490-8671-0591a642be36", width: 390 },
 ]) {
   await cmd("Emulation.setDeviceMetricsOverride", { width: scene.width, height: 980, mobile: scene.width <= 390, deviceScaleFactor: 1 });
   await cmd("Page.navigate", { url: root + scene.path });
   // Next App Router transmite primero un skeleton; esperar la vista REAL, no solo HTTP 200.
   const loaded = await waitFor("Boolean(document.querySelector('.business-site-header') && document.querySelector('main h1'))");
   // La cabecera puede estar lista antes de que se hidrate el calendario cliente.
-  const hydrated = scene.id !== "consulta-desktop" || (loaded && await waitFor(
-    "document.querySelectorAll('.availability-sport-choice button').length === 2",
+  const isPlanner = scene.id.startsWith("consulta") || scene.id.startsWith("campo2");
+  const hydrated = !isPlanner || (loaded && await waitFor(
+    "document.querySelectorAll('.ss-booking-board__choice').length === 3",
   ));
   let sportProbe = null;
-  if (scene.id === "consulta-desktop" && hydrated) {
-    const voley = await inspectSportSelection("voley");
-    const futbol = await inspectSportSelection("futbol");
-    const bothHaveLinks = voley.availableLinks > 0 && futbol.availableLinks > 0;
-    sportProbe = {
-      sports: ["voley", "futbol"],
-      selectionWorks: voley.selected && futbol.selected && voley.selectedCount === 1 && futbol.selectedCount === 1,
-      samePhysicalCourt: voley.court && futbol.court && voley.agenda === futbol.agenda,
-      availableLinks: { voley: voley.availableLinks, futbol: futbol.availableLinks },
-      whatsappVerified: bothHaveLinks ? voley.whatsappCorrect && futbol.whatsappCorrect : null,
-      whatsappNote: bothHaveLinks ? "Mensajes de ambos deportes validados" : "Sin enlaces consultables en la semana actual; no se verifica mensaje",
-    };
-  }
+  if (isPlanner && hydrated) sportProbe = await inspectBookingPlanner(scene.id.startsWith("campo2"));
   const response = await cmd("Runtime.evaluate", {
     expression: `(() => ({
       url: location.pathname,
@@ -120,7 +148,7 @@ for (const scene of [
       fields: [...document.querySelectorAll('.platform-court-card h4')].map(el=>el.innerText),
       sports: [...document.querySelectorAll('.business-court-sports')].map(el=>el.innerText),
       pending: document.querySelector('.platform-court-card:nth-child(2)')?.innerText ?? '',
-      sportSelector: [...document.querySelectorAll('.availability-sport-choice button')].map(el=>el.innerText),
+      sportSelector: [...document.querySelectorAll('.ss-booking-board__choice:nth-child(2) button')].map(el=>el.innerText),
       geometry: (() => {
         const title = document.querySelector('.platform-complex-title-row h1');
         const row = document.querySelector('.platform-complex-title-row');
@@ -143,7 +171,8 @@ for (const scene of [
     && details.header.includes("Sebastián")
     && details.scrollWidth <= details.width + 1
     && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
-    && (scene.id === "consulta-desktop" ? sportProbe?.selectionWorks && sportProbe?.samePhysicalCourt && sportProbe?.whatsappVerified !== false : true);
+    && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
+    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
   if (!good) failed = true;
   console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, ...details }));
 }

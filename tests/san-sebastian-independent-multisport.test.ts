@@ -99,8 +99,10 @@ test("el administrador no permite sobrescribir deportes si la carga falla o camb
 
 test("el QA de producción espera calendario hidratado y prueba ambos mensajes de WhatsApp", () => {
   assert.match(browserQa, /waitFor\(/);
-  assert.match(browserQa, /availability-sport-choice button/);
-  assert.match(browserQa, /inspectSportSelection\("voley"\)/);
-  assert.match(browserQa, /inspectSportSelection\("futbol"\)/);
-  assert.match(browserQa, /whatsappVerified/);
+  assert.match(browserQa, /ss-booking-board__choice/);
+  assert.match(browserQa, /inspectBookingPlanner/);
+  assert.match(browserQa, /twoHours/);
+  assert.match(browserQa, /samePhysicalSlot/);
+  assert.match(browserQa, /campo2Pending/);
+  assert.match(browserQa, /messageWorks/);
 });

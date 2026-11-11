@@ -16,9 +16,11 @@ import { createPublicAvailabilityRepository } from "@/lib/data/availabilityServi
 import { subscribeToPublicAvailabilityChanges } from "@/lib/data/availabilityRealtime";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/States";
 import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
+import { SanSebastianBookingBoard, type ShowcaseBookingCourt } from "@/components/availability/SanSebastianBookingBoard";
 
 type DemoState = "ready" | "loading" | "empty" | "error";
 type LoadState = "idle" | "loading" | "ready" | "error";
+const EMPTY_SHOWCASE_COURTS: ShowcaseBookingCourt[] = [];
 
 type AvailabilityCalendarProps = {
   businessSlug: string;
@@ -28,6 +30,8 @@ type AvailabilityCalendarProps = {
   courtSports: Record<string, { slug: string; name: string }[]>;
   initialSportSlug?: string;
   contactPhoneE164: string | null;
+  mode?: "default" | "san-sebastian";
+  showcaseCourts?: ShowcaseBookingCourt[];
 };
 
 const STATUS_LABELS: Record<SlotStatus, string> = {
@@ -112,6 +116,8 @@ export function AvailabilityCalendar({
   courtSports,
   initialSportSlug,
   contactPhoneE164,
+  mode = "default",
+  showcaseCourts = EMPTY_SHOWCASE_COURTS,
 }: AvailabilityCalendarProps) {
   const repository = useMemo(() => createPublicAvailabilityRepository(), []);
   const [today, setToday] = useState<string | null>(null);
@@ -161,8 +167,10 @@ export function AvailabilityCalendar({
         if (cancelled) return;
         setSnapshot(nextSnapshot);
         setActiveCourtId((current) => {
-          if (current && nextSnapshot.courts.some((court) => court.courtId === current)) return current;
-          if (initialCourtId && nextSnapshot.courts.some((court) => court.courtId === initialCourtId)) return initialCourtId;
+          const exists = (courtId: string) => nextSnapshot.courts.some((court) => court.courtId === courtId)
+            || (mode === "san-sebastian" && showcaseCourts.some((court) => court.courtId === courtId));
+          if (current && exists(current)) return current;
+          if (initialCourtId && exists(initialCourtId)) return initialCourtId;
           return nextSnapshot.courts[0]?.courtId ?? null;
         });
         setLoadState("ready");
@@ -178,7 +186,7 @@ export function AvailabilityCalendar({
     return () => {
       cancelled = true;
     };
-  }, [businessSlug, demoState, initialCourtId, repository, today, weekReference, refreshNonce]);
+  }, [businessSlug, demoState, initialCourtId, mode, repository, showcaseCourts, today, weekReference, refreshNonce]);
 
   const snapshotSource = snapshot?.source;
   const snapshotBusinessId = snapshot?.businessId ?? null;
@@ -265,6 +273,18 @@ export function AvailabilityCalendar({
         title={loadError ?? "No pudimos cargar la disponibilidad"}
       />
     );
+  }
+
+  if (mode === "san-sebastian" && snapshot && today && weekReference) {
+    return <SanSebastianBookingBoard
+      businessName={businessName} businessTimezone={businessTimezone}
+      snapshot={snapshot} showcaseCourts={showcaseCourts}
+      activeCourtId={activeCourtId} onCourtChange={setActiveCourtId}
+      courtSports={courtSports} selectedSportSlug={selectedSportSlug} onSportChange={setSelectedSportSlug}
+      contactPhoneE164={contactPhoneE164}
+      selectedDate={selectedDate} onDateChange={setSelectedDate}
+      today={today} weekReference={weekReference} onWeekChange={moveWeek} onToday={goToToday}
+    />;
   }
 
   if (demoState === "empty" || !snapshot || !activeCourt || days.length === 0) {

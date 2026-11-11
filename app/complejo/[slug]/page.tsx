@@ -229,8 +229,8 @@ export default async function ComplexPage({ params }: { params: Params }) {
                         </div>
                         <h4>{court.name}</h4>
                         <p>{!court.bookable ? "Horarios y tarifas por confirmar" : court.priceFrom === null ? "Precio por consultar" : `Desde ${formatMoney(court.priceFrom, court.currency)} por hora`}</p>
-                        {court.bookable
-                          ? <Link className="button button--primary" href={`/reservar?negocio=${encodeURIComponent(business.slug)}&cancha=${encodeURIComponent(court.id)}`}>Consultar horarios <b aria-hidden="true">→</b></Link>
+                        {(court.bookable || business.slug === "polideportivo-san-sebastian")
+                          ? <Link className="button button--primary" href={`/reservar?negocio=${encodeURIComponent(business.slug)}&cancha=${encodeURIComponent(court.id)}`}>{court.bookable ? "Consultar horarios" : "Ver estado y consultar"} <b aria-hidden="true">→</b></Link>
                           : publicContact.phoneE164
                             ? <a className="button button--secondary" target="_blank" rel="noreferrer"
                                 href={buildWhatsAppChatHref(publicContact.phoneE164, `Hola, quisiera consultar horarios y tarifas para ${court.name} de ${business.name}, para fútbol o vóley.`) ?? undefined}>Consultar este campo ↗</a>

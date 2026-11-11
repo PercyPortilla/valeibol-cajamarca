@@ -7,6 +7,7 @@ import { BusinessSiteHeader } from "@/components/platform/BusinessSiteHeader";
 import { BusinessSiteFooter } from "@/components/platform/BusinessSiteFooter";
 import { getPublicPlatformCatalog } from "@/lib/data/platformService";
 import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
+import { getPublicBusinessShowcase } from "@/lib/data/publicBusinessShowcase";
 import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
 import { themeCssVariables } from "@/lib/siteContent";
 import type { CSSProperties } from "react";
@@ -48,11 +49,16 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
 
   const catalog = await getPublicPlatformCatalog({ businessSlug });
   if (catalog.length === 0) notFound();
+  const isSanSebastian = businessSlug === "polideportivo-san-sebastian";
+  const showcase = isSanSebastian ? await getPublicBusinessShowcase(businessSlug) : [];
+  const requestedShowcase = showcase.find((court) => court.courtId === requestedCourtId);
 
   const selectedCourt = requestedCourtId
-    ? catalog.find((item) => item.courtId === requestedCourtId)
+    ? catalog.find((item) => item.courtId === requestedCourtId) ?? (requestedShowcase ? catalog[0] : undefined)
     : catalog[0];
   if (!selectedCourt) notFound();
+  const selectedCourtId = requestedShowcase?.courtId ?? selectedCourt.courtId;
+  const selectedCourtName = requestedShowcase?.courtName ?? selectedCourt.courtName;
 
   const courtSports: Record<string, { slug: string; name: string }[]> = {};
   for (const item of catalog) {
@@ -62,9 +68,10 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
     }
     courtSports[item.courtId] = choices;
   }
-  const selectedSport = courtSports[selectedCourt.courtId]?.find((sport) => sport.slug === requestedSportSlug)
-    ?? courtSports[selectedCourt.courtId]?.[0];
-  const sportNames = [...new Set(catalog.map((item) => item.sportName))];
+  for (const court of showcase) courtSports[court.courtId] = court.sports;
+  const selectedSport = courtSports[selectedCourtId]?.find((sport) => sport.slug === requestedSportSlug)
+    ?? courtSports[selectedCourtId]?.[0];
+  const sportNames = [...new Set([...catalog.map((item) => item.sportName), ...showcase.flatMap((court) => court.sports.map((sport) => sport.name))])];
   const [publicContact, siteContent] = await Promise.all([
     getPublicBusinessContact(selectedCourt.businessSlug),
     getPublicSiteContent(selectedCourt.businessSlug),
@@ -85,7 +92,7 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
               <span className="eyebrow">CONSULTA POR WHATSAPP</span>
               <h1>Encuentra el momento para jugar.</h1>
               <p className="platform-reservation-hero__lead">{selectedCourt.businessName}</p>
-              <p>{selectedCourt.venueName} · {selectedCourt.courtName} · {selectedSport?.name ?? selectedCourt.sportName}</p>
+              <p>{selectedCourt.venueName} · {selectedCourtName} · {selectedSport?.name ?? selectedCourt.sportName}</p>
               <p>Consulta los bloques horarios y coordina directamente con el negocio. No necesitas crear una cuenta.</p>
             </div>
             <aside className="platform-reservation-process" aria-label="Cómo consultar tu horario">
@@ -109,10 +116,12 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
               businessSlug={selectedCourt.businessSlug}
               businessName={selectedCourt.businessName}
               businessTimezone={selectedCourt.businessTimezone}
-              initialCourtId={selectedCourt.courtId}
+              initialCourtId={selectedCourtId}
               courtSports={courtSports}
               initialSportSlug={selectedSport?.slug ?? selectedCourt.sportSlug}
               contactPhoneE164={publicContact.phoneE164}
+              mode={isSanSebastian ? "san-sebastian" : "default"}
+              showcaseCourts={showcase.map((court) => ({ courtId: court.courtId, courtName: court.courtName, bookable: court.bookable }))}
             />
           </div>
         </section>

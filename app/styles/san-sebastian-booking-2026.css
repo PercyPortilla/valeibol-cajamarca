@@ -1,0 +1,121 @@
+/* Pizarra propia de San Sebastián: formato claro inspirado en Valeibol, paleta real del escudo. */
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] {
+  --public-premium-text: #163c26;
+  --public-premium-muted: #496651;
+  --caxas-accent: #a1c92f;
+  background: #f5f8ee;
+  color: #173824;
+}
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero {
+  background: radial-gradient(circle at 80% 0%,rgba(161,201,47,.14),transparent 42%), linear-gradient(110deg,#092818,#17452a);
+  border-color: rgba(161,201,47,.3);
+}
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-back a { color: #d9f7bf; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process {
+  background: rgba(5,31,16,.62); border-color: rgba(168,213,95,.33);
+}
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process :is(strong,small) { color: #f2ffe5; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process > span,
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process li b { color: #c6ee72; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process li + li { border-top-color: rgba(161,201,47,.18); }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section {
+  background: #f5f8ee; color: #173824;
+}
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading h2 { color: #133e25; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading p { color: #486750; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading .eyebrow { color: #426f21; }
+
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .ss-booking-board {
+  border: 1px solid #cddbbd; border-radius: 18px; overflow: hidden;
+  background: #fff; color: #163c26;
+  box-shadow: 0 16px 50px rgba(19,57,33,.09);
+}
+.ss-booking-board__top {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 15px;
+  padding: 25px 28px; background: #f5faee; border-bottom: 1px solid #e1ebd5;
+}
+.ss-booking-board h3 { font-size: clamp(19px,2vw,24px); font-weight: 850; letter-spacing: -.025em; margin: 0; color: #123d25; }
+.ss-booking-board__top p,.ss-booking-board__calendar-heading p { margin: 5px 0 0; color: #526c56; font-size: 13px; }
+.ss-booking-board__tag { padding: 8px 12px; border-radius: 999px; background: #e6f3d7; color: #245728; font-size: 12px; font-weight: 750; }
+.ss-booking-board__choices { display: grid; grid-template-columns: 1.12fr 1fr 1.25fr; gap: 22px; padding: 26px 28px; border-bottom: 1px solid #e1ebd5; }
+.ss-booking-board__choice { min-width: 0; margin: 0; padding: 0; border: 0; }
+.ss-booking-board__choice legend { display: block; margin-bottom: 12px; padding: 0; color: #24452e; font-size: 13px; font-weight: 800; }
+.ss-booking-board__buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.tenant-reservation .ss-booking-board__button {
+  padding: 11px 14px; min-height: 44px; border: 1px solid #bed0aa; border-radius: 11px;
+  background: #fff; color: #254c30; font: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+  display: grid; justify-items: start; gap: 2px;
+}
+.ss-booking-board__button small { font-size: 10px; font-weight: 600; opacity: .82; }
+.tenant-reservation .ss-booking-board__button.is-selected { background: #1b5a35; border-color: #1b5a35; color: #fff; }
+.tenant-reservation .ss-booking-board__button:not(.is-selected):hover { background: #f0f8e8; border-color: #568637; }
+.ss-booking-board__calendar { padding: 26px 28px 30px; }
+.ss-booking-board__calendar-heading { display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 16px; }
+.ss-booking-board__week-nav { display: flex; align-items: center; gap: 7px; }
+.tenant-reservation .ss-booking-board__week-nav button {
+  min-height: 42px; padding: 9px 12px; border: 1px solid #c5d5ba; border-radius: 10px;
+  background: #fff; color: #23532f; font-size: 12px; font-weight: 750; cursor: pointer;
+}
+.tenant-reservation .ss-booking-board__week-nav button:hover { background: #e9f5dd; }
+.tenant-reservation .ss-booking-board__week-nav button:disabled { opacity: .45; cursor: not-allowed; }
+.ss-booking-board__week-range { margin: 18px 0 12px; color: #537053; font-size: 12px; font-weight: 700; text-transform: capitalize; }
+.ss-booking-board__dates { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 9px; }
+.tenant-reservation .ss-booking-board__date {
+  min-width: 0; min-height: 80px; border: 1px solid #d6e3cd; border-radius: 12px;
+  background: #f7faf2; color: #315939; cursor: pointer; display: grid; place-content: center; gap: 1px;
+}
+.ss-booking-board__date span,.ss-booking-board__date small { font-size: 11px; text-transform: capitalize; }
+.ss-booking-board__date strong { font-size: 24px; font-weight: 850; line-height: 1.2; }
+.tenant-reservation .ss-booking-board__date.is-selected { background: #e5f4d7; color: #144f28; border-color: #4d9d45; box-shadow: inset 0 0 0 1px #4d9d45; }
+.tenant-reservation .ss-booking-board__date:hover { border-color: #4d9d45; }
+.ss-booking-board__times-heading { display: flex; justify-content: space-between; gap: 12px; margin: 24px 0 12px; align-items: baseline; text-transform: capitalize; }
+.ss-booking-board__times-heading strong { font-size: 18px; color: #173c25; }
+.ss-booking-board__times-heading span { font-size: 12px; color: #56715a; }
+.ss-booking-board__slots { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }
+.tenant-reservation .ss-booking-board__slot {
+  display: grid; align-content: center; justify-items: start; gap: 7px; min-height: 80px;
+  padding: 13px; border: 1px solid #a9dfb6; border-radius: 12px;
+  background: #effaf1; color: #17452c; text-align: left; cursor: pointer;
+}
+.ss-booking-board__slot strong { font-size: 14px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.ss-booking-board__slot small { font-size: 11px; color: #486a50; }
+.tenant-reservation .ss-booking-board__slot.is-selected { background: #1b6037; border-color: #1b6037; color: #fff; }
+.tenant-reservation .ss-booking-board__slot.is-selected small { color: #e0f6de; }
+.tenant-reservation .ss-booking-board__slot:disabled { background: #f3f5f0; border-color: #e1e6dd; color: #718077; cursor: not-allowed; }
+.tenant-reservation .ss-booking-board__slot:disabled small { color: #718077; }
+.tenant-reservation .ss-booking-board__slot:not(:disabled):hover { border-color: #26783c; }
+.ss-booking-board__summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; padding: 23px 28px; background: #103b25; color: #f0ffe8; }
+.ss-booking-board__summary > div { display: grid; gap: 5px; }
+.ss-booking-board__summary span { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #c9ef9e; font-weight: 750; }
+.ss-booking-board__summary strong { font-size: 17px; color: #fff; }
+.ss-booking-board__summary small { font-size: 12px; color: #e1f2d6; }
+.tenant-reservation .ss-booking-board__cta { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 12px 18px; border-radius: 11px; background: #add43a; color: #123a1e; font-size: 13px; font-weight: 850; text-decoration: none; }
+.tenant-reservation .ss-booking-board__cta:hover { background: #c5e874; }
+.tenant-reservation .ss-booking-board__cta--disabled { background: #587060; color: #edf4e6; cursor: not-allowed; text-transform: none; letter-spacing: 0; }
+.ss-booking-board__pending { display: grid; justify-items: start; gap: 11px; margin: 26px 28px; padding: 25px; background: #f1f8e7; border: 1px solid #bfd5ae; border-radius: 14px; }
+.ss-booking-board__pending strong { color: #173e28; font-size: 19px; }
+.ss-booking-board__pending p { margin: 0; max-width: 680px; line-height: 1.6; font-size: 13px; color: #46644c; }
+.ss-booking-board__empty { padding: 20px; color: #526c56; background: #f7faf2; border-radius: 12px; }
+.ss-booking-board__disclaimer { padding: 18px 28px 22px; margin: 0; color: #506d56; font-size: 12px; line-height: 1.6; }
+.tenant-reservation .ss-booking-board :is(button,a):focus-visible { outline: 3px solid #6cbb38; outline-offset: 3px; }
+@media (max-width: 980px) {
+  .ss-booking-board__choices { grid-template-columns: 1fr 1fr; }
+  .ss-booking-board__choice:last-child { grid-column: 1 / -1; }
+  .ss-booking-board__slots { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 650px) {
+  .ss-booking-board__top,.ss-booking-board__choices,.ss-booking-board__calendar { padding: 20px 16px; }
+  .ss-booking-board__choices { grid-template-columns: 1fr; gap: 19px; }
+  .ss-booking-board__choice:last-child { grid-column: auto; }
+  .ss-booking-board__calendar-heading { display: grid; }
+  .ss-booking-board__week-nav { flex-wrap: wrap; }
+  .ss-booking-board__dates { grid-template-columns: repeat(7,minmax(65px,1fr)); gap: 6px; overflow-x: auto; padding-bottom: 6px; }
+  .ss-booking-board__date strong { font-size: 20px; }
+  .ss-booking-board__slots { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .ss-booking-board__times-heading { align-items: start; flex-direction: column; }
+  .ss-booking-board__pending { margin: 16px; padding: 18px; }
+  .ss-booking-board__summary { padding: 21px 16px; }
+  .ss-booking-board__summary .ss-booking-board__cta { width: 100%; }
+  .ss-booking-board__disclaimer { padding-inline: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .ss-booking-board * { transition: none !important; scroll-behavior: auto; } }

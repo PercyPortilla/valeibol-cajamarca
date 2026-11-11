@@ -46,7 +46,8 @@ test("flujo booking exige negocio/cancha/deporte explícitos y no vuelve silenci
 
 test("rutas global y legacy parametrizan el calendario sin depender de defaults internos", () => {
   assert.match(reservationPage, /businessSlug=\{selectedCourt\.businessSlug\}/);
-  assert.match(reservationPage, /initialCourtId=\{selectedCourt\.courtId\}/);
+  assert.match(reservationPage, /initialCourtId=\{selectedCourtId\}/);
+  assert.match(reservationPage, /selectedCourtId = requestedShowcase\?\.courtId \?\? selectedCourt\.courtId/);
   assert.match(reservationPage, /courtSports=\{courtSports\}/);
   assert.match(legacyLanding, /businessSlug=\{businessConfig\.slug\}/);
   assert.match(legacyLanding, /initialCourtId=\{initialCourtId\}/);
