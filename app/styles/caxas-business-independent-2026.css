@@ -57,6 +57,7 @@
   gap: clamp(24px,4vw,65px);
 }
 .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy { max-width: 850px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-logo { display: none; }
 .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-live-label { color: #d2efa0; font-size: 11px; letter-spacing: .14em; }
 .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-live-label i { background: #addb48; }
 .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row h1 {
@@ -134,8 +135,18 @@
   .business-site-header__nav a { min-height: 42px; font-size: 12px; }
   .business-site-header__nav .business-site-header__primary { padding: 10px 12px; }
   .business-site-footer__inner { align-items: flex-start; flex-direction: column; }
-  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy { width: 100%; }
-  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row h1 { font-size: clamp(37px,9vw,56px); }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy {
+    width: 100%; padding: 20px 17px 24px;
+    border: 1px solid rgba(193,235,137,.34); border-radius: 17px;
+    background: rgba(3,28,14,.86); backdrop-filter: blur(3px);
+  }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row {
+    display: block; min-width: 0; width: 100%;
+  }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row h1 {
+    width: 100%; max-width: 100%; overflow-wrap: anywhere;
+    font-size: clamp(32px,8.6vw,47px); line-height: 1.05;
+  }
   .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-grid { grid-template-columns: minmax(0,1fr); }
   .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary { flex: 1; width: 100%; }
   .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card { min-height: 0; }

@@ -63,6 +63,14 @@ for (const scene of [
       sports: [...document.querySelectorAll('.business-court-sports')].map(el=>el.innerText),
       pending: document.querySelector('.platform-court-card:nth-child(2)')?.innerText ?? '',
       sportSelector: [...document.querySelectorAll('.availability-sport-choice button')].map(el=>el.innerText),
+      geometry: (() => {
+        const title = document.querySelector('.platform-complex-title-row h1');
+        const row = document.querySelector('.platform-complex-title-row');
+        if (!title || !row) return null;
+        const a = title.getBoundingClientRect(), b = row.getBoundingClientRect();
+        return { titleX:a.x,titleWidth:a.width,titleScrollWidth:title.scrollWidth,rowX:b.x,rowWidth:b.width,
+          fontSize:getComputedStyle(title).fontSize,textWrap:getComputedStyle(title).textWrap };
+      })(),
       bodyPreview: document.body.innerText.slice(0,350),
       width: innerWidth, scrollWidth: document.documentElement.scrollWidth
     }))()`,

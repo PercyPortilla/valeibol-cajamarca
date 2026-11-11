@@ -20,5 +20,5 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "preview/**", "qa-premium-caxas/**", "qa-caxas-children/**"]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "preview/**", "qa-premium-caxas/**", "qa-caxas-children/**", "qa-caxas-v5/**", "qa-caxas-san-sebastian/**"]),
 ]);

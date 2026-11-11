@@ -61,6 +61,7 @@ test("sitio y consulta conservan logotipo propio y no muestran el header de CAXA
   assert.match(header, /business-site-header__logo/);
   assert.match(styles, /business-site-header/);
   assert.match(styles, /data-business-slug="polideportivo-san-sebastian"/);
+  assert.match(styles, /\.platform-complex-hero__copy \{[\s\S]*?background: rgba\(3,28,14,\.86\)/);
 });
 
 test("la selección de fútbol y vóley comparte la agenda y cambia el mensaje de WhatsApp", () => {
