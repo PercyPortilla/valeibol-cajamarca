@@ -90,10 +90,10 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
                 <Link href={`/complejo/${encodeURIComponent(selectedCourt.businessSlug)}`}>← Volver al complejo</Link>
               </nav>
               <span className="eyebrow">CONSULTA POR WHATSAPP</span>
-              <h1>Encuentra el momento para jugar.</h1>
+              <h1>{isSanSebastian ? "Elige tu campo y horario." : "Encuentra el momento para jugar."}</h1>
               <p className="platform-reservation-hero__lead">{selectedCourt.businessName}</p>
-              <p>{selectedCourt.venueName} · {selectedCourtName} · {selectedSport?.name ?? selectedCourt.sportName}</p>
-              <p>Consulta los bloques horarios y coordina directamente con el negocio. No necesitas crear una cuenta.</p>
+              <p>{isSanSebastian ? "Dos campos · Fútbol y vóley" : `${selectedCourt.venueName} · ${selectedCourtName} · ${selectedSport?.name ?? selectedCourt.sportName}`}</p>
+              <p>{isSanSebastian ? "Selecciona tu deporte, cuántas horas quieres jugar y un horario disponible. El negocio confirma la consulta por WhatsApp." : "Consulta los bloques horarios y coordina directamente con el negocio. No necesitas crear una cuenta."}</p>
             </div>
             <aside className="platform-reservation-process" aria-label="Cómo consultar tu horario">
               <span>ASÍ FUNCIONA</span>

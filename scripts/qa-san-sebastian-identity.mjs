@@ -163,9 +163,24 @@ for (const scene of [
     returnByValue: true,
   });
   const details = response.result.value;
+  if (isPlanner && hydrated) {
+    // Captura de la pizarra, no solo del hero por encima de ella.
+    if (scene.id.startsWith("consulta")) {
+      await evaluate("document.querySelector('.ss-booking-board__choice button')?.click(); true");
+      await pause(200);
+    }
+    await evaluate("document.querySelector('.ss-booking-board')?.scrollIntoView({block:'start'}); true");
+    await pause(250);
+  }
   const image = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
   const file = path.join(out, scene.id + ".png");
   fs.writeFileSync(file, Buffer.from(image.data, "base64"));
+  if (scene.id.startsWith("consulta") && hydrated) {
+    await evaluate("document.querySelector('.ss-booking-board__slots')?.scrollIntoView({block:'start'}); true");
+    await pause(250);
+    const slotsShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
+    fs.writeFileSync(path.join(out, scene.id + "-horarios.png"), Buffer.from(slotsShot.data, "base64"));
+  }
   const good = loaded && hydrated && details.url === scene.path.split("?")[0]
     && !details.headerCaxas
     && details.header.includes("Sebastián")

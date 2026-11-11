@@ -8,7 +8,7 @@
 }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero {
   background: radial-gradient(circle at 80% 0%,rgba(161,201,47,.14),transparent 42%), linear-gradient(110deg,#092818,#17452a);
-  border-color: rgba(161,201,47,.3);
+  border-color: rgba(161,201,47,.3); padding-block: 40px;
 }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-back a { color: #d9f7bf; }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process {
@@ -19,7 +19,7 @@
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process li b { color: #c6ee72; }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process li + li { border-top-color: rgba(161,201,47,.18); }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section {
-  background: #f5f8ee; color: #173824;
+  background: #f5f8ee; color: #173824; padding-block: 42px 66px;
 }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading h2 { color: #133e25; }
 .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading p { color: #486750; }
@@ -104,6 +104,13 @@
   .ss-booking-board__slots { grid-template-columns: repeat(3,minmax(0,1fr)); }
 }
 @media (max-width: 650px) {
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero { padding-block: 22px 25px; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero__grid { gap: 0; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero h1 { font-size: clamp(31px,8.2vw,42px); margin-block: 9px 12px; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process { display: none; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section { padding-block: 29px 46px; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading { margin-bottom: 18px; }
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section__heading h2 { font-size: 32px; }
   .ss-booking-board__top,.ss-booking-board__choices,.ss-booking-board__calendar { padding: 20px 16px; }
   .ss-booking-board__choices { grid-template-columns: 1fr; gap: 19px; }
   .ss-booking-board__choice:last-child { grid-column: auto; }
