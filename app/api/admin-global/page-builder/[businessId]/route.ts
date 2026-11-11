@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { PlatformAdminAuthError } from "@/lib/auth/platformAdmin";
 import {
-  PageBuilderError, findPageBuilderBusiness, getScopedPageBuilderClient, parsePageBuilderState,
+  PageBuilderError, getScopedPageBuilderClient, parsePageBuilderState,
 } from "@/lib/platform/pageBuilder";
 import { isSameOriginPageBuilderMutation } from "@/lib/platform/pageBuilderOrigin";
 import {
@@ -149,8 +149,9 @@ export async function PUT(request: Request, { params }: Context) {
       p_business_id: businessId, p_expected_version: expectedVersion,
     });
     if (error) return databaseFailure(error);
-    const business = await findPageBuilderBusiness(client, businessId);
-    if (business?.slug && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(business.slug)) revalidatePath(`/complejo/${business.slug}`);
+    // Revalidate all tenant microsite routes: the global directory RPC is not
+    // available to tenant owners/managers publishing through /admin/disenar.
+    revalidatePath("/complejo/[slug]", "page");
     revalidatePath("/buscar");
     revalidatePath("/admin-global");
     return NextResponse.json({ ok: true, data }, { headers: NO_STORE });

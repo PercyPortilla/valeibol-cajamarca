@@ -482,3 +482,145 @@
 @media(max-width:700px) {
   .platform-public-premium--complex .platform-custom-section__panel { grid-template-columns: minmax(0,1fr); }
 }
+
+/* Identidades de páginas hijas: estilos independientes de la cabecera madre. */
+.platform-public-premium--complex[data-tenant-style] {
+  --tenant-accent: var(--brand-blue, #4a7fc0);
+}
+.platform-public-premium--complex[data-tenant-style] .platform-section .eyebrow,
+.platform-public-premium--complex[data-tenant-style] .platform-live-label {
+  color: var(--tenant-accent);
+}
+.platform-public-premium--complex[data-tenant-style] .platform-court-card .button,
+.platform-public-premium--complex[data-tenant-style] .platform-court-card .button:hover,
+.platform-public-premium--complex[data-tenant-style] .platform-complex-contact .platform-whatsapp-contact {
+  background: var(--tenant-accent);
+  border-color: var(--tenant-accent);
+  color: #fff;
+}
+.platform-public-premium--complex[data-tenant-style] .platform-court-card:hover {
+  border-color: var(--tenant-accent);
+}
+
+/* Noir Luxe · sofisticado, negro profundo, tipografía editorial. */
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-complex-hero {
+  min-height: 560px;
+  background: radial-gradient(ellipse at 73% 22%, color-mix(in srgb,var(--brand-yellow) 10%,transparent), transparent 40%),
+    linear-gradient(115deg,#08090b,#191820 72%,#0b0b10);
+}
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-complex-hero--image::before {
+  background: linear-gradient(90deg,rgba(6,6,8,.98),rgba(6,6,9,.87) 43%,rgba(6,6,9,.21));
+}
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-complex-title-row h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600; letter-spacing: -.055em; font-size: clamp(52px,6.3vw,90px);
+}
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-venue-card {
+  background: linear-gradient(145deg,#201e23,#111115);
+  border-radius: 7px; border-color: rgba(255,255,255,.16);
+}
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-court-card,
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-service-card,
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-gallery-card {
+  border-radius: 6px; background: #17161a;
+}
+.platform-public-premium--complex[data-tenant-style="noir"] .platform-section__heading h2 {
+  font-family: Georgia,"Times New Roman",serif; font-weight: 500; letter-spacing: -.04em;
+}
+
+/* Editorial Ivory · ficha luminosa con jerarquía tipográfica y aire. */
+.platform-public-premium--complex[data-tenant-style="editorial"] {
+  background: #f5f1e9; color: #26252b;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero {
+  min-height: 540px;
+  background: radial-gradient(circle at 83% 10%, color-mix(in srgb,var(--brand-blue) 12%, transparent),transparent 44%),#f5f1e9;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero--image::before {
+  background: linear-gradient(90deg,rgba(250,248,243,.98) 5%,rgba(250,248,243,.89) 48%,rgba(250,248,243,.3));
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-title-row h1,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-section__heading h2,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-custom-section__copy h2 {
+  font-family: Georgia,"Times New Roman",serif;
+  color: #26252b; font-weight: 550; letter-spacing: -.04em;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero p,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero__intro,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-breadcrumbs :is(a,li) {
+  color: #514b58;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-summary div {
+  background: rgba(255,255,255,.83); border-color: #dcd4c8; border-radius: 7px; backdrop-filter: blur(8px);
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-summary :is(strong,span) { color: #29252e; }
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-hero__chips span {
+  background: #fff; border-color: #d9d0c3; color: #413c45;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-section,
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-section:nth-of-type(even) {
+  background: #f5f1e9; color: #2b2731;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-section:nth-of-type(odd) { background: #fffdf9; }
+.platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card,.platform-court-card,.platform-service-card,.platform-review-card,.platform-gallery-card) {
+  background: #fffdf9; border-color: #ddd6c9; color: #322d36; border-radius: 9px;
+}
+.platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card h3,.platform-court-card h4,.platform-service-card h3,.platform-gallery-card figcaption strong,.platform-review-card strong) { color: #28242b; }
+.platform-public-premium--complex[data-tenant-style="editorial"] :is(.platform-venue-card header p,.platform-court-card p,.platform-service-card p,.platform-court-card__head > span:last-child,.platform-section__heading p) { color: #514c56; }
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-contact__secondary { color: #34303b; }
+.platform-public-premium--complex[data-tenant-style="editorial"] .platform-complex-contact .platform-whatsapp-contact { box-shadow: 0 14px 25px color-mix(in srgb,var(--tenant-accent) 20%,transparent); }
+
+/* Stadium · energía deportiva, volumen tipográfico, líneas dinámicas. */
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-complex-hero {
+  min-height: 590px;
+  background:
+    linear-gradient(128deg,transparent 40%,color-mix(in srgb,var(--brand-blue) 17%,transparent) 40% 54%,transparent 54%),
+    radial-gradient(circle at 90% 10%,color-mix(in srgb,var(--brand-red) 25%,transparent),transparent 54%),
+    #081524;
+}
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-complex-hero--image::before {
+  background: linear-gradient(95deg,rgba(4,15,26,.98),rgba(8,19,32,.89) 46%,rgba(8,15,28,.19));
+}
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-complex-title-row h1 {
+  font-weight: 950; text-transform: uppercase; font-size: clamp(44px,6vw,87px); letter-spacing: -.065em;
+}
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-venue-card {
+  border-left: 4px solid var(--tenant-accent); background: #102032;
+}
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-court-card { background: #0b1b2d; }
+.platform-public-premium--complex[data-tenant-style="stadium"] .platform-section__heading h2 {
+  font-weight: 950; text-transform: uppercase; letter-spacing: -.05em;
+}
+
+/* Glass Studio · luces frías, paneles translúcidos y profundidad visual. */
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-complex-hero {
+  min-height: 565px;
+  background:
+    radial-gradient(ellipse at 84% 6%,color-mix(in srgb,var(--tenant-accent) 30%,transparent),transparent 52%),
+    radial-gradient(ellipse at 13% 91%,rgba(67,114,190,.27),transparent 49%),
+    linear-gradient(130deg,#0d1723,#141725);
+}
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-complex-hero--image::before {
+  background: linear-gradient(95deg,rgba(7,17,28,.96),rgba(15,25,40,.73),rgba(15,25,40,.28));
+}
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-complex-summary div,
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-venue-card {
+  border: 1px solid color-mix(in srgb,var(--tenant-accent) 45%,transparent);
+  background: rgba(29,41,62,.43);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.25), inset 0 1px rgba(255,255,255,.09);
+}
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-court-card {
+  background: linear-gradient(155deg,rgba(44,60,78,.62),rgba(12,17,29,.84));
+  border-color: rgba(152,190,239,.26);
+}
+.platform-public-premium--complex[data-tenant-style="glass"] .platform-complex-title-row h1 {
+  font-weight: 750; letter-spacing: -.055em;
+  text-shadow: 0 10px 40px rgba(3,7,17,.45);
+}
+
+@media (max-width: 700px) {
+  .platform-public-premium--complex[data-tenant-style] .platform-complex-hero { min-height: 0; }
+  .platform-public-premium--complex[data-tenant-style="noir"] .platform-complex-title-row h1,
+  .platform-public-premium--complex[data-tenant-style="stadium"] .platform-complex-title-row h1 { font-size: clamp(35px,10vw,56px); }
+}

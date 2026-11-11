@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { AdminRole } from "@/lib/auth";
 
-export function AdminNavigation({ unreadNotifications = 0 }: { unreadNotifications?: number }) {
+export function AdminNavigation({ unreadNotifications = 0, role }: { unreadNotifications?: number; role?: AdminRole }) {
   const pathname = usePathname();
   const items = [
     ["Resumen", "/admin"],
@@ -16,9 +17,12 @@ export function AdminNavigation({ unreadNotifications = 0 }: { unreadNotificatio
     ["Reportes", "/admin/reportes"],
     ["Configuración", "/admin/configuracion"],
   ] as const;
+  const visibleItems: ReadonlyArray<readonly [string, string]> = role !== "staff"
+    ? [...items, ["✦ Diseñar página", "/admin/disenar"]]
+    : items;
   return (
     <nav aria-label="Navegación administrativa">
-      {items.map(([label, href]) => {
+      {visibleItems.map(([label, href]) => {
         const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
         return (
           <Link

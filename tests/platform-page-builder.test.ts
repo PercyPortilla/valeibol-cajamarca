@@ -28,10 +28,12 @@ test("la madre separa Diseñar página de Administrar negocio y conserva alta ex
 
 test("estudio y endpoints exigen ADMIN global y scope exacto de Supabase", () => {
   assert.match(builderPage, /loadPageBuilder\(businessId\)/);
-  assert.match(scopedHelper, /await getPlatformAdminContext\(\)/);
+  assert.match(builderPage, /PlatformAdminAuthError/);
+  assert.match(scopedHelper, /client\.auth\.getUser\(\)/);
   assert.match(scopedHelper, /explicitPlatformBusinessId: businessId/);
   assert.match(scopedHelper, /get_current_admin_context/);
-  assert.match(scopedHelper, /row\.business_id === businessId && row\.role === "admin"/);
+  assert.match(scopedHelper, /row\.business_id === businessId/);
+  assert.match(scopedHelper, /globalAdmin \? row\.role === "admin"/);
   assert.match(saveRoute, /await getScopedPageBuilderClient\(businessId\)/);
   assert.match(saveRoute, /platform_page_builder_save_draft/);
   assert.match(saveRoute, /platform_page_builder_publish_draft/);

@@ -38,10 +38,11 @@ const THEME_KEYS: Array<[keyof Pick<SiteTheme, "navy" | "blue" | "blueDark" | "r
   ["red", "Acento"], ["redDark", "Acento oscuro"], ["yellow", "Destacados"], ["canvas", "Fondo"],
 ];
 
-export function PageBuilderStudio({ business, initialContent, initialBuilderState }: {
+export function PageBuilderStudio({ business, initialContent, initialBuilderState, mode = "global" }: {
   business: PageBuilderBusiness;
   initialContent: SiteContent;
   initialBuilderState: PageBuilderState;
+  mode?: "global" | "tenant";
 }) {
   const initialWork = initialBuilderState.draft ?? initialContent;
   const [panel, setPanel] = useState<Panel>("plantillas");
@@ -294,12 +295,16 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
           <p><strong>{business.name}</strong><span aria-hidden="true"> / </span>{business.slug}</p>
         </div>
         <div className="studio-heading__actions">
-          <Link href="/admin-global#admin-alta-negocio" className="studio-muted-action">+ Crear otra página</Link>
+          {mode === "global"
+            ? <Link href="/admin-global#admin-alta-negocio" className="studio-muted-action">+ Crear otra página</Link>
+            : <Link href="/admin/configuracion" className="studio-muted-action">← Configuración del negocio</Link>}
           {isPublishedCandidate ? <a href={sitePath} className="studio-muted-action" target="_blank" rel="noreferrer">Ver sitio público ↗</a> : <span className="studio-draft-state">EN PREPARACIÓN</span>}
-          <form action="/api/admin-global/select-business" method="post">
-            <input type="hidden" name="businessId" value={business.id}/>
-            <button className="studio-muted-action" type="submit">Canchas y publicación ↗</button>
-          </form>
+          {mode === "global"
+            ? <form action="/api/admin-global/select-business" method="post">
+                <input type="hidden" name="businessId" value={business.id}/>
+                <button className="studio-muted-action" type="submit">Canchas y publicación ↗</button>
+              </form>
+            : <Link href="/admin/configuracion/estructura" className="studio-muted-action">Canchas y publicación ↗</Link>}
           <button className="studio-save" type="button" onClick={() => void save()} disabled={!needsSave || saving || working || Boolean(uploading)}>{saving ? "Guardando…" : needsSave ? "Guardar borrador" : "Borrador guardado"}<span aria-hidden="true">↓</span></button>
           <button className="studio-publish" type="button" onClick={() => void publish()} disabled={!canPublish}>{working ? "Procesando…" : draftPublished ? "Publicado" : "Publicar diseño ↗"}</button>
         </div>
@@ -363,6 +368,26 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
 
             {panel === "colores" ? <>
               <div className="studio-group-heading"><span>04 / SISTEMA VISUAL</span><h2>Tu identidad, tus colores</h2><p>La marca madre es cromada y violeta, pero cada negocio conserva una paleta totalmente independiente.</p></div>
+              <div className="studio-visual-styles" role="group" aria-label="Estilos premium para la página pública">
+                {([
+                  ["signature", "Signature", "Deportivo elegante"],
+                  ["noir", "Noir Luxe", "Oscuro y exclusivo"],
+                  ["editorial", "Editorial", "Luz y tipografía"],
+                  ["stadium", "Stadium", "Energía deportiva"],
+                  ["glass", "Glass Studio", "Cristal y profundidad"],
+                ] as const).map(([id,name,description])=>(
+                  <button key={id} type="button"
+                    className={(theme.visualStyle??"signature")===id ? "studio-visual-style studio-visual-style--selected":"studio-visual-style"}
+                    onClick={()=>updateTheme({visualStyle:id})} aria-pressed={(theme.visualStyle??"signature")===id}>
+                    <span className={`studio-visual-style__art studio-visual-style__art--${id}`}>
+                      <i/><b>{name}</b><small>SPORTCENTER</small>
+                    </span>
+                    <strong>{name}</strong><small>{description}</small>
+                  </button>
+                ))}
+              </div>
+              <p className="studio-small-note">Selecciona una dirección de arte para la página hija. Conservarás tu logo, fotos, servicios y colores.</p>
+              <div className="studio-divider" />
               <div className="studio-presets">{SITE_THEME_PRESETS.map((preset) => <button type="button" key={preset.id} className={theme.presetId === preset.id ? "studio-preset studio-preset--active" : "studio-preset"} onClick={() => { setTheme((current) => ({ ...current, ...preset.theme })); setMessage(null); }}><span>{[preset.theme.blue, preset.theme.red, preset.theme.yellow, preset.theme.canvas].map((color, index) => <i key={index} style={{ background: color }} />)}</span><strong>{preset.name}</strong></button>)}</div>
               <div className="studio-divider" />
               <div className="studio-row-heading"><h2>Colores personalizados</h2></div>
@@ -377,7 +402,7 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
         <section className="studio-canvas" aria-label="Vista previa en vivo de la página">
           <div className="studio-canvas__toolbar"><div><span className="studio-live-dot"/><strong>VISTA PREVIA EN VIVO</strong><small>Los cambios aún no guardados solo aparecen aquí</small></div><div className="studio-viewport" role="group" aria-label="Tamaño de pantalla"><button type="button" className={viewport === "desktop" ? "active" : ""} onClick={() => setViewport("desktop")}>Escritorio</button><button type="button" className={viewport === "mobile" ? "active" : ""} onClick={() => setViewport("mobile")}>Móvil</button></div></div>
           <div className="studio-canvas__surface">
-            <div className={`studio-preview ${viewport === "mobile" ? "studio-preview--mobile" : ""}`} style={previewStyle}>
+            <div className={`studio-preview studio-preview--${theme.visualStyle ?? "signature"} ${viewport === "mobile" ? "studio-preview--mobile" : ""}`} style={previewStyle}>
               <div className="studio-preview__header"><div className="studio-preview__brand">{logoUrl ? <div role="img" aria-label="Logo del complejo" style={{ backgroundImage: `url(${logoUrl})` }}/> : <span>◇</span>}<b>{business.name}</b></div><span>COMPLEJO DEPORTIVO</span></div>
               <div className="studio-preview__hero" style={coverImage ? { backgroundImage: `linear-gradient(90deg, rgba(9,14,25,.85), rgba(9,14,25,.37)), url(${coverImage})` } : undefined}>
                 <span>CAJAMARCA · COMPLEJOS DEPORTIVOS</span>

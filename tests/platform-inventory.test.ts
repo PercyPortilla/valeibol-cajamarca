@@ -153,7 +153,7 @@ test("guards B20 devuelven feedback específico en Edge y admin global", () => {
 
 test("formularios de tarifas usan moneda real del tenant", () => {
   assert.match(structureManager, /structure\.currency/);
-  assert.match(pricingForm, /const currency = rules\[0\]\?\.currency \?\? "PEN"/);
+  assert.match(pricingForm, /const currency = rules\[0\]\?\.currency \?\? businessCurrency \?\? "PEN"/);
   assert.match(pricingForm, /Nueva tarifa por hora \(\{currency\}\)/);
 });
 

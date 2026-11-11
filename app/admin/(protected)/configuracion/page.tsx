@@ -60,6 +60,15 @@ export default async function AdminConfigurationPage() {
         <AdminAccountSecurity email={context.email} localMode={localMode} />
       </div>
 
+      {(context.role === "owner" || context.role === "admin") && !localMode ? (
+        <Card className="admin-config-card">
+          <span className="metric-label">ESTUDIO VISUAL · CAXAS</span>
+          <h2>Diseña la página de tu negocio</h2>
+          <p>Elige estilos premium, edita bloques, sube fotos y trabaja en un borrador antes de publicarlo. Las tarifas, horarios y canchas se administran aparte.</p>
+          <div className="admin-config-actions"><Link className="button button--primary" href="/admin/disenar">✦ Abrir estudio de diseño</Link></div>
+        </Card>
+      ) : null}
+
       {context.role === "owner" ? (
         <div className="admin-config-content-block">
           <AdminAccessManagement currentUserId={context.userId} businessName={context.businessName} localMode={localMode} />

@@ -1,4 +1,3 @@
-import { getPlatformAdminContext } from "@/lib/auth/platformAdmin";
 import { validPlatformBusinessId } from "@/lib/auth/platformScope";
 import { createServerSupabaseClient } from "@/lib/data/supabase/server";
 import { normalizeSiteGallery, normalizeSiteLogoUrl, normalizeSiteServices, normalizeSiteTheme, isValidSiteThemeInput, type SiteContent } from "@/lib/siteContent";
@@ -79,11 +78,17 @@ export function parsePageBuilderState(raw: unknown): PageBuilderState {
 /** No usar un businessId enviado desde el navegador como permiso. */
 export async function getScopedPageBuilderClient(businessId: string) {
   if (!validPlatformBusinessId(businessId)) throw new PageBuilderError("invalid_id");
-  await getPlatformAdminContext();
   const client = await createServerSupabaseClient({ explicitPlatformBusinessId: businessId });
-  const { data, error } = await client.rpc("get_current_admin_context");
+  const [{ data: user, error: userError }, { data, error }, platform] = await Promise.all([
+    client.auth.getUser(),
+    client.rpc("get_current_admin_context"),
+    client.rpc("get_platform_admin_context"),
+  ]);
+  if (userError || !user.user) throw new PageBuilderError("unauthorized");
   if (error) throw new PageBuilderError("backend");
-  if (!data?.some((row) => row.business_id === businessId && row.role === "admin")) {
+  const globalAdmin = !platform.error && (platform.data?.length ?? 0) > 0;
+  if (!data?.some((row) => row.business_id === businessId
+    && (globalAdmin ? row.role === "admin" : row.role === "owner" || row.role === "admin"))) {
     throw new PageBuilderError("unauthorized");
   }
   return client;

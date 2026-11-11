@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
+import { GlobalBusinessTeamPanel } from "@/components/platform-admin/GlobalBusinessTeamPanel";
 
 export type PlatformAdminBusiness = {
   businessId: string;
@@ -74,6 +75,7 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [recoveryId, setRecoveryId] = useState<string | null>(null);
+  const [teamId, setTeamId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(null);
   const firstVisible = totalBusinesses === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const lastVisible = Math.min(currentPage * pageSize, totalBusinesses);
@@ -212,6 +214,10 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
                   Administrar negocio
                 </button>
               </form>
+              <button type="button" className="button button--secondary"
+                onClick={() => setTeamId((current)=>current===business.businessId?null:business.businessId)}>
+                {teamId===business.businessId?"Cerrar equipo":"Equipo y accesos"}
+              </button>
               <button type="button" className="button button--secondary" disabled={Boolean(busyId) || business.configurationStatus !== "provisional"} onClick={() => setEditingId((current) => current === business.businessId ? null : business.businessId)}>
                 {editingId === business.businessId ? "Cerrar edición" : "Editar configuración"}
               </button>
@@ -236,6 +242,16 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
               </button>
             </div>
             {business.configurationStatus !== "provisional" ? <p className="global-admin-business-row__hint">El propietario debe retirar la publicación antes de corregir slug, moneda o zona horaria.</p> : null}
+            {business.configurationStatus === "provisional" ? (
+              <p className="global-admin-business-row__hint">
+                <strong>Falta la publicación operativa:</strong> {business.venueCount === 0
+                  ? "primero crea una sede; después una cancha con horarios y tarifas."
+                  : business.courtCount === 0
+                    ? "agrega una cancha, define horarios y ambas tarifas."
+                    : "comprueba los horarios y tarifas de las canchas y confirma el negocio en «Configuración → Negocio, sedes y canchas»."}
+              </p>
+            ) : null}
+            {teamId === business.businessId ? <GlobalBusinessTeamPanel businessId={business.businessId} businessName={business.name}/> : null}
             {editingId === business.businessId ? (
               <form className="global-admin-business-core-form" onSubmit={(event) => void updateCore(event, business)}>
                 <label>Slug público<input name="slug" defaultValue={business.slug} required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" /></label>

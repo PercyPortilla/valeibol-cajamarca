@@ -48,6 +48,8 @@ export type SiteTheme = {
   /** Orden de las secciones editables (la portada y las canchas no se mueven). */
   sectionLayout?: string[];
   extraSections?: SiteExtraSection[];
+  /** Dirección de arte, independiente de la identidad cromada de la marca madre. */
+  visualStyle?: "signature" | "noir" | "editorial" | "stadium" | "glass";
 };
 
 export type SiteContent = {
@@ -302,6 +304,9 @@ export function normalizeSiteTheme(value: unknown): SiteTheme {
     showGallery: record.showGallery !== false,
     extraSections,
     sectionLayout: normalizeSiteSectionLayout(record.sectionLayout ?? fallbackLayout, extraSections),
+    visualStyle: record.visualStyle === "noir" || record.visualStyle === "editorial"
+      || record.visualStyle === "stadium" || record.visualStyle === "glass"
+      ? record.visualStyle : "signature",
   };
 }
 

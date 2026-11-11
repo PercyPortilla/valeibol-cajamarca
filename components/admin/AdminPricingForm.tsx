@@ -5,15 +5,22 @@ import { schedulePricingRuleAction, type AdminActionResult } from "@/app/admin/(
 import type { AdminRole } from "@/lib/auth";
 import { canPerformPhase7Operation, lightingModeLabel, type AdminPricingRule } from "@/lib/admin/phase7";
 
-export function AdminPricingForm({ rules, role }: { rules: AdminPricingRule[]; role: AdminRole }) {
+export function AdminPricingForm({ rules, role, courts: knownCourts, businessToday, businessCurrency }: {
+  rules: AdminPricingRule[];
+  role: AdminRole;
+  courts?: { id: string; name: string }[];
+  businessToday?: string;
+  businessCurrency?: string;
+}) {
   const courts = useMemo(() => {
     const map = new Map<string, string>();
     rules.forEach((rule) => map.set(rule.courtId, rule.courtName));
+    (knownCourts ?? []).forEach((court) => map.set(court.id, court.name));
     return [...map.entries()].map(([id, name]) => ({ id, name }));
-  }, [rules]);
+  }, [rules, knownCourts]);
   const firstCourt = courts[0]?.id ?? "";
-  const today = rules[0]?.businessToday ?? "";
-  const currency = rules[0]?.currency ?? "PEN";
+  const today = rules[0]?.businessToday ?? businessToday ?? "";
+  const currency = rules[0]?.currency ?? businessCurrency ?? "PEN";
   const [courtId, setCourtId] = useState(firstCourt);
   const [lighting, setLighting] = useState<"without_lights" | "with_lights">("without_lights");
   const [hourlyRate, setHourlyRate] = useState("");
