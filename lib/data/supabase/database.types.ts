@@ -303,6 +303,26 @@ export type Database = {
           updated_at: string | null;
         }>;
       };
+      platform_page_builder_get_state: {
+        Args: { p_business_id: string };
+        Returns: Json;
+      };
+      platform_page_builder_save_draft: {
+        Args: { p_business_id: string; p_content: Json; p_expected_version: number; p_expected_published_at: string | null };
+        Returns: Json;
+      };
+      platform_page_builder_publish_draft: {
+        Args: { p_business_id: string; p_expected_version: number };
+        Returns: Json;
+      };
+      platform_page_builder_restore_revision: {
+        Args: { p_business_id: string; p_revision_id: number; p_expected_version: number };
+        Returns: Json;
+      };
+      platform_page_builder_discard_draft: {
+        Args: { p_business_id: string; p_expected_version: number };
+        Returns: boolean;
+      };
       admin_update_site_content: {
         Args: { p_logo_url?: string | null; p_services?: Json; p_gallery?: Json; p_theme?: Json };
         Returns: Array<{

@@ -121,6 +121,27 @@ export default async function ComplexPage({ params }: { params: Params }) {
       </div>
     </section>
   ) : null;
+  const extraSections = (siteContent.theme.extraSections ?? []).filter((section) => section.isVisible);
+  const contentSections = new Map<string, React.ReactNode>([
+    ["services", serviceSection],
+    ["gallery", gallerySection],
+    ...extraSections.map((section): [string, React.ReactNode] => [
+      section.id,
+      <section className="platform-section platform-custom-section" key={section.id} aria-label={section.title}>
+        <div className="shell">
+          <div className="platform-custom-section__panel">
+            <div className="platform-custom-section__copy">
+              <span className="eyebrow">CONOCE MÁS</span>
+              <h2>{section.title}</h2>
+              {section.description ? <p>{section.description}</p> : null}
+              {section.buttonLabel && section.buttonUrl ? <a href={section.buttonUrl} target="_blank" rel="noopener noreferrer" className="button button--primary">{section.buttonLabel} ↗</a> : null}
+            </div>
+            {section.imageUrl ? <div className="platform-custom-section__image" role="img" aria-label={section.title} style={{ backgroundImage: `url("${section.imageUrl.replaceAll('"', '%22')}")` }} /> : null}
+          </div>
+        </div>
+      </section>,
+    ]),
+  ]);
 
   return (
     <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
@@ -199,7 +220,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
             </div>
           </div>
         </section>
-        {siteContent.theme.sectionOrder === "gallery-first" ? <>{gallerySection}{serviceSection}</> : <>{serviceSection}{gallerySection}</>}
+        {(siteContent.theme.sectionLayout ?? ["services", "gallery"]).map((sectionId) => contentSections.get(sectionId) ?? null)}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
         </main>
         <PlatformFooter businessSlug={slug} />

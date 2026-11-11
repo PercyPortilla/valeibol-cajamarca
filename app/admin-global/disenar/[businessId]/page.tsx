@@ -32,7 +32,7 @@ export default async function PageBuilderPage({ params }: { params: Promise<{ bu
         <span className="caxas-builder__edition">CAXAS <b>STUDIO</b> <i>01</i></span>
         <span className="caxas-builder__toprole">ESTUDIO DE PÁGINAS HIJAS</span>
       </div>
-      <PageBuilderStudio business={data.business} initialContent={data.content} />
+      <PageBuilderStudio business={data.business} initialContent={data.content} initialBuilderState={data.builderState} />
     </main>
   );
 }

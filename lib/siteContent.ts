@@ -18,6 +18,16 @@ export type SiteGalleryItem = {
   isVisible: boolean;
 };
 
+export type SiteExtraSection = {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  buttonLabel: string;
+  buttonUrl: string;
+  isVisible: boolean;
+};
+
 export type SiteTheme = {
   presetId: "classic" | "competitive" | "night" | "custom";
   navy: string;
@@ -35,6 +45,9 @@ export type SiteTheme = {
   sectionOrder?: "services-first" | "gallery-first";
   showServices?: boolean;
   showGallery?: boolean;
+  /** Orden de las secciones editables (la portada y las canchas no se mueven). */
+  sectionLayout?: string[];
+  extraSections?: SiteExtraSection[];
 };
 
 export type SiteContent = {
@@ -106,6 +119,51 @@ function cleanImageUrl(value: unknown) {
   } catch {
     return "";
   }
+}
+
+export function normalizeSiteExternalUrl(value: unknown) {
+  const url = cleanText(value, 600);
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" ? parsed.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+export function normalizeSiteExtraSections(value: unknown): SiteExtraSection[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  return value.slice(0, 8).flatMap((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+    const record = entry as Record<string, unknown>;
+    const id = cleanText(record.id, 64) || `custom-${index + 1}`;
+    const title = cleanText(record.title, 100);
+    if (!/^[a-zA-Z0-9_-]+$/.test(id) || !title || seen.has(id) || id === "services" || id === "gallery") return [];
+    seen.add(id);
+    return [{
+      id, title, description: cleanText(record.description, 500),
+      imageUrl: cleanImageUrl(record.imageUrl),
+      buttonLabel: cleanText(record.buttonLabel, 42),
+      buttonUrl: normalizeSiteExternalUrl(record.buttonUrl),
+      isVisible: record.isVisible !== false,
+    }];
+  });
+}
+
+export function normalizeSiteSectionLayout(value: unknown, sections: SiteExtraSection[]): string[] {
+  const allowed = new Set(["services", "gallery", ...sections.map((item) => item.id)]);
+  const result: string[] = [];
+  if (Array.isArray(value)) {
+    for (const raw of value.slice(0, 20)) {
+      if (typeof raw === "string" && allowed.has(raw) && !result.includes(raw)) result.push(raw);
+    }
+  }
+  for (const key of ["services", "gallery", ...sections.map((item) => item.id)]) {
+    if (!result.includes(key)) result.push(key);
+  }
+  return result;
 }
 
 export function normalizeSiteLogoUrl(value: unknown) {
@@ -224,6 +282,8 @@ export function normalizeSiteTheme(value: unknown): SiteTheme {
   const presetId = record.presetId === "classic" || record.presetId === "competitive" || record.presetId === "night" || record.presetId === "custom"
     ? record.presetId
     : "custom";
+  const extraSections = normalizeSiteExtraSections(record.extraSections);
+  const fallbackLayout = record.sectionOrder === "gallery-first" ? ["gallery", "services"] : ["services", "gallery"];
   return {
     presetId,
     navy: cleanHex(record.navy, DEFAULT_SITE_THEME.navy),
@@ -240,6 +300,8 @@ export function normalizeSiteTheme(value: unknown): SiteTheme {
     sectionOrder: record.sectionOrder === "gallery-first" ? "gallery-first" : "services-first",
     showServices: record.showServices !== false,
     showGallery: record.showGallery !== false,
+    extraSections,
+    sectionLayout: normalizeSiteSectionLayout(record.sectionLayout ?? fallbackLayout, extraSections),
   };
 }
 

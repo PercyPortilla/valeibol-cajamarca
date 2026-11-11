@@ -33,20 +33,21 @@ test("estudio y endpoints exigen ADMIN global y scope exacto de Supabase", () =>
   assert.match(scopedHelper, /get_current_admin_context/);
   assert.match(scopedHelper, /row\.business_id === businessId && row\.role === "admin"/);
   assert.match(saveRoute, /await getScopedPageBuilderClient\(businessId\)/);
-  assert.match(saveRoute, /admin_update_site_content/);
-  assert.match(saveRoute, /updated\.business_id !== businessId/);
+  assert.match(saveRoute, /platform_page_builder_save_draft/);
+  assert.match(saveRoute, /platform_page_builder_publish_draft/);
+  assert.match(saveRoute, /platform_page_builder_restore_revision/);
   assert.doesNotMatch(saveRoute + mediaRoute, /service_role|SERVICE_ROLE|createAdminClient/);
   assert.match(mediaRoute, /getScopedPageBuilderClient\(businessId\)/);
 });
 
 test("editor tiene herramientas, vista móvil y guardado de contenido", () => {
-  for (const label of ["Portada", "Secciones", "Imágenes", "Estilo", "Escritorio", "Móvil", "Guardar cambios", "vista previa"]) {
+  for (const label of ["Portada", "Secciones", "Imágenes", "Estilo", "Escritorio", "Móvil", "Guardar borrador", "vista previa"]) {
     assert.match(studio, new RegExp(label, "i"));
   }
   assert.match(studio, /fetch\(endpoint/);
   assert.match(studio, /\/media/);
   assert.match(studio, /theme\.pageHeadline/);
-  assert.match(studio, /theme\.sectionOrder/);
+  assert.match(studio, /visibleLayout/);
   assert.match(studio, /isPublishedCandidate/);
   assert.match(studio, /Canchas y publicación/);
 });
@@ -65,7 +66,7 @@ test("el JSON editorial mantiene colores válidos y límites seguros", () => {
   assert.match(tenantEditor, /setTheme\(\(current\) => \(\{ \.\.\.current, \.\.\.preset\.theme \}\)\)/);
   assert.match(publicPage, /siteContent\.theme\.pageHeadline/);
   assert.match(publicPage, /siteContent\.theme\.pageIntro/);
-  assert.match(publicPage, /siteContent\.theme\.sectionOrder/);
+  assert.match(publicPage, /siteContent\.theme\.sectionLayout/);
   assert.match(publicPage, /siteContent\.theme\.showServices/);
   assert.match(publicPage, /siteContent\.theme\.showGallery/);
 });

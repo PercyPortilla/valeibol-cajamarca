@@ -466,3 +466,19 @@
   .site-theme--caxas-child .site-nav--commercial > a { transition: none !important; }
   .platform-public-premium--complex .platform-court-card:hover { transform: none; }
 }
+/* CAXAS STUDIO V2 — bloques editoriales del tenant, sin contaminar la marca madre. */
+.platform-public-premium--complex .platform-custom-section { padding-block: clamp(18px, 3vw, 45px); }
+.platform-public-premium--complex .platform-custom-section__panel {
+  display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr);
+  gap: clamp(20px, 4vw, 58px); align-items: center;
+  padding: clamp(24px, 4vw, 58px);
+  border: 1px solid var(--brand-border, rgba(255,255,255,.17)); border-radius: 20px;
+  background: var(--brand-surface, #fff); color: var(--brand-text, #172a40);
+}
+.platform-public-premium--complex .platform-custom-section__panel:not(:has(.platform-custom-section__image)) { grid-template-columns: minmax(0,1fr); }
+.platform-public-premium--complex .platform-custom-section__copy h2 { max-width: 680px; font-size: clamp(25px,3.2vw,43px); margin: 10px 0 15px; letter-spacing: -.045em; color: var(--brand-text, #182b42); }
+.platform-public-premium--complex .platform-custom-section__copy p { max-width: 670px; color: var(--brand-muted, #596274); line-height: 1.7; white-space: pre-line; margin-bottom: 20px; }
+.platform-public-premium--complex .platform-custom-section__image { min-height: 220px; aspect-ratio: 1.35; background-position: center; background-size: cover; border-radius: 12px; }
+@media(max-width:700px) {
+  .platform-public-premium--complex .platform-custom-section__panel { grid-template-columns: minmax(0,1fr); }
+}
