@@ -1,4 +1,4 @@
-// Chrome DevTools Protocol · solo lectura · página pública en localhost.
+// Chrome DevTools Protocol · solo lectura · página pública (local o producción).
 // No utiliza credenciales, no crea reservas ni modifica la base de datos.
 import fs from "node:fs";
 import path from "node:path";
@@ -35,6 +35,54 @@ function cmd(method, params = {}) {
 await cmd("Page.enable");
 await cmd("Runtime.enable");
 
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+async function evaluate(expression) {
+  const result = await cmd("Runtime.evaluate", { expression, returnByValue: true });
+  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || "Error en el navegador");
+  return result.result.value;
+}
+async function waitFor(expression, attempts = 45) {
+  for (let i = 0; i < attempts; i++) {
+    await pause(600);
+    if (await evaluate(expression)) return true;
+  }
+  return false;
+}
+
+async function inspectSportSelection(slug) {
+  const clicked = await evaluate(`(() => {
+    const label = ${JSON.stringify(slug)} === 'futbol' ? /f[uú]tbol/i : /v[oó]ley/i;
+    const button = [...document.querySelectorAll('.availability-sport-choice button')]
+      .find((element) => label.test(element.textContent || ''));
+    if (!button) return false;
+    button.click();
+    return true;
+  })()`);
+  if (!clicked) return { clicked: false };
+  await pause(450);
+  return evaluate(`(() => {
+    const label = ${JSON.stringify(slug)} === 'futbol' ? /f[uú]tbol/i : /v[oó]ley/i;
+    const buttons = [...document.querySelectorAll('.availability-sport-choice button')];
+    const chosen = buttons.find((element) => label.test(element.textContent || ''));
+    const links = [...document.querySelectorAll('.desktop-week a.slot-cta[href]')];
+    const messages = links.map((element) => {
+      try { return new URL(element.href).searchParams.get('text') || ''; }
+      catch { return ''; }
+    });
+    return {
+      clicked: true,
+      selected: chosen?.getAttribute('aria-pressed') === 'true',
+      selectedCount: buttons.filter((button) => button.getAttribute('aria-pressed') === 'true').length,
+      court: document.querySelector('.platform-reservation-hero__copy')?.innerText.includes('Campo 1') ?? false,
+      agenda: document.querySelector('.desktop-week')?.innerText ?? '',
+      availableLinks: links.length,
+      whatsappCorrect: messages.length ? messages.every((message) =>
+        message.includes('Campo 1 (' + ${JSON.stringify(slug)} + ')') &&
+        message.includes('¿Podrían confirmar disponibilidad y tarifa?')) : null,
+    };
+  })()`);
+}
+
 let failed = false;
 for (const scene of [
   { id: "portada-desktop", path: business, width: 1440 },
@@ -44,14 +92,24 @@ for (const scene of [
   await cmd("Emulation.setDeviceMetricsOverride", { width: scene.width, height: 980, mobile: scene.width <= 390, deviceScaleFactor: 1 });
   await cmd("Page.navigate", { url: root + scene.path });
   // Next App Router transmite primero un skeleton; esperar la vista REAL, no solo HTTP 200.
-  let loaded = false;
-  for (let attempt = 0; attempt < 35; attempt++) {
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    const readiness = await cmd("Runtime.evaluate", {
-      expression: "Boolean(document.querySelector('.business-site-header') && document.querySelector('main h1'))",
-      returnByValue: true,
-    });
-    if (readiness.result.value === true) { loaded = true; break; }
+  const loaded = await waitFor("Boolean(document.querySelector('.business-site-header') && document.querySelector('main h1'))");
+  // La cabecera puede estar lista antes de que se hidrate el calendario cliente.
+  const hydrated = scene.id !== "consulta-desktop" || (loaded && await waitFor(
+    "document.querySelectorAll('.availability-sport-choice button').length === 2",
+  ));
+  let sportProbe = null;
+  if (scene.id === "consulta-desktop" && hydrated) {
+    const voley = await inspectSportSelection("voley");
+    const futbol = await inspectSportSelection("futbol");
+    const bothHaveLinks = voley.availableLinks > 0 && futbol.availableLinks > 0;
+    sportProbe = {
+      sports: ["voley", "futbol"],
+      selectionWorks: voley.selected && futbol.selected && voley.selectedCount === 1 && futbol.selectedCount === 1,
+      samePhysicalCourt: voley.court && futbol.court && voley.agenda === futbol.agenda,
+      availableLinks: { voley: voley.availableLinks, futbol: futbol.availableLinks },
+      whatsappVerified: bothHaveLinks ? voley.whatsappCorrect && futbol.whatsappCorrect : null,
+      whatsappNote: bothHaveLinks ? "Mensajes de ambos deportes validados" : "Sin enlaces consultables en la semana actual; no se verifica mensaje",
+    };
   }
   const response = await cmd("Runtime.evaluate", {
     expression: `(() => ({
@@ -80,13 +138,14 @@ for (const scene of [
   const image = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
   const file = path.join(out, scene.id + ".png");
   fs.writeFileSync(file, Buffer.from(image.data, "base64"));
-  const good = loaded && details.url === scene.path.split("?")[0]
+  const good = loaded && hydrated && details.url === scene.path.split("?")[0]
     && !details.headerCaxas
     && details.header.includes("Sebastián")
     && details.scrollWidth <= details.width + 1
-    && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true);
+    && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
+    && (scene.id === "consulta-desktop" ? sportProbe?.selectionWorks && sportProbe?.samePhysicalCourt && sportProbe?.whatsappVerified !== false : true);
   if (!good) failed = true;
-  console.log(JSON.stringify({ pass: good, file, ...details }));
+  console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, ...details }));
 }
 ws.close();
 await fetch(`${inspector}/json/close/${target.id}`).catch(() => {});

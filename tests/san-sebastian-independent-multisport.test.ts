@@ -12,6 +12,8 @@ const header = read("components/platform/BusinessSiteHeader.tsx");
 const footer = read("components/platform/BusinessSiteFooter.tsx");
 const styles = read("app/styles/caxas-business-independent-2026.css");
 const calendar = read("components/availability/AvailabilityCalendar.tsx");
+const adminCourtSports = read("components/admin/AdminCourtSportSettings.tsx");
+const browserQa = read("scripts/qa-san-sebastian-identity.mjs");
 
 const voley: PlatformCatalogItem = {
   businessId: "business-1", businessSlug: "polideportivo-san-sebastian",
@@ -84,4 +86,21 @@ test("paleta del escudo verde bosque/lima mantiene contraste legible", () => {
   for (const token of ["#082819", "#a1c92f", "#f5f8ee"]) {
     assert.match(styles.toLowerCase(), new RegExp(token.toLowerCase()));
   }
+});
+
+test("el administrador no permite sobrescribir deportes si la carga falla o cambia de campo", () => {
+  assert.match(adminCourtSports, /setLoadedCourtId\(courtId\)/);
+  assert.match(adminCourtSports, /loadFailed \|\| loadedCourtId !== courtId\) return/);
+  assert.match(adminCourtSports, /Por seguridad no se pueden guardar cambios/);
+  assert.match(adminCourtSports, /Reintentar carga/);
+  assert.match(adminCourtSports, /disabled=\{isPrimary \|\| !canManage \|\| busy\}/);
+  assert.match(adminCourtSports, /admin_update_court_sport_settings/);
+});
+
+test("el QA de producción espera calendario hidratado y prueba ambos mensajes de WhatsApp", () => {
+  assert.match(browserQa, /waitFor\(/);
+  assert.match(browserQa, /availability-sport-choice button/);
+  assert.match(browserQa, /inspectSportSelection\("voley"\)/);
+  assert.match(browserQa, /inspectSportSelection\("futbol"\)/);
+  assert.match(browserQa, /whatsappVerified/);
 });
