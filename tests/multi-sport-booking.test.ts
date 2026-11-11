@@ -37,10 +37,11 @@ test("proxy y Edge permiten null pero siguen rechazando alturas fuera de rango",
 test("flujo booking exige negocio/cancha/deporte explícitos y no vuelve silenciosamente a vóley", () => {
   assert.match(calendar, /businessSlug: string;/);
   assert.match(calendar, /initialCourtId: string \| null;/);
-  assert.match(calendar, /courtSports: Record<string, string>;/);
+  assert.match(calendar, /courtSports: Record<string, \{ slug: string; name: string \}\[]>;/);
   assert.doesNotMatch(calendar, /businessSlug = businessConfig\.slug/);
   assert.doesNotMatch(calendar, /\?\? "voley"/);
-  assert.match(calendar, /const sportSlug = courtSports\[activeCourt\.courtId\];/);
+  assert.match(calendar, /const sportSlug = activeCourtSports\.some/);
+  assert.match(calendar, /setSelectedSportSlug\(sport\.slug\)/);
 });
 
 test("rutas global y legacy parametrizan el calendario sin depender de defaults internos", () => {

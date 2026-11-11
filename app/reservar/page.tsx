@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import { AvailabilityCalendar } from "@/components/availability/AvailabilityCalendar";
 import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
+import { BusinessSiteHeader } from "@/components/platform/BusinessSiteHeader";
+import { BusinessSiteFooter } from "@/components/platform/BusinessSiteFooter";
 import { getPublicPlatformCatalog } from "@/lib/data/platformService";
 import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
+import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
+import { themeCssVariables } from "@/lib/siteContent";
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,6 +27,7 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
   const params = await searchParams;
   const businessSlug = first(params.negocio).trim();
   const requestedCourtId = first(params.cancha).trim();
+  const requestedSportSlug = first(params.deporte).trim();
 
   if (!businessSlug) {
     return (
@@ -48,12 +54,27 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
     : catalog[0];
   if (!selectedCourt) notFound();
 
-  const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
-  const publicContact = await getPublicBusinessContact(selectedCourt.businessSlug);
+  const courtSports: Record<string, { slug: string; name: string }[]> = {};
+  for (const item of catalog) {
+    const choices = courtSports[item.courtId] ?? [];
+    if (!choices.some((sport) => sport.slug === item.sportSlug)) {
+      choices.push({ slug: item.sportSlug, name: item.sportName });
+    }
+    courtSports[item.courtId] = choices;
+  }
+  const selectedSport = courtSports[selectedCourt.courtId]?.find((sport) => sport.slug === requestedSportSlug)
+    ?? courtSports[selectedCourt.courtId]?.[0];
+  const sportNames = [...new Set(catalog.map((item) => item.sportName))];
+  const [publicContact, siteContent] = await Promise.all([
+    getPublicBusinessContact(selectedCourt.businessSlug),
+    getPublicSiteContent(selectedCourt.businessSlug),
+  ]);
 
   return (
-    <div className="platform-page platform-public-premium platform-public-premium--reservation">
-      <PlatformHeader premium />
+    <div className="platform-page site-theme platform-public-premium platform-public-premium--reservation tenant-reservation"
+      style={themeCssVariables(siteContent.theme) as CSSProperties} data-business-slug={selectedCourt.businessSlug}>
+      <BusinessSiteHeader businessName={selectedCourt.businessName} businessSlug={selectedCourt.businessSlug}
+        logoUrl={selectedCourt.logoUrl} sports={sportNames} reservation />
       <main id="platform-main" tabIndex={-1}>
         <section className="platform-reservation-hero">
           <div className="shell platform-reservation-hero__grid">
@@ -64,7 +85,7 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
               <span className="eyebrow">CONSULTA POR WHATSAPP</span>
               <h1>Encuentra el momento para jugar.</h1>
               <p className="platform-reservation-hero__lead">{selectedCourt.businessName}</p>
-              <p>{selectedCourt.venueName} · {selectedCourt.courtName} · {selectedCourt.sportName}</p>
+              <p>{selectedCourt.venueName} · {selectedCourt.courtName} · {selectedSport?.name ?? selectedCourt.sportName}</p>
               <p>Consulta los bloques horarios y coordina directamente con el negocio. No necesitas crear una cuenta.</p>
             </div>
             <aside className="platform-reservation-process" aria-label="Cómo consultar tu horario">
@@ -90,12 +111,14 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
               businessTimezone={selectedCourt.businessTimezone}
               initialCourtId={selectedCourt.courtId}
               courtSports={courtSports}
+              initialSportSlug={selectedSport?.slug ?? selectedCourt.sportSlug}
               contactPhoneE164={publicContact.phoneE164}
             />
           </div>
         </section>
       </main>
-      <PlatformFooter />
+      <BusinessSiteFooter businessName={selectedCourt.businessName} businessSlug={selectedCourt.businessSlug}
+        logoUrl={selectedCourt.logoUrl} sports={sportNames} />
     </div>
   );
 }

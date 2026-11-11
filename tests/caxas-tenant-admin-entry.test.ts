@@ -18,10 +18,12 @@ test("cada hijo tiene su propia entrada administrativa y el retorno de login es 
 test("la página hija dispone de enlace específico sin enviar a la madre", () => {
   const footer = source("components/site/Footer.tsx");
   const tenantFooter = source("components/platform/PlatformFooter.tsx");
+  const businessFooter = source("components/platform/BusinessSiteFooter.tsx");
   const detail = source("app/complejo/[slug]/page.tsx");
   assert.match(footer, /\/complejo\/\$\{businessConfig\.slug\}\/administrar/);
   assert.match(tenantFooter, /businessSlug \? .*administrar/);
-  assert.match(detail, /<PlatformFooter businessSlug=\{slug\}/);
+  assert.match(detail, /<BusinessSiteFooter businessName=\{business\.name\}/);
+  assert.match(businessFooter, /\$\{root\}\/administrar/);
 });
 
 test("el ingreso respeta el negocio solicitado y comprueba permisos en el servidor", () => {

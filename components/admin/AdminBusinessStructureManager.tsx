@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { AdminCourtHoursEditor } from "@/components/admin/AdminCourtHoursEditor";
+import { AdminCourtSportSettings } from "@/components/admin/AdminCourtSportSettings";
 import type { AdminBusinessStructure, AdminInventoryCourt, AdminInventoryVenue } from "@/lib/admin/inventory";
 import type { Json } from "@/lib/data/supabase/database.types";
 import { createPublicBrowserSupabaseClient } from "@/lib/data/supabase/browser";
@@ -181,6 +182,8 @@ function CourtEditor({ court, currentVenueId, venues, sports, businessToday, can
       </div>
       {canManage ? <div className="admin-structure-actions"><Button type="button" variant="secondary" disabled={busy} onClick={() => void saveIdentity()}>Guardar datos</Button><Button type="button" variant="ghost" disabled={busy} onClick={() => void toggle()}>{court.isActive ? "Desactivar" : "Activar"}</Button></div> : null}
       <FeedbackMessage feedback={feedback} />
+      <AdminCourtSportSettings courtId={court.courtId} primarySportId={court.sportId}
+        sports={sports} canManage={canManage} onSaved={onSaved} />
       {canManage ? (
         <div className="admin-structure-correction">
           <div><strong>Corregir alta de la cancha</strong><p>Solo antes del historial operativo. Debes retirar el negocio de publicación y desactivar la cancha.</p></div>

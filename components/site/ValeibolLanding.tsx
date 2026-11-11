@@ -30,8 +30,8 @@ export async function ValeibolLanding() {
   const businessLogoUrl = catalog[0]?.logoUrl ?? null;
   const ratingAverage = catalog[0]?.ratingAverage ?? null;
   const reviewCount = catalog[0]?.reviewCount ?? 0;
-  const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, item.sportSlug]));
-  if (catalog.length === 0) courtSports[demoCourt.id] = "voley";
+  const courtSports = Object.fromEntries(catalog.map((item) => [item.courtId, [{ slug: item.sportSlug, name: item.sportName }]]));
+  if (catalog.length === 0) courtSports[demoCourt.id] = [{ slug: "voley", name: "Vóley" }];
   const services = siteContent.services.filter((service) => service.isVisible);
   const configuredGalleryItems = siteContent.gallery.filter((item) => item.isVisible && item.imageUrl);
   const galleryItems = siteContent.source === "default" ? [

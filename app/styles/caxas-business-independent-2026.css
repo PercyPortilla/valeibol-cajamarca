@@ -1,0 +1,145 @@
+/* Sitio de cada negocio: cabecera y pie independientes de la marca madre. */
+.business-site-header {
+  position: relative;
+  z-index: 20;
+  border-bottom: 1px solid color-mix(in srgb,var(--brand-yellow) 34%,#092517);
+  background: var(--brand-navy,#081f16);
+  color: #fff;
+}
+.business-site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 30px; min-height: 96px; padding-block: 15px; }
+.business-site-header__brand { display: flex; align-items: center; gap: 14px; min-width: 0; max-width: 510px; text-decoration: none; color: #fff; }
+.business-site-header__logo { flex: 0 0 auto; width: 68px; height: 68px; overflow: hidden; display: grid; place-items: center; border: 2px solid rgba(255,255,255,.78); border-radius: 16px; background: #fff; box-shadow: 0 7px 22px #020f095c; }
+.business-site-header__logo img { width: 100%; height: 100%; object-fit: contain; }
+.business-site-header__monogram { flex: 0 0 62px; width: 62px; height: 62px; display: grid; place-items: center; border: 2px solid var(--brand-yellow); border-radius: 17px; font-size: 32px; font-weight: 900; color: var(--brand-yellow); }
+.business-site-header__identity { display: grid; gap: 6px; min-width: 0; }
+.business-site-header__identity strong { color: #fff; font-size: clamp(16px,1.65vw,23px); line-height: 1.13; font-weight: 900; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.business-site-header__identity small { color: #bed9bd; font-size: 11px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+.business-site-header__nav { display: flex; align-items: center; justify-content: flex-end; gap: clamp(12px,2.1vw,31px); flex-wrap: wrap; }
+.business-site-header__nav a { color: #f3faef; font-size: 13px; font-weight: 760; text-decoration: none; min-height: 43px; display: inline-flex; align-items: center; gap: 9px; }
+.business-site-header__nav a:hover { color: #caea88; }
+.business-site-header__nav .business-site-header__primary { padding: 13px 18px; border-radius: 10px; background: #add340; color: #092919; box-shadow: 0 7px 22px rgba(0,0,0,.18); }
+.business-site-header__nav .business-site-header__primary:hover { color: #092919; background: #c0e45d; }
+.business-site-header :is(a,button):focus-visible { outline: 3px solid #e2ffab; outline-offset: 3px; }
+
+.business-site-footer { padding: 33px 0; border-top: 1px solid color-mix(in srgb,var(--brand-yellow) 25%,var(--brand-navy)); background: var(--brand-navy,#0a2318); color: #fff; }
+.business-site-footer__inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 25px; }
+.business-site-footer__identity { display: flex; align-items: center; gap: 13px; }
+.business-site-footer__identity img { border-radius: 10px; background: #fff; object-fit: contain; }
+.business-site-footer__identity span { display: grid; gap: 5px; }
+.business-site-footer__identity strong { color: #f7fef4; font-size: 16px; font-weight: 850; }
+.business-site-footer__identity small { color: #bfd4b8; font-size: 11px; }
+.business-site-footer nav { display: flex; gap: 15px 22px; flex-wrap: wrap; }
+.business-site-footer nav a { font-size: 12px; color: #d2e2c9; text-decoration: none; font-weight: 700; }
+.business-site-footer nav a:hover { color: #c0e45d; }
+
+.business-court-sports { display: flex; flex-wrap: wrap; gap: 6px; }
+.business-court-sports .badge { border: 1px solid color-mix(in srgb,var(--brand-yellow) 32%,#1c4a24); background: #eaf4d1; color: #24451a; font-weight: 850; }
+.business-court-pending { color: #536550; font-size: 12px; font-weight: 750; }
+.platform-public-premium--complex .platform-court-card__head { align-items: flex-start; }
+
+/* San Sebastián · verde bosque, lima y crema tomados del escudo real. */
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] {
+  --tenant-accent: #a1c92f;
+  --tenant-forest: #082819;
+  --tenant-dark: #061c11;
+  --tenant-paper: #f5f8ee;
+  background: var(--tenant-paper);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero {
+  min-height: clamp(540px,57vw,685px);
+  background: radial-gradient(circle at 86% 5%,rgba(161,201,47,.23),transparent 37%),linear-gradient(128deg,#061c11,#133622 80%);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero--image::before {
+  background: linear-gradient(91deg,rgba(3,21,12,.99) 3%,rgba(5,32,17,.95) 38%,rgba(8,40,23,.7) 72%,rgba(6,29,18,.58)),linear-gradient(0deg,rgba(3,21,12,.92),transparent 36%);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__grid {
+  align-items: center;
+  gap: clamp(24px,4vw,65px);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy { max-width: 850px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-live-label { color: #d2efa0; font-size: 11px; letter-spacing: .14em; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-live-label i { background: #addb48; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row h1 {
+  max-width: 800px; margin: 12px 0 20px; color: #fff; font-size: clamp(43px,6.8vw,92px); line-height: .99; font-weight: 950; letter-spacing: -.065em; text-transform: none; text-wrap: balance;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero p { color: #d9e9d4; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__intro { max-width: 650px; color: #e0ecd9; font-size: clamp(15px,1.5vw,19px); line-height: 1.65; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__chips span { transform: none; padding: 10px 14px; border: 1px solid #7d9e48; border-radius: 999px; background: rgba(20,54,30,.73); color: #f4ffe5; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary { flex-direction: column; flex: 0 0 168px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary div { border: 1px solid rgba(196,236,123,.36); background: rgba(6,29,16,.82); border-radius: 17px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary strong { color: #d8fc9d; font-size: 43px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary span { color: #d8e7cb; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-contact .platform-whatsapp-contact,
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button--primary {
+  border: 1px solid #a1c92f; border-radius: 10px; background: #a1c92f; color: #062515; font-weight: 880;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-contact .platform-whatsapp-contact:hover,
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button--primary:hover { background: #bce65a; color: #062515; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-contact__secondary { color: #e4f8cf; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-section { background: #f5f8ee; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-venues { padding-block: clamp(65px,7vw,105px); }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-section__heading .eyebrow { color: #54732d; letter-spacing: .15em; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-section__heading h2 { color: #103220; text-transform: none; font-weight: 890; font-size: clamp(30px,4.5vw,56px); letter-spacing: -.054em; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-section__heading p { color: #4b6051; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-venue-card {
+  background: #fff; border: 1px solid #d3ddc3; border-radius: 21px; box-shadow: 0 18px 55px rgba(12,51,23,.08);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-venue-card h3 { color: #133824; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(14px,2vw,25px); }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card {
+  gap: 15px; padding: clamp(21px,2.6vw,35px); border: 1px solid #cfd9c3; border-top: 5px solid #8cb926; border-radius: 16px; background: linear-gradient(145deg,#fff,#f5f9ee); box-shadow: none; min-height: 248px;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card h4 { color: #0f3520; font-size: clamp(26px,3vw,39px); font-weight: 880; letter-spacing: -.05em; text-transform: none; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card p { color: #445b47; font-size: 14px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button { justify-self: start; padding: 13px 22px; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button--secondary { background: #fff; color: #194b2a; border: 1.5px solid #6b8e46; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button--secondary:hover { background: #ebf4dc; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-service-card,
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-gallery-card { border-color: #cbd8bc; border-radius: 17px; background: #fff; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-service-card :is(h3,p) { color: #23442c; }
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-service-card__icon { background: #e5f2ce; color: #315f1d; }
+
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] { background: #f5f8ee; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero { background: radial-gradient(circle at 80% 0%,rgba(161,201,47,.18),transparent 42%),linear-gradient(110deg,#092818,#17452a); }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-hero :is(h1,p) { color: #f4ffed; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-process { border-color: #88ab65; background: #102f21; }
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .platform-reservation-section { background: #f5f8ee; }
+.tenant-reservation .availability-sport-choice { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; padding: 12px 0 19px; }
+.tenant-reservation .availability-sport-choice strong { font-size: 13px; color: #203c26; margin-right: 4px; }
+.tenant-reservation .availability-sport-choice button { padding: 10px 17px; border: 1.5px solid #87a778; border-radius: 10px; background: #fff; color: #1c4229; font-weight: 800; cursor: pointer; }
+.tenant-reservation .availability-sport-choice button.availability-sport-choice__active { color: #fff; background: #1c5530; border-color: #1c5530; }
+.tenant-reservation .availability-sport-choice small { flex: 1 1 100%; color: #51644f; font-size: 11px; }
+
+/* Ajustes de deportes compartidos dentro del centro de gestión del propietario. */
+.admin-court-sports { display: grid; gap: 14px; padding: 18px; border: 1px solid #b9c9ab; border-radius: 14px; background: #f8fbf2; }
+.admin-court-sports > div:first-child strong { color: #173a24; font-size: 14px; }
+.admin-court-sports__help { color: #4d624f; font-size: 12px; line-height: 1.6; margin: 3px 0 0; }
+.admin-court-sports__options { display: flex; flex-wrap: wrap; gap: 10px; }
+.admin-court-sports__options label { display: flex; align-items: center; gap: 9px; padding: 9px 13px; border: 1px solid #aab89f; border-radius: 9px; background: #fff; color: #223c27; font-size: 12px; font-weight: 760; }
+.admin-court-sports__visibility { display: flex; align-items: flex-start; gap: 9px; max-width: 780px; color: #334c36; font-size: 12px; line-height: 1.5; }
+.admin-court-sports input { width: 18px; height: 18px; accent-color: #2e743e; flex: 0 0 auto; }
+.admin-court-sports .button { justify-self: start; }
+
+@media (max-width: 960px) {
+  .business-site-header__inner { flex-wrap: wrap; gap: 10px; }
+  .business-site-header__nav { justify-content: flex-start; width: 100%; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary { flex-direction: row; flex-basis: auto; }
+}
+@media (max-width: 700px) {
+  .business-site-header__inner { padding-block: 12px; }
+  .business-site-header__logo { width: 54px; height: 54px; border-radius: 12px; }
+  .business-site-header__identity strong { font-size: 16px; }
+  .business-site-header__identity small { font-size: 9px; }
+  .business-site-header__nav { gap: 6px 15px; }
+  .business-site-header__nav a { min-height: 42px; font-size: 12px; }
+  .business-site-header__nav .business-site-header__primary { padding: 10px 12px; }
+  .business-site-footer__inner { align-items: flex-start; flex-direction: column; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy { width: 100%; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-title-row h1 { font-size: clamp(37px,9vw,56px); }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-grid { grid-template-columns: minmax(0,1fr); }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-summary { flex: 1; width: 100%; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .business-site-header *, .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] * { scroll-behavior: auto; transition: none !important; }
+}

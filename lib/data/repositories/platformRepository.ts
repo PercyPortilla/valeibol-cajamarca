@@ -68,6 +68,7 @@ export type PlatformCourtDetail = {
   sportId: string;
   sportSlug: string;
   sportName: string;
+  sports: { slug: string; name: string }[];
   priceFrom: number | null;
   currency: string;
 };
@@ -202,7 +203,8 @@ export function buildBusinessDetail(items: PlatformCatalogItem[], slug: string):
       courts: [],
     };
 
-    if (!venue.courts.some((court) => court.id === item.courtId)) {
+    const currentCourt = venue.courts.find((court) => court.id === item.courtId);
+    if (!currentCourt) {
       venue.courts.push({
         id: item.courtId,
         slug: item.courtSlug,
@@ -211,9 +213,12 @@ export function buildBusinessDetail(items: PlatformCatalogItem[], slug: string):
         sportId: item.sportId,
         sportSlug: item.sportSlug,
         sportName: item.sportName,
+        sports: [{ slug: item.sportSlug, name: item.sportName }],
         priceFrom: item.priceFrom,
         currency: item.currency,
       });
+    } else if (!currentCourt.sports.some((sport) => sport.slug === item.sportSlug)) {
+      currentCourt.sports.push({ slug: item.sportSlug, name: item.sportName });
     }
     venues.set(item.venueId, venue);
   }

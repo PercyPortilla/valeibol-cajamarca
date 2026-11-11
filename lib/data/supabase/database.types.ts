@@ -101,6 +101,19 @@ export type Database = {
           currency: string;
         }>;
       };
+      get_public_business_showcase: {
+        Args: { p_business_slug: string };
+        Returns: Array<{
+          venue_id: string;
+          court_id: string;
+          court_slug: string;
+          court_name: string;
+          is_bookable: boolean;
+          sports: Json;
+          price_from: number | string | null;
+          currency: string;
+        }>;
+      };
       get_public_pricing_for_date: {
         Args: { p_business_slug: string; p_date: string };
         Returns: Array<{
@@ -1156,6 +1169,22 @@ export type Database = {
       admin_update_court_identity: {
         Args: { p_court_id: string; p_name: string; p_surface: string | null };
         Returns: boolean;
+      };
+      admin_get_court_sport_settings: {
+        Args: { p_court_id: string };
+        Returns: Array<{ sport_id: string | null; showcase_visible: boolean }>;
+      };
+      admin_set_court_extra_sports: {
+        Args: { p_court_id: string; p_sport_ids: string[] };
+        Returns: undefined;
+      };
+      admin_set_court_showcase: {
+        Args: { p_court_id: string; p_visible: boolean };
+        Returns: undefined;
+      };
+      admin_update_court_sport_settings: {
+        Args: { p_court_id: string; p_sport_ids: string[]; p_visible: boolean };
+        Returns: undefined;
       };
       admin_update_court_structure: {
         Args: { p_court_id: string; p_venue_id: string; p_sport_id: string; p_slug: string };

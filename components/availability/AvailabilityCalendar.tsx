@@ -25,7 +25,8 @@ type AvailabilityCalendarProps = {
   businessName: string;
   businessTimezone: string;
   initialCourtId: string | null;
-  courtSports: Record<string, string>;
+  courtSports: Record<string, { slug: string; name: string }[]>;
+  initialSportSlug?: string;
   contactPhoneE164: string | null;
 };
 
@@ -109,6 +110,7 @@ export function AvailabilityCalendar({
   businessTimezone,
   initialCourtId,
   courtSports,
+  initialSportSlug,
   contactPhoneE164,
 }: AvailabilityCalendarProps) {
   const repository = useMemo(() => createPublicAvailabilityRepository(), []);
@@ -116,6 +118,7 @@ export function AvailabilityCalendar({
   const [weekReference, setWeekReference] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [activeCourtId, setActiveCourtId] = useState<string | null>(null);
+  const [selectedSportSlug, setSelectedSportSlug] = useState(initialSportSlug ?? "");
   const [demoState, setDemoState] = useState<DemoState>("ready");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [snapshot, setSnapshot] = useState<AvailabilityWeekSnapshot | null>(null);
@@ -133,6 +136,13 @@ export function AvailabilityCalendar({
   useEffect(() => {
     setActiveCourtId(initialCourtId);
   }, [businessSlug, initialCourtId]);
+
+  useEffect(() => {
+    const options = courtSports[activeCourtId ?? ""] ?? [];
+    setSelectedSportSlug((current) => options.some((sport) => sport.slug === current)
+      ? current
+      : options.find((sport) => sport.slug === initialSportSlug)?.slug ?? options[0]?.slug ?? "");
+  }, [activeCourtId, courtSports, initialSportSlug]);
 
   useEffect(() => {
     if (!today || !weekReference || demoState !== "ready") return;
@@ -199,6 +209,7 @@ export function AvailabilityCalendar({
   }, [snapshotSource]);
 
   const activeCourt = snapshot?.courts.find((court) => court.courtId === activeCourtId) ?? snapshot?.courts[0];
+  const activeCourtSports = courtSports[activeCourt?.courtId ?? ""] ?? [];
   const days = activeCourt?.days ?? [];
   const selectedDay = days.find((day) => day.date === selectedDate) ?? days[0];
 
@@ -233,7 +244,8 @@ export function AvailabilityCalendar({
 
   function whatsappForSlot(slot: AvailabilitySlot) {
     if (!activeCourt || slot.status !== "available" || isPastLocalStart(slot.date, slot.start, activeCourt.timezone) || !contactPhoneE164) return null;
-    const sportSlug = courtSports[activeCourt.courtId];
+    const sportSlug = activeCourtSports.some((sport) => sport.slug === selectedSportSlug)
+      ? selectedSportSlug : activeCourtSports[0]?.slug;
     if (!sportSlug) return null;
     return buildWhatsAppChatHref(
       contactPhoneE164,
@@ -301,6 +313,15 @@ export function AvailabilityCalendar({
           ))}
         </div>
       ) : null}
+
+      {activeCourtSports.length > 1 ? <div className="availability-sport-choice" role="group" aria-label="Deporte para la consulta">
+        <strong>¿Qué deporte vas a jugar?</strong>
+        {activeCourtSports.map((sport) => <button key={sport.slug} type="button"
+          className={sport.slug === selectedSportSlug ? "availability-sport-choice__active" : ""}
+          aria-pressed={sport.slug === selectedSportSlug}
+          onClick={() => setSelectedSportSlug(sport.slug)}>{sport.name}</button>)}
+        <small>Ambos deportes comparten la disponibilidad del mismo campo físico.</small>
+      </div> : null}
 
       <div className="availability-legend" aria-label="Leyenda de disponibilidad">
         <span><i className="status-dot status-dot--available" />Disponible</span>

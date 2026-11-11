@@ -22,13 +22,15 @@ test("B86 aplica la carcasa premium a superficies de la madre sin invadir el ten
 });
 
 test("B86 reutiliza B85 sin rediseñar los shells administrativos", () => {
-  for (const source of [complex, reservation, account, recovery, owner]) assert.match(source, /<PlatformHeader premium \/>/);
+  for (const source of [account, recovery, owner]) assert.match(source, /<PlatformHeader premium \/>/);
+  for (const source of [complex, reservation]) assert.match(source, /<BusinessSiteHeader/);
   assert.doesNotMatch(css, /\.platform-public-premium[^\n{]*\.admin-shell/);
   assert.doesNotMatch(owner, /admin-shell|AdminShell/);
 });
 
 test("B86 conserva contenido y flujos públicos existentes", () => {
   assert.match(complex, /business\.venues\.map/);
+  assert.match(complex, /displayVenues\.map/);
   assert.match(complex, /PublicReviewsSection/);
   assert.match(complex, /formatMoney\(court\.priceFrom/);
   assert.match(tenant, /AvailabilityCalendar/);

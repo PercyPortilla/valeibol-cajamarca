@@ -86,8 +86,8 @@ test("breadcrumbs visibles mantienen semántica de lista y página actual", () =
   assert.match(searchPage, /aria-label="Migas de pan"/);
   assert.match(searchPage, /<ol>/);
   assert.match(searchPage, /aria-current="page">Buscar canchas/);
-  assert.match(complexPage, /aria-label="Migas de pan"/);
-  assert.match(complexPage, /aria-current="page">\{business\.name\}/);
+  assert.match(complexPage, /<StructuredData data=\{buildBusinessJsonLd\(business\)\}/);
+  assert.match(complexPage, /<BusinessSiteHeader businessName=\{business\.name\}/);
   const css = readFileSync("app/styles/globals-5.css", "utf8");
   assert.match(css, /\.platform-breadcrumbs a\s*\{[^}]*min-height:\s*44px[^}]*display:\s*inline-flex/i);
 });
