@@ -205,41 +205,38 @@ export function PlatformAdminBusinessList({ businesses, totalBusinesses, current
               <div><dt>Reservas</dt><dd>{business.reservationCount}</dd></div>
             </dl>
             <div className="global-admin-business-row__actions">
-              <Link href={`/admin-global/disenar/${business.businessId}`} className="button button--primary global-admin-business-row__design">
-                ✦ Diseñar página
-              </Link>
               <form action="/api/admin-global/select-business" method="post" className="global-admin-business-row__selection">
                 <input type="hidden" name="businessId" value={business.businessId} />
-                <button type="submit" className="button button--secondary">
-                  Administrar negocio
+                <input type="hidden" name="destination" value="workspace" />
+                <button type="submit" className="button button--primary global-admin-business-row__design">
+                  ✦ Centro completo · configurar y diseñar
                 </button>
               </form>
-              <button type="button" className="button button--secondary"
-                onClick={() => setTeamId((current)=>current===business.businessId?null:business.businessId)}>
-                {teamId===business.businessId?"Cerrar equipo":"Equipo y accesos"}
-              </button>
-              <button type="button" className="button button--secondary" disabled={Boolean(busyId) || business.configurationStatus !== "provisional"} onClick={() => setEditingId((current) => current === business.businessId ? null : business.businessId)}>
-                {editingId === business.businessId ? "Cerrar edición" : "Editar configuración"}
-              </button>
-              <button
-                type="button"
-                className="button button--secondary"
-                disabled={Boolean(busyId)}
-                onClick={() => {
-                  setEditingId(null);
-                  setRecoveryId((current) => current === business.businessId ? null : business.businessId);
-                }}
-              >
-                {recoveryId === business.businessId ? "Cerrar recuperación" : "Recuperar propietario"}
-              </button>
-              <button
-                type="button"
-                className={business.isActive ? "button button--secondary" : "button button--primary"}
-                disabled={Boolean(busyId)}
-                onClick={() => setActive(business, !business.isActive)}
-              >
-                {busyId === business.businessId ? "Actualizando…" : business.isActive ? "Desactivar" : "Activar"}
-              </button>
+              <details className="global-admin-business-row__advanced">
+                <summary>Opciones avanzadas · funciones anteriores</summary>
+                <div className="global-admin-business-row__advanced-actions">
+                  <Link href={`/admin-global/disenar/${business.businessId}`} className="button button--secondary">Diseñar página · solo visual</Link>
+                  <form action="/api/admin-global/select-business" method="post" className="global-admin-business-row__selection">
+                    <input type="hidden" name="businessId" value={business.businessId} />
+                    <button type="submit" className="button button--secondary">Administrar negocio</button>
+                  </form>
+                  <button type="button" className="button button--secondary"
+                    onClick={() => setTeamId((current)=>current===business.businessId?null:business.businessId)}>
+                    {teamId===business.businessId?"Cerrar equipo":"Equipo y accesos"}
+                  </button>
+                  <button type="button" className="button button--secondary" disabled={Boolean(busyId) || business.configurationStatus !== "provisional"} onClick={() => setEditingId((current) => current === business.businessId ? null : business.businessId)}>
+                    {editingId === business.businessId ? "Cerrar edición" : "Editar configuración"}
+                  </button>
+                  <button type="button" className="button button--secondary" disabled={Boolean(busyId)}
+                    onClick={() => { setEditingId(null); setRecoveryId((current) => current === business.businessId ? null : business.businessId); }}>
+                    {recoveryId === business.businessId ? "Cerrar recuperación" : "Recuperar propietario"}
+                  </button>
+                  <button type="button" className={business.isActive ? "button button--secondary" : "button button--primary"}
+                    disabled={Boolean(busyId)} onClick={() => setActive(business, !business.isActive)}>
+                    {busyId === business.businessId ? "Actualizando…" : business.isActive ? "Desactivar" : "Activar"}
+                  </button>
+                </div>
+              </details>
             </div>
             {business.configurationStatus !== "provisional" ? <p className="global-admin-business-row__hint">El propietario debe retirar la publicación antes de corregir slug, moneda o zona horaria.</p> : null}
             {business.configurationStatus === "provisional" ? (

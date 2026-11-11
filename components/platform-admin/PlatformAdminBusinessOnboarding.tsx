@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
@@ -149,9 +148,13 @@ export function PlatformAdminBusinessOnboarding() {
       {message ? <div className={success ? "global-admin-notice" : "auth-error"} role={success ? "status" : "alert"}>
         <p>{message}</p>
         {success && createdBusinessId ? (
-          <Link className="button button--primary" href={`/admin-global/disenar/${createdBusinessId}`}>
-            ✦ Diseñar ahora la página del negocio
-          </Link>
+          <form action="/api/admin-global/select-business" method="post">
+            <input type="hidden" name="businessId" value={createdBusinessId} />
+            <input type="hidden" name="destination" value="workspace" />
+            <button className="button button--primary" type="submit">
+              ✦ Abrir Centro de gestión · completar sede, canchas y diseño
+            </button>
+          </form>
         ) : null}
       </div> : null}
     </section>

@@ -301,6 +301,11 @@
 .global-admin-page .global-admin-business-row .button--primary { border-radius: 10px; background: #bd7aff; color: #15101c; }
 .global-admin-page .global-admin-business-row .button--primary:hover { background: #dfbbff; color: #15101c; }
 .global-admin-page .global-admin-business-row__actions .button--secondary { border-color: rgba(202,164,243,.29); color: #f0e7fa; }
+.global-admin-page .global-admin-business-row__advanced { flex: 1 1 100%; margin-top: 4px; border-top: 1px solid rgba(210,177,243,.18); }
+.global-admin-page .global-admin-business-row__advanced summary { padding: 12px 5px; cursor: pointer; color: #cfb7e9; font-size: 12px; font-weight: 780; }
+.global-admin-page .global-admin-business-row__advanced summary:hover { color: #fff; }
+.global-admin-page .global-admin-business-row__advanced-actions { display: flex; flex-wrap: wrap; gap: 9px; padding: 8px 0 5px; }
+.global-admin-page .global-admin-business-row__advanced-actions :is(.button,button) { min-height: 43px; }
 .global-admin-page .global-admin-state--active { background: #153527; color: #bdeed6; }
 .global-admin-page .global-admin-business-core-form { border-top-color: rgba(205,178,235,.18); }
 .global-admin-page .global-admin-business-core-form input { border-color: rgba(205,178,235,.24); background: #11101a; }

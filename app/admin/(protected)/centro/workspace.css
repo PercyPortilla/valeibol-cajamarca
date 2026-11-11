@@ -1,0 +1,115 @@
+.caxas-workspace {
+  --workspace-ink: #222132;
+  --workspace-muted: #55566a;
+  --workspace-line: #cbd0db;
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+  color: var(--workspace-ink);
+}
+.caxas-workspace [hidden] { display: none !important; }
+.caxas-workspace__hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  padding: clamp(22px,3vw,37px);
+  border: 1px solid #57486d;
+  border-radius: 22px;
+  color: #f7f4fd;
+  background: radial-gradient(ellipse at 88% 4%,rgba(178,115,243,.23),transparent 55%),linear-gradient(120deg,#181523,#262032);
+  box-shadow: 0 22px 40px rgba(22,17,36,.12);
+}
+.caxas-workspace__hero > div:first-child { min-width: 0; max-width: 850px; }
+.caxas-workspace__eyebrow { font-weight: 800; font-size: 10px; letter-spacing: .12em; color: #be91eb; }
+.caxas-workspace__hero h1 { margin: 10px 0 12px; color: #fff; font-size: clamp(29px,4vw,48px); line-height: 1.06; letter-spacing: -.046em; overflow-wrap: anywhere; }
+.caxas-workspace__hero p { max-width: 800px; margin: 0; color: #d7d1e1; line-height: 1.55; font-size: 14px; }
+.caxas-workspace__status { min-width: 210px; display: grid; gap: 10px; align-content: center; padding: 20px; border: 1px solid #71617f; border-radius: 15px; background: #1d1929; }
+.caxas-workspace__status strong { color: #fff; font-size: 15px; }
+.caxas-workspace__status small { color: #bfc1d0; font-size: 12px; }
+.caxas-workspace__status a { color: #e4bcff; font-size: 13px; font-weight: 770; text-decoration: underline; text-underline-offset: 4px; }
+.caxas-workspace__tabs {
+  position: sticky;
+  z-index: 8;
+  top: 0;
+  display: grid;
+  grid-template-columns: repeat(6,minmax(0,1fr));
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #c4c7d2;
+  border-radius: 17px;
+  background: #f4f3f7;
+  box-shadow: 0 12px 25px rgba(26,24,41,.08);
+}
+.caxas-workspace__tab {
+  min-width: 0; min-height: 62px;
+  display: grid; gap: 4px; align-content: center;
+  padding: 10px 12px; border: 1px solid #c6c8d0; border-radius: 11px;
+  background: #fff; color: #2c2938; text-align: left; cursor: pointer;
+}
+.caxas-workspace__tab strong { font-size: 13px; line-height: 1.2; color: inherit; }
+.caxas-workspace__tab span { font-size: 11px; color: #55576b; line-height: 1.3; }
+.caxas-workspace__tab:hover { border-color: #7d609f; background: #f7f2fb; }
+.caxas-workspace__tab--active { border-color: #51406b; background: #2c223a; color: #fff; box-shadow: inset 0 3px #c496ed; }
+.caxas-workspace__tab--active span { color: #d8cce8; }
+.caxas-workspace__panel {
+  min-width: 0;
+  padding: clamp(19px,2.8vw,30px);
+  border: 1px solid #c9cfdb;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(26,35,53,.06);
+}
+.caxas-workspace__section-head { display: grid; gap: 9px; max-width: 900px; margin-bottom: 24px; }
+.caxas-workspace__section-head > span { color: #61477d; font-size: 11px; font-weight: 900; letter-spacing: .13em; }
+.caxas-workspace__section-head h2 { margin: 0; color: #252236; font-size: clamp(24px,2.6vw,34px); line-height: 1.14; letter-spacing: -.04em; }
+.caxas-workspace__section-head p { margin: 0; color: #54576a; font-size: 13px; line-height: 1.58; }
+.caxas-workspace__progress { max-width: 940px; padding: 20px; border: 1px solid #cfcedc; border-radius: 13px; background: #f8f7fb; }
+.caxas-workspace__progress > div:first-child { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+.caxas-workspace__progress strong { color: #2d2940; }
+.caxas-workspace__progress span { color: #5b5a6e; }
+.caxas-workspace__progress-track { margin-top: 14px; height: 10px; overflow: hidden; border-radius: 99px; background: #dfe0e8; }
+.caxas-workspace__progress-track > span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg,#604481,#a36dd1); }
+.caxas-workspace__steps { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 11px; margin: 15px 0 24px; }
+.caxas-workspace__steps button { min-height: 106px; display: grid; justify-items: start; align-content: start; gap: 7px; padding: 17px; border: 1px solid #c8cbd6; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; }
+.caxas-workspace__steps b { color: #604981; font-size: 16px; }
+.caxas-workspace__steps strong { color: #292738; font-size: 14px; }
+.caxas-workspace__steps small { color: #545669; font-size: 11px; }
+.caxas-workspace__quick { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.caxas-workspace__quick > :is(button,a) { display: grid; align-content: center; gap: 8px; min-height: 112px; padding: 20px 22px; border: 1px solid #c5cbd8; border-radius: 13px; background: #f9faff; text-align: left; cursor: pointer; text-decoration: none; }
+.caxas-workspace__quick > :is(button,a):hover,
+.caxas-workspace__steps button:hover { border-color: #8b65b8; background: #f7f1fd; }
+.caxas-workspace__quick strong { color: #292739; font-size: 17px; }
+.caxas-workspace__quick span { color: #53586e; font-size: 12px; line-height: 1.5; }
+.caxas-workspace__empty { padding: 24px; border: 1px dashed #a0a2b0; border-radius: 12px; background: #f9f9fd; color: #292738; }
+.caxas-workspace__tariffs { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 12px; margin-bottom: 23px; }
+.caxas-workspace__tariffs article { display: grid; gap: 7px; padding: 18px; border: 1px solid #c9cbd7; border-radius: 13px; background: #f8f8fc; }
+.caxas-workspace__tariffs article small { color: #51556b; }
+.caxas-workspace__tariffs article strong { color: #272236; font-size: 24px; }
+.caxas-workspace__tariffs article span { color: #595a68; font-size: 12px; }
+.caxas-workspace__fineprint { color: #555c6f; font-size: 12px; line-height: 1.55; }
+.caxas-workspace__panel--studio { padding: 0; overflow: hidden; background: #111017; border-color: #504660; }
+.caxas-workspace__panel--studio .caxas-builder--embedded { min-height: 0; }
+.caxas-workspace__panel--studio .studio-workspace { padding-inline: clamp(14px,2.5vw,33px); }
+.caxas-workspace__core { display: grid; gap: 12px; padding: 21px; margin-bottom: 22px; border: 1px solid #cdc6db; border-radius: 15px; background: #f7f4fb; }
+.caxas-workspace__core h3 { margin: 5px 0; color: #29233a; }
+.caxas-workspace__core p { margin: 6px 0 0; color: #54536a; font-size: 12px; line-height: 1.5; }
+.caxas-workspace__core-form { display: grid; grid-template-columns: 1fr 115px 1fr auto; gap: 10px; align-items: end; }
+.caxas-workspace__core-form label { display: grid; gap: 7px; color: #363048; font-size: 12px; font-weight: 700; }
+.caxas-workspace__core-form input { width: 100%; min-width: 0; min-height: 46px; padding: 10px; border: 1.5px solid #a5a7b9; border-radius: 9px; background: #fff; color: #252236; }
+.caxas-workspace__core-form input:focus-visible { outline: 3px solid #9974c8; outline-offset: 2px; }
+.caxas-workspace :is(button,a):focus-visible { outline: 3px solid #9364b6; outline-offset: 3px; }
+@media(max-width:1170px) {
+  .caxas-workspace__tabs { grid-template-columns: repeat(3,minmax(0,1fr)); position: static; }
+  .caxas-workspace__core-form { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:690px) {
+  .caxas-workspace__hero { align-items: stretch; flex-direction: column; padding: 22px; }
+  .caxas-workspace__status { min-width: 0; }
+  .caxas-workspace__tabs { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; padding: 7px; }
+  .caxas-workspace__tab { min-height: 56px; }
+  .caxas-workspace__steps,.caxas-workspace__quick,.caxas-workspace__core-form { grid-template-columns: minmax(0,1fr); }
+  .caxas-workspace__panel { padding: 16px; }
+  .caxas-workspace__panel--studio { padding: 0; }
+}

@@ -42,7 +42,7 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
   business: PageBuilderBusiness;
   initialContent: SiteContent;
   initialBuilderState: PageBuilderState;
-  mode?: "global" | "tenant";
+  mode?: "global" | "tenant" | "workspace";
 }) {
   const initialWork = initialBuilderState.draft ?? initialContent;
   const [panel, setPanel] = useState<Panel>("plantillas");
@@ -326,14 +326,14 @@ export function PageBuilderStudio({ business, initialContent, initialBuilderStat
         <div className="studio-heading__actions">
           {mode === "global"
             ? <Link href="/admin-global#admin-alta-negocio" className="studio-muted-action">+ Crear otra página</Link>
-            : <Link href="/admin/configuracion" className="studio-muted-action">← Configuración del negocio</Link>}
+            : mode === "tenant" ? <Link href="/admin/centro" className="studio-muted-action">← Centro de gestión</Link> : null}
           {isPublishedCandidate ? <a href={sitePath} className="studio-muted-action" target="_blank" rel="noreferrer">Ver sitio público ↗</a> : <span className="studio-draft-state">EN PREPARACIÓN</span>}
           {mode === "global"
             ? <form action="/api/admin-global/select-business" method="post">
                 <input type="hidden" name="businessId" value={business.id}/>
                 <button className="studio-muted-action" type="submit">Canchas y publicación ↗</button>
               </form>
-            : <Link href="/admin/configuracion/estructura" className="studio-muted-action">Canchas y publicación ↗</Link>}
+            : mode === "tenant" ? <Link href="/admin/centro" className="studio-muted-action">Canchas y publicación ↗</Link> : null}
           <button className="studio-save" type="button" onClick={() => void save()} disabled={!needsSave || saving || working || Boolean(uploading)}>{saving ? "Guardando…" : needsSave ? "Guardar borrador" : "Borrador guardado"}<span aria-hidden="true">↓</span></button>
           <button className="studio-publish" type="button" onClick={() => void publish()} disabled={!canPublish}>{working ? "Procesando…" : draftPublished ? "Publicado" : "Publicar diseño ↗"}</button>
         </div>

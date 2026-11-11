@@ -29,7 +29,8 @@ test("selección de negocio protege origen y sesión ADMIN global antes de insta
   assert.match(post, /await request\.formData\(\)/);
   assert.match(post, /validPlatformBusinessId/);
   assert.match(post, /status: 303/);
-  assert.match(post, /Location: "\/admin"/);
+  assert.match(post, /body\.get\("destination"\) === "workspace" \? "\/admin\/centro" : "\/admin"/);
+  assert.match(post, /Location: destination/);
   assert.doesNotMatch(post, /NextResponse\.redirect\(new URL\("\/admin", request\.url\)/);
   assert.match(post, /response\.cookies\.set\(PLATFORM_ADMIN_BUSINESS_COOKIE, businessId/);
   assert.match(post, /sameSite: "lax"/);

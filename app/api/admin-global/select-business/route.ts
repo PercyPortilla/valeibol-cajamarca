@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
   await requirePlatformAdminContext();
   const body = await request.formData();
   const rawBusinessId = body.get("businessId");
+  // Solo destinos internos conocidos. Nunca permitir URL/redirect arbitrarios del navegador.
+  const destination = body.get("destination") === "workspace" ? "/admin/centro" : "/admin";
   const businessId = validPlatformBusinessId(typeof rawBusinessId === "string" ? rawBusinessId : null);
   if (!businessId) {
     return new NextResponse(null, { status: 303, headers: { Location: "/admin-global", "Cache-Control": "no-store" } });
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
   // lo que perdería la cookie de ámbito entre dominios.
   const response = new NextResponse(null, {
     status: 303,
-    headers: { Location: "/admin", "Cache-Control": "no-store" },
+    headers: { Location: destination, "Cache-Control": "no-store" },
   });
   response.cookies.set(PLATFORM_ADMIN_BUSINESS_COOKIE, businessId, {
     path: "/",

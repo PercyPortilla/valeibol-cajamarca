@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { schedulePricingRuleAction, type AdminActionResult } from "@/app/admin/(protected)/actions";
 import type { AdminRole } from "@/lib/auth";
 import { canPerformPhase7Operation, lightingModeLabel, type AdminPricingRule } from "@/lib/admin/phase7";
@@ -12,6 +13,7 @@ export function AdminPricingForm({ rules, role, courts: knownCourts, businessTod
   businessToday?: string;
   businessCurrency?: string;
 }) {
+  const router = useRouter();
   const courts = useMemo(() => {
     const map = new Map<string, string>();
     rules.forEach((rule) => map.set(rule.courtId, rule.courtName));
@@ -36,7 +38,7 @@ export function AdminPricingForm({ rules, role, courts: knownCourts, businessTod
     startTransition(async () => {
       const next = await schedulePricingRuleAction({ courtId, lighting, hourlyRate: parsed, effectiveFrom });
       setResult(next);
-      if (next.ok) setHourlyRate("");
+      if (next.ok) { setHourlyRate(""); router.refresh(); }
     });
   }
 

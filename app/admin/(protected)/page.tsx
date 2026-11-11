@@ -7,28 +7,49 @@ import { canPerformPhase7Operation } from "../../../lib/admin/phase7.ts";
 import { businessTodayDateKey } from "../../../lib/availability.ts";
 import { formatMoney } from "../../../lib/admin/reservations.ts";
 import { createPhase7Repository } from "../../../lib/data/phase7Service.ts";
+import { getAdminBusinessStructure } from "../../../lib/data/inventoryService.ts";
 
 export default async function AdminDashboardPage() {
   const context = await requireAdminContext();
   const today = businessTodayDateKey(new Date(), context.timezone);
   const monthFrom = `${today.slice(0, 7)}-01`;
   let metrics = null;
+  let setup = null;
   try {
     metrics = await createPhase7Repository({ local: isLocalDevAdminUserId(context.userId) }).getOperationalMetrics(monthFrom, today);
   } catch {
     // La navegación operativa permanece disponible si la consulta de métricas falla.
+  }
+  if (!isLocalDevAdminUserId(context.userId) && context.role !== "staff") {
+    try { setup = await getAdminBusinessStructure(); } catch { /* El panel conserva accesos seguros sin esta RPC. */ }
   }
 
   return (
     <>
       <header className="admin-topbar">
         <div>
-          <span className="eyebrow">RESUMEN OPERATIVO</span>
-          <h1>Operación administrativa</h1>
-          <p className="admin-subtitle">Datos reales de {context.businessName}. Los importes representan valor de reservas; la plataforma no procesa ni acredita cobros.</p>
+          <span className="eyebrow">TU PANEL / {context.businessName}</span>
+          <h1>¿Qué necesitas hacer hoy?</h1>
+          <p className="admin-subtitle">Gestiona las canchas y reservas de {context.businessName} desde aquí. Los importes muestran valor de reservas, no dinero cobrado.</p>
         </div>
         <Badge tone="success">{context.roleLabel}</Badge>
       </header>
+
+      <section className="admin-start-panel" aria-label="Accesos principales">
+        <div><span className="eyebrow">ACCESOS PRINCIPALES</span><h2>Las tareas importantes, a un clic.</h2>
+          <p>La pizarra y las reservas conservan las funciones de operación de Valeibol, con datos exclusivos de tu negocio.</p></div>
+        <div className="admin-start-panel__links">
+          <Link className="button button--primary" href="/admin/disponibilidad">Abrir pizarra semanal ↗</Link>
+          <Link className="button button--secondary" href="/admin/reservas">Gestionar reservas ↗</Link>
+          {context.role !== "staff" ? <Link className="button button--secondary" href="/admin/centro">Configurar y diseñar negocio ↗</Link> : null}
+        </div>
+      </section>
+      {setup?.configurationStatus === "provisional" && context.role !== "staff" ? (
+        <section className="admin-readiness-banner" aria-label="Configuración pendiente">
+          <div><strong>Tu negocio todavía está en preparación.</strong><p>Para hacerlo visible debes tener una sede activa, una cancha con horarios y ambas tarifas vigentes. Todo se completa desde el Centro de gestión.</p></div>
+          <Link className="button button--primary" href="/admin/centro">Completar configuración ↗</Link>
+        </section>
+      ) : null}
 
       {metrics ? (
         <div className="admin-status-grid phase7-summary-grid">

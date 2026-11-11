@@ -23,7 +23,8 @@ test("la madre separa Diseñar página de Administrar negocio y conserva alta ex
   assert.match(globalPage, /id="admin-alta-negocio"/);
   assert.match(globalPage, /PlatformAdminBusinessOnboarding/);
   assert.match(onboarding, /createdBusinessId/);
-  assert.match(onboarding, /Diseñar ahora la página/);
+  assert.match(onboarding, /Abrir Centro de gestión/);
+  assert.match(onboarding, /name="destination" value="workspace"/);
 });
 
 test("estudio y endpoints exigen ADMIN global y scope exacto de Supabase", () => {
