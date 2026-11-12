@@ -1,0 +1,144 @@
+/* San Sebastián A+D · Pizarra operativa legible, exclusiva de la sesión de este negocio. */
+.admin-content:has(.ss-admin-schedule-v3) .admin-topbar--schedule { margin-bottom: 12px; gap: 12px; }
+.admin-content:has(.ss-admin-schedule-v3) .admin-topbar--schedule h1 { font-size: clamp(27px, 3vw, 39px); }
+.admin-content:has(.ss-admin-schedule-v3) .admin-topbar--schedule .admin-subtitle { font-size: 13px; max-width: 65ch; line-height: 1.55; }
+.admin-content:has(.ss-admin-schedule-v3) .admin-week-navigation { padding: 12px 16px; margin-bottom: 12px; }
+.ss-admin-schedule-v3 { min-width: 0; gap: 12px; }
+.ss-admin-schedule-v3 .admin-command { border-radius: 19px; box-shadow: 0 12px 35px rgba(17, 58, 36, .08); }
+.ss-admin-command__compact { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 15px; align-items: center; padding: 19px 23px; background: #123e2a; color: #fff; }
+.ss-admin-command__compact > div { min-width: 0; display: grid; gap: 5px; }
+.ss-admin-command__compact .admin-command__eyebrow { color: #b8e875; font-size: 11px; }
+.ss-admin-command__compact strong { color: #fff; font-size: clamp(19px, 2vw, 27px); letter-spacing: -.035em; }
+.ss-admin-command__compact small { font-size: 12px; color: #def1d8; line-height: 1.5; }
+.ss-admin-command__compact button { border: 1px solid #a0c78b; background: #c0e28b; color: #153e24; border-radius: 11px; font: inherit; font-size: 13px; font-weight: 820; min-height: 46px; padding: 11px 16px; cursor: pointer; }
+.ss-admin-command__compact button:hover { background: #d3eea5; }
+.ss-admin-command__details { min-width: 0; }
+.ss-admin-schedule-v3 .admin-command__masthead { padding: 20px 25px; gap: 16px; }
+.ss-admin-schedule-v3 .admin-command__masthead h2 { font-size: clamp(22px, 2.2vw, 30px); margin: 5px 0; }
+.ss-admin-schedule-v3 .admin-command__metrics > div { padding: 16px; }
+.ss-admin-schedule-v3 .admin-command__metrics strong { font-size: clamp(22px, 2.3vw, 31px); }
+.ss-admin-schedule-v3 .admin-command__courts { padding: 12px 18px; }
+.ss-admin-schedule-v3 .admin-command__court { padding: 13px 16px; }
+.ss-admin-schedule-v3 .admin-command__trend { padding: 14px 20px; }
+.ss-admin-schedule-v3 .admin-command__viewbar { padding: 12px 17px; gap: 10px; }
+.ss-admin-schedule-v3 .admin-command__viewbar > span { font-size: 12px; }
+.ss-admin-schedule-v3 .admin-command__switch button { min-height: 42px; padding: 10px 17px; font-size: 13px; }
+.ss-admin-schedule-v3 .admin-schedule-legend { padding: 10px 16px; gap: 10px 17px; }
+.ss-admin-schedule-v3 .admin-schedule-legend span { font-size: 12px; }
+
+/* La agenda se prioriza: horas grandes y acciones utilizables. */
+.ss-admin-v3-board { min-width: 0; padding: clamp(13px, 2.1vw, 25px); border: 1px solid #d6e4d0; border-radius: 19px; background: #fff; display: grid; gap: 15px; box-shadow: 0 14px 36px rgba(17, 60, 38, .045); }
+.ss-admin-v3-board__top { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.ss-admin-v3-board__top h3 { margin: 6px 0 5px; color: #164a30; font-size: clamp(24px, 2.3vw, 32px); letter-spacing: -.04em; line-height: 1.1; }
+.ss-admin-v3-board__top p { margin: 0; color: #546d5e; font-size: 13px; line-height: 1.5; }
+.ss-admin-v3-board__controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.ss-admin-v3-board__arrows { display: flex; gap: 6px; }
+.ss-admin-v3-board__arrows button { min-height: 45px; padding: 8px 13px; border: 1px solid #c8dac4; border-radius: 10px; background: #f6faf2; color: #24593a; font: inherit; font-size: 12px; font-weight: 780; cursor: pointer; }
+.ss-admin-v3-board__arrows button:hover { background: #e5f3dc; }
+.ss-admin-v3-board__filter { display: grid; gap: 4px; color: #365946; font-size: 11px; font-weight: 760; }
+.ss-admin-v3-board__filter select { min-height: 45px; border: 1px solid #c8dac4; border-radius: 10px; padding: 10px 29px 10px 12px; color: #255238; background: #fff; font: inherit; font-size: 13px; }
+.ss-admin-v3-board__date-strip { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px; }
+.ss-admin-v3-board__date-strip button { min-height: 69px; display: grid; align-content: center; justify-items: center; gap: 4px; padding: 8px; border: 1px solid #d6e3d1; border-radius: 12px; color: #355d42; background: #f7faf4; cursor: pointer; }
+.ss-admin-v3-board__date-strip button span { text-transform: capitalize; font-size: 11px; }
+.ss-admin-v3-board__date-strip button strong { font-size: 15px; }
+.ss-admin-v3-board__date-strip button small { font-size: 10px; }
+.ss-admin-v3-board__date-strip button.is-current { background: #175236; border-color: #175236; color: #fff; }
+.ss-admin-v3-board__date-strip button:hover:not(.is-current) { background: #edf7e8; }
+.ss-admin-v3-board__empty { margin: 0; padding: 20px 12px; font-size: 13px; color: #647569; text-align: center; }
+.ss-admin-v3-board__footnote { margin: 2px 0 0; color: #5d7564; line-height: 1.65; font-size: 12px; }
+
+/* Día: una columna horaria y una columna ancha por campo; filas alineadas. */
+.ss-admin-daily { min-width: 0; }
+.ss-admin-daily__desktop { display: grid; column-gap: 12px; row-gap: 9px; min-width: 0; }
+.ss-admin-daily__time-head { display: grid; place-items: center; color: #54725d; font-size: 12px; font-weight: 850; letter-spacing: .07em; }
+.ss-admin-daily__court-head { min-width: 0; border-radius: 15px; border: 1px solid #cfe0c7; background: #f2f8ed; padding: 16px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+.ss-admin-daily__court-head span,.ss-admin-daily__mobile-court header span { color: #54765c; font-size: 10px; letter-spacing: .1em; font-weight: 800; }
+.ss-admin-daily__court-head h4,.ss-admin-daily__mobile-court h4 { margin: 4px 0; color: #184a31; font-size: 21px; letter-spacing: -.025em; }
+.ss-admin-daily__court-head small { font-size: 12px; color: #537462; }
+.ss-admin-court-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.ss-admin-court-actions button { min-height: 42px; border: 1px solid #9dc4a5; border-radius: 9px; background: #fff; color: #175439; padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.ss-admin-court-actions button:first-child { background: #194e34; border-color: #194e34; color: #fff; }
+.ss-admin-court-actions button:disabled { opacity: .5; cursor: wait; }
+.ss-admin-daily__hour-row { display: contents; }
+.ss-admin-daily__hour { align-self: stretch; display: grid; place-content: center; border-radius: 11px; background: #f4f7f1; color: #29533a; font-size: 15px; font-weight: 860; font-variant-numeric: tabular-nums; }
+.ss-admin-daily__cell { min-width: 0; }
+.ss-admin-daily__cell .admin-slot { height: 100%; }
+.ss-admin-daily__closed { display: grid; place-items: center; min-height: 65px; border: 1px dashed #d3dccf; border-radius: 10px; color: #788779; background: #f6f7f3; font-size: 12px; }
+.ss-admin-daily__mobile { display: none; }
+
+/* Tres días: columnas mínimas anchas y scroll interno en pantallas reducidas. */
+.ss-admin-three__scroll { overflow-x: auto; max-width: 100%; min-width: 0; padding: 2px 1px 12px; scrollbar-width: thin; }
+.ss-admin-three__grid { display: grid; grid-template-columns: repeat(3,minmax(340px,1fr)); min-width: 1020px; gap: 14px; }
+.ss-admin-three__date { min-width: 0; border: 1px solid #d4e3d0; background: #fff; border-radius: 15px; overflow: hidden; }
+.ss-admin-three__date > header { padding: 14px 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 5px 10px; background: #184d32; color: #e9f8e5; }
+.ss-admin-three__date > header span { font-size: 12px; text-transform: capitalize; }
+.ss-admin-three__date > header h4 { margin: 0; color: #fff; font-size: 17px; }
+.ss-admin-three__date > header button { border: 1px solid #b6da9a; border-radius: 9px; color: #123d26; background: #c9e99b; padding: 9px; min-height: 40px; font-size: 12px; font-weight: 750; cursor: pointer; }
+.ss-admin-three__court { padding: 14px; border-bottom: 1px solid #e1eadd; }
+.ss-admin-three__court-heading { display: grid; gap: 10px; margin-bottom: 12px; }
+.ss-admin-three__court-heading h5 { margin: 0; font-size: 17px; color: #244b35; }
+.ss-admin-three__slots { display: grid; gap: 8px; }
+
+/* Semana: siete columnas amplias que se desplazan, en lugar de reducir la fuente. */
+.ss-admin-week-scroll { min-width: 0; max-width: 100%; overflow-x: auto; padding: 5px 2px 16px; scrollbar-width: thin; }
+.ss-admin-week-scroll .admin-week-board { display: grid; grid-template-columns: repeat(7, 300px); width: max-content; min-width: 0; gap: 12px; }
+.ss-admin-week-scroll .admin-day-column__header { min-height: 71px; padding: 12px 15px; }
+.ss-admin-week-scroll .admin-day-column__slots { gap: 8px; padding: 12px; }
+.ss-admin-week-scroll .admin-day-column__header strong { font-size: 12px; }
+.ss-admin-week-scroll .admin-day-column__header span { font-size: 18px; }
+.ss-admin-schedule-v3 .admin-schedule-toolbar { gap: 12px; padding: 10px 0; }
+.ss-admin-schedule-v3 .admin-schedule-toolbar button { min-height: 44px; }
+
+/* Tipografía profesional para reservas y estados de todos los modos nuevos. */
+.admin-shell .ss-admin-schedule-v3 .admin-slot { min-height: 63px; border-radius: 12px; opacity: 1; background: #f5faf5; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--unavailable { background: #f2f4f1; color: #65736a; border-color: #dce3d9; opacity: 1; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--pending { background: #fff6e8; border-color: #e9bc78; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--confirmed { background: #edf5ff; border-color: #a6c8ec; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--blocked { background: #fff0f0; border-color: #e7b7b7; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--completed { background: #f3effb; border-color: #d4c7e7; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__toggle,.admin-shell .ss-admin-schedule-v3 .admin-slot__static { min-height: 62px; padding: 12px 13px; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; justify-content: space-between; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__head span { font-size: 14px; color: #223e2e; font-weight: 850; white-space: normal; font-variant-numeric: tabular-nums; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__head b { font-size: 12px; font-weight: 820; color: #40634e; text-align: left; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--available .admin-slot__head b { color: #217c49; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--confirmed .admin-slot__head b { color: #205e9d; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--pending .admin-slot__head b { color: #9b6418; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot--blocked .admin-slot__head b { color: #a43b40; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__summary strong { font-size: 15px; line-height: 1.35; color: #243e34; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__summary small,.admin-shell .ss-admin-schedule-v3 .admin-slot__details small { font-size: 12px; line-height: 1.5; color: #4f6858; }
+.admin-shell .ss-admin-schedule-v3 .admin-slot__context { padding: 9px 13px 13px; }
+.admin-shell .ss-admin-schedule-v3 .admin-mini-action,.admin-shell .ss-admin-schedule-v3 .admin-slot__quick-actions button { font-size: 12px; min-height: 43px; padding: 9px 12px; }
+.ss-admin-schedule-v3 :is(button,select,a):focus-visible { outline: 3px solid #6baa40; outline-offset: 2px; }
+
+@media (max-width: 1000px) {
+  .ss-admin-daily__desktop { display: none; }
+  .ss-admin-daily__mobile { display: grid; gap: 17px; }
+  .ss-admin-daily__mobile-court { min-width: 0; border: 1px solid #d5e4d0; border-radius: 15px; overflow: hidden; }
+  .ss-admin-daily__mobile-court > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px; background: #f0f7e9; }
+  .ss-admin-daily__mobile-list { display: grid; gap: 8px; padding: 12px; }
+  .ss-admin-daily__mobile-row { display: grid; grid-template-columns: 65px minmax(0,1fr); align-items: stretch; gap: 9px; }
+  .ss-admin-daily__mobile-row > span { display: grid; place-items: center; border-radius: 10px; background: #f4f7f1; font-weight: 850; font-size: 14px; color: #26533a; }
+  .ss-admin-week-scroll .admin-week-board { display: grid; }
+}
+@media (max-width: 650px) {
+  .ss-admin-command__compact { padding: 17px 14px; }
+  .ss-admin-command__compact button { width: 100%; }
+  .ss-admin-schedule-v3 .admin-command__viewbar { padding: 12px; }
+  .ss-admin-schedule-v3 .admin-command__switch { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .ss-admin-schedule-v3 .admin-command__switch button { min-width: 0; font-size: 11px; padding: 8px 5px; }
+  .ss-admin-v3-board { padding: 13px 10px; }
+  .ss-admin-v3-board__controls { width: 100%; }
+  .ss-admin-v3-board__arrows { width: 100%; }
+  .ss-admin-v3-board__arrows button { flex: 1; }
+  .ss-admin-v3-board__filter { width: 100%; }
+  .ss-admin-v3-board__filter select { width: 100%; }
+  .ss-admin-v3-board__date-strip { display: flex; gap: 7px; max-width: 100%; min-width: 0; overflow-x: auto; padding-bottom: 8px; }
+  .ss-admin-v3-board__date-strip button { min-width: 88px; flex: 0 0 88px; }
+  .ss-admin-daily__mobile-court > header { align-items: start; }
+  .ss-admin-court-actions button { font-size: 12px; }
+  .ss-admin-week-scroll .admin-week-board { display: grid; grid-template-columns: repeat(7, 290px); }
+  .ss-admin-three__grid { grid-template-columns: repeat(3,320px); min-width: 984px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ss-admin-schedule-v3 * { scroll-behavior: auto; transition: none !important; }
+}

@@ -77,7 +77,9 @@ test("nueva presentación mantiene las mutaciones seguras y no habilita pago/res
   assert.match(admin, /createManualReservationAction/);
   assert.match(admin, /createScheduleBlockAction/);
   assert.match(admin, /canPerformAdminOperation/);
-  assert.match(admin, /Comparar campos/);
+  assert.match(admin, /Día · 2 campos/);
+  assert.match(admin, /3 días/);
+  assert.match(admin, /Semana deslizante/);
   assert.match(admin, /no es dinero cobrado/);
   assert.match(page, /premiumCommand=\{context\.businessId === "73426eb7-4a4f-405b-b0bd-be06cd53aa3f" \|\| isLocalDevAdminUserId\(context\.userId\)\}/);
   assert.doesNotMatch(metrics, /supabase\.from|\.rpc\(|\.insert\(|\.update\(|\.delete\(/);

@@ -21,6 +21,8 @@ import {
   type AdminScheduleSnapshot,
 } from "../../lib/admin/schedule.ts";
 import { buildCourtWeekIndicators, buildDailyWeekIndicators } from "../../lib/admin/weeklyCommand.ts";
+import { slotMatchesAdminFilter, visibleBoardDates, type AdminBoardViewMode, type AdminBoardStatusFilter } from "../../lib/admin/boardPresentation.ts";
+import { addDays } from "../../lib/availability.ts";
 import {
   bookingLightingForInterval,
   calculateBookingPreview,
@@ -143,6 +145,7 @@ export function AdminScheduleBoard({
   pricingRules,
   nowIso,
   premiumCommand = false,
+  initialDay = null,
 }: {
   snapshot: AdminScheduleSnapshot;
   timezone: string;
@@ -150,10 +153,12 @@ export function AdminScheduleBoard({
   pricingRules: AdminPricingRule[];
   nowIso: string;
   premiumCommand?: boolean;
+  initialDay?: string | null;
 }) {
   const router = useRouter();
   const todayDate = useMemo(() => localDateKey(timezone), [timezone]);
-  const initialSelectedDate = snapshot.courts[0]?.days.some((day) => day.date === todayDate)
+  const initialSelectedDate = initialDay && initialDay >= snapshot.from && initialDay <= snapshot.to ? initialDay
+    : snapshot.courts[0]?.days.some((day) => day.date === todayDate)
     ? todayDate
     : snapshot.from;
   const [activeCourtId, setActiveCourtId] = useState(snapshot.courts[0]?.courtId ?? "");
@@ -162,8 +167,17 @@ export function AdminScheduleBoard({
   const [panel, setPanel] = useState<PanelState>(null);
   const [feedback, setFeedback] = useState<AdminActionResult | null>(null);
   const [pending, startTransition] = useTransition();
-  const [viewMode, setViewMode] = useState<"compare" | "week">(premiumCommand ? "compare" : "week");
-  const [statusFilter, setStatusFilter] = useState<"all" | "free" | "busy">("all");
+  const [viewMode, setViewMode] = useState<AdminBoardViewMode>(premiumCommand ? "day" : "week");
+  const [statusFilter, setStatusFilter] = useState<AdminBoardStatusFilter>("all");
+  const [overviewOpen, setOverviewOpen] = useState(false);
+
+  // Las navegaciones entre semanas cambian los props del Server Component.
+  // Sin sincronizar, React puede conservar el día de la semana anterior.
+  useEffect(() => {
+    setSelectedDate(initialSelectedDate);
+    setActiveSlotId(null);
+    setPanel(null);
+  }, [snapshot.from, initialSelectedDate]);
 
   const indicators = useMemo(() => buildCourtWeekIndicators(snapshot, new Date(nowIso)), [snapshot, nowIso]);
   const weeklyTrend = useMemo(() => buildDailyWeekIndicators(snapshot, new Date(nowIso)), [snapshot, nowIso]);
@@ -190,6 +204,35 @@ export function AdminScheduleBoard({
     () => new Map(days.map((day) => [day.date, buildAdminBoardSlots(day, timezone, new Date(nowIso))])),
     [days, timezone, nowIso],
   );
+  const slotsByCourtAndDay = useMemo(() => new Map(snapshot.courts.flatMap((court) =>
+    court.days.map((day) => [`${court.courtId}:${day.date}`, buildAdminBoardSlots(day, timezone, new Date(nowIso))] as const))),
+    [snapshot, timezone, nowIso]);
+  const visibleDates = visibleBoardDates(snapshot.from, selectedDate, viewMode);
+  const selectedCourtDays = snapshot.courts.map((court) => ({
+    court,
+    day: court.days.find((item) => item.date === selectedDate),
+    slots: slotsByCourtAndDay.get(`${court.courtId}:${selectedDate}`) ?? [],
+  }));
+  const dayTimeKeys = [...new Set(selectedCourtDays.flatMap((item) => item.slots.map((slot) => slot.start)))].sort();
+  const filteredDayStarts = dayTimeKeys.filter((time) => statusFilter === "all" || selectedCourtDays.some((item) => {
+    const slot = item.slots.find((entry) => entry.start === time);
+    return slot ? slotMatchesAdminFilter(slot, statusFilter) : false;
+  }));
+
+  function selectOperationalDate(date: string) {
+    setActiveSlotId(null);
+    setPanel(null);
+    if (date < snapshot.from || date > snapshot.to) {
+      router.push(`/admin/disponibilidad?week=${date}&day=${date}`);
+    } else {
+      setSelectedDate(date);
+    }
+  }
+
+  function moveOperationalDate(direction: -1 | 1) {
+    const steps = viewMode === "three" ? 3 : 1;
+    selectOperationalDate(addDays(selectedDate, direction * steps));
+  }
 
   function handleMobileDayKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
     if (!days.length) return;
@@ -308,7 +351,7 @@ export function AdminScheduleBoard({
   function renderSlot(
     slot: AdminBoardSlotView,
     day: { courtId: string; date: string },
-    scope: "desktop" | "mobile" | "compare",
+    scope: "desktop" | "mobile" | "compare" | "daily" | "daily-mobile" | "three",
   ) {
     const interactive = slot.status !== "unavailable";
     const expanded = interactive && activeSlotId === slot.id;
@@ -332,7 +375,7 @@ export function AdminScheduleBoard({
           >
             <div className="admin-slot__head">
               <span>{slot.start}–{slot.end}</span>
-              {slot.status === "available" ? null : <b>{adminScheduleStatusLabel(slot.status)}</b>}
+              {slot.status === "available" ? premiumCommand ? <b>Libre</b> : null : <b>{adminScheduleStatusLabel(slot.status)}</b>}
             </div>
             {slot.entry ? renderEntrySummary(slot.entry) : null}
           </button>
@@ -340,6 +383,7 @@ export function AdminScheduleBoard({
           <div className="admin-slot__static" aria-label={`${slot.start} a ${slot.end}, no disponible`}>
             <div className="admin-slot__head">
               <span>{slot.start}–{slot.end}</span>
+              {premiumCommand ? <b>No disponible</b> : null}
             </div>
           </div>
         )}
@@ -365,15 +409,33 @@ export function AdminScheduleBoard({
     );
   }
 
+  function renderCourtQuickActions(courtId: string, date: string) {
+    return <div className="ss-admin-court-actions" aria-label="Acciones administrativas de la cancha">
+      {canPerformAdminOperation(role, "create_manual_reservation") ? <button type="button" disabled={pending}
+        onClick={() => setPanel({ kind: "manual", courtId, date })}>+ Reserva</button> : null}
+      {canPerformAdminOperation(role, "create_block") ? <button type="button" disabled={pending}
+        onClick={() => setPanel({ kind: "block", courtId, date })}>Bloquear</button> : null}
+    </div>;
+  }
+
   if (!activeCourt) {
     return <div className="state-card"><strong>No hay canchas activas configuradas.</strong></div>;
   }
 
   return (
-    <div className="admin-schedule-app" aria-busy={pending}>
+    <div className={premiumCommand ? "admin-schedule-app ss-admin-schedule-v3" : "admin-schedule-app"} aria-busy={pending}>
       <ActionFeedback result={feedback} />
 
       {premiumCommand ? <section className="admin-command" aria-label="Centro operativo semanal de San Sebastián">
+        <div className="ss-admin-command__compact">
+          <div><span className="admin-command__eyebrow">CENTRO DE CONTROL · SAN SEBASTIÁN</span>
+            <strong>Dos campos. Una agenda clara.</strong>
+            <small>{summary.percent.toFixed(1)}% de ocupación semanal · {summary.confirmed} reservas confirmadas · {summary.pending} pendientes</small>
+          </div>
+          <button type="button" aria-expanded={overviewOpen} aria-controls="ss-admin-overview-details"
+            onClick={() => setOverviewOpen((open) => !open)}>{overviewOpen ? "Ocultar indicadores −" : "Ver indicadores y gráfica +"}</button>
+        </div>
+        {overviewOpen ? <div id="ss-admin-overview-details" className="ss-admin-command__details">
         <div className="admin-command__masthead">
           <div><span className="admin-command__eyebrow">SAN SEBASTIÁN / CONTROL DE CANCHAS</span>
             <h2>Tu semana, bajo control<span>.</span></h2>
@@ -395,9 +457,9 @@ export function AdminScheduleBoard({
         <div className="admin-command__courts" aria-label="Comparativa de campos">
           {indicators.map((indicator) => <button type="button" key={indicator.courtId}
             className={`admin-command__court${activeCourtId === indicator.courtId ? " is-current" : ""}`}
-            aria-pressed={activeCourtId === indicator.courtId && viewMode === "week"}
-            onClick={() => { setActiveCourtId(indicator.courtId); setViewMode("week"); setActiveSlotId(null); setPanel(null); }}>
-            <span><strong>{indicator.courtName}</strong><small>Ver semana de esta cancha ↗</small></span>
+            aria-pressed={activeCourtId === indicator.courtId}
+            onClick={() => { setActiveCourtId(indicator.courtId); setViewMode("day"); setOverviewOpen(false); setActiveSlotId(null); setPanel(null); }}>
+            <span><strong>{indicator.courtName}</strong><small>Ir a la agenda diaria ↗</small></span>
             <strong className="admin-command__court-percent">{indicator.occupancyPercent.toFixed(1)}%</strong>
             <span className="admin-command__meter" aria-hidden="true"><i style={{ width: `${Math.min(100, indicator.occupancyPercent)}%` }}/></span>
             <small>{indicator.reservedHours.toFixed(1)} h reservadas · {indicator.confirmedCount} confirmadas · {indicator.activeBlocks} bloqueos</small>
@@ -409,19 +471,21 @@ export function AdminScheduleBoard({
           <div className="admin-command__trend-bars">
             {weeklyTrend.map((day) => <button key={day.date} type="button" aria-label={`${day.date}: ${day.occupancyPercent.toFixed(1)}% ocupado`}
               title={`${day.occupiedHours.toFixed(1)} de ${day.capacityHours.toFixed(1)} horas ocupadas`}
-              onClick={() => { setSelectedDate(day.date); setViewMode("compare"); setActiveSlotId(null); }}>
+              onClick={() => { setSelectedDate(day.date); setViewMode("day"); setOverviewOpen(false); setActiveSlotId(null); }}>
               <strong>{day.occupancyPercent.toFixed(1)}%</strong>
               <span className="admin-command__trend-track"><i style={{ height: `${day.occupancyPercent}%` }}/></span>
               <small>{shortDay(day.date)} {dayMonth(day.date)}</small>
             </button>)}
           </div>
         </div>
+        </div> : null}
         <div className="admin-command__viewbar">
           <div className="admin-command__switch" role="group" aria-label="Vista de agenda">
-            <button type="button" className={viewMode === "compare" ? "is-current" : ""} aria-pressed={viewMode === "compare"} onClick={() => { setViewMode("compare"); setActiveSlotId(null); }}>Comparar campos</button>
-            <button type="button" className={viewMode === "week" ? "is-current" : ""} aria-pressed={viewMode === "week"} onClick={() => { setViewMode("week"); setActiveSlotId(null); }}>Semana por campo</button>
+            <button type="button" className={viewMode === "day" ? "is-current" : ""} aria-pressed={viewMode === "day"} onClick={() => { setViewMode("day"); setActiveSlotId(null); }}>Día · 2 campos</button>
+            <button type="button" className={viewMode === "three" ? "is-current" : ""} aria-pressed={viewMode === "three"} onClick={() => { setViewMode("three"); setActiveSlotId(null); }}>3 días</button>
+            <button type="button" className={viewMode === "week" ? "is-current" : ""} aria-pressed={viewMode === "week"} onClick={() => { setViewMode("week"); setActiveSlotId(null); }}>Semana deslizante</button>
           </div>
-          <span>Las reservas se gestionan con las validaciones y permisos existentes.</span>
+          <span>Agenda real · Horarios y reservas independientes por campo</span>
         </div>
       </section> : null}
 
@@ -470,7 +534,9 @@ export function AdminScheduleBoard({
         ))}
       </div>
 
-      {(!premiumCommand || viewMode === "week") ? <div className="admin-week-board" aria-label={`Pizarra semanal de ${activeCourt.courtName}`}>
+      {(!premiumCommand || viewMode === "week") ? <div className={premiumCommand ? "ss-admin-week-scroll" : undefined} tabIndex={premiumCommand ? 0 : undefined}
+        role={premiumCommand ? "region" : undefined} aria-label={premiumCommand ? "Semana completa, desplaza horizontalmente para consultar los siete días" : undefined}>
+      <div className="admin-week-board" aria-label={`Pizarra semanal de ${activeCourt.courtName}`}>
         {days.map((day) => {
           const slots = daySlots.get(day.date) ?? [];
           const isToday = day.date === todayDate;
@@ -489,9 +555,9 @@ export function AdminScheduleBoard({
             </section>
           );
         })}
-      </div> : null}
+      </div></div> : null}
 
-      {(!premiumCommand || viewMode === "week") ? <div className="admin-mobile-days" role="tablist" aria-label="Seleccionar día">
+      {!premiumCommand ? <div className="admin-mobile-days" role="tablist" aria-label="Seleccionar día">
         {days.map((day) => {
           const isSelected = selectedDay?.date === day.date;
           const isToday = day.date === todayDate;
@@ -519,7 +585,7 @@ export function AdminScheduleBoard({
         })}
       </div> : null}
 
-      {selectedDay && (!premiumCommand || viewMode === "week") ? (
+      {selectedDay && !premiumCommand ? (
         <section
           className="admin-mobile-slot-list"
           id={adminDayPanelId(selectedDay.date)}
@@ -530,41 +596,93 @@ export function AdminScheduleBoard({
         </section>
       ) : null}
 
-      {premiumCommand && viewMode === "compare" ? <section className="admin-command__compare" aria-label="Comparación de las canchas por día">
-        <div className="admin-command__compare-top">
-          <div><span className="admin-command__eyebrow">AGENDA COMPARADA</span><h3>Dos campos. Un solo vistazo.</h3><p>Elige un día y filtra las franjas. La reserva de un campo no ocupa el otro.</p></div>
-          <label>Mostrar
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}>
-              <option value="all">Todas las franjas</option>
-              <option value="busy">Con ocupación</option>
-              <option value="free">Libres</option>
-            </select>
-          </label>
+      {premiumCommand && viewMode !== "week" ? <section className="ss-admin-v3-board" aria-label="Pizarra administrativa con horarios grandes">
+        <div className="ss-admin-v3-board__top">
+          <div><span className="admin-command__eyebrow">AGENDA OPERATIVA</span>
+            <h3>{viewMode === "day" ? "Agenda diaria · dos campos" : "Planificación de tres días"}</h3>
+            <p>Franjas legibles, reservas y bloqueos reales. Selecciona un horario para ver sus acciones.</p>
+          </div>
+          <div className="ss-admin-v3-board__controls">
+            <div className="ss-admin-v3-board__arrows" role="group" aria-label="Navegar por fechas">
+              <button type="button" onClick={() => moveOperationalDate(-1)} aria-label="Ver días anteriores">← Anterior</button>
+              <button type="button" onClick={() => selectOperationalDate(todayDate)}>Hoy</button>
+              <button type="button" onClick={() => moveOperationalDate(1)} aria-label="Ver días siguientes">Siguiente →</button>
+            </div>
+            <label className="ss-admin-v3-board__filter">Mostrar
+              <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value as AdminBoardStatusFilter); setActiveSlotId(null); }}>
+                <option value="all">Todos los horarios</option>
+                <option value="busy">Reservados y bloqueados</option>
+                <option value="free">Solo libres</option>
+              </select>
+            </label>
+          </div>
         </div>
-        <div className="admin-command__days" role="group" aria-label="Fecha de la vista comparativa">
-          {days.map((day) => <button key={day.date} type="button" aria-pressed={selectedDate === day.date}
-            className={selectedDate === day.date ? "is-current" : ""}
-            onClick={() => { setSelectedDate(day.date); setActiveSlotId(null); }}>
-            <span>{shortDay(day.date)}</span><strong>{dayMonth(day.date)}</strong>{day.date === todayDate ? <small>Hoy</small> : null}
+        <div className="ss-admin-v3-board__date-strip" role="group" aria-label="Seleccionar fecha">
+          {days.map((day) => <button key={day.date} type="button"
+            className={visibleDates.includes(day.date) ? "is-current" : ""}
+            aria-pressed={visibleDates.includes(day.date)}
+            onClick={() => selectOperationalDate(day.date)}>
+            <span>{shortDay(day.date)}</span><strong>{dayMonth(day.date)}</strong>
+            {day.date === todayDate ? <small>Hoy</small> : null}
           </button>)}
         </div>
-        <div className="admin-command__comparison-grid">
-          {snapshot.courts.map((court) => {
-            const comparisonDay = court.days.find((item) => item.date === selectedDate);
-            const allSlots = comparisonDay ? buildAdminBoardSlots(comparisonDay, timezone, new Date(nowIso)) : [];
-            const filteredSlots = allSlots.filter((slot) => statusFilter === "all" ||
-              (statusFilter === "busy" ? ["pending", "confirmed", "completed", "blocked"].includes(slot.status) : slot.status === "available"));
-            return <div className="admin-command__comparison-court" key={court.courtId}>
-              <header><div><span>CAMPO FÍSICO</span><h4>{court.courtName}</h4></div><strong>{allSlots.filter((slot) => slot.status === "available").length} libres</strong></header>
-              <div className="admin-command__comparison-slots" aria-label={`${court.courtName} el ${selectedDate}`}>
-                {!comparisonDay?.isOpen ? <p className="admin-command__empty">Campo cerrado ese día.</p>
-                  : filteredSlots.length ? filteredSlots.map((slot) => renderSlot(slot, comparisonDay, "compare"))
-                    : <p className="admin-command__empty">No hay franjas con este filtro.</p>}
+
+        {viewMode === "day" ? <div className="ss-admin-daily" aria-label={`Agenda del ${selectedDate}`}>
+          <div className="ss-admin-daily__desktop" style={{ gridTemplateColumns: `92px repeat(${selectedCourtDays.length}, minmax(0, 1fr))` }}>
+            <div className="ss-admin-daily__time-head">HORARIO</div>
+            {selectedCourtDays.map(({ court, slots }) => <div className="ss-admin-daily__court-head" key={court.courtId}>
+              <div><span>CANCHA FÍSICA</span><h4>{court.courtName}</h4>
+                <small>{slots.filter((slot) => slot.status === "available").length} franjas libres hoy</small></div>
+              {renderCourtQuickActions(court.courtId, selectedDate)}
+            </div>)}
+            {filteredDayStarts.map((time) => <div key={time} className="ss-admin-daily__hour-row">
+              <span className="ss-admin-daily__hour">{time}</span>
+              {selectedCourtDays.map(({ court, day, slots }) => <div className="ss-admin-daily__cell" key={court.courtId}>
+                {day && slots.find((slot) => slot.start === time)
+                  ? renderSlot(slots.find((slot) => slot.start === time)!, day, "daily")
+                  : <span className="ss-admin-daily__closed">Cerrado</span>}
+              </div>)}
+            </div>)}
+            {!filteredDayStarts.length ? <p className="ss-admin-v3-board__empty">No hay franjas que coincidan con este filtro.</p> : null}
+          </div>
+          <div className="ss-admin-daily__mobile">
+            {selectedCourtDays.map(({ court, day, slots }) => <section className="ss-admin-daily__mobile-court" key={court.courtId}>
+              <header><div><span>CANCHA FÍSICA</span><h4>{court.courtName}</h4></div>{renderCourtQuickActions(court.courtId, selectedDate)}</header>
+              <div className="ss-admin-daily__mobile-list">
+                {day ? slots.filter((slot) => slotMatchesAdminFilter(slot, statusFilter)).map((slot) =>
+                  <div className="ss-admin-daily__mobile-row" key={slot.id}>
+                    <span>{slot.start}</span>{renderSlot(slot, day, "daily-mobile")}
+                  </div>) : null}
+                {!day?.isOpen || !slots.some((slot) => slotMatchesAdminFilter(slot, statusFilter))
+                  ? <p className="ss-admin-v3-board__empty">{!day?.isOpen ? "Campo cerrado ese día." : "No hay franjas con este filtro."}</p> : null}
               </div>
-            </div>;
-          })}
-        </div>
-        <p className="admin-command__footnote">Ocupación compartida por fútbol y vóley dentro de cada campo. La agenda no guarda el deporte como atributo de la reserva; por ello no se muestran filtros históricos por disciplina. Los valores corresponden a reservas registradas, no a pagos recibidos.</p>
+            </section>)}
+          </div>
+        </div> : null}
+
+        {viewMode === "three" ? <div className="ss-admin-three__scroll" role="region" tabIndex={0}
+          aria-label="Tres días de agenda, desplazamiento horizontal">
+          <div className="ss-admin-three__grid">
+            {visibleDates.map((date) => <article className="ss-admin-three__date" key={date}>
+              <header><span>{shortDay(date)}</span><h4>{dayMonth(date)}</h4>
+                <button type="button" onClick={() => { setSelectedDate(date); setViewMode("day"); setActiveSlotId(null); }}>Ver día completo ↗</button>
+              </header>
+              {snapshot.courts.map((court) => {
+                const day = court.days.find((item) => item.date === date);
+                const slots = (slotsByCourtAndDay.get(`${court.courtId}:${date}`) ?? [])
+                  .filter((slot) => slotMatchesAdminFilter(slot, statusFilter));
+                return <section className="ss-admin-three__court" key={court.courtId}>
+                  <div className="ss-admin-three__court-heading"><h5>{court.courtName}</h5>{renderCourtQuickActions(court.courtId, date)}</div>
+                  <div className="ss-admin-three__slots">
+                    {day?.isOpen && slots.length ? slots.map((slot) => renderSlot(slot, day, "three"))
+                      : <p className="ss-admin-v3-board__empty">{!day?.isOpen ? "Campo cerrado" : "Sin franjas con este filtro"}</p>}
+                  </div>
+                </section>;
+              })}
+            </article>)}
+          </div>
+        </div> : null}
+        <p className="ss-admin-v3-board__footnote">Fútbol y vóley comparten la agenda de cada campo; los campos se gestionan por separado. Las consultas por WhatsApp no confirman una reserva ni acreditan un pago.</p>
       </section> : null}
 
       {panel ? (
