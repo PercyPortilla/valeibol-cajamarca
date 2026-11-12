@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
+import { googleMapsSearchHref, mapQuery } from "../lib/platform/maps.ts";
 
 const read = (path: string) => readFileSync(path, "utf8");
 const page = read("app/complejo/[slug]/page.tsx");
@@ -26,9 +27,11 @@ test("Campos 1 y 2 conservan identidad física, deportes, estado y agenda propia
   assert.match(page, /bookable: court\.bookable/);
   assert.match(page, /priceText: court\.priceFrom === null \? null/);
   assert.match(scene, /encodeURIComponent\(activeCourt\.id\)/);
+  assert.match(scene, /bookingSport = activeCourt\?\.sports\.some/);
+  assert.match(scene, /&deporte=\$\{encodeURIComponent\(bookingSport\)\}/);
   assert.match(scene, /court\.sports\.map\(\(entry, sportIndex\)/);
   assert.match(scene, /"HORARIOS POR CONFIRMAR"/);
-  assert.match(scene, /horarios y tarifas aún deben ser publicados/);
+  assert.match(scene, /Todavía no hay horarios ni tarifas publicados/);
   assert.match(scene, /<Link className="ss-cinema-button ss-cinema-button--primary" href=\{reserveHref\}/);
   assert.doesNotMatch(scene, /insert|createReservation|bookImmediately/);
 });
@@ -57,4 +60,17 @@ test("conserva servicios, galería, ubicación, reseñas y contacto del negocio"
   assert.match(scene, /id="contacto"/);
   assert.match(scene, /mapHref/);
   assert.match(scene, /whatsappHref/);
+  assert.match(scene, /ss-cinema-visit__address/);
+  assert.match(scene, /Dirección por confirmar/);
+});
+
+test("ubicación correcta: el mapa utiliza dirección y ciudad, nunca una dirección fija antigua", () => {
+  const venue = { address: "Jirón Silva Santisteban 1182", city: "Cajamarca", latitude: null, longitude: null };
+  assert.equal(mapQuery(venue), "Jirón Silva Santisteban 1182, Cajamarca");
+  const url = googleMapsSearchHref(venue);
+  assert.ok(url);
+  const parsed = new URL(url);
+  assert.equal(parsed.searchParams.get("query"), "Jirón Silva Santisteban 1182, Cajamarca");
+  assert.match(page, /address=\{displayVenues\[0\]\?\.address \?\? null\}/);
+  assert.doesNotMatch(page + scene, /Prolongación Los Leones 460/);
 });

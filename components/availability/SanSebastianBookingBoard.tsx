@@ -52,7 +52,8 @@ export function SanSebastianBookingBoard({
   const sports = courtSports[chosenCourt?.courtId ?? ""] ?? [];
   const sport = sports.find((item) => item.slug === selectedSportSlug) ?? sports[0];
   const days = !pendingCourt && operationalCourt ? operationalCourt.days : buildUnconfiguredCalendarDays(weekReference, today);
-  const day = days.find((item) => item.date === selectedDate) ?? days[0];
+  const selectedDayKey = pendingCourt ? preferredDate : selectedDate;
+  const day = days.find((item) => item.date === selectedDayKey) ?? days[0];
   const durationMinutes = durationHours * 60;
   const selectedEnd = selectedStart && day && !pendingCourt
     ? consecutiveAvailableEnd(day.slots, selectedStart, durationMinutes) : null;
@@ -89,7 +90,10 @@ export function SanSebastianBookingBoard({
           {courts.map((court) => <button key={court.courtId} type="button"
             className={chosenCourt?.courtId === court.courtId ? "ss-booking-board__button is-selected" : "ss-booking-board__button"}
             aria-pressed={chosenCourt?.courtId === court.courtId}
-            onClick={() => { setPreferredDate(null); onCourtChange(court.courtId); }}>{court.courtName}<small>{court.bookable ? "Agenda publicada" : "Agenda por configurar"}</small></button>)}
+            aria-label={`${court.courtName}: ${court.bookable ? "ver horarios" : "horarios por confirmar"}`}
+            onClick={() => { setPreferredDate(null); onCourtChange(court.courtId); }}>
+            {court.courtName}<small>{court.bookable ? "Ver horarios" : "Horarios por confirmar"}</small>
+          </button>)}
         </div>
       </fieldset>
       <fieldset className="ss-booking-board__choice"><legend>2. ¿Qué deporte jugarás?</legend>
@@ -114,7 +118,7 @@ export function SanSebastianBookingBoard({
       {pendingCourt ? <div className="ss-booking-board__pending" role="status">
         <span className="ss-booking-board__pending-icon" aria-hidden="true">i</span>
         <div><strong>{chosenCourt?.courtName ?? "Campo"} · Horarios y tarifas por confirmar</strong>
-          <p>Esta pizarra está habilitada para explorar los días, pero el propietario todavía no ha publicado horarios. No podemos indicar horas libres u ocupadas sin esa información.</p>
+          <p>Puedes elegir fútbol o vóley, la duración y un día preferido. Los horarios y tarifas de este campo aún no están publicados, así que no podemos mostrar horas libres u ocupadas. Consulta directamente al polideportivo.</p>
         </div>
       </div> : null}
       <div className="ss-booking-board__calendar">
@@ -136,14 +140,14 @@ export function SanSebastianBookingBoard({
         </div> : <p className="ss-booking-board__legend ss-booking-board__legend--pending">Sin disponibilidad publicada: ningún día se considera libre ni ocupado todavía.</p>}
         <div className="ss-booking-board__dates" role="group" aria-label="Seleccionar día">
           {days.map((item) => <button type="button" key={item.date}
-            aria-pressed={day?.date === item.date}
-            className={day?.date === item.date ? "ss-booking-board__date is-selected" : "ss-booking-board__date"}
+            aria-pressed={selectedDayKey === item.date}
+            className={selectedDayKey === item.date ? "ss-booking-board__date is-selected" : "ss-booking-board__date"}
             onClick={() => chooseDay(item.date)}>
             <span>{item.weekdayShort}</span><strong>{item.dayNumber}</strong><small>{item.isToday ? "Hoy" : item.monthShort}</small>
           </button>)}
         </div>
         <div className="ss-booking-board__times-heading">
-          <strong>{day?.weekdayLong} {day?.dayNumber} {day?.monthShort}</strong>
+          <strong>{pendingCourt && !preferredDate ? "Elige un día de la semana" : `${day?.weekdayLong} ${day?.dayNumber} ${day?.monthShort}`}</strong>
           <span>{pendingCourt ? "Agenda no publicada" : `${availableCount} ${availableCount === 1 ? "inicio libre" : "inicios libres"} para ${durationHours} h`}</span>
         </div>
         {pendingCourt ? <div key={`${chosenCourt?.courtId}-${day?.date}`} className="ss-booking-board__unconfigured" role="status">

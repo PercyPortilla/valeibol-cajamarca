@@ -45,7 +45,11 @@ test("pizarra hija usa identidad propia, un selector por campo/deporte/duración
   assert.match(board, /consecutiveAvailableEnd\(day.slots, slot.start, durationMinutes\)/);
   assert.match(board, /!isPastLocalStart/);
   assert.match(board, /buildUnconfiguredCalendarDays\(weekReference, today\)/);
-  assert.match(board, /No podemos indicar horas libres u ocupadas sin esa información/);
+  assert.match(board, /no podemos mostrar horas libres u ocupadas/);
+  assert.match(board, /Horarios por confirmar/);
+  assert.match(board, /selectedDayKey = pendingCourt \? preferredDate : selectedDate/);
+  assert.match(board, /aria-pressed=\{selectedDayKey === item.date\}/);
+  assert.doesNotMatch(board, /Agenda por configurar|Agenda publicada/);
   assert.match(board, /Sin horarios publicados para/);
   assert.match(board, /"Libre"/);
   assert.match(board, /"Ocupado"/);

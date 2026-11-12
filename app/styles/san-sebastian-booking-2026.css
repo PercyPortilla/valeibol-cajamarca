@@ -163,6 +163,9 @@
 .ss-booking-board__tag-dot { display: inline-block; width: 7px; height: 7px; background: #c7ef70; border-radius: 50%; box-shadow: 0 0 0 4px rgba(199, 239, 112, .12); }
 .ss-booking-board__choices { background: #fff; padding-block: 28px; }
 .ss-booking-board__choice legend { font-size: 13px; font-weight: 820; margin-bottom: 13px; color: #1a4128; }
+.ss-booking-board__choice:first-child .ss-booking-board__buttons { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+.ss-booking-board__choice:first-child .ss-booking-board__button { min-width: 0; width: 100%; align-content: center; padding-inline: 13px; text-align: left; }
+.ss-booking-board__choice:first-child .ss-booking-board__button small { font-size: 11px; line-height: 1.35; opacity: 1; }
 .tenant-reservation .ss-booking-board__button {
   position: relative;
   border-radius: 12px;

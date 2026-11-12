@@ -140,6 +140,8 @@
 .ss-cinema-visit h2 { color: #143723; margin-block: 24px 19px; }
 .ss-cinema-visit h2 em { color: #5c8d27; }
 .ss-cinema-visit p { max-width: 650px; font-size: 16px; color: #3e5843; line-height: 1.65; }
+.ss-cinema-visit__address { display: block; color: #31523d; font-size: clamp(16px, 1.6vw, 20px); font-weight: 700; line-height: 1.6; font-style: normal; }
+.ss-cinema-visit__address span { color: #55705a; font-weight: 500; }
 .ss-cinema-visit__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 27px; }
 .ss-cinema-button--dark { background: #123d28; border: 1px solid #123d28; color: #f6ffe6; }
 .ss-cinema-button--dark:hover { background: #265b37; }

@@ -20,7 +20,6 @@ type Props = {
   coverImageUrl: string | null;
   coverAltText: string;
   logoUrl: string | null;
-  locationName: string | null;
   address: string | null;
   mapHref: string | null;
   whatsappHref: string | null;
@@ -57,13 +56,17 @@ function PitchArt({ sport }: { sport: "futbol" | "voley" }) {
 
 export function SanSebastianCinematic({
   businessName, businessSlug, city, coverImageUrl, coverAltText, logoUrl,
-  locationName, address, mapHref, whatsappHref, courts,
+  address, mapHref, whatsappHref, courts,
 }: Props) {
   const [sport, setSport] = useState<"futbol" | "voley">("futbol");
   const [activeIndex, setActiveIndex] = useState(0);
   const activeCourt = courts[activeIndex] ?? courts[0];
   const reservationRoot = `/reservar?negocio=${encodeURIComponent(businessSlug)}`;
-  const reserveHref = activeCourt ? `${reservationRoot}&cancha=${encodeURIComponent(activeCourt.id)}` : reservationRoot;
+  const bookingSport = activeCourt?.sports.some((item) => item.slug === sport)
+    ? sport : activeCourt?.sports[0]?.slug;
+  const reserveHref = activeCourt
+    ? `${reservationRoot}&cancha=${encodeURIComponent(activeCourt.id)}${bookingSport ? `&deporte=${encodeURIComponent(bookingSport)}` : ""}`
+    : reservationRoot;
   const sportChoices = useMemo(() => [
     { slug: "futbol" as const, label: "Fútbol" },
     { slug: "voley" as const, label: "Vóley" },
@@ -106,7 +109,7 @@ export function SanSebastianCinematic({
           <p>Dos campos. Fútbol y vóley. Un lugar para vivir cada jugada.</p>
           <div className="ss-cinema-hero__actions">
             <a className="ss-cinema-button ss-cinema-button--primary" href="#canchas">Explorar los campos <span aria-hidden="true">↗</span></a>
-            <Link className="ss-cinema-button ss-cinema-button--outline" href={reservationRoot}>Consultar horarios <span aria-hidden="true">→</span></Link>
+            <Link className="ss-cinema-button ss-cinema-button--outline" href={`${reservationRoot}&deporte=${encodeURIComponent(sport)}`}>Consultar horarios <span aria-hidden="true">→</span></Link>
           </div>
         </div>
         <div className="ss-cinema-hero__emblem" aria-hidden="true">
@@ -157,7 +160,7 @@ export function SanSebastianCinematic({
                   {index === 0 && coverImageUrl ? <Image src={coverImageUrl} fill sizes="(max-width: 720px) 85vw, 520px" alt="" /> : <span className="ss-cinema-field-card__synthetic" aria-hidden="true"><span /></span>}
                   <span className="ss-cinema-field-card__shade" />
                   <span className="ss-cinema-field-card__number">{String(index + 1).padStart(2, "0")} <small>/ {String(courts.length).padStart(2, "0")}</small></span>
-                  <span className="ss-cinema-field-card__brand">{index === 0 ? "SAN SEBASTIÁN" : "VISUAL CONCEPTUAL"}</span>
+                  <span className="ss-cinema-field-card__brand">{index === 0 ? "SAN SEBASTIÁN" : "VISTA ILUSTRATIVA"}</span>
                   <span className="ss-cinema-field-card__title">{court.name}</span>
                   <span className="ss-cinema-field-card__sports">{court.sports.map((entry, sportIndex) => <span key={entry.slug}>{sportIndex > 0 ? <i aria-hidden="true">•</i> : null}{entry.name.toLocaleUpperCase("es-PE")}</span>)}</span>
                   <span className="ss-cinema-field-card__edge" aria-hidden="true" />
@@ -175,7 +178,7 @@ export function SanSebastianCinematic({
           <div>
             <span className="ss-cinema-fields__status">{activeCourt.bookable ? "AGENDA DISPONIBLE PARA CONSULTAR" : "HORARIOS POR CONFIRMAR"}</span>
             <h3>{activeCourt.name}</h3>
-            <p>{activeCourt.bookable ? "Elige el deporte, el día y cuántas horas deseas jugar. El negocio confirma la disponibilidad por WhatsApp." : "Este campo también admite fútbol y vóley. La pizarra está lista para explorar días; sus horarios y tarifas aún deben ser publicados por el propietario."}</p>
+            <p>{activeCourt.bookable ? "Elige el deporte, el día y cuántas horas deseas jugar. El negocio confirma la disponibilidad por WhatsApp." : "También puedes jugar fútbol y vóley en este campo. Todavía no hay horarios ni tarifas publicados; elige tu día preferido en la pizarra y consulta directamente por WhatsApp."}</p>
             {activeCourt.priceText && activeCourt.bookable ? <span className="ss-cinema-fields__price">{activeCourt.priceText}</span> : null}
           </div>
           <Link className="ss-cinema-button ss-cinema-button--primary" href={reserveHref}>{activeCourt.bookable ? "Ver horarios del campo" : "Explorar su pizarra"} <span aria-hidden="true">↗</span></Link>
@@ -188,7 +191,7 @@ export function SanSebastianCinematic({
         <div>
           <span className="ss-cinema-overline">EL ENCUENTRO ES EN SAN SEBASTIÁN</span>
           <h2 id="ss-cinema-visit-title">La próxima jugada<br />nos encuentra <em>aquí.</em></h2>
-          <p>{locationName ? `${locationName} · ` : ""}{address ?? city ?? "Cajamarca"}</p>
+          <address className="ss-cinema-visit__address">{address ?? "Dirección por confirmar"}{city ? <span> · {city}, Perú</span> : null}</address>
           <div className="ss-cinema-visit__actions">
             {mapHref ? <a className="ss-cinema-button ss-cinema-button--dark" href={mapHref} target="_blank" rel="noopener noreferrer">Cómo llegar <span aria-hidden="true">↗</span></a> : null}
             {whatsappHref ? <a className="ss-cinema-button ss-cinema-button--line" href={whatsappHref} target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp <span aria-hidden="true">↗</span></a> : null}

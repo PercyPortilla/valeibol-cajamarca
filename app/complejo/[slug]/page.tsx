@@ -182,7 +182,6 @@ export default async function ComplexPage({ params }: { params: Params }) {
           city={business.city} coverImageUrl={business.coverImageUrl}
           coverAltText={business.coverAltText ?? `Instalaciones de ${business.name}`}
           logoUrl={business.logoUrl}
-          locationName={displayVenues[0]?.name ?? null}
           address={displayVenues[0]?.address ?? null}
           mapHref={displayVenues[0] ? googleMapsSearchHref(displayVenues[0]) : null}
           whatsappHref={whatsappHref} courts={cinematicCourts}

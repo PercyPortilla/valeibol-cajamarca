@@ -70,13 +70,17 @@ async function inspectCinematicHome() {
     photo: !!document.querySelector('.ss-cinema-hero__photo'),
     cards: [...document.querySelectorAll('.ss-cinema-field-card__title')].map(e => e.textContent.trim()),
     headerCaxas: !!document.querySelector('.platform-header,.caxas-chrome-brand'),
+    address: document.querySelector('.ss-cinema-visit__address')?.textContent ?? '',
+    mapHref: document.querySelector('.ss-cinema-visit__actions a[href*="google.com/maps"]')?.href ?? '',
   }))()`);
   await evaluate("document.querySelectorAll('.ss-cinema-sports__switch button')[1]?.click(); true");
   await pause(280);
   const voley = await evaluate("document.querySelector('.ss-cinema-pitch__board')?.getAttribute('aria-label') ?? ''");
+  const voleyBooking = await evaluate("document.querySelector('.ss-cinema-fields__detail a[href]')?.getAttribute('href') ?? ''");
   await evaluate("document.querySelectorAll('.ss-cinema-sports__switch button')[0]?.click(); true");
   await pause(180);
   const futbol = await evaluate("document.querySelector('.ss-cinema-pitch__board')?.getAttribute('aria-label') ?? ''");
+  const futbolBooking = await evaluate("document.querySelector('.ss-cinema-fields__detail a[href]')?.getAttribute('href') ?? ''");
   await evaluate("document.querySelectorAll('.ss-cinema-field-card')[1]?.click(); true");
   await pause(220);
   const campo2 = await evaluate(`(() => ({
@@ -96,7 +100,11 @@ async function inspectCinematicHome() {
     realPhoto: opening.photo,
     ownBrand: !opening.headerCaxas,
     bothCourts: opening.cards.join(',') === 'Campo 1,Campo 2',
+    correctAddress: opening.address.includes('Jirón Silva Santisteban 1182') &&
+      !opening.address.includes('Los Leones') &&
+      (() => { try { return new URL(opening.mapHref).searchParams.get('query')?.includes('Jirón Silva Santisteban 1182, Cajamarca') ?? false; } catch { return false; } })(),
     switchesSports: voley.includes('vóley') && futbol.includes('fútbol'),
+    carriesSportToBooking: voleyBooking.includes('deporte=voley') && futbolBooking.includes('deporte=futbol'),
     campo2: campo2.title.includes('Campo 2') && campo2.pending && campo2.href.includes('b8b5bffe-189d-4490-8671-0591a642be36'),
     campo1: campo1.title.includes('Campo 1') && campo1.href.includes('d86214c0-03bb-4104-a848-af70e34cbab7'),
   };
@@ -106,6 +114,7 @@ async function inspectBookingPlanner(startOnPending) {
   const boardReady = await waitFor("document.querySelectorAll('.ss-booking-board__choice').length === 3");
   if (!boardReady) return { loaded: false };
   if (startOnPending) {
+    const unselectedBeforeClick = await evaluate("document.querySelectorAll('.ss-booking-board__date[aria-pressed=\"true\"]').length === 0");
     const dayClick = await evaluate(`(() => {
       const day = document.querySelectorAll('.ss-booking-board__date')[4];
       if (!day) return false;
@@ -121,6 +130,7 @@ async function inspectBookingPlanner(startOnPending) {
       return { loaded:true, pending: pending.includes('Campo 2') && pending.includes('Horarios y tarifas por confirmar'),
         selectedCampo2:selected.includes('Campo 2'), noInventedSlots:!document.querySelector('.ss-booking-board__slot'),
         sevenDays:document.querySelectorAll('.ss-booking-board__date').length === 7,
+        noImplicitPreferredDay:${unselectedBeforeClick},
         dayCanBeSelected:${dayClick} && !!document.querySelector('.ss-booking-board__date.is-selected'),
         whatsappInformative:!!message && message.includes('Campo 2') && message.includes('preferentemente el') };
     })()`);
@@ -240,6 +250,10 @@ for (const scene of [
     await pause(650);
     const cardShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
     fs.writeFileSync(path.join(out, scene.id + "-cinematic-campos.png"), Buffer.from(cardShot.data, "base64"));
+    await evaluate("document.querySelector('.ss-cinema-visit__address')?.scrollIntoView({block:'center'}); true");
+    await pause(450);
+    const locationShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
+    fs.writeFileSync(path.join(out, scene.id + "-ubicacion.png"), Buffer.from(locationShot.data, "base64"));
   }
   if (scene.id.startsWith("consulta") && hydrated) {
     await evaluate("document.querySelector('.ss-booking-board__slots')?.scrollIntoView({block:'start'}); true");
@@ -254,7 +268,7 @@ for (const scene of [
     && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
     && (scene.id.startsWith("portada") ? Object.values(cinemaProbe ?? {}).every(Boolean) && cinemaProbe?.loaded : true)
     && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.statusSemantics && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
-    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.sevenDays && sportProbe?.dayCanBeSelected && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
+    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.sevenDays && sportProbe?.noImplicitPreferredDay && sportProbe?.dayCanBeSelected && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
   if (!good) failed = true;
   console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, cinemaProbe, ...details }));
 }
