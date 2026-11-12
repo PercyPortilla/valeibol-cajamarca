@@ -298,6 +298,18 @@
 @media (max-width: 650px) {
   .ss-booking-board__top { padding: 22px 17px; }
   .ss-booking-board__top h3 { font-size: 23px; }
+  .ss-booking-board__choice:nth-child(3) .ss-booking-board__buttons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .tenant-reservation .ss-booking-board__choice:nth-child(3) .ss-booking-board__button {
+    min-width: 0;
+    padding: 11px 5px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    justify-items: center;
+  }
   .ss-booking-board__pending { margin: 17px 16px 0; padding: 15px; }
   .ss-booking-board__unconfigured { padding: 28px 16px; }
   .ss-booking-board__legend { gap: 12px; font-size: 11px; }
