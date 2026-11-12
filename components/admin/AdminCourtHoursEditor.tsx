@@ -137,6 +137,8 @@ export function AdminCourtHoursEditor({
       setFeedback({ kind: "success", message: `Horario regular programado desde ${formatDate(effectiveFrom)}.` });
       setDirty(false);
       onSaved();
+    } catch {
+      setFeedback({ kind: "error", message: "Se interrumpió la conexión al guardar. Comprueba el horario actual antes de volver a intentarlo." });
     } finally {
       setBusy(false);
     }

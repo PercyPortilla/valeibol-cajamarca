@@ -63,7 +63,7 @@ test("pizarra hija usa identidad propia, un selector por campo/deporte/duración
   assert.match(complex, /court\.bookable \|\| business\.slug === "polideportivo-san-sebastian"/);
 });
 
-test("Campo 2 tiene pizarra semanal navegable, sin fabricar ni un horario", () => {
+test("modo de pizarra sin configuración nunca inventa franjas", () => {
   const days = buildUnconfiguredCalendarDays("2026-11-12", "2026-11-11");
   assert.equal(days.length, 7);
   assert.equal(days[0].date, "2026-11-09");

@@ -6,6 +6,7 @@ import { isAccessibleSiteTheme, normalizeSiteTheme, SITE_THEME_PRESETS } from ".
 
 const read = (filename: string) => readFileSync(filename, "utf8");
 const migration = read("supabase/migrations/20261111214813_san_sebastian_multisport_courts.sql");
+const campo2Migration = read("supabase/migrations/20261112220749_san_sebastian_campo2_copy_operational_rules.sql");
 const detailPage = read("app/complejo/[slug]/page.tsx");
 const reservePage = read("app/reservar/page.tsx");
 const header = read("components/platform/BusinessSiteHeader.tsx");
@@ -41,7 +42,7 @@ test("un campo físico que admite fútbol y vóley cuenta como UNA cancha y DOS 
   assert.deepEqual(card.sports, ["Fútbol", "Vóley"]);
 });
 
-test("San Sebastián publica dos campos físicos sin inventar horarios ni tarifas para Campo 2", () => {
+test("San Sebastián creó dos campos físicos y conserva su relación multideporte", () => {
   assert.match(migration, /set name='Campo 1'/);
   assert.match(migration, /'campo-2','Campo 2',2,false,'provisional'/);
   assert.match(migration, /create table if not exists public.court_extra_sports/);
@@ -52,6 +53,19 @@ test("San Sebastián publica dos campos físicos sin inventar horarios ni tarifa
   assert.match(migration, /grant execute on function public.admin_update_court_sport_settings.*to authenticated/);
   assert.match(migration, /select \* into v_actor from public.phase6_admin_actor/);
   assert.doesNotMatch(migration, /insert into public\.pricing_rules|insert into public\.operating_hours/);
+});
+
+test("Campo 2 replica reglas auténticas de Campo 1 sin duplicar la agenda", () => {
+  assert.match(campo2Migration, /v_source constant uuid := 'd86214c0-03bb-4104-a848-af70e34cbab7'/);
+  assert.match(campo2Migration, /v_target constant uuid := 'b8b5bffe-189d-4490-8671-0591a642be36'/);
+  assert.match(campo2Migration, /campo2_has_preexisting_configuration_no_overwrite/);
+  assert.match(campo2Migration, /campo1_rules_changed_review_before_copy/);
+  assert.match(campo2Migration, /insert into public\.operating_hours/);
+  assert.match(campo2Migration, /insert into public\.pricing_rules/);
+  assert.match(campo2Migration, /select v_target, weekday, is_open, opens_at, closes_at/);
+  assert.match(campo2Migration, /select v_target, lighting, label, hourly_rate/);
+  assert.match(campo2Migration, /set is_active=true, configuration_status='confirmed'/);
+  assert.doesNotMatch(campo2Migration, /insert into public\.(?:courts|reservations|schedule_blocks)/);
 });
 
 test("sitio y consulta conservan logotipo propio y no muestran el header de CAXAS", () => {
@@ -103,6 +117,6 @@ test("el QA de producción espera calendario hidratado y prueba ambos mensajes d
   assert.match(browserQa, /inspectBookingPlanner/);
   assert.match(browserQa, /twoHours/);
   assert.match(browserQa, /samePhysicalSlot/);
-  assert.match(browserQa, /campo2Pending/);
+  assert.match(browserQa, /otherFieldBookable/);
   assert.match(browserQa, /messageWorks/);
 });

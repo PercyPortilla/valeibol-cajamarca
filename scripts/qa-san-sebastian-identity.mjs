@@ -85,7 +85,7 @@ async function inspectCinematicHome() {
   await pause(220);
   const campo2 = await evaluate(`(() => ({
     title: document.querySelector('.ss-cinema-fields__detail h3')?.textContent ?? '',
-    pending: document.querySelector('.ss-cinema-fields__status')?.textContent.includes('HORARIOS POR CONFIRMAR'),
+    bookable: document.querySelector('.ss-cinema-fields__status')?.textContent.includes('AGENDA DISPONIBLE PARA CONSULTAR'),
     href: document.querySelector('.ss-cinema-fields__detail a[href]')?.getAttribute('href') ?? '',
   }))()`);
   await evaluate("document.querySelectorAll('.ss-cinema-field-card')[0]?.click(); true");
@@ -105,36 +105,18 @@ async function inspectCinematicHome() {
       (() => { try { return new URL(opening.mapHref).searchParams.get('query')?.includes('Jirón Silva Santisteban 1182, Cajamarca') ?? false; } catch { return false; } })(),
     switchesSports: voley.includes('vóley') && futbol.includes('fútbol'),
     carriesSportToBooking: voleyBooking.includes('deporte=voley') && futbolBooking.includes('deporte=futbol'),
-    campo2: campo2.title.includes('Campo 2') && campo2.pending && campo2.href.includes('b8b5bffe-189d-4490-8671-0591a642be36'),
+    campo2: campo2.title.includes('Campo 2') && campo2.bookable && campo2.href.includes('b8b5bffe-189d-4490-8671-0591a642be36'),
     campo1: campo1.title.includes('Campo 1') && campo1.href.includes('d86214c0-03bb-4104-a848-af70e34cbab7'),
   };
 }
 
-async function inspectBookingPlanner(startOnPending) {
+async function inspectBookingPlanner(startOnCampo2) {
   const boardReady = await waitFor("document.querySelectorAll('.ss-booking-board__choice').length === 3");
   if (!boardReady) return { loaded: false };
-  if (startOnPending) {
-    const unselectedBeforeClick = await evaluate("document.querySelectorAll('.ss-booking-board__date[aria-pressed=\"true\"]').length === 0");
-    const dayClick = await evaluate(`(() => {
-      const day = document.querySelectorAll('.ss-booking-board__date')[4];
-      if (!day) return false;
-      day.click();
-      return true;
-    })()`);
-    await pause(400);
-    return evaluate(`(() => {
-      const selected = document.querySelector('.ss-booking-board__choice .is-selected')?.textContent ?? '';
-      const pending = document.querySelector('.ss-booking-board__pending')?.textContent ?? '';
-      const link = document.querySelector('.ss-booking-board__summary a[href]')?.href;
-      const message = link ? new URL(link).searchParams.get('text') : '';
-      return { loaded:true, pending: pending.includes('Campo 2') && pending.includes('Horarios y tarifas por confirmar'),
-        selectedCampo2:selected.includes('Campo 2'), noInventedSlots:!document.querySelector('.ss-booking-board__slot'),
-        sevenDays:document.querySelectorAll('.ss-booking-board__date').length === 7,
-        noImplicitPreferredDay:${unselectedBeforeClick},
-        dayCanBeSelected:${dayClick} && !!document.querySelector('.ss-booking-board__date.is-selected'),
-        whatsappInformative:!!message && message.includes('Campo 2') && message.includes('preferentemente el') };
-    })()`);
-  }
+  const initialCourtCorrect = await evaluate(`(() => {
+    const selected = document.querySelector('.ss-booking-board__choice .is-selected')?.textContent ?? '';
+    return selected.includes('${startOnCampo2 ? "Campo 2" : "Campo 1"}');
+  })()`);
   const hourChoice = await clickChoice(2, /^2 horas$/i);
   const dates = await evaluate("document.querySelectorAll('.ss-booking-board__date').length");
   let chosen = false;
@@ -162,25 +144,31 @@ async function inspectBookingPlanner(startOnPending) {
   const voley = await read();
   const futbolClicked = await clickChoice(1, /f[uú]tbol/i);
   const futbol = await read();
-  const campo2Clicked = await clickChoice(0, /Campo 2/i);
-  const pending = await evaluate(`(() => {
-    const link = document.querySelector('.ss-booking-board__summary a[href]');
-    return { status: document.querySelector('.ss-booking-board__pending')?.textContent.includes('Horarios y tarifas por confirmar'),
-      noInventedSlots: !document.querySelector('.ss-booking-board__slot'),
-      sevenDays:document.querySelectorAll('.ss-booking-board__date').length === 7,
-      whatsapp: link ? new URL(link.href).searchParams.get('text') : '' };
+  const otherClicked = await clickChoice(0, startOnCampo2 ? /Campo 1/i : /Campo 2/i);
+  await pause(250);
+  const otherBookable = await evaluate(`(() => {
+    const selected = document.querySelector('.ss-booking-board__choice .is-selected')?.textContent ?? '';
+    return {
+      correctField: selected.includes('${startOnCampo2 ? "Campo 1" : "Campo 2"}'),
+      sevenDays: document.querySelectorAll('.ss-booking-board__date').length === 7,
+      hasRealSlots: document.querySelectorAll('.ss-booking-board__slot').length > 0,
+      noPending: !document.querySelector('.ss-booking-board__pending'),
+      canSelectDuration: document.querySelectorAll('.ss-booking-board__choice:nth-child(3) button').length === 4,
+    };
   })()`);
+  // Restaura el campo original para que la captura demuestre realmente la ruta probada.
+  await clickChoice(0, startOnCampo2 ? /Campo 2/i : /Campo 1/i);
   return {
-    loaded: true, hourChoice, chosen, voleyClicked, futbolClicked, campo2Clicked,
+    loaded: true, initialCourtCorrect, hourChoice, chosen, voleyClicked, futbolClicked, otherClicked,
     twoHours: voley.duration.trim() === '2 horas' && futbol.duration.trim() === '2 horas',
     selectedSportWorks: /v[oó]ley/i.test(voley.selectedSport) && /f[uú]tbol/i.test(futbol.selectedSport),
     samePhysicalSlot: voley.selectedSlot === futbol.selectedSlot && !!voley.selectedSlot,
     messageWorks: !!voley.message && !!futbol.message &&
-      voley.message.includes('Campo 1') && voley.message.includes('Vóley') && voley.message.includes('2 horas') &&
-      futbol.message.includes('Campo 1') && futbol.message.includes('Fútbol') && futbol.message.includes('2 horas'),
+      voley.message.includes(startOnCampo2 ? 'Campo 2' : 'Campo 1') && voley.message.includes('Vóley') && voley.message.includes('2 horas') &&
+      futbol.message.includes(startOnCampo2 ? 'Campo 2' : 'Campo 1') && futbol.message.includes('Fútbol') && futbol.message.includes('2 horas'),
     lightOwnTheme: voley.boardBackground === 'rgb(255, 255, 255)',
     statusSemantics: voley.statusSemantics && futbol.statusSemantics,
-    campo2Pending: pending.status && pending.noInventedSlots && pending.sevenDays && pending.whatsapp?.includes('Campo 2') && pending.whatsapp?.includes('2 horas'),
+    otherFieldBookable: otherBookable.correctField && otherBookable.sevenDays && otherBookable.hasRealSlots && otherBookable.noPending && otherBookable.canSelectDuration,
   };
 }
 
@@ -267,8 +255,7 @@ for (const scene of [
     && details.scrollWidth <= details.width + 1
     && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
     && (scene.id.startsWith("portada") ? Object.values(cinemaProbe ?? {}).every(Boolean) && cinemaProbe?.loaded : true)
-    && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.statusSemantics && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
-    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.sevenDays && sportProbe?.noImplicitPreferredDay && sportProbe?.dayCanBeSelected && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
+    && (isPlanner ? sportProbe?.loaded && sportProbe?.initialCourtCorrect && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.statusSemantics && sportProbe?.lightOwnTheme && sportProbe?.otherFieldBookable : true);
   if (!good) failed = true;
   console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, cinemaProbe, ...details }));
 }

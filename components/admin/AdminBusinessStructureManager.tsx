@@ -67,9 +67,20 @@ function VenueEditor({ venue, canManage, canCorrectStructure, onSaved }: { venue
   const [structureBusy, setStructureBusy] = useState(false);
   const [structureFeedback, setStructureFeedback] = useState<Feedback>(null);
 
+  useEffect(() => {
+    setName(venue.name);
+    setSlug(venue.slug);
+    setCity(venue.city ?? "");
+    setAddress(venue.address ?? "");
+    setLatitude(venue.latitude?.toString() ?? "");
+    setLongitude(venue.longitude?.toString() ?? "");
+    setActive(venue.isActive);
+  }, [venue.name, venue.slug, venue.city, venue.address, venue.latitude, venue.longitude, venue.isActive]);
+
   async function save() {
     if (!canManage || busy) return;
     setBusy(true); setFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_venue", {
       p_venue_id: venue.venueId,
       p_name: name,
@@ -81,19 +92,22 @@ function VenueEditor({ venue, canManage, canCorrectStructure, onSaved }: { venue
     });
     if (error) { setActive(venue.isActive); setFeedback({ kind: "error", message: mutationMessage(error.message) }); }
     else { setFeedback({ kind: "success", message: "Sede actualizada." }); onSaved(); }
-    setBusy(false);
+    } catch { setFeedback({ kind: "error", message: "Error de conexión al guardar la sede. Verifica los datos antes de repetir." }); }
+    finally { setBusy(false); }
   }
 
   async function saveSlug() {
     if (!canCorrectStructure || structureBusy || slug === venue.slug) return;
     setStructureBusy(true); setStructureFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_venue_slug", {
       p_venue_id: venue.venueId,
       p_slug: slug,
     });
     if (error) setStructureFeedback({ kind: "error", message: mutationMessage(error.message) });
     else { setStructureFeedback({ kind: "success", message: "Slug de sede corregido." }); onSaved(); }
-    setStructureBusy(false);
+    } catch { setStructureFeedback({ kind: "error", message: "No se pudo comprobar la corrección. Recarga antes de reintentar." }); }
+    finally { setStructureBusy(false); }
   }
 
   return (
@@ -134,6 +148,13 @@ function CourtEditor({ court, currentVenueId, venues, sports, businessToday, can
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [structureBusy, setStructureBusy] = useState(false);
   const [structureFeedback, setStructureFeedback] = useState<Feedback>(null);
+  useEffect(() => {
+    setName(court.name);
+    setSurface(court.surface ?? "");
+    setSlug(court.slug);
+    setVenueId(currentVenueId);
+    setSportId(court.sportId);
+  }, [court.name, court.surface, court.slug, court.sportId, currentVenueId]);
   const correctionEnabled = canCorrectStructure && !court.isActive;
   const sportOptions = sports.some((sport) => sport.sportId === court.sportId)
     ? sports
@@ -142,25 +163,30 @@ function CourtEditor({ court, currentVenueId, venues, sports, businessToday, can
   async function saveIdentity() {
     if (!canManage || busy) return;
     setBusy(true); setFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_court_identity", { p_court_id: court.courtId, p_name: name, p_surface: surface || null });
     if (error) setFeedback({ kind: "error", message: mutationMessage(error.message) });
     else { setFeedback({ kind: "success", message: "Cancha actualizada." }); onSaved(); }
-    setBusy(false);
+    } catch { setFeedback({ kind: "error", message: "Error de conexión. Verifica los datos de la cancha antes de reintentar." }); }
+    finally { setBusy(false); }
   }
 
   async function toggle() {
     if (!canManage || busy) return;
     if (court.isActive && !window.confirm(`¿Desactivar ${court.name}? No se permitirá si tiene reservas futuras activas.`)) return;
     setBusy(true); setFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_set_court_active", { p_court_id: court.courtId, p_active: !court.isActive });
     if (error) setFeedback({ kind: "error", message: mutationMessage(error.message) });
     else { setFeedback({ kind: "success", message: `Cancha ${court.isActive ? "desactivada" : "activada"}.` }); onSaved(); }
-    setBusy(false);
+    } catch { setFeedback({ kind: "error", message: "No se pudo confirmar el cambio de estado. Recarga y comprueba la cancha." }); }
+    finally { setBusy(false); }
   }
 
   async function saveStructure() {
     if (!correctionEnabled || structureBusy) return;
     setStructureBusy(true); setStructureFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_court_structure", {
       p_court_id: court.courtId,
       p_venue_id: venueId,
@@ -169,7 +195,8 @@ function CourtEditor({ court, currentVenueId, venues, sports, businessToday, can
     });
     if (error) setStructureFeedback({ kind: "error", message: mutationMessage(error.message) });
     else { setStructureFeedback({ kind: "success", message: "Estructura de cancha corregida sin alterar horarios ni tarifas." }); onSaved(); }
-    setStructureBusy(false);
+    } catch { setStructureFeedback({ kind: "error", message: "No se pudo confirmar la corrección. Recarga antes de reintentar." }); }
+    finally { setStructureBusy(false); }
   }
 
   return (
@@ -226,13 +253,15 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
   async function updateBusiness(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (!canManage || localMode || businessBusy) return;
     const form = new FormData(event.currentTarget); setBusinessBusy(true); setBusinessFeedback(null);
+    try {
     const { error } = await createPublicBrowserSupabaseClient().rpc("admin_update_business_profile", {
       p_name: String(form.get("name") ?? ""), p_city: String(form.get("city") ?? "") || null,
       p_country: String(form.get("country") ?? "") || null, p_address: String(form.get("address") ?? "") || null,
       p_phone: String(form.get("phone") ?? "") || null,
     });
     if (error) setBusinessFeedback({ kind: "error", message: mutationMessage(error.message) }); else { setBusinessFeedback({ kind: "success", message: "Datos públicos actualizados." }); refresh(); }
-    setBusinessBusy(false);
+    } catch { setBusinessFeedback({ kind: "error", message: "No se pudo confirmar el guardado. Recarga antes de reintentar." }); }
+    finally { setBusinessBusy(false); }
   }
 
   async function createVenue(event: FormEvent<HTMLFormElement>) {
@@ -248,6 +277,8 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
       });
       setVenueCreateFeedback(error ? { kind: "error", message: mutationMessage(error.message) } : { kind: "success", message: "Sede creada." });
       if (!error) { formElement.reset(); refresh(); }
+    } catch {
+      setVenueCreateFeedback({ kind: "error", message: "No se pudo confirmar el alta. Comprueba la lista de sedes antes de reintentar." });
     } finally {
       setVenueCreateBusy(false);
     }
@@ -269,6 +300,8 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
       }
       setBookingFeedback({ kind: "success", message: `Intervalo de reserva actualizado a ${next} minutos.` });
       refresh();
+    } catch {
+      setBookingFeedback({ kind: "error", message: "No se pudo confirmar el cambio. Recarga la agenda antes de reintentar." });
     } finally {
       setBookingBusy(false);
     }
@@ -290,6 +323,8 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
         message: nextStatus === "confirmed" ? "Negocio publicado. Ya puede aparecer y recibir nuevas reservas públicas." : "Negocio retirado de publicación. Las reservas existentes se conservan.",
       });
       refresh();
+    } catch {
+      setPublicationFeedback({ kind: "error", message: "No se pudo confirmar el estado de publicación. Recarga antes de reintentar." });
     } finally {
       setPublicationBusy(false);
     }
@@ -309,6 +344,8 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
       });
       setCourtCreateFeedback(error ? { kind: "error", message: mutationMessage(error.message) } : { kind: "success", message: "Cancha creada con horario y tarifas iniciales." });
       if (!error) { formElement.reset(); setHours(week.map(([weekday]) => ({ weekday, isOpen: false, opensAt: "08:00", closesAt: "22:00" }))); refresh(); }
+    } catch {
+      setCourtCreateFeedback({ kind: "error", message: "No se pudo confirmar la creación. Comprueba el inventario antes de reintentar." });
     } finally {
       setCourtCreateBusy(false);
     }
@@ -320,7 +357,7 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
       <section className="admin-structure-card" aria-labelledby="business-profile-title">
         <div className="admin-content-editor__head"><div><span className="metric-label">NEGOCIO</span><h2 id="business-profile-title">Datos públicos</h2><p>Slug, moneda y zona horaria se conservan estables desde el alta global.</p></div><Badge tone={structure.configurationStatus === "confirmed" ? "success" : "warning"}>{structure.configurationStatus === "confirmed" ? "Confirmado" : "Provisional"}</Badge></div>
         <dl className="phase7-rule-meta"><div><dt>Slug</dt><dd>{structure.slug}</dd></div><div><dt>Moneda</dt><dd>{structure.currency}</dd></div><div><dt>Zona horaria</dt><dd>{structure.timezone}</dd></div><div><dt>Intervalo de reserva</dt><dd>{structure.bookingIncrementMinutes} min</dd></div></dl>
-        <form className="admin-structure-form-grid" onSubmit={updateBusiness}>
+        <form key={`${structure.name}|${structure.city}|${structure.address}|${structure.country}|${structure.phone}`} className="admin-structure-form-grid" onSubmit={updateBusiness}>
           <Input id="business-name" label="Nombre" name="name" defaultValue={structure.name} disabled={!canManage || localMode} required />
           <Input id="business-city" label="Ciudad" name="city" defaultValue={structure.city ?? ""} disabled={!canManage || localMode} />
           <Input id="business-country" label="País" name="country" defaultValue={structure.country ?? ""} disabled={!canManage || localMode} />
@@ -328,6 +365,10 @@ export function AdminBusinessStructureManager({ structure, businessToday, canMan
           <Input id="business-phone" label="Teléfono público" name="phone" defaultValue={structure.phone ?? ""} disabled={!canManage || localMode} />
           {canManage && !localMode ? <Button type="submit" disabled={businessBusy}>{businessBusy ? "Guardando…" : "Guardar negocio"}</Button> : null}
         </form>
+        <p className="admin-structure-message" role="note">La ficha del negocio y cada sede tienen direcciones independientes. El mapa público se genera desde la dirección de la sede. Si ambos corresponden al mismo local, mantén ambas direcciones iguales en esta pantalla.</p>
+        {structure.venues.length === 1 && structure.address?.trim() !== structure.venues[0].address?.trim() ? (
+          <p className="admin-structure-message admin-structure-message--error" role="alert">La dirección del negocio no coincide con la sede. Revisa «Sedes físicas» antes de publicar el enlace «Cómo llegar».</p>
+        ) : null}
         <FeedbackMessage feedback={businessFeedback} />
         <div className="admin-publication-control" aria-labelledby="publication-title">
           <div>

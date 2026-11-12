@@ -36,9 +36,13 @@ export function AdminPricingForm({ rules, role, courts: knownCourts, businessTod
     setResult(null);
     const parsed = Number(hourlyRate);
     startTransition(async () => {
-      const next = await schedulePricingRuleAction({ courtId, lighting, hourlyRate: parsed, effectiveFrom });
-      setResult(next);
-      if (next.ok) { setHourlyRate(""); router.refresh(); }
+      try {
+        const next = await schedulePricingRuleAction({ courtId, lighting, hourlyRate: parsed, effectiveFrom });
+        setResult(next);
+        if (next.ok) { setHourlyRate(""); router.refresh(); }
+      } catch {
+        setResult({ ok: false, code: "network", message: "No se pudo completar la conexión. Verifica la tarifa vigente antes de reintentar." });
+      }
     });
   }
 
