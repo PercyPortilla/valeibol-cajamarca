@@ -76,7 +76,7 @@ export default async function AdminAvailabilityPage({ searchParams }: { searchPa
         <EmptyState title="No hay canchas activas" detail="Configura al menos una cancha y sus horarios antes de operar la agenda." />
       ) : (
         <AdminScheduleBoard snapshot={snapshot} timezone={context.timezone} role={context.role} pricingRules={pricingRules} nowIso={renderedAt}
-          premiumCommand={context.businessId === "73426eb7-4a4f-405b-b0bd-be06cd53aa3f"} />
+          premiumCommand={context.businessId === "73426eb7-4a4f-405b-b0bd-be06cd53aa3f" || isLocalDevAdminUserId(context.userId)} />
       )}
     </>
   );

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { addDays } from "../lib/availability.ts";
-import { buildCourtWeekIndicators } from "../lib/admin/weeklyCommand.ts";
+import { buildCourtWeekIndicators, buildDailyWeekIndicators } from "../lib/admin/weeklyCommand.ts";
 import type { AdminScheduleDay, AdminScheduleSnapshot } from "../lib/admin/schedule.ts";
 
 function weekFixture(): AdminScheduleSnapshot {
@@ -56,6 +56,11 @@ test("centro profesional no mezcla agendas, no duplica valor y cuenta bloqueos r
   assert.equal(two.occupancyPercent, 2.9);
   assert.equal(two.reservationValue, 100);
   assert.equal(two.activeBlocks, 1);
+  const days = buildDailyWeekIndicators(weekFixture(), new Date("2026-11-09T00:00:00Z"));
+  assert.equal(days.length, 7);
+  assert.equal(days.find((day) => day.date === "2026-11-12")?.occupiedHours, 3);
+  assert.equal(days.find((day) => day.date === "2026-11-12")?.capacityHours, 30);
+  assert.equal(days.find((day) => day.date === "2026-11-12")?.occupancyPercent, 10);
 });
 
 test("nueva presentación mantiene las mutaciones seguras y no habilita pago/reserva pública automática", () => {
@@ -74,6 +79,6 @@ test("nueva presentación mantiene las mutaciones seguras y no habilita pago/res
   assert.match(admin, /canPerformAdminOperation/);
   assert.match(admin, /Comparar campos/);
   assert.match(admin, /no es dinero cobrado/);
-  assert.match(page, /premiumCommand=\{context\.businessId === "73426eb7-4a4f-405b-b0bd-be06cd53aa3f"\}/);
+  assert.match(page, /premiumCommand=\{context\.businessId === "73426eb7-4a4f-405b-b0bd-be06cd53aa3f" \|\| isLocalDevAdminUserId\(context\.userId\)\}/);
   assert.doesNotMatch(metrics, /supabase\.from|\.rpc\(|\.insert\(|\.update\(|\.delete\(/);
 });

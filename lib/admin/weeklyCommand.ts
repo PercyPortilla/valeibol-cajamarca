@@ -15,6 +15,13 @@ export type CourtWeekIndicator = {
   currency: string | null;
 };
 
+export type DayWeekIndicator = {
+  date: string;
+  capacityHours: number;
+  occupiedHours: number;
+  occupancyPercent: number;
+};
+
 /**
  * Lectura pura de la agenda del negocio autorizado. No consulta otros tenants ni
  * considera el valor de una reserva como dinero cobrado.
@@ -74,4 +81,27 @@ export function buildCourtWeekIndicators(snapshot: AdminScheduleSnapshot, now: D
       currency: currencies.size === 1 ? [...currencies][0] : currencies.size > 1 ? null : "PEN",
     };
   });
+}
+
+/** Serie de ocupación de las canchas físicas, sin duplicar los deportes. */
+export function buildDailyWeekIndicators(snapshot: AdminScheduleSnapshot, now: Date): DayWeekIndicator[] {
+  const totals = new Map<string, { capacityHours: number; occupiedHours: number }>();
+  for (const court of snapshot.courts) {
+    for (const day of court.days) {
+      const slots = buildAdminBoardSlots(day, snapshot.timezone, now);
+      const stepHours = day.bookingIncrementMinutes / 60;
+      const previous = totals.get(day.date) ?? { capacityHours: 0, occupiedHours: 0 };
+      totals.set(day.date, {
+        capacityHours: previous.capacityHours + slots.length * stepHours,
+        occupiedHours: previous.occupiedHours + slots.filter((slot) =>
+          ["pending", "confirmed", "completed", "blocked"].includes(slot.status)).length * stepHours,
+      });
+    }
+  }
+  return [...totals.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([date, values]) => ({
+    date,
+    ...values,
+    occupancyPercent: values.capacityHours
+      ? Math.round(values.occupiedHours / values.capacityHours * 1000) / 10 : 0,
+  }));
 }

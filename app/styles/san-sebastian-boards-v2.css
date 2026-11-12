@@ -123,6 +123,17 @@
 .admin-command__meter { grid-column: 1 / -1; height: 7px; background: #e0e9d8; border-radius: 99px; overflow: hidden; }
 .admin-command__meter i { display: block; height: 100%; background: linear-gradient(90deg, #368456, #aad56b); border-radius: inherit; transition: width 260ms ease; }
 .admin-command__court > small { grid-column: 1 / -1; }
+.admin-command__trend { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding: 18px 24px 25px; border-top: 1px solid #e4ecdf; background: #fff; }
+.admin-command__trend-copy { flex: 1 1 205px; display: grid; align-content: center; gap: 6px; }
+.admin-command__trend-copy > strong { font-size: 19px; letter-spacing: -.025em; color: #214b33; }
+.admin-command__trend-copy > small { font-size: 11px; line-height: 1.55; color: #607567; max-width: 33ch; }
+.admin-command__trend-bars { display: grid; flex: 2 1 370px; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 5px; align-items: end; }
+.admin-command__trend-bars button { border: 0; background: transparent; padding: 2px; display: grid; gap: 7px; min-width: 0; justify-items: center; cursor: pointer; }
+.admin-command__trend-bars button > strong { font-size: 10px; color: #40644c; font-variant-numeric: tabular-nums; }
+.admin-command__trend-bars button > small { text-transform: capitalize; font-size: 9px; color: #506d58; white-space: nowrap; }
+.admin-command__trend-track { width: min(100%,38px); height: 74px; background: linear-gradient(#f1f7ed,#e4eedf); border-radius: 6px; display: flex; align-items: end; overflow: hidden; }
+.admin-command__trend-track i { width: 100%; display: block; border-radius: 6px; background: linear-gradient(#8dc559,#245d3d); min-height: 0; transition: height 250ms ease; }
+.admin-command__trend-bars button:hover .admin-command__trend-track { outline: 2px solid #7dac67; }
 .admin-command__viewbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 15px 24px; border-top: 1px solid #e5eee0; }
 .admin-command__viewbar > span { font-size: 11px; color: #607363; }
 .admin-command__switch { display: inline-flex; flex-wrap: wrap; gap: 5px; padding: 4px; border: 1px solid #d3e2cb; border-radius: 11px; background: #f2f7ec; }
@@ -175,6 +186,9 @@
   .admin-command__metrics strong { font-size: 25px; }
   .admin-command__courts { grid-template-columns: 1fr; padding: 12px; gap: 8px; }
   .admin-command__viewbar { padding: 12px; }
+  .admin-command__trend { padding: 17px 12px; }
+  .admin-command__trend-bars { flex-basis: 100%; }
+  .admin-command__trend-bars button > small { font-size: 8px; }
   .admin-command__compare .admin-command__comparison-grid { grid-template-columns: 1fr; }
   .admin-command__days { gap: 4px; }
   .admin-command__days button { min-height: 63px; padding: 7px 2px; }
@@ -184,4 +198,5 @@
 @media (prefers-reduced-motion: reduce) {
   .tenant-reservation .ss-booking-board__quick-pick:hover { transform: none; }
   .admin-command__meter i { transition: none; }
+  .admin-command__trend-track i { transition: none; }
 }

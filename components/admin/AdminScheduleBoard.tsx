@@ -20,7 +20,7 @@ import {
   type AdminScheduleEntry,
   type AdminScheduleSnapshot,
 } from "../../lib/admin/schedule.ts";
-import { buildCourtWeekIndicators } from "../../lib/admin/weeklyCommand.ts";
+import { buildCourtWeekIndicators, buildDailyWeekIndicators } from "../../lib/admin/weeklyCommand.ts";
 import {
   bookingLightingForInterval,
   calculateBookingPreview,
@@ -166,6 +166,7 @@ export function AdminScheduleBoard({
   const [statusFilter, setStatusFilter] = useState<"all" | "free" | "busy">("all");
 
   const indicators = useMemo(() => buildCourtWeekIndicators(snapshot, new Date(nowIso)), [snapshot, nowIso]);
+  const weeklyTrend = useMemo(() => buildDailyWeekIndicators(snapshot, new Date(nowIso)), [snapshot, nowIso]);
   const summary = useMemo(() => {
     const capacity = indicators.reduce((sum, item) => sum + item.capacityHours, 0);
     const occupied = indicators.reduce((sum, item) => sum + item.occupiedHours, 0);
@@ -401,6 +402,19 @@ export function AdminScheduleBoard({
             <span className="admin-command__meter" aria-hidden="true"><i style={{ width: `${Math.min(100, indicator.occupancyPercent)}%` }}/></span>
             <small>{indicator.reservedHours.toFixed(1)} h reservadas · {indicator.confirmedCount} confirmadas · {indicator.activeBlocks} bloqueos</small>
           </button>)}
+        </div>
+        <div className="admin-command__trend" aria-label="Gráfica de ocupación diaria semanal">
+          <div className="admin-command__trend-copy"><span className="admin-command__eyebrow">TENDENCIA DE OCUPACIÓN</span>
+            <strong>Ritmo de la semana</strong><small>Porcentaje de horas abiertas con reservas, solicitudes o bloqueos. Pulsa un día para compararlo.</small></div>
+          <div className="admin-command__trend-bars">
+            {weeklyTrend.map((day) => <button key={day.date} type="button" aria-label={`${day.date}: ${day.occupancyPercent.toFixed(1)}% ocupado`}
+              title={`${day.occupiedHours.toFixed(1)} de ${day.capacityHours.toFixed(1)} horas ocupadas`}
+              onClick={() => { setSelectedDate(day.date); setViewMode("compare"); setActiveSlotId(null); }}>
+              <strong>{day.occupancyPercent.toFixed(1)}%</strong>
+              <span className="admin-command__trend-track"><i style={{ height: `${day.occupancyPercent}%` }}/></span>
+              <small>{shortDay(day.date)} {dayMonth(day.date)}</small>
+            </button>)}
+          </div>
         </div>
         <div className="admin-command__viewbar">
           <div className="admin-command__switch" role="group" aria-label="Vista de agenda">
