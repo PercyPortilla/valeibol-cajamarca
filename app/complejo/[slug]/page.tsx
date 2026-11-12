@@ -23,6 +23,7 @@ import type { CSSProperties } from "react";
 import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
 import { getPublicBusinessShowcase } from "@/lib/data/publicBusinessShowcase";
 import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
+import { SanSebastianCinematic } from "@/components/platform/SanSebastianCinematic";
 
 type Params = Promise<{ slug: string }>;
 
@@ -116,6 +117,14 @@ export default async function ComplexPage({ params }: { params: Params }) {
   const pricedCourts = displayVenues.flatMap((venue) => venue.displayCourts).filter((court) => court.priceFrom !== null);
   const lowestPrice = pricedCourts.length ? Math.min(...pricedCourts.map((court) => court.priceFrom as number)) : null;
   const currency = pricedCourts[0]?.currency ?? "PEN";
+  const isSanSebastian = business.slug === "polideportivo-san-sebastian";
+  const cinematicCourts = displayVenues.flatMap((venue) => venue.displayCourts.map((court) => ({
+    id: court.id,
+    name: court.name,
+    sports: court.sports,
+    bookable: court.bookable,
+    priceText: court.priceFrom === null ? null : `Desde ${formatMoney(court.priceFrom, court.currency)} por hora`,
+  })));
   const serviceSection = services.length > 0 ? (
     <section className="platform-section platform-section--tenant-content" aria-labelledby="tenant-services-title" key="services" id="servicios">
       <div className="shell">
@@ -160,7 +169,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
 
   return (
     <div className="platform-page site-theme" style={themeCssVariables(siteContent.theme) as CSSProperties}>
-      <div className="platform-public-premium platform-public-premium--complex"
+      <div className={`platform-public-premium platform-public-premium--complex${isSanSebastian ? " ss-cinema-world" : ""}`}
         data-tenant-brand={siteContent.source === "default" ? "neutral" : "configured"}
         data-tenant-style={siteContent.theme.visualStyle ?? "signature"}
         data-business-slug={business.slug}>
@@ -168,6 +177,16 @@ export default async function ComplexPage({ params }: { params: Params }) {
         <BusinessSiteHeader businessName={business.name} businessSlug={business.slug} logoUrl={business.logoUrl}
           sports={sportNames} hasServices={services.length > 0} hasGallery={galleryItems.length > 0} />
         <main id="platform-main" tabIndex={-1}>
+        {isSanSebastian ? <SanSebastianCinematic
+          businessName={business.name} businessSlug={business.slug}
+          city={business.city} coverImageUrl={business.coverImageUrl}
+          coverAltText={business.coverAltText ?? `Instalaciones de ${business.name}`}
+          logoUrl={business.logoUrl}
+          locationName={displayVenues[0]?.name ?? null}
+          address={displayVenues[0]?.address ?? null}
+          mapHref={displayVenues[0] ? googleMapsSearchHref(displayVenues[0]) : null}
+          whatsappHref={whatsappHref} courts={cinematicCourts}
+        /> : <>
         <section
           className={business.coverImageUrl ? "platform-complex-hero platform-complex-hero--image" : "platform-complex-hero"}
         >
@@ -243,6 +262,7 @@ export default async function ComplexPage({ params }: { params: Params }) {
             </div>
           </div>
         </section>
+        </>}
         {(siteContent.theme.sectionLayout ?? ["services", "gallery"]).map((sectionId) => contentSections.get(sectionId) ?? null)}
         <section className="platform-section platform-section--reviews"><div className="shell"><PublicReviewsSection reviews={reviewResult.reviews} ratingAverage={business.ratingAverage} reviewCount={business.reviewCount} loadFailed={reviewResult.loadFailed} /></div></section>
         </main>

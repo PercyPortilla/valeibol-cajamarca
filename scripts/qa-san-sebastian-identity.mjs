@@ -62,6 +62,46 @@ async function clickChoice(group, test) {
   return clicked;
 }
 
+async function inspectCinematicHome() {
+  const ready = await waitFor("document.querySelectorAll('.ss-cinema-field-card').length === 2");
+  if (!ready) return { loaded: false };
+  const opening = await evaluate(`(() => ({
+    title: document.querySelector('.ss-cinema-hero h1')?.textContent ?? '',
+    photo: !!document.querySelector('.ss-cinema-hero__photo'),
+    cards: [...document.querySelectorAll('.ss-cinema-field-card__title')].map(e => e.textContent.trim()),
+    headerCaxas: !!document.querySelector('.platform-header,.caxas-chrome-brand'),
+  }))()`);
+  await evaluate("document.querySelectorAll('.ss-cinema-sports__switch button')[1]?.click(); true");
+  await pause(280);
+  const voley = await evaluate("document.querySelector('.ss-cinema-pitch__board')?.getAttribute('aria-label') ?? ''");
+  await evaluate("document.querySelectorAll('.ss-cinema-sports__switch button')[0]?.click(); true");
+  await pause(180);
+  const futbol = await evaluate("document.querySelector('.ss-cinema-pitch__board')?.getAttribute('aria-label') ?? ''");
+  await evaluate("document.querySelectorAll('.ss-cinema-field-card')[1]?.click(); true");
+  await pause(220);
+  const campo2 = await evaluate(`(() => ({
+    title: document.querySelector('.ss-cinema-fields__detail h3')?.textContent ?? '',
+    pending: document.querySelector('.ss-cinema-fields__status')?.textContent.includes('HORARIOS POR CONFIRMAR'),
+    href: document.querySelector('.ss-cinema-fields__detail a[href]')?.getAttribute('href') ?? '',
+  }))()`);
+  await evaluate("document.querySelectorAll('.ss-cinema-field-card')[0]?.click(); true");
+  await pause(220);
+  const campo1 = await evaluate(`(() => ({
+    title: document.querySelector('.ss-cinema-fields__detail h3')?.textContent ?? '',
+    href: document.querySelector('.ss-cinema-fields__detail a[href]')?.getAttribute('href') ?? '',
+  }))()`);
+  return {
+    loaded: true,
+    title: opening.title.includes('El partido') && opening.title.includes('aquí.'),
+    realPhoto: opening.photo,
+    ownBrand: !opening.headerCaxas,
+    bothCourts: opening.cards.join(',') === 'Campo 1,Campo 2',
+    switchesSports: voley.includes('vóley') && futbol.includes('fútbol'),
+    campo2: campo2.title.includes('Campo 2') && campo2.pending && campo2.href.includes('b8b5bffe-189d-4490-8671-0591a642be36'),
+    campo1: campo1.title.includes('Campo 1') && campo1.href.includes('d86214c0-03bb-4104-a848-af70e34cbab7'),
+  };
+}
+
 async function inspectBookingPlanner(startOnPending) {
   const boardReady = await waitFor("document.querySelectorAll('.ss-booking-board__choice').length === 3");
   if (!boardReady) return { loaded: false };
@@ -154,13 +194,14 @@ for (const scene of [
   ));
   let sportProbe = null;
   if (isPlanner && hydrated) sportProbe = await inspectBookingPlanner(scene.id.startsWith("campo2"));
+  const cinemaProbe = scene.id.startsWith("portada") && loaded ? await inspectCinematicHome() : null;
   const response = await cmd("Runtime.evaluate", {
     expression: `(() => ({
       url: location.pathname,
       title: document.querySelector('h1')?.innerText ?? '',
       header: document.querySelector('.business-site-header')?.innerText ?? '',
       headerCaxas: !!document.querySelector('.platform-header,.caxas-chrome-brand'),
-      fields: [...document.querySelectorAll('.platform-court-card h4')].map(el=>el.innerText),
+      fields: [...document.querySelectorAll('.platform-court-card h4,.ss-cinema-field-card__title')].map(el=>el.innerText),
       sports: [...document.querySelectorAll('.business-court-sports')].map(el=>el.innerText),
       pending: document.querySelector('.platform-court-card:nth-child(2)')?.innerText ?? '',
       sportSelector: [...document.querySelectorAll('.ss-booking-board__choice:nth-child(2) button')].map(el=>el.innerText),
@@ -190,6 +231,12 @@ for (const scene of [
   const image = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
   const file = path.join(out, scene.id + ".png");
   fs.writeFileSync(file, Buffer.from(image.data, "base64"));
+  if (scene.id.startsWith("portada") && cinemaProbe?.loaded) {
+    await evaluate("document.querySelector('.ss-cinema-fields__deck')?.scrollIntoView({block:'center'}); true");
+    await pause(650);
+    const cardShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
+    fs.writeFileSync(path.join(out, scene.id + "-cinematic-campos.png"), Buffer.from(cardShot.data, "base64"));
+  }
   if (scene.id.startsWith("consulta") && hydrated) {
     await evaluate("document.querySelector('.ss-booking-board__slots')?.scrollIntoView({block:'start'}); true");
     await pause(250);
@@ -201,10 +248,11 @@ for (const scene of [
     && details.header.includes("Sebastián")
     && details.scrollWidth <= details.width + 1
     && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
+    && (scene.id.startsWith("portada") ? Object.values(cinemaProbe ?? {}).every(Boolean) && cinemaProbe?.loaded : true)
     && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.statusSemantics && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
     && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.sevenDays && sportProbe?.dayCanBeSelected && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
   if (!good) failed = true;
-  console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, ...details }));
+  console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, cinemaProbe, ...details }));
 }
 ws.close();
 await fetch(`${inspector}/json/close/${target.id}`).catch(() => {});

@@ -1,0 +1,220 @@
+/* San Sebastián — narrativa deportiva. La pizarra, Valeibol y la madre no heredan estos estilos. */
+.ss-cinema-world {
+  --ss-night: #071a12;
+  --ss-deep: #0b281c;
+  --ss-pitch: #174c2e;
+  --ss-lime: #c4ee77;
+  --ss-ivory: #f5f7eb;
+  background: var(--ss-night);
+  color: #eff8e6;
+  overflow: clip;
+}
+.ss-cinema-world .business-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(5, 27, 17, .96);
+  border-bottom-color: rgba(199, 239, 134, .18);
+  box-shadow: 0 5px 35px rgba(0, 0, 0, .1);
+}
+.ss-cinema-world .business-site-header__inner { min-height: 88px; }
+.ss-cinema-world .business-site-header__primary { box-shadow: 0 6px 18px rgba(0,0,0,.15); }
+.ss-cinema-world #canchas,
+.ss-cinema-world #experiencia,
+.ss-cinema-world #contacto,
+.ss-cinema-world #servicios,
+.ss-cinema-world #galeria { scroll-margin-top: 98px; }
+.ss-cinema-world a:focus-visible,
+.ss-cinema-world button:focus-visible { outline: 3px solid #c4ee77; outline-offset: 4px; }
+
+.ss-cinema-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: min(860px, calc(100svh - 88px));
+  background: #102d1c;
+  overflow: hidden;
+}
+.ss-cinema-hero::before {
+  content: ""; position: absolute; z-index: -1; inset: 0;
+  background: linear-gradient(90deg, rgba(4, 20, 13, .96) 2%, rgba(5, 26, 16, .88) 33%, rgba(5, 26, 16, .49) 75%),
+    linear-gradient(0deg, rgba(4, 19, 12, .82), transparent 27%, rgba(2, 14, 9, .31));
+}
+.ss-cinema-hero__photo { z-index: -2; object-fit: cover; object-position: center 52%; animation: ss-cinema-photo-open 1200ms cubic-bezier(.16, 1, .3, 1) both; }
+.ss-cinema-hero__lighting { position: absolute; z-index: -1; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 78% 25%, rgba(208, 245, 158, .14), transparent 46%); }
+.ss-cinema-hero__touchline { position: absolute; width: 90%; height: 2px; bottom: 76px; left: 5%; opacity: .33; background: linear-gradient(90deg, transparent, #e4fbbf 25%, #e4fbbf 75%, transparent); transform-origin: left; animation: ss-cinema-line-grow 950ms 360ms both; }
+.ss-cinema-hero__content { min-height: inherit; position: relative; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(160px, .6fr); align-items: center; gap: 3vw; padding-block: clamp(85px, 11vh, 140px) 115px; }
+.ss-cinema-hero__copy { position: relative; z-index: 2; max-width: 920px; }
+.ss-cinema-hero__eyeline { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: #e1ffc5; letter-spacing: .14em; font-size: 11px; font-weight: 820; text-transform: uppercase; animation: ss-cinema-text-rise 680ms 90ms both; }
+.ss-cinema-hero__live-dot { display: inline-block; background: #c9f77e; width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 6px rgba(201, 247, 126, .13); }
+.ss-cinema-hero__eyeline-separator { width: 25px; height: 1px; background: rgba(225,255,197,.48); }
+.ss-cinema-hero h1 { margin: 34px 0 27px; font-size: clamp(60px, 7.5vw, 126px); line-height: .93; letter-spacing: -.065em; font-weight: 950; color: white; text-transform: uppercase; text-wrap: balance; }
+.ss-cinema-hero h1 span { display: block; animation: ss-cinema-title-in 780ms cubic-bezier(.16, 1, .3, 1) both; }
+.ss-cinema-hero h1 span:nth-child(2) { animation-delay: 135ms; }
+.ss-cinema-hero h1 em { color: var(--ss-lime); font-style: normal; }
+.ss-cinema-hero__copy > p { max-width: 460px; color: #e2f1dd; font-size: clamp(16px, 1.5vw, 20px); line-height: 1.6; margin: 0 0 33px; animation: ss-cinema-text-rise 720ms 300ms both; }
+.ss-cinema-hero__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; animation: ss-cinema-text-rise 690ms 390ms both; }
+.ss-cinema-button { display: inline-flex; justify-content: center; align-items: center; gap: 22px; min-height: 52px; border-radius: 4px; text-decoration: none; font-size: 13px; line-height: 1.25; font-weight: 850; letter-spacing: .01em; padding: 15px 22px; transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, transform 200ms cubic-bezier(.16, 1, .3, 1), box-shadow 200ms ease; }
+.ss-cinema-button span { font-size: 19px; line-height: 1; transition: transform 200ms cubic-bezier(.16, 1, .3, 1); }
+.ss-cinema-button:hover span { transform: translate(3px, -2px); }
+.ss-cinema-button--primary { color: #102713; background: var(--ss-lime); border: 1px solid var(--ss-lime); box-shadow: 0 13px 33px rgba(0, 0, 0, .18); }
+.ss-cinema-button--primary:hover { background: #ddffa6; border-color: #ddffa6; transform: translateY(-2px); box-shadow: 0 18px 37px rgba(0, 0, 0, .23); }
+.ss-cinema-button--outline { color: #f6ffed; background: rgba(9, 36, 21, .3); border: 1px solid rgba(242,255,222,.7); }
+.ss-cinema-button--outline:hover { background: #f4ffe8; color: #0e301c; }
+.ss-cinema-hero__emblem { justify-self: center; display: grid; justify-items: center; gap: 23px; width: min(340px, 100%); color: #ebffca; opacity: .92; animation: ss-cinema-emblem-in 1100ms 300ms both; }
+.ss-cinema-hero__emblem-frame { display: grid; place-items: center; width: min(265px, 24vw); aspect-ratio: 1; border: 1px solid rgba(218, 250, 172, .55); border-radius: 50%; position: relative; box-shadow: 0 0 0 13px rgba(224, 255, 180, .045), inset 0 0 55px rgba(149, 222, 100, .07); }
+.ss-cinema-hero__emblem-frame::before, .ss-cinema-hero__emblem-frame::after { content: ""; position: absolute; inset: 15%; border-radius: 50%; border: 1px dashed rgba(218, 250, 172, .47); }
+.ss-cinema-hero__emblem-frame::after { inset: 31%; border: 1px solid rgba(218,250,172,.57); }
+.ss-cinema-hero__emblem-center { position: relative; width: 2px; height: 60%; background: rgba(218,250,172,.5); }
+.ss-cinema-hero__emblem-center::before { content: ""; position: absolute; border-radius: 50%; width: 14px; height: 14px; border: 1px solid currentColor; top: calc(50% - 7px); left: -7px; }
+.ss-cinema-hero__emblem-copy { font-size: 10px; letter-spacing: .25em; text-align: center; font-weight: 850; }
+.ss-cinema-hero__scroll { position: absolute; left: 0; bottom: 39px; display: inline-flex; align-items: center; gap: 12px; color: #e9ffcb; text-decoration: none; font-size: 12px; font-weight: 700; }
+.ss-cinema-hero__scroll span { font-size: 22px; transition: transform 180ms ease; }
+.ss-cinema-hero__scroll:hover span { transform: translateY(4px); }
+.ss-cinema-hero__edition { position: absolute; bottom: 41px; right: 0; font-size: 10px; letter-spacing: .22em; color: #d2e5c4; }
+
+.ss-cinema-overline { color: var(--ss-lime); font-size: 11px; line-height: 1.5; text-transform: uppercase; font-weight: 850; letter-spacing: .17em; }
+.ss-cinema-sports { position: relative; min-height: 740px; background: radial-gradient(ellipse at 71% 52%, rgba(30,102,59,.28), transparent 55%), linear-gradient(122deg, #061710, #092b1c); padding-block: clamp(100px, 11vw, 160px); overflow: hidden; }
+.ss-cinema-sports::before { content: ""; position: absolute; top: 0; left: 5%; right: 5%; height: 1px; background: linear-gradient(90deg, transparent, rgba(208,248,153,.38), transparent); }
+.ss-cinema-sports__grid { display: grid; grid-template-columns: .84fr 1.16fr; gap: clamp(24px, 6vw, 105px); align-items: center; }
+.ss-cinema-sports__copy h2, .ss-cinema-fields__heading h2, .ss-cinema-visit h2 { margin: 25px 0 23px; font-size: clamp(48px, 6vw, 93px); line-height: .98; letter-spacing: -.055em; font-weight: 950; color: #f6fff1; text-wrap: balance; }
+.ss-cinema-sports__copy h2 em, .ss-cinema-fields__heading h2 em, .ss-cinema-visit h2 em { color: var(--ss-lime); font-style: normal; }
+.ss-cinema-sports__copy p { max-width: 470px; font-size: 16px; line-height: 1.75; color: #c8dac7; }
+.ss-cinema-sports__copy > small { display: block; max-width: 430px; margin-top: 19px; font-size: 11px; color: #9fbb9b; }
+.ss-cinema-sports__switch { display: inline-flex; flex-wrap: wrap; gap: 6px; padding: 5px; background: #173727; border: 1px solid rgba(223, 253, 186, .23); border-radius: 5px; margin-top: 25px; }
+.ss-cinema-sports__switch button { padding: 12px 23px; min-height: 43px; cursor: pointer; border: 0; border-radius: 3px; font: inherit; font-size: 13px; font-weight: 850; color: #e5f5d6; background: transparent; transition: background-color 200ms ease, color 200ms ease; }
+.ss-cinema-sports__switch button.is-selected { background: var(--ss-lime); color: #102c16; }
+.ss-cinema-sports__visual { position: relative; display: grid; align-items: center; min-height: 470px; isolation: isolate; perspective: 1000px; }
+.ss-cinema-sports__glow { position: absolute; z-index: -1; inset: 15% 0; background: radial-gradient(ellipse, rgba(122,204,85,.22), transparent 71%); filter: blur(18px); }
+.ss-cinema-pitch__board { position: relative; width: 100%; aspect-ratio: 1.47; transform: rotateX(18deg) rotateZ(-7deg); transform-style: preserve-3d; animation: ss-cinema-pitch-turn 570ms cubic-bezier(.16, 1, .3, 1) both; filter: drop-shadow(0 35px 23px rgba(0, 0, 0, .52)); }
+.ss-cinema-pitch__turf { position: absolute; inset: 0; border: 9px solid #386b39; border-radius: 7px; overflow: hidden; background: repeating-linear-gradient(90deg, #246337 0 12.5%, #2a713d 12.5% 25%); box-shadow: inset 0 0 75px rgba(0,0,0,.28), 0 9px 0 #143b20, 0 16px 0 #0f321b; }
+.ss-cinema-pitch__turf::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent 0 7px, rgba(239,255,231,.022) 7px 8px); }
+.ss-cinema-pitch__lines { position: absolute; inset: 0; width: 100%; height: 100%; color: rgba(248, 255, 236, .91); }
+.ss-cinema-pitch__north { position: absolute; right: 5%; bottom: -31px; font-size: 10px; font-weight: 800; letter-spacing: .19em; color: #afd89a; }
+.ss-cinema-sports__index { position: absolute; top: 1%; left: 3%; font-size: 12px; letter-spacing: .2em; font-weight: 800; color: #d3e7bd; }
+
+.ss-cinema-fields { position: relative; background: #0a2017; padding-block: clamp(95px, 11vw, 150px) 115px; overflow: hidden; }
+.ss-cinema-fields::before { content: ""; pointer-events: none; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 35%, rgba(61,145,79,.19), transparent 50%); }
+.ss-cinema-fields__inner { position: relative; z-index: 1; }
+.ss-cinema-fields__heading { text-align: center; max-width: 750px; margin: 0 auto; }
+.ss-cinema-fields__heading h2 { margin-block: 20px; }
+.ss-cinema-fields__heading p { margin-inline: auto; max-width: 600px; color: #c9dec8; font-size: 16px; line-height: 1.7; }
+.ss-cinema-fields__stage { margin-top: 44px; }
+.ss-cinema-fields__deck { position: relative; margin: auto; width: min(100%, 900px); height: 470px; perspective: 1150px; perspective-origin: 50% 45%; }
+.ss-cinema-field-card { position: absolute; top: 0; left: 50%; width: min(430px, 55vw); height: 450px; border: 0; padding: 0; cursor: pointer; background: transparent; color: #fff; transform-style: preserve-3d; transition: transform 650ms cubic-bezier(.16, 1, .3, 1), filter 550ms ease, opacity 550ms ease; }
+.ss-cinema-field-card.is-front { z-index: 3; transform: translate3d(-50%, 0, 90px) rotateY(0) rotateZ(0); filter: brightness(1); }
+.ss-cinema-field-card.is-before { z-index: 2; transform: translate3d(calc(-50% - 250px), 36px, -75px) rotateY(22deg) rotateZ(-5deg); filter: brightness(.69); }
+.ss-cinema-field-card.is-after { z-index: 2; transform: translate3d(calc(-50% + 250px), 36px, -75px) rotateY(-22deg) rotateZ(5deg); filter: brightness(.69); }
+.ss-cinema-field-card.is-before:hover, .ss-cinema-field-card.is-after:hover { filter: brightness(.84); }
+.ss-cinema-field-card__art { display: block; position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(227, 255, 181, .43); border-radius: 12px; background: #1d4c30; box-shadow: 0 26px 46px rgba(0,0,0,.35); backface-visibility: hidden; }
+.ss-cinema-field-card__art img { object-fit: cover; object-position: center; }
+.ss-cinema-field-card__shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(4, 20, 12, .97), rgba(3, 19, 11, .24) 60%, rgba(3, 19, 11, .51)); }
+.ss-cinema-field-card__synthetic { position: absolute; inset: 0; display: grid; place-items: center; background: repeating-linear-gradient(90deg, #194f2c 0 18%, #236139 18% 36%); }
+.ss-cinema-field-card__synthetic > span { display: block; position: relative; width: 70%; height: 67%; border: 2px solid rgba(244,255,231,.5); transform: rotate(-6deg); }
+.ss-cinema-field-card__synthetic > span::before { content: ""; position: absolute; left: 50%; top: 0; height: 100%; width: 2px; background: rgba(244,255,231,.5); }
+.ss-cinema-field-card__synthetic > span::after { content: ""; position: absolute; left: calc(50% - 18%); top: 29%; width: 36%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(244,255,231,.45); }
+.ss-cinema-field-card__number { position: absolute; left: 27px; top: 23px; font-size: 35px; font-weight: 850; letter-spacing: -.05em; line-height: 1; }
+.ss-cinema-field-card__number small { font-size: 12px; color: #e3f5d0; letter-spacing: .02em; }
+.ss-cinema-field-card__brand { position: absolute; top: 31px; right: 24px; color: #e2ffcd; font-size: 9px; font-weight: 850; letter-spacing: .15em; }
+.ss-cinema-field-card__title { position: absolute; bottom: 91px; left: 26px; font-size: clamp(36px, 5vw, 62px); font-weight: 930; letter-spacing: -.05em; line-height: .95; }
+.ss-cinema-field-card__sports { position: absolute; bottom: 42px; left: 28px; display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 820; letter-spacing: .16em; }
+.ss-cinema-field-card__sports span { color: var(--ss-lime); }
+.ss-cinema-field-card__edge { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: var(--ss-lime); }
+.ss-cinema-fields__controls { position: relative; z-index: 4; display: flex; gap: 26px; align-items: center; justify-content: center; margin: 4px auto 0; }
+.ss-cinema-fields__controls button { width: 52px; height: 47px; cursor: pointer; font-size: 22px; font-weight: 600; background: #1f4630; color: #e3f6d5; border: 1px solid rgba(190,232,158,.45); border-radius: 4px; transition: background-color 160ms ease; }
+.ss-cinema-fields__controls button:hover { background: var(--ss-lime); color: #092719; }
+.ss-cinema-fields__controls button:disabled { opacity: .45; cursor: not-allowed; }
+.ss-cinema-fields__controls span { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 750; color: #daedd1; font-variant-numeric: tabular-nums; }
+.ss-cinema-fields__controls i { height: 1px; width: 58px; background: #829d6d; }
+.ss-cinema-fields__detail { margin: 48px auto 0; padding: 27px 0 0; max-width: 920px; border-top: 1px solid rgba(198,239,154,.25); display: flex; align-items: flex-end; justify-content: space-between; gap: 35px; }
+.ss-cinema-fields__detail > div { max-width: 590px; }
+.ss-cinema-fields__status { font-size: 10px; font-weight: 850; letter-spacing: .14em; color: var(--ss-lime); }
+.ss-cinema-fields__detail h3 { color: #fff; font-size: 37px; font-weight: 900; letter-spacing: -.05em; margin: 10px 0 7px; }
+.ss-cinema-fields__detail p { color: #d0ddc8; line-height: 1.6; font-size: 14px; max-width: 540px; margin: 0; }
+.ss-cinema-fields__price { display: inline-block; margin-top: 11px; color: #eaffd6; font-size: 13px; font-weight: 760; }
+.ss-cinema-fields__detail .ss-cinema-button { flex: 0 0 auto; }
+
+.ss-cinema-visit { background: #e5efce; color: #143723; padding-block: clamp(75px, 9vw, 115px); overflow: hidden; }
+.ss-cinema-visit__grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 50px; align-items: center; }
+.ss-cinema-visit .ss-cinema-overline { color: #315f21; }
+.ss-cinema-visit h2 { color: #143723; margin-block: 24px 19px; }
+.ss-cinema-visit h2 em { color: #5c8d27; }
+.ss-cinema-visit p { max-width: 650px; font-size: 16px; color: #3e5843; line-height: 1.65; }
+.ss-cinema-visit__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 27px; }
+.ss-cinema-button--dark { background: #123d28; border: 1px solid #123d28; color: #f6ffe6; }
+.ss-cinema-button--dark:hover { background: #265b37; }
+.ss-cinema-button--line { border: 1px solid #65874b; background: transparent; color: #193f2a; }
+.ss-cinema-button--line:hover { background: #d3e7b7; }
+.ss-cinema-visit__seal { width: min(320px, 100%); aspect-ratio: 1; justify-self: center; display: grid; place-items: center; align-content: center; gap: 14px; border: 1px solid #9db580; border-radius: 50%; background: radial-gradient(circle at 44% 32%, rgba(255,255,255,.65), rgba(255,255,255,.07) 68%); box-shadow: 0 0 0 19px rgba(92,141,39,.08); }
+.ss-cinema-visit__seal img { max-width: 44%; height: auto; object-fit: contain; }
+.ss-cinema-visit__seal > span { font-size: 72px; font-weight: 950; }
+.ss-cinema-visit__seal small { color: #3c672e; font-size: 9px; font-weight: 860; letter-spacing: .19em; text-align: center; }
+
+/* Servicios, galería y reseñas originales siguen conectados al constructor visual. */
+.ss-cinema-world .platform-section--tenant-content,
+.ss-cinema-world .platform-section--tenant-gallery,
+.ss-cinema-world .platform-section--reviews,
+.ss-cinema-world .platform-custom-section { background: #f2f6e9 !important; color: #193b26; }
+.ss-cinema-world .platform-section__heading h2 { color: #133723; }
+.ss-cinema-world .platform-gallery-card { overflow: hidden; }
+.ss-cinema-world .platform-gallery-card__image { transition: transform 500ms cubic-bezier(.16,1,.3,1); }
+.ss-cinema-world .platform-gallery-card:hover .platform-gallery-card__image { transform: scale(1.035); }
+.ss-cinema-world .platform-service-card { transition: transform 230ms ease, box-shadow 230ms ease; }
+.ss-cinema-world .platform-service-card:hover { transform: translateY(-4px); box-shadow: 0 18px 38px rgba(18,57,32,.13); }
+.ss-cinema-world .business-site-footer { background: #071b12; }
+
+/* JS solo habilita la entrada cuando puede observar el elemento; sin JS permanece visible. */
+.ss-cinema-world.ss-motion-ready [data-ss-reveal]:not(.ss-is-visible) { opacity: 0; transform: translateY(27px); }
+.ss-cinema-world [data-ss-reveal] { transition: opacity 650ms cubic-bezier(.16,1,.3,1), transform 650ms cubic-bezier(.16,1,.3,1); }
+@keyframes ss-cinema-photo-open { from { transform: scale(1.12); filter: brightness(.78); } to { transform: scale(1); filter: brightness(1); } }
+@keyframes ss-cinema-title-in { from { opacity: .1; transform: translateY(46px); clip-path: inset(100% 0 0 0); } to { opacity: 1; transform: translateY(0); clip-path: inset(0); } }
+@keyframes ss-cinema-text-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ss-cinema-emblem-in { from { opacity: 0; transform: rotate(-15deg) scale(.85); } to { opacity: .92; transform: rotate(0) scale(1); } }
+@keyframes ss-cinema-line-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes ss-cinema-pitch-turn { from { opacity: .65; transform: rotateX(39deg) rotateZ(-4deg) rotateY(-18deg) scale(.92); } to { opacity: 1; transform: rotateX(18deg) rotateZ(-7deg) rotateY(0) scale(1); } }
+
+@media (max-width: 960px) {
+  .ss-cinema-hero__content { grid-template-columns: 1fr; }
+  .ss-cinema-hero__emblem { position: absolute; right: 0; bottom: 110px; width: 195px; opacity: .46; }
+  .ss-cinema-hero__emblem-frame { width: 150px; }
+  .ss-cinema-hero__emblem-copy { display: none; }
+  .ss-cinema-sports__grid { grid-template-columns: 1fr; gap: 30px; }
+  .ss-cinema-sports__copy { max-width: 780px; }
+  .ss-cinema-sports__visual { max-width: 770px; width: 100%; margin: auto; min-height: 400px; }
+}
+@media (max-width: 700px) {
+  .ss-cinema-world .business-site-header { position: relative; }
+  .ss-cinema-hero { min-height: 720px; }
+  .ss-cinema-hero__content { min-height: 720px; padding-block: 76px 100px; }
+  .ss-cinema-hero::before { background: linear-gradient(90deg, rgba(4,20,13,.92),rgba(4,20,13,.57)),linear-gradient(0deg,rgba(4,20,13,.92),transparent 45%); }
+  .ss-cinema-hero h1 { font-size: clamp(49px, 11vw, 78px); letter-spacing: -.055em; margin-block: 24px 20px; }
+  .ss-cinema-hero__copy > p { font-size: 16px; line-height: 1.5; }
+  .ss-cinema-hero__emblem { display: none; }
+  .ss-cinema-hero__eyeline { gap: 8px; font-size: 9px; }
+  .ss-cinema-hero__edition { display: none; }
+  .ss-cinema-hero__scroll { left: 0; bottom: 34px; }
+  .ss-cinema-button { min-height: 49px; padding: 13px 17px; gap: 12px; font-size: 12px; }
+  .ss-cinema-sports { min-height: 0; padding-block: 80px 65px; }
+  .ss-cinema-sports__copy h2, .ss-cinema-fields__heading h2, .ss-cinema-visit h2 { font-size: clamp(43px, 9vw, 62px); }
+  .ss-cinema-sports__visual { min-height: 270px; }
+  .ss-cinema-pitch__board { width: 100%; }
+  .ss-cinema-fields { padding-block: 83px 75px; }
+  .ss-cinema-fields__deck { height: 370px; width: 100%; }
+  .ss-cinema-field-card { width: min(300px, 76vw); height: 348px; }
+  .ss-cinema-field-card.is-before { transform: translate3d(calc(-50% - 130px), 25px, -75px) rotateY(27deg) rotateZ(-5deg); }
+  .ss-cinema-field-card.is-after { transform: translate3d(calc(-50% + 130px), 25px, -75px) rotateY(-27deg) rotateZ(5deg); }
+  .ss-cinema-field-card__number { top: 20px; left: 20px; font-size: 29px; }
+  .ss-cinema-field-card__brand { top: 25px; right: 16px; font-size: 8px; }
+  .ss-cinema-field-card__title { bottom: 82px; left: 19px; font-size: 43px; }
+  .ss-cinema-field-card__sports { bottom: 34px; left: 21px; font-size: 9px; }
+  .ss-cinema-fields__detail { margin-top: 32px; align-items: flex-start; flex-direction: column; gap: 22px; }
+  .ss-cinema-fields__detail h3 { font-size: 31px; }
+  .ss-cinema-visit { padding-block: 70px; }
+  .ss-cinema-visit__grid { grid-template-columns: 1fr; gap: 45px; }
+  .ss-cinema-visit__seal { width: 230px; }
+  .ss-cinema-world #canchas, .ss-cinema-world #experiencia, .ss-cinema-world #contacto { scroll-margin-top: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ss-cinema-world *, .ss-cinema-world *::before, .ss-cinema-world *::after { animation-duration: 0s !important; animation-delay: 0s !important; transition-duration: 0s !important; scroll-behavior: auto !important; }
+  .ss-cinema-world.ss-motion-ready [data-ss-reveal]:not(.ss-is-visible) { opacity: 1; transform: none; }
+  .ss-cinema-hero__photo { filter: none; }
+}
