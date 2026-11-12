@@ -26,6 +26,7 @@ test("Campos 1 y 2 conservan identidad física, deportes, estado y agenda propia
   assert.match(page, /bookable: court\.bookable/);
   assert.match(page, /priceText: court\.priceFrom === null \? null/);
   assert.match(scene, /encodeURIComponent\(activeCourt\.id\)/);
+  assert.match(scene, /court\.sports\.map\(\(entry, sportIndex\)/);
   assert.match(scene, /"HORARIOS POR CONFIRMAR"/);
   assert.match(scene, /horarios y tarifas aún deben ser publicados/);
   assert.match(scene, /<Link className="ss-cinema-button ss-cinema-button--primary" href=\{reserveHref\}/);

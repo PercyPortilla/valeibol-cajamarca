@@ -159,7 +159,7 @@ export function SanSebastianCinematic({
                   <span className="ss-cinema-field-card__number">{String(index + 1).padStart(2, "0")} <small>/ {String(courts.length).padStart(2, "0")}</small></span>
                   <span className="ss-cinema-field-card__brand">{index === 0 ? "SAN SEBASTIÁN" : "VISUAL CONCEPTUAL"}</span>
                   <span className="ss-cinema-field-card__title">{court.name}</span>
-                  <span className="ss-cinema-field-card__sports">FÚTBOL <span aria-hidden="true">•</span> VÓLEY</span>
+                  <span className="ss-cinema-field-card__sports">{court.sports.map((entry, sportIndex) => <span key={entry.slug}>{sportIndex > 0 ? <i aria-hidden="true">•</i> : null}{entry.name.toLocaleUpperCase("es-PE")}</span>)}</span>
                   <span className="ss-cinema-field-card__edge" aria-hidden="true" />
                 </span>
               </button>;

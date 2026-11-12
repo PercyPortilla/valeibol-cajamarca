@@ -117,7 +117,8 @@
 .ss-cinema-field-card__brand { position: absolute; top: 31px; right: 24px; color: #e2ffcd; font-size: 9px; font-weight: 850; letter-spacing: .15em; }
 .ss-cinema-field-card__title { position: absolute; bottom: 91px; left: 26px; font-size: clamp(36px, 5vw, 62px); font-weight: 930; letter-spacing: -.05em; line-height: .95; }
 .ss-cinema-field-card__sports { position: absolute; bottom: 42px; left: 28px; display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 820; letter-spacing: .16em; }
-.ss-cinema-field-card__sports span { color: var(--ss-lime); }
+.ss-cinema-field-card__sports > span { display: inline-flex; gap: 10px; color: #f7ffe8; }
+.ss-cinema-field-card__sports i { color: var(--ss-lime); font-style: normal; }
 .ss-cinema-field-card__edge { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: var(--ss-lime); }
 .ss-cinema-fields__controls { position: relative; z-index: 4; display: flex; gap: 26px; align-items: center; justify-content: center; margin: 4px auto 0; }
 .ss-cinema-fields__controls button { width: 52px; height: 47px; cursor: pointer; font-size: 22px; font-weight: 600; background: #1f4630; color: #e3f6d5; border: 1px solid rgba(190,232,158,.45); border-radius: 4px; transition: background-color 160ms ease; }
@@ -196,7 +197,7 @@
   .ss-cinema-sports { min-height: 0; padding-block: 80px 65px; }
   .ss-cinema-sports__copy h2, .ss-cinema-fields__heading h2, .ss-cinema-visit h2 { font-size: clamp(43px, 9vw, 62px); }
   .ss-cinema-sports__visual { min-height: 270px; }
-  .ss-cinema-pitch__board { width: 100%; }
+  .ss-cinema-pitch__board { width: 88%; margin-inline: auto; }
   .ss-cinema-fields { padding-block: 83px 75px; }
   .ss-cinema-fields__deck { height: 370px; width: 100%; }
   .ss-cinema-field-card { width: min(300px, 76vw); height: 348px; }

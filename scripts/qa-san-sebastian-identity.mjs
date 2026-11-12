@@ -232,6 +232,10 @@ for (const scene of [
   const file = path.join(out, scene.id + ".png");
   fs.writeFileSync(file, Buffer.from(image.data, "base64"));
   if (scene.id.startsWith("portada") && cinemaProbe?.loaded) {
+    await evaluate("document.querySelector('.ss-cinema-sports__visual')?.scrollIntoView({block:'center'}); true");
+    await pause(650);
+    const sportsShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
+    fs.writeFileSync(path.join(out, scene.id + "-cinematic-deportes.png"), Buffer.from(sportsShot.data, "base64"));
     await evaluate("document.querySelector('.ss-cinema-fields__deck')?.scrollIntoView({block:'center'}); true");
     await pause(650);
     const cardShot = await cmd("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false });
