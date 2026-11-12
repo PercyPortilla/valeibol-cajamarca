@@ -203,6 +203,13 @@ export function buildCalendarDays(referenceDateKey: string, todayDateKey: string
   );
 }
 
+/** Calendario de SOLO fechas: no fabrica horas ni estados de ocupación. */
+export function buildUnconfiguredCalendarDays(referenceDateKey: string, todayDateKey: string): CalendarDay[] {
+  return getWeekDateKeys(referenceDateKey).map((dateKey) =>
+    calendarDayShell(dateKey, todayDateKey, []),
+  );
+}
+
 /**
  * Convierte una fecha/hora local de una zona IANA a UTC usando Intl.
  * Evita hardcodear -05:00 y mantiene la zona America/Lima como fuente de verdad.

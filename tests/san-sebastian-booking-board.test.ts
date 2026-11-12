@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { consecutiveAvailableEnd } from "../lib/availabilitySelection.ts";
-import type { AvailabilitySlot } from "../lib/availability.ts";
+import { buildUnconfiguredCalendarDays, type AvailabilitySlot } from "../lib/availability.ts";
 
 const fixture: AvailabilitySlot[] = [
   { id: "a", date: "2026-11-12", start: "08:00", end: "09:00", status: "available" },
@@ -44,9 +44,27 @@ test("pizarra hija usa identidad propia, un selector por campo/deporte/duración
   assert.match(board, /\[1, 2, 3, 4\]/);
   assert.match(board, /consecutiveAvailableEnd\(day.slots, slot.start, durationMinutes\)/);
   assert.match(board, /!isPastLocalStart/);
+  assert.match(board, /buildUnconfiguredCalendarDays\(weekReference, today\)/);
+  assert.match(board, /No podemos indicar horas libres u ocupadas sin esa información/);
+  assert.match(board, /Sin horarios publicados para/);
+  assert.match(board, /"Libre"/);
+  assert.match(board, /"Ocupado"/);
+  assert.doesNotMatch(board, /Disponible para consultar/);
+  assert.match(css, /@keyframes ss-schedule-change/);
+  assert.match(css, /prefers-reduced-motion/);
   assert.match(board, /Me interesan/);
   assert.match(board, /Esta consulta no bloquea el campo/);
   assert.match(css, /background: #fff; color: #163c26/);
   assert.match(css, /#a1c92f/);
   assert.match(complex, /court\.bookable \|\| business\.slug === "polideportivo-san-sebastian"/);
+});
+
+test("Campo 2 tiene pizarra semanal navegable, sin fabricar ni un horario", () => {
+  const days = buildUnconfiguredCalendarDays("2026-11-12", "2026-11-11");
+  assert.equal(days.length, 7);
+  assert.equal(days[0].date, "2026-11-09");
+  assert.equal(days.at(-1)?.date, "2026-11-15");
+  assert.ok(days.every((day) => day.slots.length === 0));
+  assert.equal(days.find((day) => day.date === "2026-11-11")?.isToday, true);
+  assert.equal(buildUnconfiguredCalendarDays("2026-11-19", "2026-11-11")[0].date, "2026-11-16");
 });

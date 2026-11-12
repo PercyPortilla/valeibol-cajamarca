@@ -66,13 +66,23 @@ async function inspectBookingPlanner(startOnPending) {
   const boardReady = await waitFor("document.querySelectorAll('.ss-booking-board__choice').length === 3");
   if (!boardReady) return { loaded: false };
   if (startOnPending) {
+    const dayClick = await evaluate(`(() => {
+      const day = document.querySelectorAll('.ss-booking-board__date')[4];
+      if (!day) return false;
+      day.click();
+      return true;
+    })()`);
+    await pause(400);
     return evaluate(`(() => {
       const selected = document.querySelector('.ss-booking-board__choice .is-selected')?.textContent ?? '';
       const pending = document.querySelector('.ss-booking-board__pending')?.textContent ?? '';
-      const link = document.querySelector('.ss-booking-board__pending a[href]')?.href;
+      const link = document.querySelector('.ss-booking-board__summary a[href]')?.href;
+      const message = link ? new URL(link).searchParams.get('text') : '';
       return { loaded:true, pending: pending.includes('Campo 2') && pending.includes('Horarios y tarifas por confirmar'),
         selectedCampo2:selected.includes('Campo 2'), noInventedSlots:!document.querySelector('.ss-booking-board__slot'),
-        whatsappInformative:!!link && decodeURIComponent(new URL(link).searchParams.get('text') ?? '').includes('Campo 2') };
+        sevenDays:document.querySelectorAll('.ss-booking-board__date').length === 7,
+        dayCanBeSelected:${dayClick} && !!document.querySelector('.ss-booking-board__date.is-selected'),
+        whatsappInformative:!!message && message.includes('Campo 2') && message.includes('preferentemente el') };
     })()`);
   }
   const hourChoice = await clickChoice(2, /^2 horas$/i);
@@ -93,6 +103,9 @@ async function inspectBookingPlanner(startOnPending) {
       selectedSlot: document.querySelector('.ss-booking-board__slot.is-selected')?.textContent ?? '',
       selectedSport: buttons.find((button) => button.getAttribute('aria-pressed') === 'true')?.textContent ?? '',
       boardBackground: board ? getComputedStyle(board).backgroundColor : '',
+      statusSemantics: !!document.querySelector('.ss-booking-board__slot-status') &&
+        !document.body.textContent.includes('Disponible para consultar') &&
+        !!document.querySelector('.ss-booking-board__slot-status'),
       duration: document.querySelector('.ss-booking-board__choice:nth-child(3) .is-selected')?.textContent ?? '' };
   })()`);
   const voleyClicked = await clickChoice(1, /v[oó]ley/i);
@@ -101,9 +114,10 @@ async function inspectBookingPlanner(startOnPending) {
   const futbol = await read();
   const campo2Clicked = await clickChoice(0, /Campo 2/i);
   const pending = await evaluate(`(() => {
-    const link = document.querySelector('.ss-booking-board__pending a[href]');
+    const link = document.querySelector('.ss-booking-board__summary a[href]');
     return { status: document.querySelector('.ss-booking-board__pending')?.textContent.includes('Horarios y tarifas por confirmar'),
       noInventedSlots: !document.querySelector('.ss-booking-board__slot'),
+      sevenDays:document.querySelectorAll('.ss-booking-board__date').length === 7,
       whatsapp: link ? new URL(link.href).searchParams.get('text') : '' };
   })()`);
   return {
@@ -115,7 +129,8 @@ async function inspectBookingPlanner(startOnPending) {
       voley.message.includes('Campo 1') && voley.message.includes('Vóley') && voley.message.includes('2 horas') &&
       futbol.message.includes('Campo 1') && futbol.message.includes('Fútbol') && futbol.message.includes('2 horas'),
     lightOwnTheme: voley.boardBackground === 'rgb(255, 255, 255)',
-    campo2Pending: pending.status && pending.noInventedSlots && pending.whatsapp?.includes('Campo 2') && pending.whatsapp?.includes('2 horas'),
+    statusSemantics: voley.statusSemantics && futbol.statusSemantics,
+    campo2Pending: pending.status && pending.noInventedSlots && pending.sevenDays && pending.whatsapp?.includes('Campo 2') && pending.whatsapp?.includes('2 horas'),
   };
 }
 
@@ -186,8 +201,8 @@ for (const scene of [
     && details.header.includes("Sebastián")
     && details.scrollWidth <= details.width + 1
     && (scene.id.startsWith("portada") ? details.fields.includes("Campo 1") && details.fields.includes("Campo 2") : true)
-    && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
-    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
+    && (scene.id.startsWith("consulta") ? sportProbe?.loaded && sportProbe?.twoHours && sportProbe?.selectedSportWorks && sportProbe?.samePhysicalSlot && sportProbe?.messageWorks && sportProbe?.statusSemantics && sportProbe?.lightOwnTheme && sportProbe?.campo2Pending : true)
+    && (scene.id.startsWith("campo2") ? sportProbe?.pending && sportProbe?.selectedCampo2 && sportProbe?.sevenDays && sportProbe?.dayCanBeSelected && sportProbe?.noInventedSlots && sportProbe?.whatsappInformative : true);
   if (!good) failed = true;
   console.log(JSON.stringify({ pass: good, file, hydrated, sportProbe, ...details }));
 }

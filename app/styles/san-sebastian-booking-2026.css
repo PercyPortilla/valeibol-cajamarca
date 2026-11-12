@@ -126,3 +126,195 @@
   .ss-booking-board__disclaimer { padding-inline: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .ss-booking-board * { transition: none !important; scroll-behavior: auto; } }
+
+/* Edición estadio: profundidad contenida, códigos de estado inequívocos y movimiento con función. */
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .ss-booking-board {
+  --ss-forest: #103d28;
+  --ss-lime: #b1dc43;
+  --ss-cream: #f8faef;
+  border-color: #cbdabc;
+  border-radius: 18px;
+  box-shadow: 0 22px 52px rgba(13, 52, 30, .12);
+  animation: ss-board-arrive 450ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.ss-booking-board__top {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 85% 0%, rgba(174, 227, 86, .23), transparent 48%),
+    linear-gradient(115deg, #082b1c, #165539 82%);
+  border-bottom: 0;
+  padding-block: 30px;
+}
+.ss-booking-board__top::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #90bd35, #d1ee88 50%, #90bd35);
+  transform-origin: left;
+  animation: ss-field-line 700ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.ss-booking-board__top h3 { color: #f8ffef; font-size: clamp(22px, 2.3vw, 29px); letter-spacing: -.025em; }
+.ss-booking-board__top p { color: #dcf1d0; margin-top: 8px; max-width: 58ch; line-height: 1.5; }
+.ss-booking-board__tag { display: inline-flex; align-items: center; gap: 9px; background: rgba(246, 255, 229, .11); border: 1px solid rgba(203, 239, 159, .26); color: #ecffce; }
+.ss-booking-board__tag-dot { display: inline-block; width: 7px; height: 7px; background: #c7ef70; border-radius: 50%; box-shadow: 0 0 0 4px rgba(199, 239, 112, .12); }
+.ss-booking-board__choices { background: #fff; padding-block: 28px; }
+.ss-booking-board__choice legend { font-size: 13px; font-weight: 820; margin-bottom: 13px; color: #1a4128; }
+.tenant-reservation .ss-booking-board__button {
+  position: relative;
+  border-radius: 12px;
+  min-height: 48px;
+  padding: 12px 16px;
+  box-shadow: inset 0 0 0 0 transparent;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 220ms ease, transform 180ms cubic-bezier(.16, 1, .3, 1);
+}
+.tenant-reservation .ss-booking-board__button:not(.is-selected):hover { transform: translateY(-2px); box-shadow: 0 7px 15px rgba(18, 63, 34, .09); }
+.tenant-reservation .ss-booking-board__button.is-selected {
+  background: #174e31; border-color: #174e31; color: #fff;
+  box-shadow: inset 0 -3px 0 #bce86a;
+  animation: ss-selection-confirm 250ms ease-out;
+}
+.ss-booking-board__calendar { background: linear-gradient(180deg, #fff, #fdfefb); }
+.ss-booking-board__calendar h3 { color: #123f29; }
+.ss-booking-board__legend {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 18px;
+  margin: 0 0 17px; color: #445d4b; font-size: 12px; font-weight: 720;
+}
+.ss-booking-board__legend > span { display: inline-flex; align-items: center; gap: 7px; }
+.ss-booking-board__legend--pending { color: #526b4e; line-height: 1.5; }
+.ss-booking-board__status-dot {
+  display: inline-block; flex: none; width: 8px; height: 8px;
+  border-radius: 100%; background: #86918a;
+}
+.ss-booking-board__status-dot.is-free,
+.ss-booking-board__status-dot.is-available { background: #18944b; box-shadow: 0 0 0 3px rgba(24, 148, 75, .1); }
+.ss-booking-board__status-dot.is-busy,
+.ss-booking-board__status-dot.is-occupied { background: #bd4f46; box-shadow: 0 0 0 3px rgba(189, 79, 70, .1); }
+.ss-booking-board__status-dot.is-unavailable,
+.ss-booking-board__status-dot.is-past { background: #7a8580; }
+.tenant-reservation .ss-booking-board__date {
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease;
+}
+.tenant-reservation .ss-booking-board__date:hover { transform: translateY(-2px); box-shadow: 0 5px 13px rgba(16, 61, 40, .09); }
+.tenant-reservation .ss-booking-board__date.is-selected {
+  background: #e3f3d7; border-color: #578e46;
+  box-shadow: inset 0 -3px 0 #76ad39;
+  transform: translateY(-1px);
+}
+.ss-booking-board__slots { animation: ss-schedule-change 260ms cubic-bezier(.16, 1, .3, 1) both; }
+.tenant-reservation .ss-booking-board__slot,
+.tenant-reservation .ss-booking-board__slot:disabled {
+  min-height: 91px;
+  gap: 6px;
+  border-radius: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: transform 180ms cubic-bezier(.16, 1, .3, 1), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+.ss-booking-board__slot-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 720; }
+.ss-booking-board__slot-note { font-size: 10px; line-height: 1.4; }
+.tenant-reservation .ss-booking-board__slot[data-slot-status="available"]:not(.is-selected),
+.tenant-reservation .ss-booking-board__slot[data-slot-status="available"]:disabled {
+  background: #f0faee; border-color: #b4dfb1; color: #174b2f;
+}
+.tenant-reservation .ss-booking-board__slot[data-slot-status="available"]:disabled { opacity: .84; }
+.tenant-reservation .ss-booking-board__slot[data-slot-status="available"] small { color: #42664c; }
+.tenant-reservation .ss-booking-board__slot[data-slot-status="occupied"]:disabled {
+  background: #fff3f0; border-color: #eac9c0; color: #903f35;
+}
+.tenant-reservation .ss-booking-board__slot[data-slot-status="unavailable"]:disabled,
+.tenant-reservation .ss-booking-board__slot[data-slot-status="past"]:disabled {
+  background: #f3f5f1; border-color: #e1e6dc; color: #56645c;
+}
+.tenant-reservation .ss-booking-board__slot.is-selected,
+.tenant-reservation .ss-booking-board__slot[data-slot-status="available"].is-selected {
+  background: #124b30; color: #fff; border-color: #124b30;
+  box-shadow: inset 0 -3px 0 #bde971, 0 8px 18px rgba(18, 75, 48, .16);
+}
+.tenant-reservation .ss-booking-board__slot.is-selected :is(.ss-booking-board__slot-status,.ss-booking-board__slot-note) { color: #e5f6d6; }
+.tenant-reservation .ss-booking-board__slot:not(:disabled):hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(18, 75, 48, .12); }
+.ss-booking-board__pending {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin: 24px 28px 0; padding: 17px 19px;
+  background: #f4f8ea; border: 1px solid #d5e2bc; border-radius: 12px;
+}
+.ss-booking-board__pending-icon {
+  flex: none; display: grid; place-items: center; width: 28px; height: 28px;
+  border-radius: 100%; background: #e3eecf; color: #295637; font-weight: 850;
+}
+.ss-booking-board__pending strong { font-size: 15px; color: #204831; }
+.ss-booking-board__pending p { margin: 6px 0 0; }
+.ss-booking-board__unconfigured {
+  display: grid; justify-items: center; text-align: center; gap: 9px;
+  padding: clamp(26px, 4vw, 40px) 18px; background: #f8faef;
+  border: 1px dashed #bacfad; border-radius: 14px; color: #234d31;
+  animation: ss-schedule-change 260ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.ss-booking-board__unconfigured-mark {
+  width: 42px; height: 42px; border: 2px solid #7aab65;
+  border-radius: 12px; background:
+    linear-gradient(90deg, transparent 46%, #7aab65 46%, #7aab65 54%, transparent 54%),
+    linear-gradient(0deg, transparent 46%, #7aab65 46%, #7aab65 54%, transparent 54%);
+  opacity: .58;
+}
+.ss-booking-board__unconfigured strong { font-size: 17px; }
+.ss-booking-board__unconfigured p { margin: 0; max-width: 52ch; font-size: 13px; line-height: 1.6; color: #526b56; }
+.ss-booking-board__summary { border-top: 1px solid rgba(179, 231, 110, .24); }
+.tenant-reservation .ss-booking-board__cta {
+  display: inline-flex; align-items: center; gap: 16px;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, .11);
+  transition: transform 180ms cubic-bezier(.16, 1, .3, 1), background-color 180ms ease, box-shadow 180ms ease;
+}
+.tenant-reservation .ss-booking-board__cta:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0, 0, 0, .15); }
+.tenant-reservation .ss-booking-board__cta--disabled { box-shadow: none; }
+.ss-booking-board__cta > span[aria-hidden] { transition: transform 180ms ease; }
+.ss-booking-board__cta:hover > span[aria-hidden] { transform: translate(2px, -2px); }
+
+/* La portada del mismo negocio acompaña el lenguaje del tablero sin animaciones perpetuas. */
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy {
+  animation: ss-board-arrive 580ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card {
+  transition: transform 240ms cubic-bezier(.16, 1, .3, 1), box-shadow 240ms ease, border-color 220ms ease;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card:hover {
+  transform: translateY(-4px);
+  border-color: #99bc60;
+  box-shadow: 0 18px 34px rgba(11, 52, 24, .11);
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button {
+  transition: transform 180ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease, background-color 180ms ease;
+}
+.platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 19px rgba(19, 56, 28, .16);
+}
+@keyframes ss-board-arrive { from { opacity: .88; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ss-field-line { from { transform: scaleX(.22); } to { transform: scaleX(1); } }
+@keyframes ss-selection-confirm { from { box-shadow: inset 0 -3px 0 #bce86a, 0 0 0 4px rgba(177, 220, 67, .16); } to { box-shadow: inset 0 -3px 0 #bce86a, 0 0 0 0 transparent; } }
+@keyframes ss-schedule-change { from { opacity: .85; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 650px) {
+  .ss-booking-board__top { padding: 22px 17px; }
+  .ss-booking-board__top h3 { font-size: 23px; }
+  .ss-booking-board__pending { margin: 17px 16px 0; padding: 15px; }
+  .ss-booking-board__unconfigured { padding: 28px 16px; }
+  .ss-booking-board__legend { gap: 12px; font-size: 11px; }
+  .ss-booking-board__slots { gap: 8px; }
+  .tenant-reservation .ss-booking-board__slot { padding: 12px 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .ss-booking-board,
+  .ss-booking-board__top::after,
+  .tenant-reservation .ss-booking-board__button.is-selected,
+  .ss-booking-board__slots,
+  .ss-booking-board__unconfigured { animation: none !important; }
+  .ss-booking-board :is(button, a, a span) { transition: none !important; }
+  .ss-booking-board :is(button, a):hover { transform: none !important; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-complex-hero__copy { animation: none !important; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card,
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button { transition: none !important; }
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card:hover,
+  .platform-public-premium--complex[data-business-slug="polideportivo-san-sebastian"] .platform-court-card .button:hover { transform: none !important; }
+}

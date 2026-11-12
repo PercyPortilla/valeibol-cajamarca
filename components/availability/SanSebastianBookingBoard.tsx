@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { isPastLocalStart } from "@/lib/booking";
 import { consecutiveAvailableEnd } from "@/lib/availabilitySelection";
-import { formatWeekRange, startOfWeekMonday, type AvailabilityWeekSnapshot } from "@/lib/availability";
+import { buildUnconfiguredCalendarDays, formatWeekRange, startOfWeekMonday, type AvailabilityWeekSnapshot } from "@/lib/availability";
 import { buildWhatsAppChatHref } from "@/lib/whatsapp/links";
 
 export type ShowcaseBookingCourt = { courtId: string; courtName: string; bookable: boolean };
@@ -34,6 +34,7 @@ export function SanSebastianBookingBoard({
 }: Props) {
   const [durationHours, setDurationHours] = useState(1);
   const [selectedStart, setSelectedStart] = useState<string | null>(null);
+  const [preferredDate, setPreferredDate] = useState<string | null>(null);
 
   const courts = useMemo(() => {
     const known = showcaseCourts.map((court) => ({ ...court }));
@@ -50,7 +51,7 @@ export function SanSebastianBookingBoard({
   const pendingCourt = !chosenCourt?.bookable || !operationalCourt;
   const sports = courtSports[chosenCourt?.courtId ?? ""] ?? [];
   const sport = sports.find((item) => item.slug === selectedSportSlug) ?? sports[0];
-  const days = operationalCourt?.days ?? [];
+  const days = !pendingCourt && operationalCourt ? operationalCourt.days : buildUnconfiguredCalendarDays(weekReference, today);
   const day = days.find((item) => item.date === selectedDate) ?? days[0];
   const durationMinutes = durationHours * 60;
   const selectedEnd = selectedStart && day && !pendingCourt
@@ -59,11 +60,17 @@ export function SanSebastianBookingBoard({
     && !isPastLocalStart(day.date, selectedStart, operationalCourt.timezone);
 
   useEffect(() => { setSelectedStart(null); }, [activeCourtId, selectedDate, durationHours, weekReference]);
+  useEffect(() => { setPreferredDate(null); }, [activeCourtId, weekReference]);
+
+  function chooseDay(date: string) {
+    onDateChange(date);
+    if (pendingCourt) setPreferredDate(date);
+  }
 
   const details = validSelection
     ? `Hola, quisiera consultar ${durationHours} ${durationHours === 1 ? "hora" : "horas"} en ${businessName}, ${chosenCourt.courtName}, para ${sport.name}, el ${day.date} de ${selectedStart} a ${selectedEnd}. ¿Podrían confirmar disponibilidad y tarifa?`
     : pendingCourt && sport
-      ? `Hola, quisiera consultar cuándo estará disponible ${chosenCourt?.courtName} de ${businessName} para ${sport.name}. Me interesan ${durationHours} ${durationHours === 1 ? "hora" : "horas"}. ¿Podrían informarme horarios y tarifas reales?`
+      ? `Hola, quisiera consultar cuándo estará disponible ${chosenCourt?.courtName} de ${businessName} para ${sport.name}. Me interesan ${durationHours} ${durationHours === 1 ? "hora" : "horas"}${preferredDate ? `, preferentemente el ${preferredDate}` : ""}. ¿Podrían informarme horarios y tarifas reales?`
       : null;
   const chatHref = details && contactPhoneE164 ? buildWhatsAppChatHref(contactPhoneE164, details) : null;
   const availableCount = !pendingCourt && day
@@ -73,8 +80,8 @@ export function SanSebastianBookingBoard({
 
   return <div className="ss-booking-board" aria-label="Pizarra de horarios de San Sebastián">
     <div className="ss-booking-board__top">
-      <div><h3>Arma tu consulta</h3><p>Dos deportes, un solo calendario por campo físico.</p></div>
-      <span className="ss-booking-board__tag">Sin registro · Confirmación por WhatsApp</span>
+      <div><h3>La pizarra de San Sebastián</h3><p>Tu cancha, tu deporte, tu próximo partido. Elige cómo quieres jugar.</p></div>
+      <span className="ss-booking-board__tag"><span className="ss-booking-board__tag-dot" aria-hidden="true" /> Coordinación directa por WhatsApp</span>
     </div>
     <div className="ss-booking-board__choices">
       <fieldset className="ss-booking-board__choice"><legend>1. Elige tu campo</legend>
@@ -82,7 +89,7 @@ export function SanSebastianBookingBoard({
           {courts.map((court) => <button key={court.courtId} type="button"
             className={chosenCourt?.courtId === court.courtId ? "ss-booking-board__button is-selected" : "ss-booking-board__button"}
             aria-pressed={chosenCourt?.courtId === court.courtId}
-            onClick={() => onCourtChange(court.courtId)}>{court.courtName}<small>{court.bookable ? "Ver horarios" : "Por confirmar"}</small></button>)}
+            onClick={() => { setPreferredDate(null); onCourtChange(court.courtId); }}>{court.courtName}<small>{court.bookable ? "Agenda publicada" : "Agenda por configurar"}</small></button>)}
         </div>
       </fieldset>
       <fieldset className="ss-booking-board__choice"><legend>2. ¿Qué deporte jugarás?</legend>
@@ -103,15 +110,18 @@ export function SanSebastianBookingBoard({
       </fieldset>
     </div>
 
-    {pendingCourt ? <div className="ss-booking-board__pending" role="status">
-      <strong>{chosenCourt?.courtName ?? "Campo"} · Horarios y tarifas por confirmar</strong>
-      <p>Este campo todavía no tiene una agenda operativa publicada. No mostramos horas ni precios supuestos. Puedes solicitar información al polideportivo sin confirmar una reserva.</p>
-      {chatHref ? <a className="ss-booking-board__cta" href={chatHref} target="_blank" rel="noopener noreferrer">Consultar cuándo estará disponible ↗</a>
-        : <small>WhatsApp pendiente de configurar.</small>}
-    </div> : <>
+    <>
+      {pendingCourt ? <div className="ss-booking-board__pending" role="status">
+        <span className="ss-booking-board__pending-icon" aria-hidden="true">i</span>
+        <div><strong>{chosenCourt?.courtName ?? "Campo"} · Horarios y tarifas por confirmar</strong>
+          <p>Esta pizarra está habilitada para explorar los días, pero el propietario todavía no ha publicado horarios. No podemos indicar horas libres u ocupadas sin esa información.</p>
+        </div>
+      </div> : null}
       <div className="ss-booking-board__calendar">
         <div className="ss-booking-board__calendar-heading">
-          <div><h3>4. Selecciona el día y la hora</h3><p>Solo se ofrecen periodos continuos de {durationHours} {durationHours === 1 ? "hora" : "horas"}.</p></div>
+          <div><h3>4. {pendingCourt ? "Explora los días" : "Selecciona el día y la hora"}</h3>
+            <p>{pendingCourt ? "Puedes señalar un día preferido para preguntar por su futura disponibilidad." : `Se consultan únicamente tramos continuos de ${durationHours} ${durationHours === 1 ? "hora" : "horas"}.`}</p>
+          </div>
           <div className="ss-booking-board__week-nav" aria-label="Navegación de semanas">
             <button type="button" onClick={() => onWeekChange(-7)} disabled={startOfWeekMonday(weekReference) <= startOfWeekMonday(today)}>← Anterior</button>
             <button type="button" onClick={onToday}>Hoy</button>
@@ -119,39 +129,54 @@ export function SanSebastianBookingBoard({
           </div>
         </div>
         <p className="ss-booking-board__week-range">{formatWeekRange(days.map((item) => item.date))}</p>
+        {!pendingCourt ? <div className="ss-booking-board__legend" aria-label="Estados de horarios">
+          <span><i className="ss-booking-board__status-dot is-free" aria-hidden="true"/> Libre</span>
+          <span><i className="ss-booking-board__status-dot is-busy" aria-hidden="true"/> Ocupado</span>
+          <span><i className="ss-booking-board__status-dot is-unavailable" aria-hidden="true"/> No disponible</span>
+        </div> : <p className="ss-booking-board__legend ss-booking-board__legend--pending">Sin disponibilidad publicada: ningún día se considera libre ni ocupado todavía.</p>}
         <div className="ss-booking-board__dates" role="group" aria-label="Seleccionar día">
           {days.map((item) => <button type="button" key={item.date}
             aria-pressed={day?.date === item.date}
             className={day?.date === item.date ? "ss-booking-board__date is-selected" : "ss-booking-board__date"}
-            onClick={() => onDateChange(item.date)}>
+            onClick={() => chooseDay(item.date)}>
             <span>{item.weekdayShort}</span><strong>{item.dayNumber}</strong><small>{item.isToday ? "Hoy" : item.monthShort}</small>
           </button>)}
         </div>
         <div className="ss-booking-board__times-heading">
           <strong>{day?.weekdayLong} {day?.dayNumber} {day?.monthShort}</strong>
-          <span>{availableCount} {availableCount === 1 ? "inicio posible" : "inicios posibles"} para {durationHours} h</span>
+          <span>{pendingCourt ? "Agenda no publicada" : `${availableCount} ${availableCount === 1 ? "inicio libre" : "inicios libres"} para ${durationHours} h`}</span>
         </div>
-        {day?.slots.length ? <div className="ss-booking-board__slots">
+        {pendingCourt ? <div key={`${chosenCourt?.courtId}-${day?.date}`} className="ss-booking-board__unconfigured" role="status">
+          <div className="ss-booking-board__unconfigured-mark" aria-hidden="true" />
+          <strong>Sin horarios publicados para {chosenCourt?.courtName}</strong>
+          <p>{preferredDate === day?.date ? "Tomaremos este día como tu preferencia para la consulta por WhatsApp." : "Elige un día si quieres indicar una preferencia. Las horas aparecerán aquí cuando el propietario configure el campo."}</p>
+        </div> : day?.slots.length ? <div className="ss-booking-board__slots" key={`${chosenCourt?.courtId}-${day.date}-${durationHours}`}>
           {day.slots.map((slot) => {
             const end = consecutiveAvailableEnd(day.slots, slot.start, durationMinutes);
-            const selectable = slot.status === "available" && !!end && !isPastLocalStart(slot.date, slot.start, businessTimezone);
+            const isPast = isPastLocalStart(slot.date, slot.start, businessTimezone);
+            const selectable = slot.status === "available" && !!end && !isPast;
             const chosen = selectedStart === slot.start && selectable;
+            const status = isPast ? "past" : slot.status;
+            const statusText = isPast ? "Pasado" : slot.status === "available" ? "Libre" : slot.status === "occupied" ? "Ocupado" : "No disponible";
             return <button type="button" key={slot.id} disabled={!selectable} aria-pressed={chosen}
+              data-slot-status={status}
               className={`ss-booking-board__slot${chosen ? " is-selected" : ""}`}
               onClick={() => setSelectedStart(slot.start)}>
               <strong>{slot.start}–{selectable ? end : slot.end}</strong>
-              <small>{chosen ? "Seleccionado" : selectable ? "Disponible para consultar" : slot.status === "occupied" ? "Ocupado" : "No disponible para esta duración"}</small>
+              <span className="ss-booking-board__slot-status"><i aria-hidden="true" className={`ss-booking-board__status-dot is-${status}`} />{statusText}</span>
+              {chosen ? <small className="ss-booking-board__slot-note">Horario elegido</small> : slot.status === "available" && !selectable && !isPast
+                ? <small className="ss-booking-board__slot-note">No alcanza para {durationHours} h seguidas</small> : null}
             </button>;
           })}
-        </div> : <p className="ss-booking-board__empty">No hay horas publicadas para este día. Prueba otro día.</p>}
+        </div> : <p className="ss-booking-board__empty">Sin horas para este día. Elige otro día para consultar.</p>}
       </div>
       <div className="ss-booking-board__summary" aria-live="polite">
         <div><span>Tu consulta</span><strong>{chosenCourt?.courtName} · {sport?.name ?? "Elige deporte"} · {durationHours} {durationHours === 1 ? "hora" : "horas"}</strong>
-          <small>{validSelection ? `${day.date} · ${selectedStart} a ${selectedEnd}` : "Selecciona un horario libre para continuar"}</small></div>
-        {validSelection && chatHref ? <a className="ss-booking-board__cta" href={chatHref} target="_blank" rel="noopener noreferrer">Consultar este horario por WhatsApp ↗</a>
-          : <span className="ss-booking-board__cta ss-booking-board__cta--disabled" aria-disabled="true">{!contactPhoneE164 ? "WhatsApp no configurado" : "Elige un horario"}</span>}
+          <small>{pendingCourt ? `Horarios por confirmar${preferredDate ? ` · Prefieres ${preferredDate}` : ""}` : validSelection ? `${day.date} · ${selectedStart} a ${selectedEnd}` : "Selecciona una hora libre para continuar"}</small></div>
+        {(validSelection || pendingCourt) && chatHref ? <a className="ss-booking-board__cta" href={chatHref} target="_blank" rel="noopener noreferrer">{pendingCourt ? "Preguntar por este campo" : "Consultar este horario"}<span aria-hidden="true">↗</span></a>
+          : <span className="ss-booking-board__cta ss-booking-board__cta--disabled" aria-disabled="true">{!contactPhoneE164 ? "WhatsApp no configurado" : "Elige un horario libre"}</span>}
       </div>
-    </>}
+    </>
     <p className="ss-booking-board__disclaimer">Horarios sujetos a confirmación del negocio. Esta consulta no bloquea el campo ni crea una reserva o pago automático.</p>
   </div>;
 }
