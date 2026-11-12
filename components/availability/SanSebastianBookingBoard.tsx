@@ -78,11 +78,27 @@ export function SanSebastianBookingBoard({
     ? day.slots.filter((slot) => slot.status === "available" &&
         !isPastLocalStart(slot.date, slot.start, operationalCourt!.timezone) &&
         consecutiveAvailableEnd(day.slots, slot.start, durationMinutes)).length : 0;
+  const firstEligibleStart = !pendingCourt && day
+    ? day.slots.find((slot) => slot.status === "available" &&
+      !isPastLocalStart(slot.date, slot.start, operationalCourt!.timezone) &&
+      consecutiveAvailableEnd(day.slots, slot.start, durationMinutes))?.start ?? null : null;
+  function freeStartsForDate(date: typeof days[number]) {
+    if (pendingCourt || !operationalCourt) return 0;
+    return date.slots.filter((slot) => slot.status === "available" &&
+      !isPastLocalStart(slot.date, slot.start, operationalCourt.timezone) &&
+      !!consecutiveAvailableEnd(date.slots, slot.start, durationMinutes)).length;
+  }
 
   return <div className="ss-booking-board" aria-label="Pizarra de horarios de San Sebastián">
     <div className="ss-booking-board__top">
       <div><h3>La pizarra de San Sebastián</h3><p>Tu cancha, tu deporte, tu próximo partido. Elige cómo quieres jugar.</p></div>
       <span className="ss-booking-board__tag"><span className="ss-booking-board__tag-dot" aria-hidden="true" /> Coordinación directa por WhatsApp</span>
+    </div>
+    <div className="ss-booking-board__progress" aria-label="Pasos de la consulta">
+      {["Cancha", "Deporte", "Duración", "Horario"].map((step, index) => <div key={step}
+        className={`ss-booking-board__progress-item${index < 3 || validSelection ? " is-done" : " is-current"}`}>
+        <b aria-hidden="true">{index < 3 || validSelection ? "✓" : index + 1}</b><span>{step}</span>
+      </div>)}
     </div>
     <div className="ss-booking-board__choices">
       <fieldset className="ss-booking-board__choice"><legend>1. Elige tu campo</legend>
@@ -144,11 +160,17 @@ export function SanSebastianBookingBoard({
             className={selectedDayKey === item.date ? "ss-booking-board__date is-selected" : "ss-booking-board__date"}
             onClick={() => chooseDay(item.date)}>
             <span>{item.weekdayShort}</span><strong>{item.dayNumber}</strong><small>{item.isToday ? "Hoy" : item.monthShort}</small>
+            {!pendingCourt ? <em className={`ss-booking-board__date-availability${freeStartsForDate(item) === 0 ? " is-zero" : ""}`}>
+              {freeStartsForDate(item) === 0 ? "Sin inicios" : `${freeStartsForDate(item)} libres`}
+            </em> : null}
           </button>)}
         </div>
         <div className="ss-booking-board__times-heading">
           <strong>{pendingCourt && !preferredDate ? "Elige un día de la semana" : `${day?.weekdayLong} ${day?.dayNumber} ${day?.monthShort}`}</strong>
-          <span>{pendingCourt ? "Agenda no publicada" : `${availableCount} ${availableCount === 1 ? "inicio libre" : "inicios libres"} para ${durationHours} h`}</span>
+          <div><span>{pendingCourt ? "Agenda no publicada" : `${availableCount} ${availableCount === 1 ? "inicio libre" : "inicios libres"} para ${durationHours} h`}</span>
+            {firstEligibleStart && !selectedStart ? <button className="ss-booking-board__quick-pick" type="button"
+              onClick={() => setSelectedStart(firstEligibleStart)}>Elegir el primero ↗</button> : null}
+          </div>
         </div>
         {pendingCourt ? <div key={`${chosenCourt?.courtId}-${day?.date}`} className="ss-booking-board__unconfigured" role="status">
           <div className="ss-booking-board__unconfigured-mark" aria-hidden="true" />

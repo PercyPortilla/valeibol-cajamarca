@@ -1,0 +1,187 @@
+/* San Sebastián 2026 · nueva capa visual, sin tocar reglas de reservas. */
+.tenant-reservation[data-business-slug="polideportivo-san-sebastian"] .ss-booking-board {
+  border-radius: 24px;
+  border-color: #c4d5b3;
+  box-shadow: 0 30px 75px rgba(7, 46, 27, .13), 0 4px 12px rgba(7, 46, 27, .05);
+}
+.ss-booking-board__top::before {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -90px;
+  width: 320px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(211, 250, 173, .16);
+  border-radius: 50%;
+  box-shadow: 0 0 0 48px rgba(211, 250, 173, .036), 0 0 0 105px rgba(211, 250, 173, .024);
+  pointer-events: none;
+}
+.ss-booking-board__progress {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 15px 28px;
+  gap: 9px;
+  background: #eef6e6;
+  border-bottom: 1px solid #dbe8cd;
+}
+.ss-booking-board__progress-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  color: #526851;
+  font-size: 11px;
+  font-weight: 740;
+}
+.ss-booking-board__progress-item b {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid #b4c7a9;
+  background: #fff;
+  color: #315c38;
+  font-size: 11px;
+}
+.ss-booking-board__progress-item.is-done { color: #145734; }
+.ss-booking-board__progress-item.is-done b { background: #175b38; color: #fff; border-color: #175b38; }
+.ss-booking-board__progress-item.is-current b { box-shadow: 0 0 0 3px rgba(160, 201, 47, .25); }
+.ss-booking-board__slots { scroll-margin-top: 20px; }
+.ss-booking-board__calendar { position: relative; }
+.ss-booking-board__date-availability {
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 780;
+  color: #318248;
+  white-space: nowrap;
+}
+.ss-booking-board__date-availability.is-zero { color: #8b5d4a; }
+.tenant-reservation .ss-booking-board__date.is-selected .ss-booking-board__date-availability { color: #1d6137; }
+.ss-booking-board__times-heading > div { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.tenant-reservation .ss-booking-board__quick-pick {
+  padding: 8px 12px;
+  min-height: 35px;
+  border: 1px solid #9abf83;
+  border-radius: 999px;
+  background: #f1faea;
+  color: #215d37;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 780;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
+}
+.tenant-reservation .ss-booking-board__quick-pick:hover { background: #def1cf; transform: translateY(-1px); }
+.ss-booking-board__summary { position: relative; }
+.ss-booking-board__summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(#b5e365, #68a93e);
+}
+.ss-booking-board__summary strong { letter-spacing: -.02em; }
+
+/* Centro de operaciones, solo cuando el negocio autorizado es San Sebastián. */
+.admin-command { display: grid; gap: 0; border: 1px solid #d9e7d7; border-radius: 24px; overflow: hidden; background: #fff; box-shadow: 0 22px 60px rgba(18, 54, 37, .09); }
+.admin-command__masthead {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: clamp(25px, 3vw, 42px);
+  background: radial-gradient(ellipse at 75% -20%, rgba(172, 222, 95, .25), transparent 45%), linear-gradient(120deg, #0c3021, #1c5638);
+  color: #fff;
+}
+.admin-command__eyebrow { font-size: 10px; font-weight: 880; letter-spacing: .15em; color: #92c85b; }
+.admin-command__masthead .admin-command__eyebrow { color: #b8ef7f; }
+.admin-command__masthead h2 { margin: 10px 0; color: #fff; font-size: clamp(25px, 3vw, 40px); letter-spacing: -.045em; line-height: 1.06; }
+.admin-command__masthead h2 span { color: #b5e46b; }
+.admin-command__masthead p { margin: 0; max-width: 55ch; color: #d2e8d5; line-height: 1.6; font-size: 13px; }
+.admin-command__links { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; align-self: center; flex: 0 1 310px; }
+.admin-command__links a { display: flex; align-items: center; padding: 11px 13px; min-height: 43px; border: 1px solid rgba(217, 244, 197, .28); border-radius: 10px; background: rgba(255,255,255,.07); color: #eaffd9; text-decoration: none; font-size: 11px; font-weight: 760; }
+.admin-command__links a:hover { background: rgba(198,240,166,.18); }
+.admin-command__metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); background: #f7faf4; border-bottom: 1px solid #dce7d7; }
+.admin-command__metrics > div { display: grid; gap: 7px; padding: clamp(16px, 2vw, 25px); min-width: 0; }
+.admin-command__metrics > div + div { border-left: 1px solid #e0e9dc; }
+.admin-command__metrics span { font-size: 11px; color: #43624d; font-weight: 760; }
+.admin-command__metrics strong { font-size: clamp(22px,2.7vw,37px); letter-spacing: -.045em; color: #174930; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.admin-command__metrics small { font-size: 10px; line-height: 1.5; color: #587261; }
+.admin-command__courts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; padding: 18px 24px; background: #fff; }
+.admin-command__court { min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: 10px 12px; text-align: left; padding: 18px; border: 1px solid #d3dfcf; border-radius: 15px; background: #fbfdf8; color: #1f4631; cursor: pointer; }
+.admin-command__court:hover,.admin-command__court.is-current { border-color: #5a9662; background: #f4faee; }
+.admin-command__court > span:first-child { display: grid; gap: 5px; }
+.admin-command__court > span:first-child strong { font-size: 16px; }
+.admin-command__court small { color: #5b7360; font-size: 10px; }
+.admin-command__court-percent { font-size: 22px; color: #205c37; font-variant-numeric: tabular-nums; }
+.admin-command__meter { grid-column: 1 / -1; height: 7px; background: #e0e9d8; border-radius: 99px; overflow: hidden; }
+.admin-command__meter i { display: block; height: 100%; background: linear-gradient(90deg, #368456, #aad56b); border-radius: inherit; transition: width 260ms ease; }
+.admin-command__court > small { grid-column: 1 / -1; }
+.admin-command__viewbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 15px 24px; border-top: 1px solid #e5eee0; }
+.admin-command__viewbar > span { font-size: 11px; color: #607363; }
+.admin-command__switch { display: inline-flex; flex-wrap: wrap; gap: 5px; padding: 4px; border: 1px solid #d3e2cb; border-radius: 11px; background: #f2f7ec; }
+.admin-command__switch button { padding: 9px 14px; border: 0; border-radius: 8px; color: #395b42; font-size: 12px; font-weight: 760; background: transparent; cursor: pointer; }
+.admin-command__switch button.is-current { background: #174d32; color: #fff; box-shadow: 0 4px 12px rgba(16,55,29,.16); }
+.admin-command__compare { display: grid; gap: 18px; }
+.admin-command__compare-top { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
+.admin-command__compare-top h3 { margin: 6px 0 5px; font-size: clamp(23px, 2.4vw, 31px); color: #214833; letter-spacing: -.035em; }
+.admin-command__compare-top p { margin: 0; color: #617367; font-size: 12px; }
+.admin-command__compare-top label { display: grid; gap: 6px; font-size: 11px; font-weight: 750; color: #3a5c46; }
+.admin-command__compare-top select { min-height: 44px; padding: 9px 30px 9px 12px; border: 1px solid #cbdcc6; border-radius: 10px; background: white; color: #204b30; font: inherit; }
+.admin-command__days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 8px; }
+.admin-command__days button { display: grid; gap: 3px; justify-items: center; min-width: 0; min-height: 64px; padding: 9px 5px; border: 1px solid #d9e4d4; border-radius: 10px; background: #fbfdf8; color: #395f44; cursor: pointer; }
+.admin-command__days button span { text-transform: capitalize; font-size: 10px; }
+.admin-command__days button strong { font-size: 12px; }
+.admin-command__days button small { font-size: 9px; }
+.admin-command__days button.is-current { background: #174d32; border-color: #174d32; color: #fff; }
+.admin-command__comparison-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 15px; }
+.admin-command__comparison-court { min-width: 0; padding: 15px; border: 1px solid #d9e5d5; border-radius: 15px; background: #fff; }
+.admin-command__comparison-court > header { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-bottom: 1px solid #e5ede2; padding-bottom: 12px; margin-bottom: 12px; }
+.admin-command__comparison-court > header span { font-size: 10px; letter-spacing: .12em; color: #718372; font-weight: 760; }
+.admin-command__comparison-court > header h4 { font-size: 19px; letter-spacing: -.03em; color: #254b33; margin: 4px 0 0; }
+.admin-command__comparison-court > header > strong { white-space: nowrap; font-size: 12px; color: #23633c; background: #eef8e9; border-radius: 99px; padding: 6px 9px; }
+.admin-command__comparison-slots { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start; gap: 8px; }
+.admin-command__comparison-slots .admin-slot { min-width: 0; }
+.admin-command__comparison-slots .admin-slot__head { display: flex; flex-wrap: wrap; }
+.admin-command__comparison-slots .admin-slot__toggle,.admin-command__comparison-slots .admin-slot__static { padding: 10px; }
+.admin-command__comparison-slots .admin-slot__context { padding: 5px 10px 12px; }
+.admin-command__comparison-slots .admin-slot__summary strong { font-size: 11px; overflow-wrap: anywhere; }
+.admin-command__comparison-slots .admin-slot__summary small { font-size: 10px; }
+.admin-command__empty { grid-column: 1 / -1; padding: 25px 10px; margin: 0; text-align: center; font-size: 12px; color: #66806b; }
+.admin-command__footnote { font-size: 11px; line-height: 1.6; color: #637466; margin: 0; }
+.admin-command__compare :is(button,select):focus-visible,.admin-command :is(a,button):focus-visible { outline: 3px solid #72ae43; outline-offset: 2px; }
+
+@media (max-width: 1080px) {
+  .admin-command__metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .admin-command__metrics > div:nth-child(3) { border-left: 0; }
+  .admin-command__metrics > div:nth-child(n+3) { border-top: 1px solid #e0e9dc; }
+  .admin-command__compare .admin-command__comparison-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .ss-booking-board__progress { padding: 12px 14px; gap: 5px; }
+  .ss-booking-board__progress-item { gap: 5px; font-size: 9px; }
+  .ss-booking-board__progress-item b { width: 21px; height: 21px; }
+  .ss-booking-board__date-availability { font-size: 9px; }
+  .admin-command { border-radius: 17px; }
+  .admin-command__masthead { padding: 23px 18px; }
+  .admin-command__links { flex: 1 1 100%; }
+  .admin-command__metrics > div { padding: 17px 12px; }
+  .admin-command__metrics strong { font-size: 25px; }
+  .admin-command__courts { grid-template-columns: 1fr; padding: 12px; gap: 8px; }
+  .admin-command__viewbar { padding: 12px; }
+  .admin-command__compare .admin-command__comparison-grid { grid-template-columns: 1fr; }
+  .admin-command__days { gap: 4px; }
+  .admin-command__days button { min-height: 63px; padding: 7px 2px; }
+  .admin-command__days button strong { font-size: 10px; }
+  .admin-command__comparison-slots { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tenant-reservation .ss-booking-board__quick-pick:hover { transform: none; }
+  .admin-command__meter i { transition: none; }
+}
