@@ -16,7 +16,13 @@ type Profile = {
 };
 const PROD = "https://caxas-sportcenter.vercel.app";
 const LEGACY = "https://valeibol-cajamarca-live.vercel.app";
-const ORIGINS = new Set([PROD, LEGACY, "http://localhost:3000", "http://127.0.0.1:3000"]);
+const ORIGINS = new Set([
+  PROD, LEGACY,
+  // Aliases estables de producción que Vercel asigna a este mismo proyecto.
+  "https://caxas-sportcenter-jan1diaz-5594.vercel.app",
+  "https://caxas-sportcenter-git-main-jan1diaz-5594.vercel.app",
+  "http://localhost:3000", "http://127.0.0.1:3000",
+]);
 // Las versiones actuales de supabase-js / supabase-ssr añaden cabeceras de
 // reintentos y trazabilidad. Si OPTIONS no las incluye en Allow-Headers, el
 // navegador bloquea el POST antes de que llegue a esta función.

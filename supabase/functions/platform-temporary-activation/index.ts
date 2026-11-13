@@ -6,6 +6,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 const ALLOWED_ORIGINS = new Set([
   "https://caxas-sportcenter.vercel.app",
   "https://valeibol-cajamarca-live.vercel.app",
+  "https://caxas-sportcenter-jan1diaz-5594.vercel.app",
+  "https://caxas-sportcenter-git-main-jan1diaz-5594.vercel.app",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ]);

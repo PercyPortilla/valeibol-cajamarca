@@ -62,6 +62,8 @@ test("permisos globales están vinculados a roles reales, nunca a checkboxes dec
 
 test("ambas Edge Functions permiten la comprobación CORS de Supabase con reintentos y trazas",()=>{
   for (const source of [edge,activation]) {
+    assert.match(source,/https:\/\/caxas-sportcenter-jan1diaz-5594\.vercel\.app/);
+    assert.match(source,/https:\/\/caxas-sportcenter-git-main-jan1diaz-5594\.vercel\.app/);
     assert.match(source,/"x-retry-count"/);
     assert.match(source,/"traceparent"/);
     assert.match(source,/"tracestate"/);
