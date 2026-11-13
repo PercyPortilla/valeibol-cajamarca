@@ -17,6 +17,15 @@ type Profile = {
 const PROD = "https://caxas-sportcenter.vercel.app";
 const LEGACY = "https://valeibol-cajamarca-live.vercel.app";
 const ORIGINS = new Set([PROD, LEGACY, "http://localhost:3000", "http://127.0.0.1:3000"]);
+// Las versiones actuales de supabase-js / supabase-ssr añaden cabeceras de
+// reintentos y trazabilidad. Si OPTIONS no las incluye en Allow-Headers, el
+// navegador bloquea el POST antes de que llegue a esta función.
+const CORS_REQUEST_HEADERS = [
+  "authorization", "apikey", "content-type", "x-client-info",
+  "x-retry-count", "traceparent", "tracestate", "baggage",
+  "x-supabase-client-platform", "x-supabase-client-platform-version",
+  "x-supabase-client-runtime", "x-supabase-client-runtime-version",
+].join(", ");
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -25,7 +34,7 @@ function cors(req: Request) {
   if (!origin || !ORIGINS.has(origin)) return {};
   return {
     "access-control-allow-origin": origin,
-    "access-control-allow-headers": "authorization, apikey, content-type, x-client-info",
+    "access-control-allow-headers": CORS_REQUEST_HEADERS,
     "access-control-allow-methods": "POST, OPTIONS",
     vary: "Origin",
   };

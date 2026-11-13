@@ -59,3 +59,17 @@ test("permisos globales están vinculados a roles reales, nunca a checkboxes dec
   assert.match(sql,/primary_owner_transfer_required/);
   assert.doesNotMatch(ui,/"global_admin"|"super_admin"/);
 });
+
+test("ambas Edge Functions permiten la comprobación CORS de Supabase con reintentos y trazas",()=>{
+  for (const source of [edge,activation]) {
+    assert.match(source,/"x-retry-count"/);
+    assert.match(source,/"traceparent"/);
+    assert.match(source,/"tracestate"/);
+    assert.match(source,/"baggage"/);
+    assert.match(source,/"x-supabase-client-platform"/);
+    assert.match(source,/"access-control-allow-headers": CORS_REQUEST_HEADERS/);
+    assert.match(source,/access-control-allow-origin/);
+    assert.match(source,/!ALLOWED_ORIGINS\.has\(origin\)|!ORIGINS\.has\(origin\)/);
+    assert.doesNotMatch(source,/"access-control-allow-origin": "\*"/);
+  }
+});

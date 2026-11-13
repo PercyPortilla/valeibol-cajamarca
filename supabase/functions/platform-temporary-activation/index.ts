@@ -9,12 +9,18 @@ const ALLOWED_ORIGINS = new Set([
   "http://localhost:3000",
   "http://127.0.0.1:3000",
 ]);
+const CORS_REQUEST_HEADERS = [
+  "authorization", "apikey", "content-type", "x-client-info",
+  "x-retry-count", "traceparent", "tracestate", "baggage",
+  "x-supabase-client-platform", "x-supabase-client-platform-version",
+  "x-supabase-client-runtime", "x-supabase-client-runtime-version",
+].join(", ");
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function cors(req: Request) {
   const origin = req.headers.get("origin");
   if (!origin || !ALLOWED_ORIGINS.has(origin)) return {};
   return { "access-control-allow-origin": origin,
-    "access-control-allow-headers": "authorization, apikey, content-type, x-client-info",
+    "access-control-allow-headers": CORS_REQUEST_HEADERS,
     "access-control-allow-methods": "POST, OPTIONS", vary: "Origin" };
 }
 function json(req: Request, value: unknown, status = 200) {
