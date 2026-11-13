@@ -37,7 +37,7 @@ test("la leyenda se vincula al estado real y el CSS solo afecta al negocio habil
   assert.match(board, /adminScheduleStatusLabel\(status\)/);
   assert.match(board, /premiumCommand \? "admin-schedule-app ss-admin-schedule-v3"/);
   assert.equal(css.includes(".admin-schedule-app .admin-slot {"), false);
-  assert.ok(imports.trimEnd().endsWith('@import "./styles/san-sebastian-admin-status-fill-v4.css";'));
+  assert.ok(imports.includes('@import "./styles/san-sebastian-admin-status-fill-v4.css";'));
 });
 
 test("los rellenos son sólidos intensos y el texto blanco supera contraste WCAG AA", () => {

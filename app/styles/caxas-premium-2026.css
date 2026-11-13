@@ -764,7 +764,26 @@
   .platform-home .platform-home-hero__finder-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
   .platform-home .platform-home-hero__finder-heading strong { font-size: 21px; }
   .platform-home .platform-home-hero__finder-heading small { max-width: none; text-align: left; font-size: 12px; }
-  .platform-home .platform-home-search { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 19px; }
+  /* En iOS el selector nativo de fecha/hora necesita una fila completa.
+     Dos columnas de ~145px hacían que los controles se superpusieran. */
+  .platform-home .platform-home-search {
+    grid-template-columns: minmax(0,1fr);
+    gap: 14px;
+    margin-top: 19px;
+  }
+  .platform-home .platform-home-search > :is(label,.platform-home-search__coverage) {
+    min-width: 0;
+    width: 100%;
+    grid-template-columns: minmax(0,1fr);
+  }
+  .platform-home .platform-home-search :is(input,select) {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px; /* Evita el zoom automático de Safari al enfocar. */
+  }
   .platform-home .platform-home-search__coverage strong,
   .platform-home .platform-home-search select,
   .platform-home .platform-home-search input { min-height: 50px; font-size: 13px; }

@@ -1,0 +1,104 @@
+/* Corrección responsive compartida para páginas madre e hijas.
+   Mantiene identidad y lógica de cada negocio; solo afecta disposición táctil. */
+@media (max-width: 680px) {
+  /* Los controles de fecha/hora son nativos y no deben encogerse en dos columnas. */
+  .platform-home .platform-home-search,
+  .platform-search-page .platform-search-form,
+  .platform-sport-landing .platform-search-form {
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    align-items: stretch;
+  }
+
+  .platform-home .platform-home-search > *,
+  .platform-search-page .platform-search-form > *,
+  .platform-sport-landing .platform-search-form > * {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .platform-home .platform-home-search label,
+  .platform-search-page .platform-search-form label,
+  .platform-sport-landing .platform-search-form label {
+    min-width: 0;
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .platform-home .platform-home-search :is(input,select),
+  .platform-search-page .platform-search-form :is(input,select),
+  .platform-sport-landing .platform-search-form :is(input,select) {
+    display: block;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+  }
+
+  .platform-home .platform-home-search__coverage strong,
+  .platform-home .platform-home-search__submit,
+  .platform-search-page .platform-search-form .button,
+  .platform-sport-landing .platform-search-form .button {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Navegación de páginas hijas con el CTA completo en su propia fila. */
+  .business-site-header__inner,
+  .business-site-header__brand,
+  .business-site-header__identity {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .business-site-header__nav {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+  .business-site-header__nav a {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    min-height: 44px;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 10px 9px;
+    box-sizing: border-box;
+    line-height: 1.3;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .business-site-header__nav .business-site-header__primary {
+    grid-column: 1 / -1;
+  }
+
+  .platform-public-premium--complex .platform-complex-contact > *,
+  .platform-public-premium--complex .platform-venue-card__actions > * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
+  .platform-public-premium--complex .platform-complex-contact .platform-whatsapp-contact {
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 400px) {
+  .platform-home .platform-home-hero__finder {
+    min-width: 0;
+    padding-inline: 14px;
+  }
+  .platform-home .platform-home-search {
+    gap: 12px;
+  }
+}
