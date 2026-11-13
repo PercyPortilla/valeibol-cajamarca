@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { shouldClearPlatformBusinessSelection } from "../lib/auth/platformNavigation.ts";
+import { pendingPlatformBusinessHandoff, shouldClearPlatformBusinessSelection } from "../lib/auth/platformNavigation.ts";
 
 function clears(pathname: string, headers: Record<string, string>, method = "GET") {
   return shouldClearPlatformBusinessSelection({ pathname, headers: new Headers(headers), method });
@@ -37,4 +37,33 @@ test("selector verifica contexto RPC del negocio antes de instalar la cookie", (
   assert.match(proxy, /shouldClearPlatformBusinessSelection/);
   assert.match(shell, /<a href="\/admin-global" className="admin-exit">/);
   assert.doesNotMatch(shell, /<Link href="\/admin-global"/);
+});
+
+test("el scope del POST solo puede recuperarse en la primera entrada administrativa", () => {
+  const selectedId = "73426eb7-4a4f-405b-b0bd-be06cd53aa3f";
+  const query = new URLSearchParams({ scope: selectedId });
+  assert.equal(pendingPlatformBusinessHandoff({pathname:"/admin",method:"GET",searchParams:query}), selectedId);
+  assert.equal(pendingPlatformBusinessHandoff({pathname:"/admin/centro",method:"GET",searchParams:query}), selectedId);
+  for(const pathname of ["/admin/reservas","/admin-global","/api/admin-global/select-business","/buscar"]){
+    assert.equal(pendingPlatformBusinessHandoff({pathname,method:"GET",searchParams:query}), null);
+  }
+  assert.equal(pendingPlatformBusinessHandoff({pathname:"/admin",method:"POST",searchParams:query}), null);
+  assert.equal(pendingPlatformBusinessHandoff({pathname:"/admin",method:"GET",searchParams:new URLSearchParams({scope:"not-a-uuid"})}), null);
+  const proxy = readFileSync("proxy.ts", "utf8");
+  assert.match(proxy, /supabase\.rpc\("get_platform_admin_context"\)/);
+  assert.match(proxy, /scoped\.rpc\("get_current_admin_context"\)/);
+  assert.match(proxy, /row\.business_id === handoffBusinessId && row\.role === "admin"/);
+  assert.match(proxy, /request\.cookies\.set\(PLATFORM_ADMIN_BUSINESS_COOKIE, handoffBusinessId\)/);
+  assert.match(proxy, /const scopedResponse = NextResponse\.next\(\{ request \}\)/);
+  assert.match(proxy, /response\.cookies\.set\(PLATFORM_ADMIN_BUSINESS_COOKIE, handoffBusinessId/);
+});
+
+test("un ADMIN global sin scope vuelve al selector en vez de ser declarado sin autorización", () => {
+  const server = readFileSync("lib/auth/server.ts", "utf8");
+  const globalPage = readFileSync("app/admin-global/page.tsx", "utf8");
+  assert.match(server, /global_selection_required/);
+  assert.match(server, /!platformResult\.error && \(platformResult\.data\?\.length \?\? 0\) > 0/);
+  assert.match(server, /redirect\("\/admin-global\?selectionError=missing"\)/);
+  assert.match(globalPage, /params\.selectionError === "missing"/);
+  assert.match(globalPage, /Tu sesión global continúa activa/);
 });

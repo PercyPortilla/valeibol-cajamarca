@@ -27,7 +27,7 @@ export type AdminContext = {
 
 export class AdminAuthError extends Error {
   constructor(
-    public readonly code: "unconfigured" | "unauthenticated" | "unauthorized" | "network",
+    public readonly code: "unconfigured" | "unauthenticated" | "unauthorized" | "global_selection_required" | "network",
     message: string,
   ) {
     super(message);
@@ -86,6 +86,9 @@ export async function getAdminContext(): Promise<AdminContext> {
   type Row = Database["public"]["Functions"]["get_current_admin_context"]["Returns"][number];
   const row = ((data ?? []) as Row[])[0];
   if (!row || !isAdminRole(row.role)) {
+    if (!platformResult.error && (platformResult.data?.length ?? 0) > 0) {
+      throw new AdminAuthError("global_selection_required", "Selecciona primero el negocio desde la administración global.");
+    }
     throw new AdminAuthError("unauthorized", "La cuenta no tiene un perfil administrativo activo.");
   }
 
@@ -109,6 +112,7 @@ export async function requireAdminContext(): Promise<AdminContext> {
     if (error instanceof AdminAuthError) {
       if (error.code === "unconfigured") redirect("/admin/login?reason=config");
       if (error.code === "unauthenticated") redirect("/admin/login?reason=session");
+      if (error.code === "global_selection_required") redirect("/admin-global?selectionError=missing");
       if (error.code === "unauthorized") redirect("/admin/acceso-denegado");
     }
     throw error;

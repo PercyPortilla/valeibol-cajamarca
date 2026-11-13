@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   const body = await request.formData();
   const rawBusinessId = body.get("businessId");
   // Solo destinos internos conocidos. Nunca permitir URL/redirect arbitrarios del navegador.
-  const destination = body.get("destination") === "workspace" ? "/admin/centro" : "/admin";
+  const destinationPath = body.get("destination") === "workspace" ? "/admin/centro" : "/admin";
   const businessId = validPlatformBusinessId(typeof rawBusinessId === "string" ? rawBusinessId : null);
   if (!businessId) {
     return new NextResponse(null, { status: 303, headers: { Location: "/admin-global", "Cache-Control": "no-store" } });
@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
       headers: { Location: "/admin-global?selectionError=scope", "Cache-Control": "no-store" },
     });
   }
+
+  // Respaldo del scope durante el primer GET, por si el navegador no conserva
+  // el Set-Cookie de la respuesta 303. Proxy validará de nuevo sesión y tenant.
+  const destination = `${destinationPath}?scope=${encodeURIComponent(businessId)}`;
 
   // Location relativa: no salta al hostname interno normalizado de Next.js,
   // lo que perdería la cookie de ámbito entre dominios.

@@ -3,6 +3,23 @@
  * Una precarga RSC/prefetch de la página global no debe cancelar la selección
  * hecha segundos después desde «Administrar negocio».
  */
+import { validPlatformBusinessId } from "./platformScope.ts";
+
+/**
+ * Recuperación acotada del salto POST → 303 → /admin.
+ * El UUID no es autorización: proxy debe comprobar ADMIN global y el RPC
+ * específico del tenant antes de trasladarlo a la cookie del request.
+ */
+export function pendingPlatformBusinessHandoff(input: {
+  pathname: string;
+  method: string;
+  searchParams: Pick<URLSearchParams, "get">;
+}): string | null {
+  if (input.method !== "GET") return null;
+  if (input.pathname !== "/admin" && input.pathname !== "/admin/centro") return null;
+  return validPlatformBusinessId(input.searchParams.get("scope"));
+}
+
 export function shouldClearPlatformBusinessSelection(input: {
   pathname: string;
   method: string;

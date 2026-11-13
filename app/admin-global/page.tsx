@@ -214,6 +214,9 @@ export default async function PlatformAdminPage({ searchParams }: { searchParams
         </section>
 
         <div className="global-admin-section-anchor" id="admin-negocios">
+          {params.selectionError === "missing" ? (
+            <p role="status" className="global-admin-notice">Tu sesión global continúa activa. Elige «Centro completo · configurar y diseñar» en el negocio que deseas gestionar para abrir su panel de forma segura.</p>
+          ) : null}
           {params.selectionError === "scope" ? (
             <p role="alert" className="auth-error">SC-02: El servidor validó tu sesión global, pero Supabase no confirmó el acceso al negocio seleccionado. No se modificaron roles ni permisos. Comunica este código para completar el diagnóstico.</p>
           ) : null}
