@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { safeAdminRedirectPath } from "@/lib/auth";
 import { safeTenantAdminRedirectPath } from "@/lib/auth/tenantAccess";
+import { passwordRecoveryFailure } from "@/lib/auth/passwordRecoveryFeedback";
 import {
   createPublicBrowserSupabaseClient,
   hasPublicSupabaseConfig,
@@ -131,7 +132,8 @@ export function AdminLoginForm() {
       });
 
       if (error) {
-        setMessage("No pudimos iniciar la recuperación. Verifica el correo o inténtalo nuevamente.");
+        const feedback = passwordRecoveryFailure(error);
+        setMessage(feedback.message);
         return;
       }
 
