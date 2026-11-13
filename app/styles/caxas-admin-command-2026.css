@@ -480,6 +480,33 @@
 .global-team-roles > div { display: grid; align-content: start; gap: 6px; padding: 15px; border: 1px solid rgba(202,164,243,.2); border-radius: 10px; background: rgba(255,255,255,.035); }
 .global-team-roles b { font-size: 12px; color: #e6c7ff; }
 .global-team-roles span { color: #bcb3c7; font-size: 11px; line-height: 1.55; }
+.global-team-access-mode { display: flex; flex-wrap: wrap; gap: 9px; }
+.global-team-access-mode button {
+  min-height: 46px; padding: 10px 17px; border: 1px solid #655178;
+  border-radius: 10px; background: #17121f; color: #ece0f6;
+  font: inherit; font-size: 12px; font-weight: 800; cursor: pointer;
+}
+.global-team-access-mode button.is-selected {
+  border-color: #d8acfa; background: #bd7aff; color: #1d1026;
+}
+.global-team-access-mode button:focus-visible,
+.global-team-one-time button:focus-visible { outline: 3px solid #dcc0ff; outline-offset: 3px; }
+.global-team-one-time {
+  display: grid; gap: 11px; min-width: 0; padding: 19px;
+  border: 1px solid #e5c08c; border-radius: 13px;
+  background: #2d211c; color: #fff1dd;
+}
+.global-team-one-time > strong { font-size: 16px; }
+.global-team-one-time p { margin: 0; font-size: 12px; line-height: 1.5; }
+.global-team-one-time a { color: #f2d5ff; text-underline-offset: 4px; }
+.global-team-one-time label { display: grid; gap: 6px; font-size: 12px; font-weight: 800; }
+.global-team-one-time input {
+  min-height: 52px; width: 100%; min-width: 0; padding: 10px 13px;
+  border: 1px solid #a5825d; border-radius: 9px; background: #160f0c;
+  color: #ffe7b5; font: 700 14px/1.4 ui-monospace, Consolas, monospace;
+}
+.global-team-one-time__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.global-team-one-time__actions .button { min-height: 45px; }
 .global-team-invite { display: grid; grid-template-columns: minmax(180px,1.3fr) minmax(150px,1fr) minmax(160px,1fr) auto; align-items: end; gap: 10px; }
 .global-team-invite label, .global-team-user label { display: grid; gap: 6px; font-size: 11px; font-weight: 750; color: #e5d9f1; }
 .global-team-invite :is(input,select), .global-team-user :is(input:not([type=checkbox]),select) {
@@ -512,5 +539,8 @@
 }
 @media(max-width:650px) {
   .global-team-roles, .global-team-invite, .global-team-user { grid-template-columns: minmax(0,1fr); }
+  .global-team-access-mode { display: grid; grid-template-columns: minmax(0,1fr); }
+  .global-team-one-time { padding: 14px; }
+  .global-team-one-time__actions { display: grid; grid-template-columns: minmax(0,1fr); }
   .tenant-builder-shell .studio-workspace { padding: 0 12px 15px; }
 }

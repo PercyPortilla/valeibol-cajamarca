@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 type Role = "owner" | "admin" | "staff";
 type RequestBody = {
   businessId: string;
-  action: "list" | "invite" | "update";
+  action: "list" | "invite" | "provision" | "update";
   email?: string;
   displayName?: string | null;
   role?: Role;
@@ -46,6 +46,13 @@ function secret() {
 function role(value: unknown): value is Role {
   return value === "owner" || value === "admin" || value === "staff";
 }
+function temporaryPassword() {
+  // Se genera en el servidor con 192 bits de entropía. Nunca se guarda en texto
+  // plano ni se registra; Auth almacena únicamente su hash.
+  const random = crypto.getRandomValues(new Uint8Array(24));
+  return btoa(String.fromCharCode(...random))
+    .replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+}
 function parse(raw: unknown): RequestBody | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const data = raw as Record<string, unknown>;
@@ -55,10 +62,10 @@ function parse(raw: unknown): RequestBody | null {
   const displayName = data.displayName === undefined || data.displayName === null ? null
     : typeof data.displayName === "string" && data.displayName.trim().length <= 120 ? data.displayName.trim() || null : undefined;
   if (displayName === undefined || !role(data.role)) return null;
-  if (data.action === "invite") {
+  if (data.action === "invite" || data.action === "provision") {
     const email = typeof data.email === "string" ? data.email.trim().toLowerCase() : "";
     if (!EMAIL.test(email) || email.length > 254 || Object.keys(data).some((key) => !["businessId","action","email","displayName","role"].includes(key))) return null;
-    return { action: "invite", businessId: data.businessId, email, displayName, role: data.role };
+    return { action: data.action, businessId: data.businessId, email, displayName, role: data.role };
   }
   if (data.action === "update") {
     if (typeof data.userId !== "string" || !UUID.test(data.userId) || typeof data.isActive !== "boolean"
@@ -74,6 +81,7 @@ function code(error: { message: string; status?: number } | null) {
     "existing_account_not_found","existing_account_unconfirmed","existing_account_inactive",
     "user_assigned_elsewhere","user_already_in_business","platform_admin_cannot_join_tenant",
     "primary_owner_transfer_required","active_owner_required","user_not_in_business",
+    "pending_password_activation",
     "platform_admin_team_access_denied","team_invalid_input","team_invalid_email",
   ]) if (message.includes(name)) return name;
   if (error?.status === 429) return "rate_limited";
@@ -137,6 +145,7 @@ Deno.serve(async (request) => {
       userId: profile.user_id, email: authUser.user.email || "", displayName: profile.display_name,
       role: profile.role, isActive: profile.is_active && (accountRow?.is_active ?? true),
       emailConfirmed: Boolean(authUser.user.email_confirmed_at),
+      pendingActivation: authUser.user.app_metadata?.platform_tenant_temp === body.businessId,
       isPrimaryOwner: business.owner_user_id === profile.user_id,
       lastSignInAt: authUser.user.last_sign_in_at ?? null,
     };
@@ -199,6 +208,39 @@ Deno.serve(async (request) => {
       .eq("user_id",(link.data as {userId?: string})?.userId ?? "").eq("business_id",body.businessId).single();
     if (profileError || !linkedProfile) return json(request,{ok:false,code:"service_unavailable"},503);
     return json(request,{ok:true,accessMode:"linked",user:await userView(linkedProfile as Profile)});
+  }
+
+  if (body.action === "provision") {
+    // El correo puede ser elegido por el administrador global, pero jamás se
+    // reemplaza la clave de una cuenta existente: se rechaza y se orienta a
+    // recuperar/usar esa misma cuenta por otro flujo autorizado.
+    const password = temporaryPassword();
+    const { data: created, error: creationError } = await admin.auth.admin.createUser({
+      email: body.email!, password, email_confirm: true,
+      app_metadata: { platform_tenant_temp: body.businessId },
+    });
+    if (creationError || !created.user) {
+      const mapped = code(creationError);
+      return json(request,{ok:false,code:mapped},errorStatus(mapped));
+    }
+    const attached = await admin.rpc("platform_admin_team_attach_pending",{
+      p_actor_id: actorId,p_business_id:body.businessId,
+      p_target_user_id:created.user.id,p_role:body.role,p_display_name:body.displayName,
+    });
+    if (attached.error) {
+      const cleanup = await admin.auth.admin.deleteUser(created.user.id);
+      if (cleanup.error) console.error("[platform-business-access] pending setup rollback failed",cleanup.error.code);
+      const mapped = code(attached.error);
+      return json(request,{ok:false,code:mapped},errorStatus(mapped));
+    }
+    const { data: profile, error: profileError } = await admin.from("profiles")
+      .select("user_id,business_id,role,display_name,is_active,created_at")
+      .eq("user_id",created.user.id).eq("business_id",body.businessId).single();
+    if (profileError || !profile) return json(request,{ok:false,code:"service_unavailable"},503);
+    return json(request,{
+      ok:true,accessMode:"temporary",temporaryPassword:password,
+      user:await userView(profile as Profile),
+    },201);
   }
 
   const update = await admin.rpc("platform_admin_team_update",{
