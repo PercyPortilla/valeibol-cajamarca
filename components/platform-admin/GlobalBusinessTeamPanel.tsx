@@ -65,15 +65,24 @@ function readableError(code: string) {
   return lookup[code] || "No pudimos gestionar este acceso. Revisa los datos y vuelve a intentar.";
 }
 async function invoke(body: Record<string,unknown>): Promise<ResponseBody> {
-  const { data, error } = await createPublicBrowserSupabaseClient()
-    .functions.invoke<ResponseBody>("platform-business-access",{body});
+  const client=createPublicBrowserSupabaseClient();
+  // En el navegador getSession puede renovar el JWT caducado. Esto NO
+  // autoriza ninguna acción: la Edge Function vuelve a validar el usuario.
+  const {data:sessionData,error:sessionError}=await client.auth.getSession();
+  if (sessionError || !sessionData.session) throw new Error("authentication_required");
+  const { data, error } = await client.functions.invoke<ResponseBody>("platform-business-access",{body});
   if (error) {
     const ctx = (error as {context?: unknown}).context;
     if (typeof Response !== "undefined" && ctx instanceof Response) {
-      let errorCode = "service_unavailable";
+      // El Gateway puede devolver 401/403 SIN un código JSON de aplicación.
+      // No disfrazar expiración de sesión como un error HTTP 503.
+      let errorCode = ctx.status===401 ? "authentication_required"
+        : ctx.status===403 ? "platform_admin_team_access_denied" : "service_unavailable";
       try {
         const payload = await ctx.clone().json() as ResponseBody;
-        if (typeof payload.code === "string") errorCode = payload.code;
+        if (typeof payload.code === "string" && /^[a-z][a-z0-9_]{1,55}$/.test(payload.code)) {
+          errorCode = payload.code;
+        }
       } catch {
         // La respuesta podría ser texto plano o no estar disponible.
       }
@@ -292,7 +301,10 @@ export function GlobalBusinessTeamPanel({businessId,businessName}: {businessId:s
     <div className="global-team-users">{loading ? <p>Cargando usuarios…</p> : loadError ? (
       <div role="alert" className="auth-error"><p>{loadError}</p>
         <p>Si tenías una lista anterior, se conserva como referencia, pero no confirma el estado actual.</p>
-        <button type="button" className="button button--secondary" onClick={()=>void load()}>Reintentar consulta</button>
+        <div className="global-team-one-time__actions">
+          <button type="button" className="button button--secondary" onClick={()=>void load()}>Reintentar consulta</button>
+          <a className="button button--secondary" href="/admin/login?next=%2Fadmin-global">Volver a iniciar sesión</a>
+        </div>
       </div>
     ) : null}
     {!loading && users.length ? users.map((user)=><TeamUserEditor key={user.userId} businessId={businessId}

@@ -16,6 +16,9 @@ test("B: un fallo de Auth individual no elimina la lista ni permite altas con da
   assert.match(ui,/partialCount>0/);
   assert.match(ui,/No crees accesos nuevos mientras esta lista sea parcial/);
   assert.match(ui,/users\.some\(\(user\)=>user\.email\.trim\(\)\.toLowerCase\(\)===normalizedEmail\)/);
+  assert.match(ui,/client\.auth\.getSession\(\)/);
+  assert.match(ui,/ctx\.status===401 \? "authentication_required"/);
+  assert.match(ui,/Volver a iniciar sesión/);
 });
 
 test("B: se distingue verificación de correo, autorización y sesión real",()=>{
