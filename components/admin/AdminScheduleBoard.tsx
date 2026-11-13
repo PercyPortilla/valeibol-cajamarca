@@ -530,7 +530,9 @@ export function AdminScheduleBoard({
 
       <div className="admin-schedule-legend" aria-label="Leyenda administrativa">
         {(["available", "pending", "confirmed", "blocked", "completed", "unavailable"] as const).map((status) => (
-          <span key={status}><i className={`admin-status-dot admin-status-dot--${status}`} />{adminScheduleStatusLabel(status)}</span>
+          <span key={status} className={`admin-legend-status admin-legend-status--${status}`}>
+            <i className={`admin-status-dot admin-status-dot--${status}`} aria-hidden="true" />{adminScheduleStatusLabel(status)}
+          </span>
         ))}
       </div>
 

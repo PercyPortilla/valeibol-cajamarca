@@ -1,0 +1,114 @@
+/* San Sebastián: estados con relleno consistente entre leyenda y agenda.
+   Solo aplica a la pizarra especial del tenant, no a otras administraciones. */
+.ss-admin-schedule-v3 :is(.admin-slot--available, .admin-legend-status--available) {
+  --ss-state-bg: #dcf7e6;
+  --ss-state-border: #7acb97;
+  --ss-state-ink: #155d38;
+  --ss-state-accent: #197344;
+}
+.ss-admin-schedule-v3 :is(.admin-slot--pending, .admin-legend-status--pending) {
+  --ss-state-bg: #fff0c9;
+  --ss-state-border: #e7bb61;
+  --ss-state-ink: #79480a;
+  --ss-state-accent: #965b0c;
+}
+.ss-admin-schedule-v3 :is(.admin-slot--confirmed, .admin-legend-status--confirmed) {
+  --ss-state-bg: #dfeeff;
+  --ss-state-border: #8ab8f1;
+  --ss-state-ink: #174a88;
+  --ss-state-accent: #205ba8;
+}
+.ss-admin-schedule-v3 :is(.admin-slot--blocked, .admin-legend-status--blocked) {
+  --ss-state-bg: #ffe3e3;
+  --ss-state-border: #e4a0a3;
+  --ss-state-ink: #912d35;
+  --ss-state-accent: #aa3440;
+}
+.ss-admin-schedule-v3 :is(.admin-slot--completed, .admin-legend-status--completed) {
+  --ss-state-bg: #eee5ff;
+  --ss-state-border: #bea8e7;
+  --ss-state-ink: #603790;
+  --ss-state-accent: #7045a8;
+}
+.ss-admin-schedule-v3 :is(.admin-slot--unavailable, .admin-legend-status--unavailable) {
+  --ss-state-bg: #e7eaed;
+  --ss-state-border: #bec7ce;
+  --ss-state-ink: #46535e;
+  --ss-state-accent: #586673;
+}
+
+/* La regla anterior de .admin-slot asignaba el mismo fondo verde a todos.
+   Forzamos el fondo según estado con especificidad suficiente, sin !important. */
+.admin-shell .ss-admin-schedule-v3 article.admin-slot {
+  background: var(--ss-state-bg);
+  border: 1px solid var(--ss-state-border);
+  color: var(--ss-state-ink);
+  opacity: 1;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__head span,
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__summary strong {
+  color: var(--ss-state-ink);
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__head b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--ss-state-accent);
+  font-size: 11px;
+  font-weight: 820;
+  line-height: 1.3;
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__summary small,
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__details small {
+  color: var(--ss-state-ink);
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot .admin-slot__toggle:hover {
+  background: color-mix(in srgb, var(--ss-state-border) 20%, transparent);
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot.admin-slot--expanded {
+  box-shadow: inset 5px 0 0 var(--ss-state-accent), 0 0 0 2px var(--ss-state-border);
+}
+.admin-shell .ss-admin-schedule-v3 .admin-slot.admin-slot--expanded .admin-slot__toggle {
+  background: color-mix(in srgb, var(--ss-state-border) 14%, transparent);
+}
+
+/* Leyenda: etiquetas completas rellenas, no solo puntos con borde. */
+.admin-shell .ss-admin-schedule-v3 .admin-schedule-legend {
+  gap: 8px;
+  padding: 12px;
+  border-color: #d3e1cd;
+  background: #fff;
+}
+.admin-shell .ss-admin-schedule-v3 .admin-schedule-legend .admin-legend-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid var(--ss-state-border);
+  border-radius: 999px;
+  background: var(--ss-state-bg);
+  color: var(--ss-state-ink);
+  font-size: 12px;
+  font-weight: 820;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.admin-shell .ss-admin-schedule-v3 .admin-schedule-legend .admin-status-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  background: var(--ss-state-accent);
+}
+@media (max-width: 650px) {
+  .admin-shell .ss-admin-schedule-v3 .admin-schedule-legend .admin-legend-status {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell .ss-admin-schedule-v3 article.admin-slot { transition: none; }
+}
