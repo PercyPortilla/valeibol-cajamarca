@@ -12,6 +12,7 @@ type ActivationState = "loading" | "ready" | "invalid";
 export function AdminInviteActivation() {
   const router = useRouter();
   const [mode,setMode] = useState<"invitation"|"temporary">("invitation");
+  const [isRecovery,setIsRecovery] = useState(false);
   const [state, setState] = useState<ActivationState>("loading");
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -27,7 +28,6 @@ export function AdminInviteActivation() {
 
     async function establishInvitationSession() {
       try {
-        const supabase = createPublicBrowserSupabaseClient();
         const url = new URL(window.location.href);
         if (url.searchParams.get("modo") === "temporal") {
           if (!active) return;
@@ -39,26 +39,43 @@ export function AdminInviteActivation() {
         const accessToken = hash.get("access_token");
         const refreshToken = hash.get("refresh_token");
         const code = url.searchParams.get("code");
+        const recoveryFlow = url.searchParams.get("recovery") === "1";
+        // Una sesión previamente abierta NO debe bastar para afirmar que se
+        // abrió un enlace de recuperación. Exigir código PKCE o tokens del link.
+        if (recoveryFlow && !code && !(accessToken && refreshToken)) {
+          if (active) {setIsRecovery(true);setState("invalid");}
+          return;
+        }
+        const supabase = createPublicBrowserSupabaseClient({manualLinkExchange:true});
+        let linkUserId: string | null = null;
 
         if (accessToken && refreshToken) {
-          const { error } = await supabase.auth.setSession({
+          const { data: verified, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
           if (error) throw error;
+          linkUserId = verified.user?.id ?? null;
         } else if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          const { data: verified, error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
+          linkUserId = verified.user?.id ?? null;
         }
 
         const { data, error } = await supabase.auth.getUser();
         if (error || !data.user) throw error ?? new Error("invitation_session_missing");
+        if (recoveryFlow && (!linkUserId || data.user.id !== linkUserId)) {
+          throw new Error("recovery_link_identity_mismatch");
+        }
 
         if (!active) return;
         setEmail(data.user.email ?? null);
+        setIsRecovery(recoveryFlow);
         setReturnTo(tenantTarget);
         setState("ready");
-        window.history.replaceState(null, "", "/admin/activar");
+        // Eliminar códigos y tokens del historial. La bandera recovery se
+        // conserva solo para mostrar el contexto (sin permitir reusar el link).
+        window.history.replaceState(null, "", recoveryFlow ? "/admin/activar?recovery=1" : "/admin/activar");
       } catch {
         if (active) setState("invalid");
       }
@@ -119,8 +136,10 @@ export function AdminInviteActivation() {
     event.preventDefault();
     if (busy || state !== "ready") return;
 
-    if (password.length < 8) {
-      setMessage("La contraseña debe tener al menos 8 caracteres.");
+    if (password.length < (isRecovery ? 12 : 8)) {
+      setMessage(isRecovery
+        ? "La nueva contraseña debe contener al menos 12 caracteres."
+        : "La contraseña debe tener al menos 8 caracteres.");
       return;
     }
     if (password !== confirmPassword) {
@@ -131,10 +150,25 @@ export function AdminInviteActivation() {
     setBusy(true);
     setMessage(null);
     try {
-      const supabase = createPublicBrowserSupabaseClient();
+      const supabase = createPublicBrowserSupabaseClient({manualLinkExchange:true});
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        setMessage("No pudimos guardar la contraseña. Solicita un nuevo enlace de acceso o recuperación.");
+        setMessage("La contraseña no se guardó. Solicita otro enlace e intenta de nuevo; abrir el correo por sí solo no cambia la clave.");
+        return;
+      }
+      if (isRecovery) {
+        // Confirmamos el cambio solo cuando updateUser lo acepta. Volver a
+        // ingresar con la contraseña nueva prueba el flujo de principio a fin.
+        try {
+          await supabase.auth.signOut({scope:"local"});
+        } catch {
+          // El cambio de contraseña ya fue confirmado por Auth: un problema
+          // cerrando la sesión no debe reportarse como fallo de actualización.
+        }
+        const login = new URL("/admin/login",window.location.origin);
+        login.searchParams.set("reason","password-updated");
+        if (returnTo) login.searchParams.set("next",returnTo);
+        window.location.replace(login.pathname + login.search);
         return;
       }
       const { data: platformAdmin } = await supabase.rpc("get_platform_admin_context");
@@ -164,44 +198,49 @@ export function AdminInviteActivation() {
   }
 
   if (state === "loading") {
-    return <div className="auth-notice" role="status">Validando tu invitación…</div>;
+    return <div className="auth-notice" role="status">Validando el enlace seguro…</div>;
   }
 
   if (state === "invalid") {
     return (
       <div className="auth-error" role="alert">
-        Este enlace no es válido, ya expiró o no pudo establecer una sesión. Solicita uno nuevo desde el inicio de sesión.
+        Este enlace no es válido, ya expiró o no pudo establecer una sesión. Solicita uno nuevo desde «Olvidé mi contraseña» y ábrelo en el mismo navegador donde pediste la recuperación.
+        <p><a href="/admin/login">Volver al inicio de sesión</a></p>
       </div>
     );
   }
 
   return (
     <form className="auth-form" onSubmit={savePassword} noValidate>
-      {email ? <div className="auth-notice" role="status">Cuenta invitada: <strong>{email}</strong></div> : null}
+      {isRecovery ? <div className="auth-notice" role="status">
+        <strong>Recuperación de contraseña</strong>. El enlace ya fue validado,
+        pero tu contraseña anterior sigue vigente hasta que pulses «Guardar nueva contraseña».
+      </div> : null}
+      {email ? <div className="auth-notice" role="status">{isRecovery ? "Cuenta a recuperar" : "Cuenta invitada"}: <strong>{email}</strong></div> : null}
       <Input
-        label="Crear contraseña"
+        label={isRecovery ? "Nueva contraseña" : "Crear contraseña"}
         name="new-password"
         type="password"
         autoComplete="new-password"
-        minLength={8}
+        minLength={isRecovery ? 12 : 8}
         required
         value={password}
         onChange={(event) => setPassword(event.target.value)}
-        hint="Mínimo 8 caracteres."
+        hint={isRecovery ? "Al menos 12 caracteres. No reutilices una contraseña anterior." : "Mínimo 8 caracteres."}
       />
       <Input
         label="Confirmar contraseña"
         name="confirm-password"
         type="password"
         autoComplete="new-password"
-        minLength={8}
+        minLength={isRecovery ? 12 : 8}
         required
         value={confirmPassword}
         onChange={(event) => setConfirmPassword(event.target.value)}
       />
       {message ? <div className="auth-error" role="alert">{message}</div> : null}
       <Button fullWidth type="submit" disabled={busy}>
-        {busy ? "Activando acceso…" : "Crear contraseña y entrar"}
+        {busy ? "Guardando contraseña…" : isRecovery ? "Guardar nueva contraseña" : "Crear contraseña y entrar"}
       </Button>
     </form>
   );

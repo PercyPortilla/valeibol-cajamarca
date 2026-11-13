@@ -13,8 +13,8 @@ export default function AdminInviteActivationPage() {
         </div>
         <div className="auth-card__title">
           <span className="eyebrow">ACCESO SEGURO</span>
-          <h1 id="admin-activate-title">Configura tu contraseña de acceso.</h1>
-          <p>Activa tu cuenta desde la invitación por correo o, si recibiste una clave provisional del administrador global, sustitúyela por una contraseña personal.</p>
+          <h1 id="admin-activate-title">Configura o recupera tu contraseña.</h1>
+          <p>Desde el enlace de recuperación puedes guardar una contraseña nueva. Si recibiste una invitación o una clave provisional, completa la activación de tu cuenta aquí.</p>
         </div>
         <AdminInviteActivation />
         <p className="auth-note">¿Recibiste una clave temporal? <Link href="/admin/activar?modo=temporal">Activar acceso con clave provisional</Link>. Después de activarte, entra con tu correo y contraseña personal.</p>

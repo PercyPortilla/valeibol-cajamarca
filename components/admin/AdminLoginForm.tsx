@@ -10,12 +10,13 @@ import {
   hasPublicSupabaseConfig,
 } from "@/lib/data/supabase/browser";
 
-type LoginReason = "config" | "session" | "logout" | null;
+type LoginReason = "config" | "session" | "logout" | "password-updated" | null;
 
 function reasonMessage(reason: LoginReason) {
   if (reason === "config") return "El acceso administrativo todavía no está configurado para este sitio.";
   if (reason === "session") return "Tu sesión no existe o expiró. Inicia sesión nuevamente.";
   if (reason === "logout") return "Sesión cerrada correctamente.";
+  if (reason === "password-updated") return "Contraseña actualizada. Entra con tu correo y la nueva contraseña que acabas de guardar.";
   return null;
 }
 
@@ -37,7 +38,7 @@ export function AdminLoginForm() {
     setLocalDev(process.env.NODE_ENV !== "production" && localHost);
     const params = new URLSearchParams(window.location.search);
     const raw = params.get("reason");
-    if (raw === "config" || raw === "session" || raw === "logout") setReason(raw);
+    if (raw === "config" || raw === "session" || raw === "logout" || raw === "password-updated") setReason(raw);
     if (params.get("recovery") === "1") {
       setMessageKind("success");
       setMessage("Escribe tu correo y selecciona «Olvidé mi contraseña» para recibir un enlace seguro.");
@@ -76,7 +77,9 @@ export function AdminLoginForm() {
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (error) {
-        setMessage("Correo o contraseña incorrectos, o la cuenta no está disponible.");
+        setMessage(error.code === "invalid_credentials"
+          ? "El correo o la contraseña no coinciden. Si abriste un enlace de recuperación, primero debes guardar una contraseña nueva. Usa «Olvidé mi contraseña» para recuperarla sin crear otra cuenta."
+          : "No fue posible iniciar sesión con estos datos. Comprueba tu correo o utiliza la recuperación segura.");
         return;
       }
 
@@ -112,16 +115,19 @@ export function AdminLoginForm() {
     setMessage(null);
     setMessageKind("error");
     try {
-      const callback = new URL("/auth/callback", window.location.origin);
+      // La recuperación debe abrir el formulario de cambio de contraseña
+      // directamente en el MISMO origen. /auth/callback consume el código PKCE
+      // en el servidor y dificulta distinguir un enlace abierto de una clave
+      // realmente modificada. La página de activación admite ?code o #tokens.
+      const recoveryPage = new URL("/admin/activar", window.location.origin);
       const requested = new URLSearchParams(window.location.search).get("next");
       const tenantTarget = safeTenantAdminRedirectPath(requested);
-      const activation = new URLSearchParams({ recovery: "1" });
-      if (tenantTarget) activation.set("tenant", tenantTarget);
-      callback.searchParams.set("next", `/admin/activar?${activation.toString()}`);
+      recoveryPage.searchParams.set("recovery", "1");
+      if (tenantTarget) recoveryPage.searchParams.set("tenant", tenantTarget);
 
       const supabase = createPublicBrowserSupabaseClient();
       const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
-        redirectTo: callback.toString(),
+        redirectTo: recoveryPage.toString(),
       });
 
       if (error) {
@@ -130,7 +136,7 @@ export function AdminLoginForm() {
       }
 
       setMessageKind("success");
-      setMessage("Si el correo corresponde a una cuenta habilitada, recibirás instrucciones para crear una nueva contraseña.");
+      setMessage("Si el correo corresponde a una cuenta habilitada, llegará un enlace. Ábrelo en este mismo navegador, escribe una contraseña nueva y pulsa «Guardar nueva contraseña». Abrir el enlace por sí solo no cambia la clave.");
     } catch {
       setMessage("No pudimos iniciar la recuperación de contraseña. Inténtalo nuevamente.");
     } finally {
@@ -147,7 +153,7 @@ export function AdminLoginForm() {
   return (
     <>
       {notice ? (
-        <div className={reason === "logout" ? "auth-notice auth-notice--success" : "auth-notice"} role="status">
+        <div className={reason === "logout" || reason === "password-updated" ? "auth-notice auth-notice--success" : "auth-notice"} role="status">
           {notice}
         </div>
       ) : null}

@@ -32,8 +32,8 @@ test("el ingreso respeta el negocio solicitado y comprueba permisos en el servid
   const route = source("app/complejo/[slug]/administrar/route.ts");
   assert.match(login, /safeTenantAdminRedirectPath/);
   assert.match(form, /if \(tenantTarget\)/);
-  assert.match(form, /new URL\("\/auth\/callback", window\.location\.origin\)/);
-  assert.match(form, /if \(tenantTarget\) activation\.set\("tenant", tenantTarget\)/);
+  assert.match(form, /new URL\("\/admin\/activar", window\.location\.origin\)/);
+  assert.match(form, /if \(tenantTarget\) recoveryPage\.searchParams\.set\("tenant", tenantTarget\)/);
   assert.doesNotMatch(form, /legacy\.searchParams/);
   assert.match(route, /auth\.getUser\(\)/);
   assert.match(route, /get_public_business_config/);
