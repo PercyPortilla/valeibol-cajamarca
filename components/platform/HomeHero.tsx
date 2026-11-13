@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type { PublicSport } from "@/lib/data/repositories/platformRepository";
@@ -58,7 +59,10 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
           <h1>Encuentra dónde jugar <span>en Cajamarca</span></h1>
           <p>Explora los espacios deportivos de la ciudad, conoce sus precios y coordina tu próximo partido directamente por WhatsApp.</p>
           <strong className="platform-home-hero__tagline">Todo el deporte de Cajamarca, en una sola plataforma.</strong>
-          <a className="platform-home-hero__discover" href="#deportes">Descubre los deportes <span aria-hidden="true">↗</span></a>
+          <div className="platform-home-hero__actions">
+            <a className="platform-home-hero__discover" href="#deportes">Descubre los deportes <span aria-hidden="true">↗</span></a>
+            <Link className="platform-home-hero__discover" href="/experiencia-3d">Explorar complejo en 3D <span aria-hidden="true">↗</span></Link>
+          </div>
         </div>
         <aside className="platform-home-hero__aside" aria-label="Vista interactiva de espacios deportivos">
           <div className="platform-home-hero__scene-meta"><span><i aria-hidden="true" /> COMPLEJO INTERACTIVO</span><small>Explora los escenarios deportivos</small></div>

@@ -180,6 +180,12 @@
   font-weight: 730;
   line-height: 1.5;
 }
+.platform-home .platform-home-hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 22px;
+}
 .platform-home .platform-home-hero__discover {
   min-height: 44px;
   display: inline-flex;
