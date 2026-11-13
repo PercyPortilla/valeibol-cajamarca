@@ -74,7 +74,7 @@ export function AdminLoginForm() {
       }
 
       const supabase = createPublicBrowserSupabaseClient();
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (error) {
         setMessage("Correo o contraseña incorrectos, o la cuenta no está disponible.");
         return;
@@ -99,20 +99,9 @@ export function AdminLoginForm() {
 
   async function sendPasswordRecovery() {
     if (!configured || localDev || busy) return;
-
-    // Supabase Auth conserva temporalmente autorizada la URL anterior.
-    // Iniciar recuperación allí mantiene el verificador PKCE y la callback
-    // en el mismo origen hasta completar la lista de redirecciones nueva.
-    if (window.location.hostname === "caxas-sportcenter.vercel.app") {
-      const legacy = new URL("/admin/login", "https://valeibol-cajamarca-live.vercel.app");
-      const target = safeTenantAdminRedirectPath(new URLSearchParams(window.location.search).get("next"));
-      if (target) legacy.searchParams.set("next", target);
-      legacy.searchParams.set("recovery", "1");
-      window.location.assign(legacy.toString());
-      return;
-    }
-
-    const normalizedEmail = email.trim();
+    // Recuperación desde el mismo dominio donde se abrió el login. Mantiene
+    // la cookie/verificador PKCE en el mismo origen; no envía al alias antiguo.
+    const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
       setMessageKind("error");
       setMessage("Ingresa tu correo administrativo para recuperar la contraseña.");
@@ -163,6 +152,11 @@ export function AdminLoginForm() {
         </div>
       ) : null}
       <form className="auth-form" onSubmit={onSubmit} noValidate>
+        {!localDev ? <div className="auth-notice">
+          Ingresa con tu <strong>correo electrónico autorizado</strong>, no con el nombre
+          mostrado en el equipo (por ejemplo, «PRUEBAa»). Si ya tienes una cuenta,
+          recupera su contraseña en vez de crear otra.
+        </div> : null}
         <Input
           label={localDev ? "Usuario o correo" : "Correo"}
           name="email"

@@ -3,7 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 type Role = "owner" | "admin" | "staff";
 type RequestBody = {
   businessId: string;
-  action: "list" | "invite" | "provision" | "update";
+  action: "list" | "invite" | "provision" | "update" | "audit" | "recover" | "invitation_link";
   email?: string;
   displayName?: string | null;
   role?: Role;
@@ -73,7 +73,14 @@ function parse(raw: unknown): RequestBody | null {
   const data = raw as Record<string, unknown>;
   if (Object.keys(data).some((key) => !["businessId","action","email","displayName","role","userId","isActive"].includes(key))) return null;
   if (typeof data.businessId !== "string" || !UUID.test(data.businessId)) return null;
-  if (data.action === "list") return Object.keys(data).length === 2 ? { businessId: data.businessId, action: "list" } : null;
+  if (data.action === "list" || data.action === "audit") {
+    return Object.keys(data).length === 2 ? { businessId: data.businessId, action: data.action } : null;
+  }
+  if (data.action === "recover" || data.action === "invitation_link") {
+    if (Object.keys(data).some((key) => !["businessId","action","userId"].includes(key))
+      || typeof data.userId !== "string" || !UUID.test(data.userId)) return null;
+    return { businessId: data.businessId, action: data.action, userId: data.userId };
+  }
   const displayName = data.displayName === undefined || data.displayName === null ? null
     : typeof data.displayName === "string" && data.displayName.trim().length <= 120 ? data.displayName.trim() || null : undefined;
   if (displayName === undefined || !role(data.role)) return null;
@@ -97,6 +104,7 @@ function code(error: { message: string; status?: number } | null) {
     "user_assigned_elsewhere","user_already_in_business","platform_admin_cannot_join_tenant",
     "primary_owner_transfer_required","active_owner_required","user_not_in_business",
     "pending_password_activation",
+    "invitation_not_pending","account_not_active","mail_delivery_failed",
     "platform_admin_team_access_denied","team_invalid_input","team_invalid_email",
   ]) if (message.includes(name)) return name;
   if (error?.status === 429) return "rate_limited";
@@ -108,6 +116,7 @@ function errorStatus(errorCode: string) {
   if (errorCode === "existing_account_not_found" || errorCode === "user_not_in_business") return 404;
   if (errorCode === "team_invalid_input" || errorCode === "team_invalid_email") return 422;
   if (errorCode === "rate_limited") return 429;
+  if (errorCode === "mail_delivery_failed") return 503;
   if (errorCode === "service_unavailable") return 503;
   return 409;
 }
@@ -169,13 +178,104 @@ Deno.serve(async (request) => {
     .select("user_id,business_id,role,display_name,is_active,created_at")
     .eq("business_id",body.businessId).order("created_at",{ascending:true}).limit(100);
 
+  // Nunca guardar correos, contraseñas, JWT ni enlaces de recuperación en auditoría.
+  async function recordEvent(eventType: "invite" | "provision" | "update",
+    targetId: string | null, result: "success" | "failed", errorCode: string | null = null) {
+    const { error } = await admin.from("platform_team_access_audit").insert({
+      business_id: body.businessId, actor_user_id: actorId, target_user_id: targetId,
+      event_type: eventType, result, error_code: errorCode,
+    });
+    if (error) console.error("[platform-business-access] audit_write_failed", error.code);
+  }
+
+  if (body.action === "audit") {
+    const { data, error } = await admin.from("platform_team_access_audit")
+      .select("id,target_user_id,event_type,result,error_code,created_at")
+      .eq("business_id",body.businessId)
+      .order("created_at",{ascending:false}).limit(40);
+    if (error) return json(request,{ok:false,code:"service_unavailable"},503);
+    return json(request,{ok:true,events:(data ?? []).map((event)=>({
+      id:event.id,targetUserId:event.target_user_id,
+      eventType:event.event_type,result:event.result,
+      errorCode:event.error_code,createdAt:event.created_at,
+    }))});
+  }
+
   if (body.action === "list") {
     const { data: profiles, error } = await currentProfiles();
     if (error) return json(request,{ok:false,code:"service_unavailable"},503);
-    try {
-      const users = await Promise.all((profiles ?? []).map((p) => userView(p as Profile)));
-      return json(request,{ok:true,users,businessName:business.name});
-    } catch { return json(request,{ok:false,code:"service_unavailable"},503); }
+    // Un error de Auth al consultar un miembro no puede ocultar todo el equipo.
+    const results = await Promise.allSettled((profiles ?? []).map((p)=>userView(p as Profile)));
+    const users = results.flatMap((result)=>result.status==="fulfilled" ? [result.value] : []);
+    const unavailableCount = results.length-users.length;
+    if (unavailableCount>0) console.warn("[platform-business-access] partial_team_list",{
+      unavailableCount, totalProfiles: results.length,
+    });
+    return json(request,{ok:true,users,businessName:business.name,
+      partial:unavailableCount>0,unavailableCount,totalProfiles:results.length});
+  }
+
+  if (body.action === "recover" || body.action === "invitation_link") {
+    // La identidad llega del usuario seleccionado de ESTE tenant, nunca del correo
+    // que el navegador pueda inventar. Este flujo no modifica contraseñas.
+    const { data: profile, error: memberError } = await admin.from("profiles")
+      .select("user_id,business_id,role,display_name,is_active,created_at")
+      .eq("business_id",body.businessId).eq("user_id",body.userId!).maybeSingle();
+    if (memberError) return json(request,{ok:false,code:"service_unavailable"},503);
+    if (!profile) return json(request,{ok:false,code:"user_not_in_business"},404);
+    const { data: identityRecord, error: identityFetchError } = await admin.auth.admin.getUserById(body.userId!);
+    if (identityFetchError || !identityRecord.user?.email) return json(request,{ok:false,code:"service_unavailable"},503);
+    const authUser = identityRecord.user;
+    if (authUser.app_metadata?.platform_tenant_temp === body.businessId) {
+      return json(request,{ok:false,code:"pending_password_activation"},409);
+    }
+    if (body.action === "recover" && !authUser.email_confirmed_at) {
+      return json(request,{ok:false,code:"invitation_not_pending"},409);
+    }
+    if (body.action === "recover" && !profile.is_active) {
+      return json(request,{ok:false,code:"account_not_active"},409);
+    }
+    if (body.action === "invitation_link" && authUser.email_confirmed_at) {
+      return json(request,{ok:false,code:"invitation_not_pending"},409);
+    }
+    // Anti-abuso atómico en PostgreSQL. No crear invitaciones duplicadas.
+    const eventType = body.action === "recover" ? "recovery" : "invitation_link";
+    const cooldownSlot = Math.floor(Date.now()/(15*60*1000));
+    const { data: event, error: eventError } = await admin.from("platform_team_access_audit")
+      .insert({ business_id: body.businessId, actor_user_id: actorId,
+        target_user_id: body.userId, event_type: eventType, result: "pending",
+        cooldown_slot: cooldownSlot })
+      .select("id").single();
+    if (eventError || !event) {
+      return json(request,{ok:false,code:eventError?.code==="23505" ? "rate_limited" : "service_unavailable"},
+        eventError?.code==="23505" ? 429 : 503);
+    }
+    let deliveryError: string | null = null;
+    if (body.action === "recover") {
+      // Edge usa auth flow implícito (sin PKCE/verificador de navegador):
+      // el token llega en el fragmento y debe recibirlo el CLIENTE de /activar,
+      // nunca /auth/callback que solo acepta ?code= de PKCE.
+      // Debe estar en Auth -> URL Configuration -> Redirect URLs.
+      const redirectTo = Deno.env.get("ADMIN_RECOVERY_REDIRECT_URL")?.trim()
+        || `${PROD}/admin/activar?recovery=1`;
+      const { error } = await admin.auth.resetPasswordForEmail(authUser.email,{redirectTo});
+      if (error) deliveryError = error.status===429 ? "rate_limited" : "mail_delivery_failed";
+    } else {
+      const redirectTo = Deno.env.get("ADMIN_INVITE_REDIRECT_URL")?.trim() || `${LEGACY}/admin/activar`;
+      // Supabase envía el enlace SOLO al correo del titular. No entregar una
+      // credencial passwordless al administrador ni crear usuarios duplicados.
+      const { error } = await admin.auth.signInWithOtp({
+        email:authUser.email,
+        options:{shouldCreateUser:false,emailRedirectTo:redirectTo},
+      });
+      if (error) deliveryError = error.status===429 ? "rate_limited" : "mail_delivery_failed";
+    }
+    const { error: auditError } = await admin.from("platform_team_access_audit")
+      .update({result:deliveryError?"failed":"success",error_code:deliveryError})
+      .eq("id",event.id).eq("business_id",body.businessId);
+    if (auditError) console.error("[platform-business-access] audit_finalize_failed",auditError.code);
+    if (deliveryError) return json(request,{ok:false,code:deliveryError},errorStatus(deliveryError));
+    return json(request,{ok:true,delivery:"email_requested"});
   }
 
   if (body.action === "invite") {
@@ -194,6 +294,7 @@ Deno.serve(async (request) => {
           link = await linkExisting();
         } else {
           const mapped = code(inviteError);
+          await recordEvent("invite",null,"failed",mapped);
           return json(request,{ok:false,code:mapped},errorStatus(mapped));
         }
       } else {
@@ -205,23 +306,27 @@ Deno.serve(async (request) => {
           const cleanup = await admin.auth.admin.deleteUser(invited.user.id);
           if (cleanup.error) console.error("[platform-business-access] invitation rollback failed", cleanup.error.code);
           const mapped = code(attach.error);
+          await recordEvent("invite",null,"failed",mapped);
           return json(request,{ok:false,code:mapped},errorStatus(mapped));
         }
         const { data: attachedProfile, error: profileError } = await admin.from("profiles")
           .select("user_id,business_id,role,display_name,is_active,created_at")
           .eq("user_id",invited.user.id).eq("business_id",body.businessId).single();
         if (profileError || !attachedProfile) return json(request,{ok:false,code:"service_unavailable"},503);
+        await recordEvent("invite",invited.user.id,"success");
         return json(request,{ok:true,accessMode:"invited",user:await userView(attachedProfile as Profile)},201);
       }
     }
     if (link.error) {
       const mapped = code(link.error);
+      await recordEvent("invite",null,"failed",mapped);
       return json(request,{ok:false,code:mapped},errorStatus(mapped));
     }
     const { data: linkedProfile, error: profileError } = await admin.from("profiles")
       .select("user_id,business_id,role,display_name,is_active,created_at")
       .eq("user_id",(link.data as {userId?: string})?.userId ?? "").eq("business_id",body.businessId).single();
     if (profileError || !linkedProfile) return json(request,{ok:false,code:"service_unavailable"},503);
+    await recordEvent("invite",linkedProfile.user_id,"success");
     return json(request,{ok:true,accessMode:"linked",user:await userView(linkedProfile as Profile)});
   }
 
@@ -236,6 +341,7 @@ Deno.serve(async (request) => {
     });
     if (creationError || !created.user) {
       const mapped = code(creationError);
+      await recordEvent("provision",null,"failed",mapped);
       return json(request,{ok:false,code:mapped},errorStatus(mapped));
     }
     const attached = await admin.rpc("platform_admin_team_attach_pending",{
@@ -246,12 +352,14 @@ Deno.serve(async (request) => {
       const cleanup = await admin.auth.admin.deleteUser(created.user.id);
       if (cleanup.error) console.error("[platform-business-access] pending setup rollback failed",cleanup.error.code);
       const mapped = code(attached.error);
+      await recordEvent("provision",null,"failed",mapped);
       return json(request,{ok:false,code:mapped},errorStatus(mapped));
     }
     const { data: profile, error: profileError } = await admin.from("profiles")
       .select("user_id,business_id,role,display_name,is_active,created_at")
       .eq("user_id",created.user.id).eq("business_id",body.businessId).single();
     if (profileError || !profile) return json(request,{ok:false,code:"service_unavailable"},503);
+    await recordEvent("provision",created.user.id,"success");
     return json(request,{
       ok:true,accessMode:"temporary",temporaryPassword:password,
       user:await userView(profile as Profile),
@@ -264,11 +372,13 @@ Deno.serve(async (request) => {
   });
   if (update.error) {
     const mapped = code(update.error);
+    await recordEvent("update",body.userId!,"failed",mapped);
     return json(request,{ok:false,code:mapped},errorStatus(mapped));
   }
   const { data: updatedProfile, error: profileError } = await admin.from("profiles")
     .select("user_id,business_id,role,display_name,is_active,created_at")
     .eq("user_id",body.userId!).eq("business_id",body.businessId).single();
   if (profileError || !updatedProfile) return json(request,{ok:false,code:"service_unavailable"},503);
+  await recordEvent("update",body.userId!,"success");
   return json(request,{ok:true,user:await userView(updatedProfile as Profile)});
 });

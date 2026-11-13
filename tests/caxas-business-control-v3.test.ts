@@ -65,7 +65,10 @@ test("invitaciones globales usan autenticación real y privilegios solo de servi
   assert.match(teamSQL, /user_assigned_elsewhere/);
   assert.match(teamSQL, /grant execute on function public\.platform_admin_team_attach[\s\S]*to service_role/);
   assert.doesNotMatch(teamSQL, /grant execute.*to authenticated/i);
-  assert.doesNotMatch(teamEdge, /password:|setPassword|signInWithPassword/);
+  // La recuperación envía un enlace por correo, pero jamás cambia ni verifica
+  // la contraseña de un usuario existente dentro del panel global.
+  assert.doesNotMatch(teamEdge, /auth\.admin\.updateUserById\(|signInWithPassword|console\.log\([^)]*password/);
+  assert.match(teamEdge, /auth\.resetPasswordForEmail\(/);
 });
 
 test("cinco estilos premium alteran ficha pública y no la marca madre",()=>{
