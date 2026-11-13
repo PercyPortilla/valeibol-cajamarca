@@ -71,6 +71,7 @@ export function HomeHero({ sports, stats, sportCourtCounts, sportSlug, onSportCh
             isNight={sceneNight}
             onSportChange={onSportChange}
             courtCounts={sportCourtCounts}
+            realModel
           />
         </aside>
         <div className="platform-home-hero__finder">

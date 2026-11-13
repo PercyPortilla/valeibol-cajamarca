@@ -865,3 +865,49 @@
   font-size: 13px;
   font-weight: 760;
 }
+
+/* B92: el visor 3D real de Blender sustituye visualmente el diorama de portada.
+   El DOM previo permanece como respaldo para equipos sin WebGL. */
+.platform-home .platform-home-hero__aside:has(.platform-sport-diorama__real-model) .platform-home-hero__scene-meta {
+  display: none;
+}
+.platform-home .platform-sport-diorama__real-model {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #101719;
+}
+.platform-home .platform-sport-diorama__real-model iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+  background: #101719;
+}
+.platform-home .platform-sport-diorama__real-model[data-ready="true"] iframe {
+  opacity: 1;
+  pointer-events: auto;
+}
+.platform-home .platform-sport-diorama__real-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+  padding: 24px;
+  text-align: center;
+  background: radial-gradient(ellipse at 52% 45%,#33473d 0%,#151d22 69%);
+  color: #f6f7f4;
+}
+.platform-home .platform-sport-diorama__real-loading strong { font-size: clamp(14px,1.5vw,20px); }
+.platform-home .platform-sport-diorama__real-loading span { font-size: 12px; color: #c1c7c8; }
+.platform-home .platform-sport-diorama[data-real-model="ready"] > :not(.platform-sport-diorama__real-model) {
+  visibility: hidden;
+}

@@ -16,6 +16,7 @@ type Props = {
   isNight: boolean;
   onSportChange?: (sportSlug: string) => void;
   courtCounts?: Record<string, number>;
+  realModel?: boolean;
 };
 
 type CameraInteraction = {
@@ -73,10 +74,13 @@ function countForVisual(counts: Record<string, number> | undefined, visual: Home
   return counts[slug] ?? counts[visual] ?? 0;
 }
 
-export function SportComplexVisual({ theme, isNight, onSportChange, courtCounts }: Props) {
+export function SportComplexVisual({ theme, isNight, onSportChange, courtCounts, realModel = false }: Props) {
   const [camera, setCamera] = useState<CameraInteraction>(INITIAL_CAMERA);
   const [sceneVisible, setSceneVisible] = useState(true);
+  const [realModelReady, setRealModelReady] = useState(false);
+  const [realModelFailed, setRealModelFailed] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const realFrameRef = useRef<HTMLIFrameElement | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const touchPointsRef = useRef(new Map<number, TouchPoint>());
   const pinchRef = useRef<PinchState | null>(null);
@@ -84,6 +88,38 @@ export function SportComplexVisual({ theme, isNight, onSportChange, courtCounts 
   useEffect(() => {
     setCamera(INITIAL_CAMERA);
   }, [theme.visual]);
+
+  // El 3D real vive en la misma web; el diorama CSS se conserva solo como fallback.
+  useEffect(() => {
+    function onViewerMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin || event.source !== realFrameRef.current?.contentWindow) return;
+      const data = event.data;
+      if (!data || data.source !== "caxas-real-3d") return;
+      if (data.type === "ready" && Number(data.meshCount) > 0) {
+        setRealModelReady(true);
+        setRealModelFailed(false);
+      }
+      if (data.type === "error") setRealModelFailed(true);
+    }
+    window.addEventListener("message", onViewerMessage);
+    return () => window.removeEventListener("message", onViewerMessage);
+  }, []);
+
+  useEffect(() => {
+    if (!realModelReady) return;
+    realFrameRef.current?.contentWindow?.postMessage({
+      source: "caxas-home",
+      type: "view",
+      focus: theme.visual,
+      lighting: isNight ? "night" : "day",
+    }, window.location.origin);
+  }, [realModelReady, theme.visual, isNight]);
+
+  useEffect(() => {
+    if (!realModel || realModelReady || realModelFailed) return;
+    const timeout = window.setTimeout(() => setRealModelFailed(true), 45000);
+    return () => window.clearTimeout(timeout);
+  }, [realModel, realModelReady, realModelFailed]);
 
   useEffect(() => {
     const node = rootRef.current;
@@ -237,6 +273,7 @@ export function SportComplexVisual({ theme, isNight, onSportChange, courtCounts 
       data-render-engine="dom-css-3d"
       data-scene-persistence="single"
       data-scene-visible={sceneVisible ? "true" : "false"}
+      data-real-model={realModelReady ? "ready" : realModelFailed ? "fallback" : "loading"}
       role="group"
       aria-label={`Complejo deportivo 3D de Caxas SportCenter, enfoque en ${theme.sceneLabel}, modo ${isNight ? "noche con reflectores" : "día"}`}
       style={sceneStyle}
@@ -347,6 +384,25 @@ export function SportComplexVisual({ theme, isNight, onSportChange, courtCounts 
         <span><i /></span><span><i /></span><span><i /></span><span><i /></span>
         <span><i /></span><span><i /></span><span><i /></span><span><i /></span>
       </div>
+
+      {realModel && !realModelFailed ? (
+        <div className="platform-sport-diorama__real-model" data-ready={realModelReady ? "true" : "false"}>
+          <iframe
+            ref={realFrameRef}
+            title="Modelo real de Blender del complejo deportivo Caxas"
+            src="/caxas-3d/index.html?embed=1"
+            loading="eager"
+            allowFullScreen
+            onError={() => setRealModelFailed(true)}
+          />
+          {!realModelReady ? (
+            <div className="platform-sport-diorama__real-loading" role="status" aria-live="polite">
+              <strong>Preparando el modelo real de Blender</strong>
+              <span>Descargando complejo deportivo 3D · 14 MB</span>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="platform-sport-diorama__controls" data-camera-control="true" aria-label="Controles de la vista 3D">
         <button type="button" onClick={showGeneralView} disabled={!onSportChange && theme.visual === "multi"}>Vista general</button>

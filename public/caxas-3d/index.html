@@ -42,6 +42,21 @@
     .hint{background:#11221ede;padding:9px 12px;border-radius:9px;font-size:10px;color:#b9d3cb}
     progress{width:100%;height:5px;accent-color:#9cdbaf;display:block;margin:8px 0 0}
     @media(max-width:780px){.app{display:flex;flex-direction:column;height:auto;min-height:100dvh}aside{padding:15px 18px;max-height:46dvh}main{height:54dvh;min-height:350px}.brand{font-size:21px;margin:5px 0}.subtitle{margin:0 0 9px}.section{margin-top:13px;padding-top:12px}.facts{margin-top:12px}.note{margin:10px 0}.hud{top:10px;left:10px}.state{left:10px;right:10px;bottom:10px}.hint{display:none}}
+    .embed-controls{display:none}
+    html.is-embed,html.is-embed body{width:100%;height:100%;overflow:hidden}
+    html.is-embed .app{display:block;width:100%;height:100%;min-height:0}
+    html.is-embed aside{display:none}
+    html.is-embed main{width:100%;height:100%;min-height:0}
+    html.is-embed .hud{top:12px;left:12px;max-width:235px;padding:9px 12px;background:#101820da}
+    html.is-embed .hud h1{font-size:11px}
+    html.is-embed .hud p{font-size:10px}
+    html.is-embed .state{left:12px;right:12px;bottom:12px}
+    html.is-embed .state .status{font-size:11px;padding:8px 11px;max-width:75%}
+    html.is-embed .state .hint{display:none}
+    html.is-embed .embed-controls{position:absolute;top:12px;right:12px;z-index:6;display:flex;gap:5px;flex-wrap:wrap;justify-content:end;max-width:calc(100% - 260px)}
+    html.is-embed .embed-controls button,html.is-embed .embed-controls a{display:flex;align-items:center;justify-content:center;min-height:38px;border:1px solid #b4c3b04d;border-radius:9px;background:#101c20e8;color:#edf7ec;font-size:11px;font-weight:800;padding:7px 11px;text-decoration:none;flex:none}
+    html.is-embed .embed-controls button:hover,html.is-embed .embed-controls a:hover{background:#345043}
+    @media(max-width:700px){html.is-embed .hud{max-width:calc(100% - 24px);top:auto;bottom:54px}html.is-embed .hud p{display:none}html.is-embed .embed-controls{top:8px;right:8px;left:8px;max-width:none;justify-content:center}html.is-embed .embed-controls button,html.is-embed .embed-controls a{font-size:10px;padding:6px 7px;min-height:35px}html.is-embed .state .status{display:none}}
   </style>
   <script type="importmap">
   {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}
@@ -88,6 +103,7 @@
   </aside>
   <main id="viewport">
     <canvas id="scene" aria-label="Modelo tridimensional navegable del Sport Center Caxas"></canvas>
+    <nav class="embed-controls" aria-label="Control del modelo Blender"><button id="embedGeneral" type="button">Vista general</button><button id="embedFootball" type="button">Fútbol</button><button id="embedHill" type="button">Cerro</button><a href="/experiencia-3d" target="_top">Pantalla completa ↗</a></nav>
     <div class="hud"><h1>SPORT CENTER CAXAS / V083</h1><p id="details">Cargando escena…</p><progress id="progress" max="100" value="0"></progress></div>
     <div class="state"><div class="status" role="status" aria-live="polite" id="status">Preparando Three.js…</div><div class="hint">Arrastrar · Orbitar | Rueda · Zoom | Clic derecho · Desplazar</div></div>
   </main>
@@ -98,6 +114,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
+const embedded = new URLSearchParams(window.location.search).get('embed') === '1';
+document.documentElement.classList.toggle('is-embed', embedded);
 const byId = (id) => document.getElementById(id);
 const viewport = byId('viewport');
 const canvas = byId('scene');
@@ -194,6 +212,34 @@ function fitComplex() {
   });
   fitBox(matches && !local.isEmpty() ? local : bounds, 'complejo deportivo');
 }
+// Los nodos COURT_* pertenecen a la geometría 1:1 exportada de Blender.
+// A diferencia del panorama, este encuadre NO incluye la cordillera completa.
+function focusCourt(nodeName, label) {
+  if (!root) return;
+  const court = root.getObjectByName(nodeName);
+  if (court) fitBox(new THREE.Box3().setFromObject(court), label);
+  else fitComplex();
+}
+function fitRealComplex() {
+  if (!root) return;
+  const local = new THREE.Box3();
+  let found = 0;
+  for (const name of ['COURT_FUTBOL','COURT_VOLEY','COURT_FUTSAL','COURT_BASQUET']) {
+    const node = root.getObjectByName(name);
+    if (node) { local.expandByObject(node); found++; }
+  }
+  fitBox(found && !local.isEmpty() ? local : bounds, 'complejo real de Blender');
+}
+function focusSport(focus) {
+  const courts = {
+    football: ['COURT_FUTBOL','cancha de fútbol'],
+    volleyball: ['COURT_VOLEY','cancha de vóley'],
+    basketball: ['COURT_BASQUET','cancha de básquet'],
+    futsal: ['COURT_FUTSAL','cancha de futsal'],
+  };
+  if (courts[focus]) focusCourt(...courts[focus]);
+  else fitRealComplex();
+}
 function disposeScene(previous) {
   if (!previous) return;
   const geometries = new Set(), materials = new Set(), textures = new Set();
@@ -256,9 +302,15 @@ function loadVariant(key) {
     cameraInput.replaceChildren(new Option('Navegación orbital libre', '-1'));
     importedCameras.forEach((cam, index) => cameraInput.add(new Option(cam.name || ('Cámara ' + (index + 1)), String(index))));
     cameraInput.disabled = importedCameras.length === 0;
-    fitComplex();
+    if (embedded) fitRealComplex();
+    else fitComplex();
     byId('progress').style.display = 'none';
     byId('details').textContent = root ? 'Modelo cargado · ' + gltf.animations.length + ' animación(es) · ' + importedCameras.length + ' cámaras.' : '';
+    if (embedded && window.parent !== window) {
+      let meshCount = 0;
+      root.traverse((object) => { if (object.isMesh) meshCount++; });
+      window.parent.postMessage({ source: 'caxas-real-3d', type: 'ready', meshCount }, window.location.origin);
+    }
   }, (event) => {
     if (token !== generation) return;
     const percent = event.total ? Math.min(100, Math.round(event.loaded / event.total * 100)) : 0;
@@ -269,6 +321,9 @@ function loadVariant(key) {
     byId('progress').style.display = 'none';
     announce('Error al cargar ' + key + ': ' + (error.message || String(error)), 'Compruebe conexión a jsDelivr y servidor local.');
     console.error('[B84] GLB failed', error);
+    if (embedded && window.parent !== window) {
+      window.parent.postMessage({ source: 'caxas-real-3d', type: 'error' }, window.location.origin);
+    }
   });
 }
 byId('asset').addEventListener('change', (event) => loadVariant(event.target.value));
@@ -281,6 +336,16 @@ byId('reset').addEventListener('click', fitComplex);
 byId('panorama').addEventListener('click', () => fitBox(bounds, 'relieve completo'));
 byId('animation').addEventListener('click', () => setAnimation(!playing));
 byId('camera').addEventListener('change', (event) => useImportedCamera(event.target.value));
+byId('embedGeneral').addEventListener('click', fitRealComplex);
+byId('embedFootball').addEventListener('click', () => focusCourt('COURT_FUTBOL', 'cancha de fútbol'));
+byId('embedHill').addEventListener('click', () => focusOn(/APOLONIA|SANTA|HILL|CERRO|CHAPEL|CAPILLA/i, 'cerro Santa Apolonia'));
+window.addEventListener('message', (event) => {
+  if (!embedded || event.origin !== window.location.origin || event.source !== window.parent) return;
+  const data = event.data;
+  if (!data || data.source !== 'caxas-home' || data.type !== 'view') return;
+  if (data.lighting === 'night' || data.lighting === 'day') setMode(data.lighting);
+  if (['multi','football','volleyball','basketball','futsal'].includes(data.focus)) focusSport(data.focus);
+});
 function frame(now) {
   requestAnimationFrame(frame);
   const dt = Math.min(0.08, (now - previousTime) / 1000);
