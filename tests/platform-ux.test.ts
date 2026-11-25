@@ -54,7 +54,8 @@ test("marca global vuelve al inicio y Valeibol se nombra como tenant", () => {
 test("metadata y sitemap representan marketplace multi-tenant", () => {
   assert.match(layout, /platformConfig\.name/);
   assert.match(layout, /Canchas deportivas en Cajamarca/);
-  assert.match(complexPage, /getPublicPlatformCatalog\(\{ businessSlug: slug \}\)/);
+  assert.match(complexPage, /getPublicPlatformCatalogResult\(\{ businessSlug: slug \}\)/);
+  assert.match(complexPage, /if \(catalogResult\.failed\)/);
   assert.match(complexPage, /business\.name/);
   assert.match(sitemap, /getPublicPlatformCatalog\(\)/);
   assert.match(sitemap, /groupCatalogByBusiness/);

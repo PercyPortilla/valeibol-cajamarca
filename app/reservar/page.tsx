@@ -5,7 +5,8 @@ import { PlatformFooter } from "@/components/platform/PlatformFooter";
 import { PlatformHeader } from "@/components/platform/PlatformHeader";
 import { BusinessSiteHeader } from "@/components/platform/BusinessSiteHeader";
 import { BusinessSiteFooter } from "@/components/platform/BusinessSiteFooter";
-import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import { getPublicPlatformCatalogResult } from "@/lib/data/platformService";
+import { PublicCatalogUnavailable } from "@/components/platform/PublicCatalogUnavailable";
 import { getPublicBusinessContact } from "@/lib/data/publicBusinessContactService";
 import { getPublicBusinessShowcase } from "@/lib/data/publicBusinessShowcase";
 import { getPublicSiteContent } from "@/lib/data/publicSiteContentService";
@@ -47,7 +48,14 @@ export default async function ReservationPage({ searchParams }: { searchParams: 
     );
   }
 
-  const catalog = await getPublicPlatformCatalog({ businessSlug });
+  const catalogResult = await getPublicPlatformCatalogResult({ businessSlug });
+  if (catalogResult.failed) {
+    const retryQuery = new URLSearchParams({ negocio: businessSlug });
+    if (requestedCourtId) retryQuery.set("cancha", requestedCourtId);
+    if (requestedSportSlug) retryQuery.set("deporte", requestedSportSlug);
+    return <PublicCatalogUnavailable kind="calendar" retryHref={`/reservar?${retryQuery.toString()}`} />;
+  }
+  const { catalog } = catalogResult;
   if (catalog.length === 0) notFound();
   const isSanSebastian = businessSlug === "polideportivo-san-sebastian";
   const showcase = isSanSebastian ? await getPublicBusinessShowcase(businessSlug) : [];

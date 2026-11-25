@@ -7,7 +7,8 @@ import { BusinessSiteHeader } from "@/components/platform/BusinessSiteHeader";
 import { BusinessSiteFooter } from "@/components/platform/BusinessSiteFooter";
 import { Badge } from "@/components/ui/Badge";
 import { formatMoney } from "@/lib/booking";
-import { getPublicPlatformCatalog } from "@/lib/data/platformService";
+import { getPublicPlatformCatalogResult } from "@/lib/data/platformService";
+import { PublicCatalogUnavailable } from "@/components/platform/PublicCatalogUnavailable";
 import { buildBusinessDetail } from "@/lib/data/repositories/platformRepository";
 import { googleMapsSearchHref } from "@/lib/platform/maps";
 import { businessConfig } from "@/config/business";
@@ -29,7 +30,11 @@ type Params = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
-  const catalog = await getPublicPlatformCatalog({ businessSlug: slug });
+  const catalogResult = await getPublicPlatformCatalogResult({ businessSlug: slug });
+  if (catalogResult.failed) {
+    return { title: "Información temporalmente no disponible", robots: { index: false, follow: true } };
+  }
+  const { catalog } = catalogResult;
   const business = buildBusinessDetail(catalog, slug);
   const canonical = `/complejo/${encodeURIComponent(slug)}`;
 
@@ -75,7 +80,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function ComplexPage({ params }: { params: Params }) {
   const { slug } = await params;
-  const catalog = await getPublicPlatformCatalog({ businessSlug: slug });
+  const catalogResult = await getPublicPlatformCatalogResult({ businessSlug: slug });
+  if (catalogResult.failed) {
+    return <PublicCatalogUnavailable kind="complex" retryHref={`/complejo/${encodeURIComponent(slug)}`} />;
+  }
+  const { catalog } = catalogResult;
   const business = buildBusinessDetail(catalog, slug);
   if (!business) notFound();
   if (slug === businessConfig.slug) {
